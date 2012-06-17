@@ -1,0 +1,32 @@
+*   Minor change
+**  Substantial change
+*** Major change
+
+2.4-0
+	* coef and predict methods now accept lambda as argument
+	* Added logLik method (which in turn allows AIC/BIC)
+	* Fixed bug that arose if lambda was scalar (instead of a vector)
+	* cdfit_ now returns loss (RSS for gaussian, deviance for binomial)
+
+2.3-2
+	* Fixed formatting error in citation.
+	
+2.3-1
+	* plot.ncvreg: Made the passing of arguments more flexible, so
+	that user can pass options concerning both the plot and the lines.
+	* plot.ncvreg: Changed some of the default settings with respect
+	to color (hcl instead of hsv) and line width.
+
+2.3
+	* cv.ncvreg.Rd: Fixed the documentation, which no longer agreed
+	with the function usage.  This was an oversight in the release of
+	version 2.2.
+
+2.2
+	** cv.ncvreg: Divorced cross-validation from fitting.  From a user
+	perspective, this increases flexibility, although obtaining the
+	model with CV-chosen regularization parameter now requires two
+	calls (to ncvreg and cv.ncvreg).  The functions, however, are
+	logically separate and involve entirely separate methods.
+	** plot.cv.ncvreg: Developed a plotting method specific to
+	cv.ncvreg objects.
