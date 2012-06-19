@@ -1,4 +1,4 @@
-setupLambda <- function(X,y,family,alpha,lambda.min,n.lambda)
+setupLambda <- function(X,y,family,alpha,lambda.min,nlambda)
   {
     n <- nrow(X)
     p <- ncol(X)
@@ -19,7 +19,7 @@ setupLambda <- function(X,y,family,alpha,lambda.min,n.lambda)
       }
     lambda.max <- l1.max/alpha
     
-    if (lambda.min==0) lambda <- c(exp(seq(log(lambda.max),log(.001*lambda.max),len=n.lambda-1)),0)
-    else lambda <- exp(seq(log(lambda.max),log(lambda.min*lambda.max),len=n.lambda))
+    if (lambda.min==0) lambda <- c(exp(seq(log(lambda.max),log(.001*lambda.max),len=nlambda-1)),0)
+    else lambda <- exp(seq(log(lambda.max),log(lambda.min*lambda.max),len=nlambda))
     return(lambda)
   }

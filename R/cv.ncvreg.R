@@ -25,7 +25,7 @@ cv.ncvreg <- function(X, y, family=c("gaussian","binomial"), alpha=1, lambda.min
   error <- array(NA,dim=c(nfolds,length(lambda)))
     
     if (family=="gaussian") {
-      cv.ind <- ceiling((1:n)/n*nfolds)
+      cv.ind <- ceiling(sample(1:n)/n*nfolds)
     } else if (family=="binomial") {
       ind1 <- which(y==1)
       ind0 <- which(y==0)
