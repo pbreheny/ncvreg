@@ -31,8 +31,8 @@ ncvreg <- function(X, y, family=c("gaussian","binomial"), penalty=c("MCP","SCAD"
     ## Fit
     if (family=="gaussian")
       {
-        fit <- .C("cdfit_gaussian",double(p*nlambda),double(nlambda),integer(nlambda),as.double(XX),as.double(yy),as.integer(n),as.integer(p),penalty,as.double(lambda),as.integer(nlambda),as.double(eps),as.integer(max.iter),as.double(gamma),as.double(alpha),as.integer(dfmax),as.integer(user.lambda))
-        b <- rbind(0,matrix(fit[[1]],nrow=p))
+        fit <- .C("cdfit_gaussian", double(p*nlambda), double(nlambda), integer(nlambda), as.double(XX), as.double(yy), as.integer(n), as.integer(p), penalty, as.double(lambda), as.integer(nlambda), as.double(eps), as.integer(max.iter), as.double(gamma), as.double(alpha), as.integer(dfmax), as.integer(user.lambda))
+        b <- rbind(mean(y), matrix(fit[[1]],nrow=p))
         loss <- fit[[2]]
         iter <- fit[[3]]
       }
@@ -58,8 +58,7 @@ ncvreg <- function(X, y, family=c("gaussian","binomial"), penalty=c("MCP","SCAD"
     ## Unstandardize
     beta <- matrix(0,nrow=(ncol(X)+1),ncol=length(lambda))
     beta[nz+1,] <- b[-1,]/normx[nz]
-    if (family=="gaussian") beta[1,] <- mean(y) - crossprod(meanx,beta[-1,,drop=FALSE])
-    if (family=="binomial") beta[1,] <- b[1,] - crossprod(meanx,beta[-1,,drop=FALSE])
+    beta[1,] <- b[1,] - crossprod(meanx,beta[-1,,drop=FALSE])
 
     ## Names
     if (is.null(colnames(X))) varnames <- paste("V",1:ncol(X),sep="")

@@ -15,28 +15,26 @@ cv.ncvreg <- function(X, y, family=c("gaussian","binomial"), alpha=1, lambda.min
   if (family=="gaussian") yy <- y - mean(y) else yy <- y
   if (missing(lambda)) {
     lambda <- setupLambda(XX,yy,family,alpha,lambda.min,nlambda)
-    user.lambda <- FALSE
   } else {
     nlambda <- length(lambda)
-    user.lambda <- TRUE
   }
   rm(XX)
 
-  error <- array(NA,dim=c(nfolds,length(lambda)))
-    
-    if (family=="gaussian") {
-      cv.ind <- ceiling(sample(1:n)/n*nfolds)
-    } else if (family=="binomial") {
-      ind1 <- which(y==1)
-      ind0 <- which(y==0)
-      n1 <- length(ind1)
-      n0 <- length(ind0)
-      cv.ind1 <- ceiling(sample(1:n1)/n1*nfolds)
-      cv.ind0 <- ceiling(sample(1:n0)/n0*nfolds)
-      cv.ind <- numeric(n)
-      cv.ind[y==1] <- cv.ind1
-      cv.ind[y==0] <- cv.ind0
-    }
+  E <- matrix(NA, nrow=length(y), ncol=length(lambda))
+  
+  if (family=="gaussian") {
+    cv.ind <- ceiling(sample(1:n)/n*nfolds)
+  } else if (family=="binomial") {
+    ind1 <- which(y==1)
+    ind0 <- which(y==0)
+    n1 <- length(ind1)
+    n0 <- length(ind0)
+    cv.ind1 <- ceiling(sample(1:n1)/n1*nfolds)
+    cv.ind0 <- ceiling(sample(1:n0)/n0*nfolds)
+    cv.ind <- numeric(n)
+    cv.ind[y==1] <- cv.ind1
+    cv.ind[y==0] <- cv.ind0
+  }
 
   for (i in 1:nfolds) {
     if (trace) cat("Starting CV fold #",i,sep="","\n")
@@ -47,16 +45,17 @@ cv.ncvreg <- function(X, y, family=c("gaussian","binomial"), alpha=1, lambda.min
 
     fit.i <- ncvreg(X1,y1,family=family,alpha=alpha,lambda=lambda,warn=FALSE,...)
     yhat <- predict(fit.i,X2,type="response")
-    error[i,1:ncol(yhat)] <- loss.ncvreg(y2,yhat,family)
+    E[cv.ind==i, 1:ncol(yhat)] <- loss.grpreg(y2, yhat, family)
   }
 
   ## Eliminate saturated lambda values, if any
-  ind <- which(apply(is.finite(error),2,all))
+  ind <- which(apply(is.finite(E),2,all))
   E <- error[,ind]
   lambda <- lambda[ind]
-    
-    val <- list(E=E, cve=apply(E,2,sum)/n, lambda=lambda)
-    val$min <- which.min(val$cve)
-    class(val) <- "cv.ncvreg"
-    return(val)
-  }
+
+  ## Return
+  cve <- apply(E, 2, mean)
+  cvse <- apply(E, 2, sd) / sqrt(n)
+  min <- which.min(cve)
+  structure(list(cve=cve, cvse=cvse, lambda=lambda, min=min, lambda.min=lambda[min]), class="cv.ncvreg")
+}

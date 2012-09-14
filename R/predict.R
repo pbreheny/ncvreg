@@ -3,7 +3,7 @@ predict.ncvreg <- function(object,X,lambda,which=1:length(object$lambda),type=c(
     type <- match.arg(type)
     beta <- coef.ncvreg(object,lambda=lambda,which=which)
     if (type=="coefficients") return(beta)
-    eta <- t(beta[1,] + t(X%*%beta[-1,,drop=FALSE]))
+    eta <- sweep(X %*% beta[-1,,drop=FALSE], 2, beta[1,], "+")
     if (object$family=="gaussian" | type=="link") return(eta)
     pihat <- exp(eta)/(1+exp(eta))
     if (type=="response") return(pihat)

@@ -32,7 +32,6 @@ data(heart)
 X <- as.matrix(heart[,1:9])
 y <- heart$chd
 
-par(mfrow=c(2,2))
 fit <- ncvreg(X,y,family="binomial")
 coef(fit)
 predict(fit,X,type="link")

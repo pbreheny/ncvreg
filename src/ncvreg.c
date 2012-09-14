@@ -21,27 +21,20 @@ static int checkConvergence(double *beta, double *beta_old, double eps, int l, i
 {
   int j;
   int converged = 1;
-  for (j=0; j < J; j++)
-    {
-      if (beta[l*J+j]!=0 & beta_old[j]!=0)
-	{
-	  if (fabs((beta[l*J+j]-beta_old[j])/beta_old[j]) > eps)
-	    {
-	      converged = 0;
-	      break;
-	    }
-	}
-      else if (beta[l*J+j]==0 & beta_old[j]!=0)
-	{
-	  converged = 0;
-	  break;
-	}
-      else if (beta[l*J+j]!=0 & beta_old[j]==0)
-	{
-	  converged = 0;
-	  break;
-	}
+  for (j=0; j < J; j++) {
+    if (beta[l*J+j]!=0 & beta_old[j]!=0) {
+      if (fabs((beta[l*J+j]-beta_old[j])/beta_old[j]) > eps) {
+	converged = 0;
+	break;
+      }
+    } else if (beta[l*J+j]==0 & beta_old[j]!=0) {
+      converged = 0;
+      break;
+    } else if (beta[l*J+j]!=0 & beta_old[j]==0) {
+      converged = 0;
+      break;
     }
+  }
   return(converged);
 }
 
@@ -96,10 +89,9 @@ static void cdfit_gaussian(double *beta, double *loss, int *iter, double *x, dou
     }
 
   /* Path */
-  for (int l=lstart;l<L;l++)
-    {
-      if (l != 0) for (int j=0;j<p;j++) beta_old[j] = beta[(l-1)*p+j];
-      while (iter[l] < max_iter)
+  for (int l=lstart;l<L;l++) {
+    if (l != 0) for (int j=0;j<p;j++) beta_old[j] = beta[(l-1)*p+j];
+    while (iter[l] < max_iter)
 	{
 	  converged = 0;
 	  iter[l] = iter[l] + 1;
@@ -153,7 +145,7 @@ static void cdfit_gaussian(double *beta, double *loss, int *iter, double *x, dou
 static void cdfit_binomial(double *beta0, double *beta, double *Dev, int *iter, double *x, double *y, int *n_, int *p_, char **penalty_, double *lambda, int *L_, double *eps_, int *max_iter_, double *gamma_, double *alpha_, int *dfmax_, int *user_, int *warn_)
 {
   /* Declarations */
-  int L=L_[0];int p=p_[0];int n=n_[0];int max_iter=max_iter_[0];double eps=eps_[0];double gamma=gamma_[0]; double alpha=alpha_[0];char *penalty=penalty_[0];int dfmax=dfmax_[0]; int user=user_[0]; int warn=warn_[0];
+  int L=L_[0];int p=p_[0];int n=n_[0];int max_iter=max_iter_[0];double eps=eps_[0];double gamma=gamma_[0]; double alpha=alpha_[0];char *penalty=penalty_[0];int dfmax=dfmax_[0]; int user=user_[0]; int warn = warn_[0];
   int converged, active, lstart;
   double beta0_old;
   double *r, *w, *beta_old;

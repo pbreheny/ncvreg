@@ -1,4 +1,4 @@
-setupLambda <- function(X,y,family,alpha,lambda.min,nlambda)
+setupLambda <- function(X, y, family, alpha, lambda.min, nlambda)
   {
     n <- nrow(X)
     p <- ncol(X)
@@ -12,9 +12,8 @@ setupLambda <- function(X,y,family,alpha,lambda.min,nlambda)
     if (family=="binomial")
       {
         fit <- glm(y~1,family="binomial")
-        pi. <- fit$fitted.values
-        w <- pi.*(1-pi.)
-        r = (y - pi.)/w
+        w <- fit$weights
+        r <- residuals(fit, "working")
         l1.max <- max(abs(crossprod(X,w*r)/n))
       }
     lambda.max <- l1.max/alpha
