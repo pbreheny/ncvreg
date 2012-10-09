@@ -1,3 +1,5 @@
+source("~/dev/.ncvreg.setup.R")
+
 test_that("ncvreg works for linear regression", {
   X <- matrix(rnorm(500),ncol=10)
   b <- rnorm(10)

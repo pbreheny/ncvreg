@@ -1,16 +1,16 @@
 *   Minor change
-**  Substantial change
-*** Major change
+**  Major change
 
 2.4-0
-	* Fixed error in definition/calculation of cross-validation
-	  error and standard error
-	* coef and predict methods now accept lambda as argument
-	* Added logLik method (which in turn allows AIC/BIC)
-	* Fixed bug that arose if lambda was scalar (instead of a vector)
-	* cdfit_ now returns loss (RSS for gaussian, deviance for binomial)
-	* Fixed typo in cv.ncvreg for linear regression
-	  (Thank you to Brenton Kenkel for pointing this out)
+	** Fixed error in definition/calculation of cross-validation
+	   error and standard error
+	*  coef and predict methods now accept lambda as argument
+	*  Added logLik method (which in turn allows AIC/BIC)
+	*  Fixed bug that arose if lambda was scalar (instead of a vector)
+	*  cdfit_ now returns loss (RSS for gaussian, deviance for binomial)
+	*  Fixed typo in cv.ncvreg for linear regression
+	   (Thank you to Brenton Kenkel for pointing this out)
+	*  Internal change: standardization more efficient
 
 2.3-2
 	* Fixed formatting error in citation.
