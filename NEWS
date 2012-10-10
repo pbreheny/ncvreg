@@ -4,6 +4,7 @@
 2.4-0
 	** Fixed error in definition/calculation of cross-validation
 	   error and standard error
+	** Added penalty.factor option
         *  cv.grpreg: Now returns full data fit as well as CV errors
 	*  coef and predict methods now accept lambda as argument
 	*  Added logLik method (which in turn allows AIC/BIC)
@@ -12,6 +13,8 @@
 	*  Fixed typo in cv.ncvreg for linear regression
 	   (Thank you to Brenton Kenkel for pointing this out)
 	*  Internal change: standardization more efficient
+	*  Fixed bug: Intercept for logistic regression was not being
+	   calculated for lamda=0
 
 2.3-2
 	* Fixed formatting error in citation.

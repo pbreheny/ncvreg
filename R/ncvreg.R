@@ -1,4 +1,4 @@
-ncvreg <- function(X, y, family=c("gaussian","binomial"), penalty=c("MCP","SCAD"), gamma=3, alpha=1, lambda.min=ifelse(n>p,.001,.05), nlambda=100, lambda, eps=.001, max.iter=1000, convex=TRUE, dfmax=p+1, warn=TRUE)
+ncvreg <- function(X, y, family=c("gaussian","binomial"), penalty=c("MCP","SCAD"), gamma=3, alpha=1, lambda.min=ifelse(n>p,.001,.05), nlambda=100, lambda, eps=.001, max.iter=1000, convex=TRUE, dfmax=p+1, penalty.factor=rep(1, ncol(X)), warn=TRUE)
 {
   ## Error checking
   family <- match.arg(family)
@@ -14,9 +14,12 @@ ncvreg <- function(X, y, family=c("gaussian","binomial"), penalty=c("MCP","SCAD"
   scale <- attr(XX, "scale")
   nz <- which(scale > 1e-6)
   XX <- XX[ ,nz, drop=FALSE]
+  p <- ncol(XX)
   yy <- if (family=="gaussian") y - mean(y) else y
+  n <- length(yy)
+  penalty.factor <- penalty.factor[nz]
   if (missing(lambda)) {
-    lambda <- setupLambda(XX, yy, family, alpha, lambda.min, nlambda)
+    lambda <- setupLambda(XX, yy, family, alpha, lambda.min, nlambda, penalty.factor)
     user.lambda <- FALSE
   } else {
     nlambda <- length(lambda)
@@ -24,15 +27,13 @@ ncvreg <- function(X, y, family=c("gaussian","binomial"), penalty=c("MCP","SCAD"
   }
   
   ## Fit
-  n <- length(yy)
-  p <- ncol(XX)
   if (family=="gaussian") {
-    fit <- .C("cdfit_gaussian", double(p*nlambda), double(nlambda), integer(nlambda), as.double(XX), as.double(yy), as.integer(n), as.integer(p), penalty, as.double(lambda), as.integer(nlambda), as.double(eps), as.integer(max.iter), as.double(gamma), as.double(alpha), as.integer(dfmax), as.integer(user.lambda))
+    fit <- .C("cdfit_gaussian", double(p*nlambda), double(nlambda), integer(nlambda), as.double(XX), as.double(yy), as.integer(n), as.integer(p), penalty, as.double(lambda), as.integer(nlambda), as.double(eps), as.integer(max.iter), as.double(gamma), as.double(penalty.factor), as.double(alpha), as.integer(dfmax), as.integer(user.lambda | any(penalty.factor==0)))
     b <- rbind(mean(y), matrix(fit[[1]],nrow=p))
     loss <- fit[[2]]
     iter <- fit[[3]]
   } else if (family=="binomial") {
-    fit <- .C("cdfit_binomial",double(nlambda),double(p*nlambda),double(nlambda),integer(nlambda),as.double(XX),as.double(yy),as.integer(n),as.integer(p),penalty,as.double(lambda),as.integer(nlambda),as.double(eps),as.integer(max.iter),as.double(gamma),as.double(alpha),as.integer(dfmax),as.integer(user.lambda),as.integer(warn))
+    fit <- .C("cdfit_binomial",double(nlambda),double(p*nlambda),double(nlambda),integer(nlambda), as.double(XX), as.double(yy), as.integer(n), as.integer(p), penalty, as.double(lambda), as.integer(nlambda), as.double(eps), as.integer(max.iter), as.double(gamma), as.double(penalty.factor), as.double(alpha), as.integer(dfmax), as.integer(user.lambda | any(penalty.factor==0)), as.integer(warn))
     b <- rbind(fit[[1]],matrix(fit[[2]],nrow=p))
     loss <- fit[[3]]
     iter <- fit[[4]]
@@ -69,6 +70,7 @@ ncvreg <- function(X, y, family=c("gaussian","binomial"), penalty=c("MCP","SCAD"
                  gamma = gamma,
                  convex.min = convex.min,
                  loss = loss,
+                 penalty.factor = penalty.factor,
                  n = n),
             class = "ncvreg")
 }
