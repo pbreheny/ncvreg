@@ -7,15 +7,21 @@ Similar to other predict methods, this function returns predictions from
 a fitted \code{"ncvreg"} object.
 }
 \usage{
-\method{predict}{ncvreg}(object,X,which=1:length(object$lambda),type=c("link","response","class","coefficients"),...)
-\method{coef}{ncvreg}(object,which=1:length(object$lambda),...)
+\method{predict}{ncvreg}(object, X, lambda,
+which=1:length(object$lambda), type=c("link", "response", "class",
+"coefficients"), ...) 
+\method{coef}{ncvreg}(object, lambda, which=1:length(object$lambda), ...)
 }
 \arguments{
   \item{object}{Fitted \code{"ncvreg"} model object.}
   \item{X}{Matrix of values at which predictions are to be made.  Not
     used for \code{type="coefficients"}}
+  \item{lambda}{Values of the regularization parameter \code{lambda} at
+    which predictions are requested.  For values of \code{lambda} not in
+    the sequence of fitted models, linear interpolation is used.}
   \item{which}{Indices of the penalty parameter \code{lambda} at which
-    predictions are required.  By default, all indices are returned.}
+    predictions are required.  By default, all indices are returned.  If
+    \code{lambda} is specified, this will override \code{which}.}
   \item{type}{Type of prediction: \code{"link"} returns the
     linear predictors; \code{"response"} gives the fitted values;
     \code{"class"} returns the binomial outcome with the highest

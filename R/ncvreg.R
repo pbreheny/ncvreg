@@ -1,4 +1,4 @@
-ncvreg <- function(X, y, family=c("gaussian","binomial"), penalty=c("MCP", "SCAD", "lasso"), gamma=3, alpha=1, lambda.min=ifelse(n>p,.001,.05), nlambda=100, lambda, eps=.001, max.iter=1000, convex=TRUE, dfmax=p+1, penalty.factor=rep(1, ncol(X)), warn=TRUE)
+ncvreg <- function(X, y, family=c("gaussian","binomial"), penalty=c("MCP", "SCAD", "lasso"), gamma=3, alpha=1, lambda.min=ifelse(n>p,.001,.05), nlambda=100, lambda, eps=.001, max.iter=1000, convex=TRUE, dfmax=p+1, penalty.factor=rep(1, ncol(X)), warn=TRUE, ...)
 {
   ## Error checking
   family <- match.arg(family)
@@ -7,6 +7,11 @@ ncvreg <- function(X, y, family=c("gaussian","binomial"), penalty=c("MCP", "SCAD
   if (gamma <= 2 & penalty=="SCAD") stop("gamma must be greater than 2 for the SCAD penalty")
   if (nlambda < 2) stop("nlambda must be at least 2")
   if (alpha <= 0) stop("alpha must be greater than 0; choose a small positive number instead")
+  if (length(penalty.factor)!=ncol(X)) stop("penalty.factor does not match up with X")
+  
+  ## Deprication support
+  dots <- list(...)
+  if ("n.lambda" %in% names(dots)) nlambda <- dots$n.lambda
   
   ## Set up XX, yy, lambda
   XX <- standardize(X)

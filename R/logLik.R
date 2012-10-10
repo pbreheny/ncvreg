@@ -1,4 +1,4 @@
-logLik.ncvreg <- function(object,REML=TRUE)
+logLik.ncvreg <- function(object, REML=TRUE, ...)
   {
     n <- as.numeric(object$n)
     df <- as.numeric(apply(object$beta!=0,2,sum))

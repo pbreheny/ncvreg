@@ -6,9 +6,10 @@
   parameter lambda.  Fits linear and logistic regression models, with
   option for an additional L2 penalty.}
 \usage{
-ncvreg(X, y, family=c("gaussian","binomial"), penalty=c("MCP","SCAD"),
-gamma=3, alpha=1, lambda.min=ifelse(n>p,.001,.05), nlambda=100, lambda,
-eps=.001, max.iter=1000, convex=TRUE, dfmax=p+1, warn=TRUE)
+ncvreg(X, y, family=c("gaussian", "binomial"), penalty=c("MCP", "SCAD",
+"lasso"), gamma=3, alpha=1, lambda.min=ifelse(n>p,.001,.05),
+nlambda=100, lambda, eps=.001, max.iter=1000, convex=TRUE, dfmax=p+1,
+penalty.factor=rep(1, ncol(X)), warn=TRUE, ...)
 }
 \arguments{
   \item{X}{The design matrix, without an intercept.  \code{ncvreg}
@@ -17,7 +18,7 @@ eps=.001, max.iter=1000, convex=TRUE, dfmax=p+1, warn=TRUE)
   \item{family}{Either "gaussian" or "binomial", depending on the
     response.}
   \item{penalty}{The penalty to be applied to the model.  Either "MCP"
-    (the default) or "SCAD".}
+    (the default), "SCAD", or "lasso".}
   \item{gamma}{The tuning parameter of the MCP/SCAD penalty (see details).}
   \item{alpha}{Tuning parameter for the Mnet estimator which controls
     the relative contributions from the MCP/SCAD penalty and the ridge,
@@ -42,8 +43,18 @@ eps=.001, max.iter=1000, convex=TRUE, dfmax=p+1, warn=TRUE)
     Default is no upper bound.  However, for large data sets,
     computational burden may be heavy for models with a large number of
     nonzero coefficients.}
+  \item{penalty.factor}{A multiplicative factor for the penalty applied
+    to each coefficient.  If supplied, \code{penalty.factor} must be a
+    numeric vector of length equal to the number of columns of
+    \code{X}.  The purpose of \code{penalty.factor} is to apply
+    differential penalization if some coefficients are thought to be
+    more likely than others to be in the model.  In particular,
+    \code{penalty.factor} can be 0, in which case the coefficient is
+    always in the model without shrinkage.}
   \item{warn}{Return warning messages for failures to converge and model
-    saturation?  Default is TRUE.}}
+    saturation?  Default is TRUE.}
+  \item{...}{Not used.}
+}
 \details{
   The sequence of models indexed by the regularization parameter
   \code{lambda} is fit using a coordinate descent algorithm.  For

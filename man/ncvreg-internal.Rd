@@ -5,7 +5,7 @@
 \description{Internal ncvreg functions}
 \usage{
 convexMin(beta,X,penalty,gamma,l2,family)
-setupLambda(X,y,family,alpha,lambda.min,n.lambda)
+setupLambda(X, y, family, alpha, lambda.min, nlambda, penalty.factor)
 loss.ncvreg(y,yhat,family)
 }
 \author{Patrick Breheny <patrick.breheny@uky.edu>}

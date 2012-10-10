@@ -1,4 +1,4 @@
-predict.ncvreg <- function(object,X,lambda,which=1:length(object$lambda),type=c("link","response","class","coefficients"),...)
+predict.ncvreg <- function(object, X, lambda, which=1:length(object$lambda),type=c("link","response","class","coefficients"),...)
   {
     type <- match.arg(type)
     beta <- coef.ncvreg(object,lambda=lambda,which=which)
