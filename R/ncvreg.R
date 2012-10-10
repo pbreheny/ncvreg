@@ -1,4 +1,4 @@
-ncvreg <- function(X, y, family=c("gaussian","binomial"), penalty=c("MCP","SCAD"), gamma=3, alpha=1, lambda.min=ifelse(n>p,.001,.05), nlambda=100, lambda, eps=.001, max.iter=1000, convex=TRUE, dfmax=p+1, penalty.factor=rep(1, ncol(X)), warn=TRUE)
+ncvreg <- function(X, y, family=c("gaussian","binomial"), penalty=c("MCP", "SCAD", "lasso"), gamma=3, alpha=1, lambda.min=ifelse(n>p,.001,.05), nlambda=100, lambda, eps=.001, max.iter=1000, convex=TRUE, dfmax=p+1, penalty.factor=rep(1, ncol(X)), warn=TRUE)
 {
   ## Error checking
   family <- match.arg(family)
@@ -47,7 +47,7 @@ ncvreg <- function(X, y, family=c("gaussian","binomial"), penalty=c("MCP","SCAD"
   loss <- loss[ind]
   if (warn & any(iter==max.iter)) warning("Algorithm failed to converge for all values of lambda")
   
-  convex.min <- if (convex) convexMin(b,XX,penalty,gamma,lambda*(1-alpha),family) else NULL
+  convex.min <- if (convex) convexMin(b, XX, penalty, gamma, lambda*(1-alpha), family) else NULL
   
   ## Unstandardize
   b <- unstandardize(b, center[nz], scale[nz])

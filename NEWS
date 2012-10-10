@@ -10,7 +10,8 @@
 	*  Added logLik method (which in turn allows AIC/BIC)
 	*  Fixed bug that arose if lambda was scalar (instead of a vector)
 	*  cdfit_ now returns loss (RSS for gaussian, deviance for binomial)
-	*  Fixed typo in cv.ncvreg for linear regression
+	*  Fixed bug in cv.ncvreg for linear regression -- cross-validation
+	   was being carried out deterministically
 	   (Thank you to Brenton Kenkel for pointing this out)
 	*  Internal change: standardization more efficient
 	*  Fixed bug: Intercept for logistic regression was not being

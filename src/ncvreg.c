@@ -73,6 +73,15 @@ static double SCAD(double z, double l1, double l2, double gamma, double v)
   else return(z/(v*(1+l2)));
 }
 
+static double lasso(double z, double l1, double l2, double v)
+{
+  double s=0;
+  if (z > 0) s = 1;
+  else if (z < 0) s = -1;
+  if (fabs(z) <= l1) return(0);
+  else return(s*(fabs(z)-l1)/(v*(1+l2)));
+}
+
 static void cdfit_gaussian(double *beta, double *loss, int *iter, double *x, double *y, int *n_, int *p_, char **penalty_, double *lambda, int *L_, double *eps_, int *max_iter_, double *gamma_, double *multiplier, double *alpha_, int *dfmax_, int *user_)
 {
   /* Declarations */
@@ -121,7 +130,7 @@ static void cdfit_gaussian(double *beta, double *loss, int *iter, double *x, dou
 	  double l2 = lambda[l] * multiplier[j] * (1-alpha);
 	  if (strcmp(penalty,"MCP")==0) beta[l*p+j] = MCP(z, l1, l2, gamma, 1);
 	  if (strcmp(penalty,"SCAD")==0) beta[l*p+j] = SCAD(z, l1, l2, gamma, 1);
-	  if (strcmp(penalty,"lasso")==0) beta[l*p+j] = SCAD(z, l1, l2, gamma, 1);
+	  if (strcmp(penalty,"lasso")==0) beta[l*p+j] = lasso(z, l1, l2, 1);
 
 	  /* Update r */
 	  if (beta[l*p+j] != beta_old[j]) for (int i=0;i<n;i++) r[i] = r[i] - (beta[l*p+j] - beta_old[j])*x[j*n+i];
@@ -268,7 +277,7 @@ static void cdfit_binomial(double *beta0, double *beta, double *Dev, int *iter, 
 	      double l2 = lambda[l] * multiplier[j] * (1-alpha);
 	      if (strcmp(penalty,"MCP")==0) beta[l*p+j] = MCP(z, l1, l2, gamma, v);
 	      if (strcmp(penalty,"SCAD")==0) beta[l*p+j] = SCAD(z, l1, l2, gamma, v);
-	      if (strcmp(penalty,"lasso")==0) beta[l*p+j] = SCAD(z, l1, l2, gamma, v);
+	      if (strcmp(penalty,"lasso")==0) beta[l*p+j] = lasso(z, l1, l2, v);
 
 	      /* Update r */
 	      if (beta[l*p+j] != beta_old[j]) for (int i=0;i<n;i++) r[i] = r[i] - (beta[l*p+j] - beta_old[j])*x[j*n+i];
