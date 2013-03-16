@@ -1,19 +1,66 @@
-plot.cv.ncvreg <- function(x, log.l=TRUE, ...)
+plot.cv.ncvreg <- function(x, log.l=TRUE, type=c("cve", "rsq", "scale", "snr", "pred", "all"), selected=TRUE, ...)
 {
-  L <- x$cve - x$cvse
-  U <- x$cve + x$cvse
+  type <- match.arg(type)
+  if (type=="all") {
+    plot(x, log.l=log.l, type="cve", selected=selected, ...)
+    plot(x, log.l=log.l, type="rsq", selected=selected, ...)
+    plot(x, log.l=log.l, type="snr", selected=selected, ...)
+    if (x$fit$family == "binomial") plot(x, log.l=log.l, type="pred", selected=selected, ...) else plot(x, log.l=log.l, type="scale", selected=selected, ...)
+    return(invisible(NULL))
+  }
   l <- x$lambda
   if (log.l) {
     l <- log(l)
     xlab <- expression(log(lambda))
   } else xlab <- expression(lambda)
   
-  ind <- which(((U - L) > 1e-4) & is.finite(l))
-  plot.args = list(x=l[ind], y=x$cve[ind], ylim=range(c(L[ind],U[ind])), xlab=xlab, ylab="Cross-validation error", type="n", xlim=rev(range(l[ind])))
+  ## Calculate y
+  L.cve <- x$cve - x$cvse
+  U.cve <- x$cve + x$cvse
+  if (type=="cve") {
+    y <- x$cve
+    L <- L.cve
+    U <- U.cve
+    ylab <- "Cross-validation error"
+  } else if (type=="rsq") {
+    S <- pmax(x$null.dev - x$cve, 0)
+    y <- S/x$null.dev
+    L <- S/(S+U.cve)
+    U <- S/(S+L.cve)
+    ylab <- ~R^2
+  } else if (type=="snr") {
+    S <- pmax(x$null.dev - x$cve, 0)
+    y <- S/(x$cve)
+    L <- S/U.cve
+    U <- S/L.cve
+    ylab <- "Signal-to-noise ratio"
+  } else if (type=="scale") {
+    if (x$fit$family == "binomial") stop("Scale parameter for binomial family fixed at 1")
+    y <- sqrt(x$cve)
+    L <- sqrt(L.cve)
+    U <- sqrt(U.cve)
+    ylab <- ~hat(sigma)
+  } else if (type=="pred") {
+    y <- x$pe
+    n <- x$fit$n
+    CI <- sapply(y, function(x) {binom.test(x*n, n, conf.level=0.68)$conf.int})
+    L <- CI[1,]
+    U <- CI[2,]
+    ylab <- "Prediction error"
+  }
+  
+  ind <- is.finite(l)
+  ylim <- range(c(L[ind], U[ind]))
+  aind <- ((U-L)/diff(ylim) > 1e-3) & ind
+  plot.args = list(x=l[ind], y=y[ind], ylim=ylim, xlab=xlab, ylab=ylab, type="n", xlim=rev(range(l[ind])), las=1)
   new.args = list(...)
   if (length(new.args)) plot.args[names(new.args)] = new.args
   do.call("plot", plot.args)
   abline(v=l[x$min],lty=2,lwd=.5)
-  arrows(x0=l[ind], x1=l[ind], y0=L[ind], y1=U[ind], code=3, angle=90, col="gray80", length=.05)
-  points(l[ind], x$cve[ind], col="red", pch=19, cex=.5)
+  suppressWarnings(arrows(x0=l[aind], x1=l[aind], y0=L[aind], y1=U[aind], code=3, angle=90, col="gray80", length=.05))
+  points(l[ind], y[ind], col="red", pch=19, cex=.5)
+  if (selected) {
+    axis(3, at=l, labels=apply(x$fit$beta!=0, 2, sum)-1, tick=FALSE, line=-0.5)
+    mtext("Variables selected", cex=0.8, line=1.5)
+  }
 }

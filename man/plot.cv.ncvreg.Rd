@@ -4,26 +4,55 @@
 \description{Plots the cross-validation curve from a "cv.ncvreg"
   object, along with standard error bars.}
 \usage{
-\method{plot}{cv.ncvreg}(x, log.l=TRUE, ...)
+\method{plot}{cv.ncvreg}(x, log.l=TRUE, type=c("cve", "rsq", "scale", "snr", "pred", "all"), selected=TRUE, ...)
 }
 \arguments{
   \item{x}{A \code{"cv.ncvreg"} object.}
   \item{log.l}{Should horizontal axis be on the log scale?  Default is
-    TRUE.} 
+    TRUE.}
+  \item{type}{What to plot on the vertical axis.  \code{cve} plots the
+    cross-validation error (deviance); \code{rsq} plots an estimate of
+    the fraction of the deviance explained by the model (R-squared);
+    \code{snr} plots an estimate of the signal-to-noise ratio;
+    \code{scale} plots, for \code{family="gaussian"}, an estimate of the
+    scale parameter (standard deviation); \code{pred} plots, for
+    \code{family="binomial"}, the estimated prediction error; \code{all}
+    produces all of the above.}
+  \item{selected}{If \code{TRUE} (the default), places an axis on top of
+    the plot denoting the number of variables in the model (i.e., that
+    have a nonzero regression coefficient) at that value of
+    \code{lambda}.}
   \item{\dots}{Other graphical parameters to \code{plot}}
 }
+\details{
+  Error bars representing approximate 68\% confidence intervals are
+  plotted along with the estimates at value of \code{lambda}.  For
+  \code{rsq} and \code{snr}, these confidence intervals are quite crude,
+  especially near zero, and will hopefully be improved upon in later
+  versions of \code{ncvreg}.}
 \references{Breheny, P. and Huang, J. (2011) Coordinate descent
   algorithms for nonconvex penalized regression, with applications to
   biological feature selection. Ann. Appl. Statist., 5: 232-253.}
 \author{Patrick Breheny <patrick.breheny@uky.edu>}
 \seealso{\code{ncvreg}, \code{cv.ncvreg}}
 \examples{
+## Linear regression
 data(prostate)
 X <- as.matrix(prostate[,1:8])
 y <- prostate$lpsa
-
-cvfit <- cv.ncvreg(X,y)
+cvfit <- cv.ncvreg(X, y)
 plot(cvfit)
+par(mfrow=c(2,2))
+plot(cvfit, type="all")
+
+## Logistic regression
+data(heart)
+X <- as.matrix(heart[,1:9])
+y <- heart$chd
+cvfit <- cv.ncvreg(X, y, family="binomial")
+plot(cvfit)
+par(mfrow=c(2,2))
+plot(cvfit, type="all")
 }
 \keyword{models}
 \keyword{regression}

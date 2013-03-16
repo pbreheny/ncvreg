@@ -61,9 +61,9 @@ penalty.factor=rep(1, ncol(X)), warn=TRUE, ...)
   logistic regression models, some care is taken to avoid model
   saturation; the algorithm may exit early in this setting.  The
   objective function is defined to be
-  \deqn{1/(2*n)RSS + penalty}{\frac{1}{2n}\textrm{RSS} + \text{penalty}}
+  \deqn{\frac{1}{2n}\textrm{RSS} + \textrm{penalty}}{RSS/(2*n) + penalty}
   for \code{"gaussian"} and
-  \deqn{-(1/n) loglik + penalty}{-\frac{1}{n}\ell + \text{penalty}}
+  \deqn{-\frac{1}{n}\ell + \textrm{penalty}}{-(1/n) loglik + penalty}
   for \code{"binomial"}, where the likelihood is from a traditional
   generalized linear model for the log-odds of an event.\cr
   \cr

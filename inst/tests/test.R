@@ -73,15 +73,15 @@ test_that("cv.ncvreg() seems to work", {
   p <- 10
   X <- matrix(rnorm(n*p), ncol=p)
   b <- rnorm(p, sd=2)
-  b[abs(b) < 1] <- 0
-  y <- rnorm(n, mean=X%*%b)
+  b[abs(b) < 2] <- 0
+  y <- rnorm(n, mean=X%*%b, sd=2)
   yy <- y > .5
   
   par(mfrow=c(2,2))
   require(glmnet)
   cvfit <- cv.glmnet(X, y)
   plot(cvfit)
-  cvfit <- cv.ncvreg(X, y, gamma=1e8)
+  cvfit <- cv.ncvreg(X, y, penalty="lasso")
   plot(cvfit)
   cvfit <- cv.glmnet(X, yy, family="binomial", lambda.min=0)
   plot(cvfit)
@@ -106,4 +106,49 @@ test_that("penalty.factor seems to work", {
   plot(fit)
   fit <- ncvreg(X, yy, family="binomial", penalty.factor=penalty.factor)
   plot(fit)
+})  
+
+test_that("cv.ncvreg() options work for gaussian", {
+  n <- 50
+  p <- 10
+  X <- matrix(rnorm(n*p), ncol=p)
+  b <- c(-3, 3, rep(0, 8))
+  y <- rnorm(n, mean=X%*%b, sd=1)
+  
+  par(mfrow=c(2,2))
+  cvfit <- cv.ncvreg(X, y)
+  plot(cvfit, type="all")
+  summary(cvfit)
+
+  b <- c(-3, 3, rep(0, 8))
+  y <- rnorm(n, mean=X%*%b, sd=5)
+  cvfit <- cv.ncvreg(X, y)
+  plot(cvfit, type="all")
+
+  b <- rep(0, 10)
+  y <- rnorm(n, mean=X%*%b, sd=5)
+  cvfit <- cv.ncvreg(X, y)
+  plot(cvfit, type="all")
+})  
+
+test_that("cv.ncvreg() options work for binomial", {
+  n <- 200
+  p <- 10
+  X <- matrix(rnorm(n*p), ncol=p)
+  b <- c(-3, 3, rep(0, 8))
+  y <- rnorm(n, mean=X%*%b, sd=1) > 0.5
+  
+  par(mfrow=c(2,2))
+  cvfit <- cv.ncvreg(X, y, family="binomial")
+  plot(cvfit, type="all")
+  
+  b <- c(-3, 3, rep(0, 8))
+  y <- rnorm(n, mean=X%*%b, sd=5) > 0.5
+  cvfit <- cv.ncvreg(X, y, family="binomial")
+  plot(cvfit, type="all")
+  
+  b <- rep(0, 10)
+  y <- rnorm(n, mean=X%*%b, sd=5) > 0.5
+  cvfit <- cv.ncvreg(X, y, family="binomial")
+  plot(cvfit, type="all")
 })  

@@ -1,6 +1,15 @@
 *   Minor change
 **  Major change
 
+2.5-0
+	** Added options in plot.cv.ncvreg to plot estimates of r-squared,
+	   signal-to-noise ratio, scale parameter, and prediction error in
+	   addition to cross-validation error (deviance)
+	** Added summary method for cv.ncvreg which displays the above
+	   information at lambda.min, the value of lambda minimizing the
+	   cross-validation error.
+	*  Fixed bug in cv.ncvreg with user-defined lambda values.
+
 2.4-0
 	** Fixed error in definition/calculation of cross-validation
 	   error and standard error

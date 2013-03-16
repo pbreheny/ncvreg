@@ -38,22 +38,25 @@ cv.ncvreg(X, y, ..., nfolds=10, seed, trace=FALSE)
     \code{lambda.min}.}
   \item{lambda.min}{The value of \code{lambda} with the minimum
     cross-validation error.}
+  \item{null.dev}{The deviance for the intercept-only model.}
+  \item{pe}{If \code{family="binomial"}, the cross-validation prediction
+    error for each value of \code{lambda}.}
   }
 \references{Breheny, P. and Huang, J. (2011) Coordinate descent
   algorithms for nonconvex penalized regression, with applications to
   biological feature selection. Ann. Appl. Statist., 5: 232-253.}
 \author{Patrick Breheny <patrick.breheny@uky.edu>}
-\seealso{\code{ncvreg}}
+\seealso{\code{ncvreg}, \code{plot.cv.ncvreg}, \code{summary.cv.ncvreg}}
 \examples{
 data(prostate)
 X <- as.matrix(prostate[,1:8])
 y <- prostate$lpsa
 
-cv.fit <- cv.ncvreg(X,y)
-plot(cv.fit)
+cvfit <- cv.ncvreg(X,y)
+plot(cvfit)
+summary(cvfit)
 
-fit <- ncvreg(X,y)
-beta <- fit$beta[,cv.fit$min]
+fit <- cvfit$fit
+plot(fit)
+beta <- fit$beta[,cvfit$min]
 }
-\keyword{models}
-\keyword{regression}

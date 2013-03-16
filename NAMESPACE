@@ -1,5 +1,7 @@
 useDynLib(ncvreg,.registration=TRUE)
 export(ncvreg,cv.ncvreg)
+S3method(summary,cv.ncvreg)
+S3method(print,summary.cv.ncvreg)
 importFrom(graphics,plot)
 S3method(plot,ncvreg)
 S3method(plot,cv.ncvreg)

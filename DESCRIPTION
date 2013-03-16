@@ -1,7 +1,7 @@
 Package: ncvreg
 Title: Regularization paths for SCAD- and MCP-penalized regression models
-Version: 2.4-0
-Date: 2011-05-10
+Version: 2.5-0
+Date: 2013-03-15
 Author: Patrick Breheny
 Maintainer: Patrick Breheny <patrick.breheny@uky.edu>
 Description: Efficient algorithms for fitting regularization paths for linear or logistic regression models penalized by MCP or SCAD, with optional additional L2 penalty ("Mnet").

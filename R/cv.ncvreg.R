@@ -3,6 +3,7 @@ cv.ncvreg <- function(X, y, ..., nfolds=10, seed, trace=FALSE)
   if (!missing(seed)) set.seed(seed)
   fit <- ncvreg(X=X, y=y, ...)
   E <- matrix(NA, nrow=length(y), ncol=length(fit$lambda))
+  if (fit$family=="binomial") PE <- E
 
   n <- length(y)
   if (fit$family=="gaussian") {
@@ -26,9 +27,10 @@ cv.ncvreg <- function(X, y, ..., nfolds=10, seed, trace=FALSE)
     X2 <- X[cv.ind==i,]
     y2 <- y[cv.ind==i]
 
-    fit.i <- ncvreg(X1, y1, warn=FALSE, ...)
+    fit.i <- ncvreg(X1, y1, lambda=fit$lambda, warn=FALSE, ...)
     yhat <- predict(fit.i, X2, type="response")
     E[cv.ind==i, 1:ncol(yhat)] <- loss.ncvreg(y2, yhat, fit$family)
+    if (fit$family=="binomial") PE[cv.ind==i, 1:ncol(yhat)] <- (yhat < 0.5) == y2
   }
 
   ## Eliminate saturated lambda values, if any
@@ -40,5 +42,8 @@ cv.ncvreg <- function(X, y, ..., nfolds=10, seed, trace=FALSE)
   cve <- apply(E, 2, mean)
   cvse <- apply(E, 2, sd) / sqrt(n)
   min <- which.min(cve)
-  structure(list(cve=cve, cvse=cvse, lambda=lambda, fit=fit, min=min, lambda.min=lambda[min]), class="cv.ncvreg")
+  
+  val <- list(cve=cve, cvse=cvse, lambda=lambda, fit=fit, min=min, lambda.min=lambda[min], null.dev=mean(loss.ncvreg(y, rep(mean(y), n), fit$family)))
+  if (fit$family=="binomial") val$pe <- apply(PE[,ind], 2, mean)
+  structure(val, class="cv.ncvreg")
 }

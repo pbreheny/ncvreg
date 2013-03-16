@@ -39,10 +39,10 @@ X <- as.matrix(heart[,1:9])
 y <- heart$chd
 
 fit <- ncvreg(X,y,family="binomial")
-coef(fit)
-predict(fit,X,type="link")
-predict(fit,X,type="response")
-predict(fit,X,type="class")
+coef(fit, lambda=0.05)
+predict(fit,X,type="link", lambda=0.05)
+predict(fit,X,type="response", lambda=0.05)
+predict(fit,X,type="class", lambda=0.05)
 }
 \keyword{models}
 \keyword{regression}
