@@ -230,9 +230,8 @@ static void cdfit_binomial(double *beta0, double *beta, double *Dev, int *iter, 
 		}
 	      else w[i] = pi*(1-pi);
 	      r[i] = (y[i] - pi)/w[i];
-	      Dev[l] = Dev[l] - y[i]*log(pi)-(1-y[i])*log(1-pi);
-	      /*yp = yp + pow(y[i]-pi,2);
-		yy = yy + pow(y[i]-ybar,2);*/
+	      if (y[i]==1) Dev[l] = Dev[l] - log(pi);
+	      if (y[i]==0) Dev[l] = Dev[l] - log(1-pi);
 	    }
 	  if (Dev[l]/nullDev < .01)
 	    {

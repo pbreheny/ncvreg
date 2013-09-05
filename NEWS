@@ -1,6 +1,17 @@
 *   Minor change
 **  Major change
 
+
+
+2.6-0
+	** Introduction of function ncvreg_fit for programmers who want to
+	   access the internal C routines of ncvreg, bypassing internal
+	   standardization and processing
+	*  Bug fix for axis annotations with plot.cv.ncvreg when model is
+	   saturated.
+	*  Bug fix for deviance calculation; would return NaN if fitted
+	   probabilities of 0 or 1 occurred for binomial outcomes.
+
 2.5-0
 	** Added options in plot.cv.ncvreg to plot estimates of r-squared,
 	   signal-to-noise ratio, scale parameter, and prediction error in

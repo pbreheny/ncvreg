@@ -152,3 +152,24 @@ test_that("cv.ncvreg() options work for binomial", {
   cvfit <- cv.ncvreg(X, y, family="binomial")
   plot(cvfit, type="all")
 })  
+
+test_that("ncvreg_fit works", {
+  n <- 200
+  p <- 10
+  X <- matrix(rnorm(n*p), ncol=p)
+  b <- c(-3, 3, rep(0, 8))
+  y <- rnorm(n, mean=X%*%b, sd=1) > 0.5
+  
+  b1 <- ncvreg_fit(X, y, penalty="lasso", lam=c(1, 0.1, 0.01))
+  b2 <- glmnet(X, y, lambda=c(1, 0.1, 0.01), standardize=FALSE, intercept=FALSE)
+  expect_that(b1$beta, equals(as.matrix(coef(b2))[-1,], check.attributes=FALSE, tol=.001))
+  
+  b1 <- ncvreg_fit(X, y, "binomial", "lasso", lam=c(1, 0.1, 0.01))
+  b2 <- glmnet(X, y, "binomial", lambda=c(1, 0.1, 0.01), standardize=FALSE, intercept=TRUE)
+  expect_that(b1$beta, equals(as.matrix(coef(b2)), check.attributes=FALSE, tol=.001))
+  
+  b1 <- ncvreg_fit(X, y, penalty="MCP", lam=0.01)
+  b2 <- ncvreg_fit(X, y, "binomial", penalty="MCP", lam=c(1, 0.1, 0.01))
+  b3 <- ncvreg_fit(X, y, penalty="SCAD", lam=c(1, 0.1, 0.01))
+  b4 <- ncvreg_fit(X, y, "binomial", penalty="SCAD", lam=c(1, 0.1, 0.01))
+})

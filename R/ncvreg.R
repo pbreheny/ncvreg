@@ -19,8 +19,8 @@ ncvreg <- function(X, y, family=c("gaussian","binomial"), penalty=c("MCP", "SCAD
   scale <- attr(XX, "scale")
   nz <- which(scale > 1e-6)
   XX <- XX[ ,nz, drop=FALSE]
-  p <- ncol(XX)
   yy <- if (family=="gaussian") y - mean(y) else y
+  p <- ncol(XX)
   n <- length(yy)
   penalty.factor <- penalty.factor[nz]
   if (missing(lambda)) {
@@ -30,7 +30,7 @@ ncvreg <- function(X, y, family=c("gaussian","binomial"), penalty=c("MCP", "SCAD
     nlambda <- length(lambda)
     user.lambda <- TRUE
   }
-  
+
   ## Fit
   if (family=="gaussian") {
     fit <- .C("cdfit_gaussian", double(p*nlambda), double(nlambda), integer(nlambda), as.double(XX), as.double(yy), as.integer(n), as.integer(p), penalty, as.double(lambda), as.integer(nlambda), as.double(eps), as.integer(max.iter), as.double(gamma), as.double(penalty.factor), as.double(alpha), as.integer(dfmax), as.integer(user.lambda | any(penalty.factor==0)))
@@ -51,7 +51,8 @@ ncvreg <- function(X, y, family=c("gaussian","binomial"), penalty=c("MCP", "SCAD
   lambda <- lambda[ind]
   loss <- loss[ind]
   if (warn & any(iter==max.iter)) warning("Algorithm failed to converge for all values of lambda")
-  
+
+  ## Local convexity?
   convex.min <- if (convex) convexMin(b, XX, penalty, gamma, lambda*(1-alpha), family) else NULL
   
   ## Unstandardize

@@ -89,11 +89,14 @@ penalty.factor=rep(1, ncol(X)), warn=TRUE, ...)
   \item{convex.min}{The last index for which the objective function is
     locally convex.  The smallest value of lambda for which the
     objective function is convex is therefore \code{lambda[convex.min]},
-    with corresponding coefficients \code{beta[,convex.min]}.}}
+    with corresponding coefficients \code{beta[,convex.min]}.}
+  \item{loss}{A vector containing either the residual sum of squares
+    (\code{"gaussian"}) or negative log-likelihood (\code{"binomial"})
+    of the fitted model at each value of \code{lambda}.}}
 \references{Breheny, P. and Huang, J. (2011) Coordinate descent
   algorithms for nonconvex penalized regression, with applications to
   biological feature selection. Ann. Appl. Statist., 5: 232-253.}
-\author{Patrick Breheny <patrick.breheny@uky.edu>}
+\author{Patrick Breheny <patrick-breheny@uiow.edu>}
 \seealso{\code{plot.ncvreg}, \code{cv.ncvreg}}
 \examples{
 ## Linear regression
