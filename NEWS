@@ -1,30 +1,28 @@
-*   Minor change
-**  Major change
-
-
-
 2.6-0
-	** Introduction of function ncvreg_fit for programmers who want to
-	   access the internal C routines of ncvreg, bypassing internal
-	   standardization and processing
-	*  Bug fix for axis annotations with plot.cv.ncvreg when model is
-	   saturated.
-	*  Bug fix for deviance calculation; would return NaN if fitted
-	   probabilities of 0 or 1 occurred for binomial outcomes.
+	* Introduction of function ncvreg_fit for programmers who want to
+	  access the internal C routines of ncvreg, bypassing internal
+	  standardization and processing
+	* Internal restructuring: .Call now used instead of .C
+	* Bug fix for axis annotations with plot.cv.ncvreg when model is
+	  saturated.
+	* Bug fix for deviance calculation; would return NaN if fitted
+	  probabilities of 0 or 1 occurred for binomial outcomes.
+	* Bug fix in NAMESPACE for coef.cv.ncvreg and predict.cv.ncvreg
+	* Added vertical.line and col options to plot.cv.ncvreg
 
 2.5-0
-	** Added options in plot.cv.ncvreg to plot estimates of r-squared,
+	* Added options in plot.cv.ncvreg to plot estimates of r-squared,
 	   signal-to-noise ratio, scale parameter, and prediction error in
 	   addition to cross-validation error (deviance)
-	** Added summary method for cv.ncvreg which displays the above
+	* Added summary method for cv.ncvreg which displays the above
 	   information at lambda.min, the value of lambda minimizing the
 	   cross-validation error.
 	*  Fixed bug in cv.ncvreg with user-defined lambda values.
 
 2.4-0
-	** Fixed error in definition/calculation of cross-validation
+	* Fixed error in definition/calculation of cross-validation
 	   error and standard error
-	** Added penalty.factor option
+	* Added penalty.factor option
         *  cv.grpreg: Now returns full data fit as well as CV errors
 	*  coef and predict methods now accept lambda as argument
 	*  Added logLik method (which in turn allows AIC/BIC)
@@ -52,10 +50,10 @@
 	version 2.2.
 
 2.2
-	** cv.ncvreg: Divorced cross-validation from fitting.  From a user
+	* cv.ncvreg: Divorced cross-validation from fitting.  From a user
 	perspective, this increases flexibility, although obtaining the
 	model with CV-chosen regularization parameter now requires two
 	calls (to ncvreg and cv.ncvreg).  The functions, however, are
 	logically separate and involve entirely separate methods.
-	** plot.cv.ncvreg: Developed a plotting method specific to
+	* plot.cv.ncvreg: Developed a plotting method specific to
 	cv.ncvreg objects.

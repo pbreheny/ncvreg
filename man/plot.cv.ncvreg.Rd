@@ -4,7 +4,7 @@
 \description{Plots the cross-validation curve from a "cv.ncvreg"
   object, along with standard error bars.}
 \usage{
-\method{plot}{cv.ncvreg}(x, log.l=TRUE, type=c("cve", "rsq", "scale", "snr", "pred", "all"), selected=TRUE, ...)
+\method{plot}{cv.ncvreg}(x, log.l=TRUE, type=c("cve", "rsq", "scale", "snr", "pred", "all"), selected=TRUE, vertical.line=TRUE, col="red", ...)
 }
 \arguments{
   \item{x}{A \code{"cv.ncvreg"} object.}
@@ -22,6 +22,9 @@
     the plot denoting the number of variables in the model (i.e., that
     have a nonzero regression coefficient) at that value of
     \code{lambda}.}
+  \item{vertical.line}{If \code{TRUE} (the default), draws a vertical
+    line at the value where cross-validaton error is minimized.}
+  \item{col}{Controls the color of the dots (CV estimates).}
   \item{\dots}{Other graphical parameters to \code{plot}}
 }
 \details{
@@ -33,7 +36,7 @@
 \references{Breheny, P. and Huang, J. (2011) Coordinate descent
   algorithms for nonconvex penalized regression, with applications to
   biological feature selection. Ann. Appl. Statist., 5: 232-253.}
-\author{Patrick Breheny <patrick.breheny@uky.edu>}
+\author{Patrick Breheny <patrick-breheny@uiowa.edu>}
 \seealso{\code{ncvreg}, \code{cv.ncvreg}}
 \examples{
 ## Linear regression

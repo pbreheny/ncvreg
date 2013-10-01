@@ -5,16 +5,34 @@
 #include <R.h>
 #include <R_ext/Applic.h>
 
-static double *vector(int n)
-{
-  double *v;
-  v = Calloc(n, double);
-  return v;
+// Cross product of y with jth column of X
+static double crossprod(double *X, double *y, int n, int j) {
+  int nn = n*j;
+  double val;
+  for (int i=0;i<n;i++) val += X[nn+i]*y[i];
+  return(val);
 }
 
-static void free_vector(double *v)
-{
-  Free(v);
+// Weighted cross product of y with jth column of x
+static double wcrossprod(double *X, double *y, double *w, int n, int j) {
+  int nn = n*j;
+  double val;
+  for (int i=0;i<n;i++) val += X[nn+i]*y[i]*w[i];
+  return(val);
+}
+
+// Weighted sum of squares of jth column of X
+static double wsqsum(double *X, double *w, int n, int j) {
+  int nn = n*j;
+  double val;
+  for (int i=0;i<n;i++) val += w[i] * pow(X[nn+i], 2);
+  return(val);
+}
+
+static double sum(double *x, int n) {
+  double val;
+  for (int i=0;i<n;i++) val += x[i];
+  return(val);
 }
 
 static int checkConvergence(double *beta, double *beta_old, double eps, int l, int J)
@@ -38,6 +56,7 @@ static int checkConvergence(double *beta, double *beta_old, double eps, int l, i
   return(converged);
 }
 
+// Gaussian loss
 static double gLoss(double *r, int n)
 {
   double l = 0;
@@ -45,6 +64,7 @@ static double gLoss(double *r, int n)
   return(l);
 }
 
+// Soft thresholding
 static double S(double z, double l)
 {
   if (z > l) return(z-l);
@@ -82,229 +102,242 @@ static double lasso(double z, double l1, double l2, double v)
   else return(s*(fabs(z)-l1)/(v*(1+l2)));
 }
 
-static void cdfit_gaussian(double *beta, double *loss, int *iter, double *x, double *y, int *n_, int *p_, char **penalty_, double *lambda, int *L_, double *eps_, int *max_iter_, double *gamma_, double *multiplier, double *alpha_, int *dfmax_, int *user_)
-{
-  /* Declarations */
-  int L=L_[0]; int p=p_[0]; int n=n_[0]; int max_iter=max_iter_[0]; double eps=eps_[0]; double gamma=gamma_[0]; double alpha=alpha_[0]; char *penalty=penalty_[0]; int dfmax=dfmax_[0]; int user=user_[0];
+// Coordinate descent for gaussian models
+void cdfit_gaussian(SEXP beta, SEXP loss, SEXP iter, SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max_iter_, SEXP gamma_, SEXP multiplier, SEXP alpha_, SEXP dfmax_, SEXP user_) {
+
+  // Declarations
+  int n = length(y_);
+  int p = length(X_)/n;
+  int L = length(lambda);
+  double *b = REAL(beta);
+  double *a = Calloc(p, double); // Beta from previous iteration
+  double *X = REAL(X_);
+  double *y = REAL(y_);
+  const char *penalty = CHAR(STRING_ELT(penalty_, 0));
+  double *lam = REAL(lambda);
+  double eps = REAL(eps_)[0];
+  int max_iter = INTEGER(max_iter_)[0];
+  double gamma = REAL(gamma_)[0];
+  double *m = REAL(multiplier);
+  double alpha = REAL(alpha_)[0];
+  int dfmax = INTEGER(dfmax_)[0];
+  int user = INTEGER(user_)[0];
   int converged, active, lstart;
-  double *r, *beta_old;
-  r = vector(n); for (int i=0;i<n;i++) r[i] = y[i];
-  beta_old = vector(p);
+  double *r = Calloc(n, double);
+  for (int i=0;i<n;i++) r[i] = y[i];
 
-  if (user) lstart = 0;
-  else
-    {
-      loss[0] = gLoss(r,n);
-      lstart = 1;
-    }
+  if (user) {
+    lstart = 0;
+  } else {
+    REAL(loss)[0] = gLoss(r,n);
+    lstart = 1;
+  }
 
-  /* Path */
+  // Path
   for (int l=lstart;l<L;l++) {
-    if (l != 0) for (int j=0;j<p;j++) beta_old[j] = beta[(l-1)*p+j];
-    while (iter[l] < max_iter) {
-      converged = 0;
-      iter[l] = iter[l] + 1;
+    if (l != 0) for (int j=0;j<p;j++) a[j] = b[(l-1)*p+j];
+    while (INTEGER(iter)[l] < max_iter) {
 
-      /* Check dfmax */
+      converged = 0;
+      INTEGER(iter)[l]++;
+
+      // Check dfmax
       active = 0;
-      for (int j=0;j<p;j++) if (beta[l*p+j]!=0) active++;
+      for (int j=0;j<p;j++) if (b[l*p+j]!=0) active++;
       if (active > dfmax) {
 	for (int ll=l;ll<L;ll++) {
-	  for (int j=0;j<p;j++) beta[ll*p+j] = R_NaReal;
+	  for (int j=0;j<p;j++) b[ll*p+j] = R_NaReal;
 	}
-	free_vector(beta_old);
-	free_vector(r);
+	Free(a);
+	Free(r);
 	return;
       }
 
-      /* Covariates */
-      for (int j=0;j<p;j++)
-	{
-	  /* Calculate z */
-	  double z = 0;
-	  for (int i=0;i<n;i++) z = z + x[j*n+i]*r[i];
-	  z = z/n + beta_old[j];
+      // Covariates
+      for (int j=0;j<p;j++) {
+	// Calculate z
+	double z = crossprod(X, r, n, j)/n + a[j];
 
-	  /* Update beta_j */
-	  double l1 = lambda[l] * multiplier[j] * alpha;
-	  double l2 = lambda[l] * multiplier[j] * (1-alpha);
-	  if (strcmp(penalty,"MCP")==0) beta[l*p+j] = MCP(z, l1, l2, gamma, 1);
-	  if (strcmp(penalty,"SCAD")==0) beta[l*p+j] = SCAD(z, l1, l2, gamma, 1);
-	  if (strcmp(penalty,"lasso")==0) beta[l*p+j] = lasso(z, l1, l2, 1);
+	// Update beta_j
+	double l1 = lam[l] * m[j] * alpha;
+	double l2 = lam[l] * m[j] * (1-alpha);
+	if (strcmp(penalty,"MCP")==0) b[l*p+j] = MCP(z, l1, l2, gamma, 1);
+	if (strcmp(penalty,"SCAD")==0) b[l*p+j] = SCAD(z, l1, l2, gamma, 1);
+	if (strcmp(penalty,"lasso")==0) b[l*p+j] = lasso(z, l1, l2, 1);
 
-	  /* Update r */
-	  if (beta[l*p+j] != beta_old[j]) for (int i=0;i<n;i++) r[i] = r[i] - (beta[l*p+j] - beta_old[j])*x[j*n+i];
-	}
+	// Update r
+	double shift = b[l*p+j] - a[j];
+	if (shift != 0) for (int i=0;i<n;i++) r[i] -= shift*X[j*n+i];
+      }
 
-      /* Check for convergence */
-      if (checkConvergence(beta,beta_old,eps,l,p))
-	{
-	  converged  = 1;
-	  loss[l] = gLoss(r,n);
-	  break;
-	}
-      for (int j=0;j<p;j++) beta_old[j] = beta[l*p+j];
+      // Check for convergence
+      if (checkConvergence(b, a, eps, l, p)) {
+	converged  = 1;
+	REAL(loss)[l] = gLoss(r,n);
+	break;
+      }
+      for (int j=0;j<p;j++) a[j] = b[l*p+j];
     }
-    /*if (converged==0) warning("Failed to converge");*/
   }
-
-  free_vector(beta_old);
-  free_vector(r);
+  Free(a);
+  Free(r);
 }
 
-static void cdfit_binomial(double *beta0, double *beta, double *Dev, int *iter, double *x, double *y, int *n_, int *p_, char **penalty_, double *lambda, int *L_, double *eps_, int *max_iter_, double *gamma_, double *multiplier, double *alpha_, int *dfmax_, int *user_, int *warn_)
-{
-  /* Declarations */
-  int L=L_[0];int p=p_[0];int n=n_[0];int max_iter=max_iter_[0];double eps=eps_[0];double gamma=gamma_[0]; double alpha=alpha_[0];char *penalty=penalty_[0];int dfmax=dfmax_[0]; int user=user_[0]; int warn = warn_[0];
-  int converged, active, lstart;
-  double beta0_old;
-  double *r, *w, *beta_old;
-  r = vector(n);
-  w = vector(n);
-  beta_old = vector(p);
+// Coordinate descent for binomial models
+void cdfit_binomial(SEXP beta0, SEXP beta, SEXP Dev, SEXP iter, SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max_iter_, SEXP gamma_, SEXP multiplier, SEXP alpha_, SEXP dfmax_, SEXP user_, SEXP warn_) {
 
-  /* Initialization */
+  // Declarations
+  int n = length(y_);
+  int p = length(X_)/n;
+  int L = length(lambda);
+  double *b = REAL(beta);
+  double *b0 = REAL(beta0);
+  double *a = Calloc(p, double); // Beta from previous iteration
+  double a0;                    // Beta0 from previous iteration
+  double *X = REAL(X_);
+  double *y = REAL(y_);
+  const char *penalty = CHAR(STRING_ELT(penalty_, 0));
+  double *lam = REAL(lambda);
+  double eps = REAL(eps_)[0];
+  int max_iter = INTEGER(max_iter_)[0];
+  double gamma = REAL(gamma_)[0];
+  double *m = REAL(multiplier);
+  double alpha = REAL(alpha_)[0];
+  int dfmax = INTEGER(dfmax_)[0];
+  int user = INTEGER(user_)[0];
+  int warn = INTEGER(warn_)[0];
+  int converged, active, lstart;
+  double *r = Calloc(n, double);
+  double *w = Calloc(n, double);
+
+  // Initialization
   double ybar=0;
   for (int i=0;i<n;i++) ybar = ybar + y[i];
   ybar = ybar/n;
-  if (user) beta0_old = log(ybar/(1-ybar));
-  else beta0[0] = log(ybar/(1-ybar));
+  if (user) a0 = log(ybar/(1-ybar));
+  else b0[0] = log(ybar/(1-ybar));
   double nullDev = 0;
   for (int i=0;i<n;i++) nullDev = nullDev - y[i]*log(ybar)-(1-y[i])*log(1-ybar);
 
   if (user) lstart = 0;
-  else
-    {
-      lstart = 1;
-      Dev[0] = nullDev;
-    }
+  else {
+    lstart = 1;
+    REAL(Dev)[0] = nullDev;
+  }
 
-  /* Path */
+  // Path
   double xwr,xwx,eta,pi,z,v;
-  for (int l=lstart;l<L;l++)
-    {
-      /*Rprintf("l=%d\n",l);*/
-      if (l != 0)
-	{
-	  beta0_old = beta0[l-1];
-	  for (int j=0;j<p;j++) beta_old[j] = beta[(l-1)*p+j];
-	}
-
-      while (iter[l] < max_iter)
-	{
-	  converged = 0;
-	  iter[l] = iter[l] + 1;
-
-	  /* Check dfmax */
-	  active = 0;
-	  for (int j=0;j<p;j++) if (beta[l*p+j]!=0) active++;
-	  if (active > dfmax)
-	    {
-	      for (int ll=l;ll<L;ll++)
-		{
-		  beta0[ll] = R_NaReal;
-		  for (int j=0;j<p;j++) beta[ll*p+j] = R_NaReal;
-		}
-	      free_vector(beta_old);
-	      free_vector(w);
-	      free_vector(r);
-	      return;
-	    }
-
-	  /* Approximate L */
-	  Dev[l] = 0;
-	  for (int i=0;i<n;i++)
-	    {
-	      eta = beta0_old;
-	      for (int j=0;j<p;j++) eta = eta + x[j*n+i]*beta_old[j];
-	      pi = exp(eta)/(1+exp(eta));
-	      if (pi > .9999)
-		{
-		  pi = 1;
-		  w[i] = .0001;
-		}
-	      else if (pi < .0001)
-		{
-		  pi = 0;
-		  w[i] = .0001;
-		}
-	      else w[i] = pi*(1-pi);
-	      r[i] = (y[i] - pi)/w[i];
-	      if (y[i]==1) Dev[l] = Dev[l] - log(pi);
-	      if (y[i]==0) Dev[l] = Dev[l] - log(1-pi);
-	    }
-	  if (Dev[l]/nullDev < .01)
-	    {
-	      if (warn) warning("Model saturated; exiting...");
-	      for (int ll=l;ll<L;ll++)
-		{
-		  beta0[ll] = R_NaReal;
-		  for (int j=0;j<p;j++) beta[ll*p+j] = R_NaReal;
-		}
-	      free_vector(beta_old);
-	      free_vector(w);
-	      free_vector(r);
-	      return;
-	    }
-
-	  /* Intercept */
-	  xwr = xwx = 0;
-	  for (int i=0;i<n;i++)
-	    {
-	      xwr = xwr + w[i]*r[i];
-	      xwx = xwx + w[i];
-	    }
-	  beta0[l] = xwr/xwx + beta0_old;
-	  for (int i=0;i<n;i++) r[i] = r[i] - (beta0[l] - beta0_old);
-
-	  /* Covariates */
-	  for (int j=0;j<p;j++)
-	    {
-	      /* Calculate z */
-	      xwr=0;
-	      xwx=0;
-	      for (int i=0;i<n;i++)
-		{
-		  xwr = xwr + x[j*n+i]*w[i]*r[i];
-		  xwx = xwx + x[j*n+i]*w[i]*x[j*n+i];
-		}
-	      z = xwr/n + (xwx/n)*beta_old[j];
-	      v = xwx/n;
-
-	      /* Update beta_j */
-	      double l1 = lambda[l] * multiplier[j] * alpha;
-	      double l2 = lambda[l] * multiplier[j] * (1-alpha);
-	      if (strcmp(penalty,"MCP")==0) beta[l*p+j] = MCP(z, l1, l2, gamma, v);
-	      if (strcmp(penalty,"SCAD")==0) beta[l*p+j] = SCAD(z, l1, l2, gamma, v);
-	      if (strcmp(penalty,"lasso")==0) beta[l*p+j] = lasso(z, l1, l2, v);
-
-	      /* Update r */
-	      if (beta[l*p+j] != beta_old[j]) for (int i=0;i<n;i++) r[i] = r[i] - (beta[l*p+j] - beta_old[j])*x[j*n+i];
-	    }
-
-	  /* Check for convergence */
-	  if (checkConvergence(beta,beta_old,eps,l,p))
-	    {
-	      converged = 1;
-	      break;
-	    }
-	  beta0_old = beta0[l];
-	  for (int j=0;j<p;j++) beta_old[j] = beta[l*p+j];
-	}
+  for (int l=lstart;l<L;l++) {
+    //Rprintf("l=%d\n",l);*/
+    if (l != 0) {
+      a0 = b0[l-1];
+      for (int j=0;j<p;j++) a[j] = b[(l-1)*p+j];
     }
 
-  free_vector(beta_old);
-  free_vector(w);
-  free_vector(r);
+    while (INTEGER(iter)[l] < max_iter) {
+      converged = 0;
+      INTEGER(iter)[l]++;
+
+      // Check dfmax
+      active = 0;
+      for (int j=0;j<p;j++) if (b[l*p+j]!=0) active++;
+      if (active > dfmax) {
+	for (int ll=l;ll<L;ll++) {
+	  b0[ll] = R_NaReal;
+	  for (int j=0;j<p;j++) b[ll*p+j] = R_NaReal;
+	}
+	Free(a);
+	Free(w);
+	Free(r);
+	return;
+      }
+
+      // Approximate L
+      REAL(Dev)[l] = 0;
+      for (int i=0;i<n;i++) {
+	eta = a0;
+	for (int j=0;j<p;j++) eta = eta + X[j*n+i]*a[j];
+	pi = exp(eta)/(1+exp(eta));
+	if (pi > .9999) {
+	  pi = 1;
+	  w[i] = .0001;
+	}
+	else if (pi < .0001) {
+	  pi = 0;
+	  w[i] = .0001;
+	}
+	else w[i] = pi*(1-pi);
+	r[i] = (y[i] - pi)/w[i];
+	if (y[i]==1) REAL(Dev)[l] = REAL(Dev)[l] - log(pi);
+	if (y[i]==0) REAL(Dev)[l] = REAL(Dev)[l] - log(1-pi);
+      }
+      if (REAL(Dev)[l]/nullDev < .01) {
+	if (warn) warning("Model saturated; exiting...");
+	for (int ll=l;ll<L;ll++) {
+	  b0[ll] = R_NaReal;
+	  for (int j=0;j<p;j++) b[ll*p+j] = R_NaReal;
+	}
+	Free(a);
+	Free(w);
+	Free(r);
+	return;
+      }
+
+      // Intercept
+      xwr = crossprod(w, r, n, 0);
+      xwx = sum(w, n);
+      b0[l] = xwr/xwx + a0;
+      for (int i=0;i<n;i++) r[i] = r[i] - (b0[l] - a0);
+
+      // Covariates
+      for (int j=0;j<p;j++) {
+
+	// Calculate z
+	xwr = wcrossprod(X, r, w, n, j);
+	xwx = wsqsum(X, w, n, j);
+	z = xwr/n + (xwx/n)*a[j];
+	v = xwx/n;
+
+	// Update b_j
+	double l1 = lam[l] * m[j] * alpha;
+	double l2 = lam[l] * m[j] * (1-alpha);
+	if (strcmp(penalty,"MCP")==0) b[l*p+j] = MCP(z, l1, l2, gamma, v);
+	if (strcmp(penalty,"SCAD")==0) b[l*p+j] = SCAD(z, l1, l2, gamma, v);
+	if (strcmp(penalty,"lasso")==0) b[l*p+j] = lasso(z, l1, l2, v);
+
+	// Update r
+	double shift = b[l*p+j] - a[j];
+	if (shift != 0) for (int i=0;i<n;i++) r[i] -= shift*X[j*n+i];
+      }
+
+      // Check for convergence
+      if (checkConvergence(b,a,eps,l,p)) {
+	converged = 1;
+	break;
+      }
+      a0 = b0[l];
+      for (int j=0;j<p;j++) a[j] = b[l*p+j];
+    }
+  }
+
+  Free(a);
+  Free(w);
+  Free(r);
 }
 
-static const R_CMethodDef cMethods[] = {
-  {"cdfit_gaussian", (DL_FUNC) &cdfit_gaussian, 17},
-  {"cdfit_binomial", (DL_FUNC) &cdfit_binomial, 19},
+/* static const R_CMethodDef cMethods[] = { */
+/*   {"cdfit_gaussian", (DL_FUNC) &cdfit_gaussian, 17}, */
+/*   {"cdfit_binomial", (DL_FUNC) &cdfit_binomial, 19}, */
+/*   NULL */
+/* }; */
+
+static R_CallMethodDef callMethods[] = {
+  {"cdfit_gaussian", (DL_FUNC) &cdfit_gaussian, 14},
+  {"cdfit_binomial", (DL_FUNC) &cdfit_binomial, 16},
   NULL
 };
 
 void R_init_ncvreg(DllInfo *info)
 {
-  R_registerRoutines(info,cMethods,NULL,NULL,NULL);
+  R_registerRoutines(info,NULL,callMethods,NULL,NULL);
 }

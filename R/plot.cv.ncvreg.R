@@ -1,4 +1,4 @@
-plot.cv.ncvreg <- function(x, log.l=TRUE, type=c("cve", "rsq", "scale", "snr", "pred", "all"), selected=TRUE, vertical.line=TRUE, ...)
+plot.cv.ncvreg <- function(x, log.l=TRUE, type=c("cve", "rsq", "scale", "snr", "pred", "all"), selected=TRUE, vertical.line=TRUE, col="red", ...)
 {
   type <- match.arg(type)
   if (type=="all") {
@@ -58,7 +58,7 @@ plot.cv.ncvreg <- function(x, log.l=TRUE, type=c("cve", "rsq", "scale", "snr", "
   do.call("plot", plot.args)
   if (vertical.line) abline(v=l[x$min],lty=2,lwd=.5)
   suppressWarnings(arrows(x0=l[aind], x1=l[aind], y0=L[aind], y1=U[aind], code=3, angle=90, col="gray80", length=.05))
-  points(l[ind], y[ind], col="red", pch=19, cex=.5)
+  points(l[ind], y[ind], col=col, pch=19, cex=.5)
   if (selected) {
     n.s <- apply(coef(x$fit, lambda=x$lambda)!=0, 2, sum)-1
     axis(3, at=l, labels=n.s, tick=FALSE, line=-0.5)

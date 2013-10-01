@@ -31,7 +31,7 @@ which=1:length(object$lambda), type=c("link", "response", "class",
 \references{Breheny, P. and Huang, J. (2011) Coordinate descent
   algorithms for nonconvex penalized regression, with applications to
   biological feature selection. Ann. Appl. Statist., 5: 232-253.}
-\author{Patrick Breheny <patrick.breheny@uky.edu>}
+\author{Patrick Breheny <patrick-breheny@uiowa.edu>}
 \seealso{\code{ncvreg}}
 \examples{
 data(heart)

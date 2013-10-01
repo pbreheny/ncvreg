@@ -40,7 +40,7 @@
 \references{Breheny, P. and Huang, J. (2011) Coordinate descent
   algorithms for nonconvex penalized regression, with applications to
   biological feature selection. Ann. Appl. Statist., 5: 232-253.}
-\author{Patrick Breheny <patrick.breheny@uky.edu>}
+\author{Patrick Breheny <patrick-breheny@uiowa.edu>}
 \seealso{\code{\link{ncvreg}}, \code{\link{cv.ncvreg}}, \code{\link{plot.cv.ncvreg}}}
 \examples{
 ## Linear regression

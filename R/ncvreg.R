@@ -33,15 +33,18 @@ ncvreg <- function(X, y, family=c("gaussian","binomial"), penalty=c("MCP", "SCAD
 
   ## Fit
   if (family=="gaussian") {
-    fit <- .C("cdfit_gaussian", double(p*nlambda), double(nlambda), integer(nlambda), as.double(XX), as.double(yy), as.integer(n), as.integer(p), penalty, as.double(lambda), as.integer(nlambda), as.double(eps), as.integer(max.iter), as.double(gamma), as.double(penalty.factor), as.double(alpha), as.integer(dfmax), as.integer(user.lambda | any(penalty.factor==0)))
-    b <- rbind(mean(y), matrix(fit[[1]],nrow=p))
-    loss <- fit[[2]]
-    iter <- fit[[3]]
+    b <- matrix(0, p, nlambda)
+    loss <- numeric(nlambda)
+    iter <- integer(nlambda)
+    .Call("cdfit_gaussian", b, loss, iter, XX, yy, penalty, lambda, eps, as.integer(max.iter), as.double(gamma), penalty.factor, alpha, as.integer(dfmax), as.integer(user.lambda | any(penalty.factor==0)))
+    b <- rbind(mean(y), b)
   } else if (family=="binomial") {
-    fit <- .C("cdfit_binomial",double(nlambda),double(p*nlambda),double(nlambda),integer(nlambda), as.double(XX), as.double(yy), as.integer(n), as.integer(p), penalty, as.double(lambda), as.integer(nlambda), as.double(eps), as.integer(max.iter), as.double(gamma), as.double(penalty.factor), as.double(alpha), as.integer(dfmax), as.integer(user.lambda | any(penalty.factor==0)), as.integer(warn))
-    b <- rbind(fit[[1]],matrix(fit[[2]],nrow=p))
-    loss <- fit[[3]]
-    iter <- fit[[4]]
+    b0 <- numeric(nlambda)
+    b <- matrix(0, p, nlambda)
+    loss <- numeric(nlambda)
+    iter <- integer(nlambda)
+    .Call("cdfit_binomial", b0, b, loss, iter, XX, as.numeric(yy), penalty, lambda, eps, as.integer(max.iter), as.double(gamma), penalty.factor, alpha, as.integer(dfmax), as.integer(user.lambda | any(penalty.factor==0)), as.integer(warn))
+    b <- rbind(b0, b)
   }
   
   ## Eliminate saturated lambda values, if any

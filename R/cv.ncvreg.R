@@ -1,9 +1,11 @@
-cv.ncvreg <- function(X, y, ..., nfolds=10, seed, trace=FALSE)
-{
+cv.ncvreg <- function(X, y, ..., nfolds=10, seed, trace=FALSE) {
   if (!missing(seed)) set.seed(seed)
   fit <- ncvreg(X=X, y=y, ...)
   E <- matrix(NA, nrow=length(y), ncol=length(fit$lambda))
-  if (fit$family=="binomial") PE <- E
+  if (fit$family=="binomial") {
+    if (min(table(y)) < nfolds) stop("nfolds is larger than the smaller of 0/1 in the data; decrease nfolds")
+    PE <- E
+  }
 
   n <- length(y)
   if (fit$family=="gaussian") {
