@@ -4,7 +4,9 @@
 \description{Plots the cross-validation curve from a "cv.ncvreg"
   object, along with standard error bars.}
 \usage{
-\method{plot}{cv.ncvreg}(x, log.l=TRUE, type=c("cve", "rsq", "scale", "snr", "pred", "all"), selected=TRUE, vertical.line=TRUE, col="red", ...)
+\method{plot}{cv.ncvreg}(x, log.l=TRUE, type=c("cve", "rsq", "scale",
+"snr", "pred", "all"), selected=TRUE, vertical.line=TRUE, col="red",
+...) 
 }
 \arguments{
   \item{x}{A \code{"cv.ncvreg"} object.}

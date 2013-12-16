@@ -19,7 +19,8 @@ penalty.factor=rep(1, ncol(X)), warn=TRUE, ...)
     response.}
   \item{penalty}{The penalty to be applied to the model.  Either "MCP"
     (the default), "SCAD", or "lasso".}
-  \item{gamma}{The tuning parameter of the MCP/SCAD penalty (see details).}
+  \item{gamma}{The tuning parameter of the MCP/SCAD penalty (see
+    details).}
   \item{alpha}{Tuning parameter for the Mnet estimator which controls
     the relative contributions from the MCP/SCAD penalty and the ridge,
     or L2 penalty.  \code{alpha=1} is equivalent to MCP/SCAD penalty,
@@ -61,7 +62,8 @@ penalty.factor=rep(1, ncol(X)), warn=TRUE, ...)
   logistic regression models, some care is taken to avoid model
   saturation; the algorithm may exit early in this setting.  The
   objective function is defined to be
-  \deqn{\frac{1}{2n}\textrm{RSS} + \textrm{penalty}}{RSS/(2*n) + penalty}
+  \deqn{\frac{1}{2n}\textrm{RSS} + \textrm{penalty}}{RSS/(2*n) +
+    penalty} 
   for \code{"gaussian"} and
   \deqn{-\frac{1}{n}\ell + \textrm{penalty}}{-(1/n) loglik + penalty}
   for \code{"binomial"}, where the likelihood is from a traditional
@@ -86,6 +88,7 @@ penalty.factor=rep(1, ncol(X)), warn=TRUE, ...)
   \item{penalty}{Same as above.}
   \item{family}{Same as above.}
   \item{gamma}{Same as above.}
+  \item{alpha}{Same as above.}
   \item{convex.min}{The last index for which the objective function is
     locally convex.  The smallest value of lambda for which the
     objective function is convex is therefore \code{lambda[convex.min]},

@@ -1,22 +1,24 @@
-predict.ncvreg <- function(object, X, lambda, which=1:length(object$lambda),type=c("link","response","class","coefficients"),...) {
+predict.ncvreg <- function(object, X, lambda, which=1:length(object$lambda), type=c("link", "response", "class", "coefficients", "vars", "nvars"),...) {
   type <- match.arg(type)
-  beta <- coef.ncvreg(object,lambda=lambda,which=which)
+  beta <- coef.ncvreg(object, lambda=lambda, which=which, drop=FALSE)
   if (type=="coefficients") return(beta)
-  eta <- if (is.matrix(beta)) sweep(X %*% beta[-1,,drop=FALSE], 2, beta[1,], "+") else X%*%beta[-1] + beta[1]
+  if (type=="nvars") return(apply(beta!=0,2,sum)-1)
+  if (type=="vars") return(drop(apply(beta[-1, , drop=FALSE]!=0, 2, FUN=which)))
+  eta <- sweep(X %*% beta[-1,,drop=FALSE], 2, beta[1,], "+")
   if (object$family=="gaussian" | type=="link") return(drop(eta))
   pihat <- exp(eta)/(1+exp(eta))
   if (type=="response") return(drop(pihat))
-  if (type=="class") return(drop(eta>0))
+  if (type=="class") return(drop(1*(eta>0)))
 }
-coef.ncvreg <- function(object, lambda, which=1:length(object$lambda), ...) {
+coef.ncvreg <- function(object, lambda, which=1:length(object$lambda), drop=TRUE, ...) {
   if (!missing(lambda)) {
     ind <- approx(object$lambda,seq(object$lambda),lambda)$y
     l <- floor(ind)
     r <- ceiling(ind)
     w <- ind %% 1
-    beta <- (1-w)*object$beta[,l] + w*object$beta[,r]
+    beta <- (1-w)*object$beta[,l,drop=FALSE] + w*object$beta[,r,drop=FALSE]
     if (length(lambda) > 1) colnames(beta) <- round(lambda,4)
   }
-  else beta <- object$beta[,which]
-  return(beta)
+  else beta <- object$beta[,which,drop=FALSE]
+  if (drop) return(drop(beta)) else return(beta)
 }

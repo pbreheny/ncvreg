@@ -1,25 +1,24 @@
 source("~/dev/.ncvreg.setup.R")
-
 test_that("ncvreg works for linear regression", {
   X <- matrix(rnorm(500),ncol=10)
   b <- rnorm(10)
   y <- rnorm(X%*%b)
-  coef <- lm(y~X)$coef
+  beta <- lm(y~X)$coef
   scad <- coef(ncvreg(X,y,lambda=0,penalty="SCAD",eps=.0001))
   mcp <- coef(ncvreg(X,y,lambda=0,penalty="MCP",eps=.0001))
-  expect_that(scad,equals(coef,tolerance=.01,check.attributes=FALSE))
-  expect_that(mcp,equals(coef,tolerance=.01,check.attributes=FALSE))
+  expect_that(scad,equals(beta,tolerance=.01,check.attributes=FALSE))
+  expect_that(mcp,equals(beta,tolerance=.01,check.attributes=FALSE))
 })
 
 test_that("ncvreg works for logistic regression", {
   X <- matrix(rnorm(500),ncol=10)
   b <- rnorm(10)
   y <- rnorm(X%*%b) > 0
-  coef <- glm(y~X,family="binomial")$coef
+  beta <- glm(y~X,family="binomial")$coef
   scad <- coef(ncvreg(X,y,lambda=0,family="binomial",penalty="SCAD",eps=.0001))
   mcp <- coef(ncvreg(X,y,lambda=0, family="binomial",penalty="MCP", eps=.0001))
-  expect_that(scad,equals(coef,tolerance=.01,check.attributes=FALSE))
-  expect_that(mcp,equals(coef,tolerance=.01,check.attributes=FALSE))
+  expect_that(scad,equals(beta,tolerance=.01,check.attributes=FALSE))
+  expect_that(mcp,equals(beta,tolerance=.01,check.attributes=FALSE))
 })
 
 test_that("ncvreg reproduces lasso", {
@@ -106,7 +105,7 @@ test_that("penalty.factor seems to work", {
   plot(fit)
   fit <- ncvreg(X, yy, family="binomial", penalty.factor=penalty.factor)
   plot(fit)
-})  
+})
 
 test_that("cv.ncvreg() options work for gaussian", {
   n <- 50
@@ -118,8 +117,11 @@ test_that("cv.ncvreg() options work for gaussian", {
   par(mfrow=c(2,2))
   cvfit <- cv.ncvreg(X, y)
   plot(cvfit, type="all")
-  summary(cvfit)
-
+  print(summary(cvfit))
+  print(predict(cvfit, "coefficients"))
+  print(predict(cvfit, "vars"))
+  print(predict(cvfit, "nvars"))
+  
   b <- c(-3, 3, rep(0, 8))
   y <- rnorm(n, mean=X%*%b, sd=5)
   cvfit <- cv.ncvreg(X, y)
@@ -141,6 +143,13 @@ test_that("cv.ncvreg() options work for binomial", {
   par(mfrow=c(2,2))
   cvfit <- cv.ncvreg(X, y, family="binomial")
   plot(cvfit, type="all")
+  print(summary(cvfit))
+  print(predict(cvfit, "coefficients"))
+  print(predict(cvfit, "vars"))
+  print(predict(cvfit, "nvars"))
+  print(head(predict(cvfit, X=X, "link")))
+  print(head(predict(cvfit, X=X, "response")))
+  print(head(predict(cvfit, X=X, "class")))
   
   b <- c(-3, 3, rep(0, 8))
   y <- rnorm(n, mean=X%*%b, sd=5) > 0.5

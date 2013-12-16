@@ -6,7 +6,9 @@
   and is not intended to be called directly, unless you really know what
   you're doing.}
 \usage{
-ncvreg_fit(X, y, family=c("gaussian","binomial"), penalty=c("MCP", "SCAD", "lasso"), gamma=3, alpha=1, lambda, eps=.001, max.iter=1000, dfmax=p+1, penalty.factor=rep(1, ncol(X)), warn=TRUE)
+ncvreg_fit(X, y, family=c("gaussian","binomial"), penalty=c("MCP",
+"SCAD", "lasso"), gamma=3, alpha=1, lambda, eps=.001, max.iter=1000,
+dfmax=p+1, penalty.factor=rep(1, ncol(X)), warn=TRUE) 
 }
 \arguments{
   \item{X}{The design matrix.  Unlike in \code{\link{ncvreg}},

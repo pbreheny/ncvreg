@@ -1,3 +1,8 @@
+2.7-0
+	* Added "vars" and "nvars" options to predict function.
+	* Modified look of summary(cvfit) output.
+	* Modified internal details of .Call interface.
+
 2.6-0
 	* Introduction of function ncvreg_fit for programmers who want to
 	  access the internal C routines of ncvreg, bypassing internal

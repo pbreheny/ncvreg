@@ -5,17 +5,16 @@ ncvreg_fit <- function(X, y, family=c("gaussian","binomial"), penalty=c("MCP", "
   p <- ncol(X)
   nlam <- length(lambda)
   if (family=="gaussian") {
-    b <- matrix(0, p, nlam)
-    loss <- numeric(nlam)
-    iter <- integer(nlam)
-    .Call("cdfit_gaussian", b, loss, iter, X, as.numeric(y), penalty, lambda, eps, as.integer(max.iter), as.double(gamma), penalty.factor, alpha, as.integer(dfmax), TRUE)
+    res <- .Call("cdfit_gaussian", X, as.numeric(y), penalty, lambda, eps, as.integer(max.iter), as.double(gamma), penalty.factor, alpha, as.integer(dfmax), TRUE)
+    b <- matrix(res[[1]], p, nlam)
+    loss <- res[[2]]
+    iter <- res[[3]]
   } else if (family=="binomial") {
+    res <- .Call("cdfit_binomial", X, as.numeric(y), penalty, lambda, eps, as.integer(max.iter), as.double(gamma), penalty.factor, alpha, as.integer(dfmax), TRUE, as.integer(warn))
     b0 <- numeric(nlam)
-    b <- matrix(0, p, nlam)
-    loss <- numeric(nlam)
-    iter <- integer(nlam)
-    .Call("cdfit_binomial", b0, b, loss, iter, X, as.numeric(y), penalty, lambda, eps, as.integer(max.iter), as.double(gamma), penalty.factor, alpha, as.integer(dfmax), TRUE, as.integer(warn))
-    b <- rbind(b0, b)
+    b <- rbind(res[[1]], matrix(res[[2]], p, nlam))
+    loss <- res[[3]]
+    iter <- res[[4]]
   }
   ## Eliminate saturated lambda values, if any
   ind <- !is.na(b[p,])

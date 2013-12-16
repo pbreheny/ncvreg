@@ -33,18 +33,15 @@ ncvreg <- function(X, y, family=c("gaussian","binomial"), penalty=c("MCP", "SCAD
 
   ## Fit
   if (family=="gaussian") {
-    b <- matrix(0, p, nlambda)
-    loss <- numeric(nlambda)
-    iter <- integer(nlambda)
-    .Call("cdfit_gaussian", b, loss, iter, XX, yy, penalty, lambda, eps, as.integer(max.iter), as.double(gamma), penalty.factor, alpha, as.integer(dfmax), as.integer(user.lambda | any(penalty.factor==0)))
-    b <- rbind(mean(y), b)
+    res <- .Call("cdfit_gaussian", XX, yy, penalty, lambda, eps, as.integer(max.iter), as.double(gamma), penalty.factor, alpha, as.integer(dfmax), as.integer(user.lambda | any(penalty.factor==0)))
+    b <- rbind(mean(y), matrix(res[[1]], p, nlambda))
+    loss <- res[[2]]
+    iter <- res[[3]]
   } else if (family=="binomial") {
-    b0 <- numeric(nlambda)
-    b <- matrix(0, p, nlambda)
-    loss <- numeric(nlambda)
-    iter <- integer(nlambda)
-    .Call("cdfit_binomial", b0, b, loss, iter, XX, as.numeric(yy), penalty, lambda, eps, as.integer(max.iter), as.double(gamma), penalty.factor, alpha, as.integer(dfmax), as.integer(user.lambda | any(penalty.factor==0)), as.integer(warn))
-    b <- rbind(b0, b)
+    res <- .Call("cdfit_binomial", XX, as.numeric(yy), penalty, lambda, eps, as.integer(max.iter), as.double(gamma), penalty.factor, alpha, as.integer(dfmax), as.integer(user.lambda | any(penalty.factor==0)), as.integer(warn))
+    b <- rbind(res[[1]], matrix(res[[2]], p, nlambda))
+    loss <- res[[3]]
+    iter <- res[[4]]
   }
   
   ## Eliminate saturated lambda values, if any
@@ -77,6 +74,7 @@ ncvreg <- function(X, y, family=c("gaussian","binomial"), penalty=c("MCP", "SCAD
                  penalty = penalty,
                  family = family,
                  gamma = gamma,
+                 alpha = alpha,
                  convex.min = convex.min,
                  loss = loss,
                  penalty.factor = penalty.factor,

@@ -1,7 +1,8 @@
 \name{ncvreg-package}
 \alias{ncvreg-package}
 \docType{package}
-\title{Regularization paths for SCAD- and MCP-penalized regression models}
+\title{Regularization paths for SCAD- and MCP-penalized regression
+  models}
 \description{Efficient algorithms for fitting regularization paths for
   linear or logistic regression models penalized by MCP or SCAD, with
   optional additional L2 penalty.}
@@ -9,8 +10,8 @@
   \tabular{ll}{
     Package: \tab ncvreg\cr
     Type: \tab Package\cr
-    Version: \tab 2.6\cr
-    Date: \tab 2013-10-02\cr
+    Version: \tab 2.7\cr
+    Date: \tab 2013-12-16\cr
     License: \tab GPL-2\cr}
   Accepts a design matrix \code{X} and vector of responses \code{y},
   produces the regularization path over a grid of values for the tuning
