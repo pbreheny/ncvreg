@@ -1,8 +1,11 @@
 source("~/dev/.ncvreg.setup.R")
+
 test_that("ncvreg works for linear regression", {
-  X <- matrix(rnorm(500),ncol=10)
-  b <- rnorm(10)
-  y <- rnorm(X%*%b)
+  n <- 50
+  p <- 10
+  X <- matrix(rnorm(n*p), n, p)
+  b <- rnorm(p)
+  y <- rnorm(n, X%*%b)
   beta <- lm(y~X)$coef
   scad <- coef(ncvreg(X,y,lambda=0,penalty="SCAD",eps=.0001))
   mcp <- coef(ncvreg(X,y,lambda=0,penalty="MCP",eps=.0001))
@@ -182,3 +185,4 @@ test_that("ncvreg_fit works", {
   b3 <- ncvreg_fit(X, y, penalty="SCAD", lam=c(1, 0.1, 0.01))
   b4 <- ncvreg_fit(X, y, "binomial", penalty="SCAD", lam=c(1, 0.1, 0.01))
 })
+

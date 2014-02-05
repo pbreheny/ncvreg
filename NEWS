@@ -1,3 +1,15 @@
+3.0-0
+	* Revised internal algorithms to incorporate targeted cycling
+	  based on strong rules
+	* Moved standardization to C
+	* Moved calculation of lambda sequence to C
+	* As a result of the above three changes, ncvreg now runs
+	  much faster for large p
+	* Added fir(), perm.ncvreg(), and plot.fir() functions for the
+	  purposes of estimating and displaying false inclusion rates;
+	  these are likely to evolve over the next few months
+	* Fixed a bug in cv.ncvreg for user-specified lambda sequence
+
 2.7-0
 	* Added "vars" and "nvars" options to predict function.
 	* Modified look of summary(cvfit) output.

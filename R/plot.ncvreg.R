@@ -11,10 +11,11 @@ plot.ncvreg <- function(x, alpha=1, log.l=FALSE, shade=TRUE, ...)
     l <- log(l)
     xlab <- expression(log(lambda))
   } else xlab <- expression(lambda)
-  plot.args <- list(x=l, y=1:length(l), ylim=range(Y), xlab=xlab, ylab=expression(hat(beta)), type="n", xlim=rev(range(l)))
+  plot.args <- list(x=l, y=1:length(l), ylim=range(Y), xlab=xlab, ylab="", type="n", xlim=rev(range(l)), las=1)
   new.args <- list(...)
   if (length(new.args)) plot.args[names(new.args)] <- new.args
   do.call("plot", plot.args)
+  if (!is.element("ylab", names(new.args))) mtext(expression(hat(beta)), side=2, cex=par("cex"), line=3, las=1)
   
   if (shade & !is.null(x$convex.min)) {
     l1 <- l[x$convex.min]

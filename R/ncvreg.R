@@ -1,4 +1,4 @@
-ncvreg <- function(X, y, family=c("gaussian","binomial"), penalty=c("MCP", "SCAD", "lasso"), gamma=3, alpha=1, lambda.min=ifelse(n>p,.001,.05), nlambda=100, lambda, eps=.001, max.iter=1000, convex=TRUE, dfmax=p+1, penalty.factor=rep(1, ncol(X)), warn=TRUE, ...)
+ncvreg <- function(X, y, family=c("gaussian","binomial"), penalty=c("MCP", "SCAD", "lasso"), gamma=switch(penalty, SCAD=3.7, 3), alpha=1, lambda.min=ifelse(n>p,.001,.05), nlambda=100, lambda, eps=.001, max.iter=1000, convex=TRUE, dfmax=p+1, penalty.factor=rep(1, ncol(X)), warn=TRUE, returnX=FALSE, ...)
 {
   ## Error checking
   family <- match.arg(family)
@@ -14,14 +14,15 @@ ncvreg <- function(X, y, family=c("gaussian","binomial"), penalty=c("MCP", "SCAD
   if ("n.lambda" %in% names(dots)) nlambda <- dots$n.lambda
   
   ## Set up XX, yy, lambda
-  XX <- standardize(X)
-  center <- attr(XX, "center")
-  scale <- attr(XX, "scale")
+  std <- .Call("standardize", X)
+  XX <- std[[1]]
+  center <- std[[2]]
+  scale <- std[[3]]
   nz <- which(scale > 1e-6)
-  XX <- XX[ ,nz, drop=FALSE]
-  yy <- if (family=="gaussian") y - mean(y) else y
-  p <- ncol(XX)
+  if (length(nz) != ncol(XX)) XX <- XX[ ,nz, drop=FALSE]
+  yy <- if (family=="gaussian") y - mean(y) else as.numeric(y)
   n <- length(yy)
+  p <- ncol(XX)
   penalty.factor <- penalty.factor[nz]
   if (missing(lambda)) {
     lambda <- setupLambda(XX, yy, family, alpha, lambda.min, nlambda, penalty.factor)
@@ -38,14 +39,14 @@ ncvreg <- function(X, y, family=c("gaussian","binomial"), penalty=c("MCP", "SCAD
     loss <- res[[2]]
     iter <- res[[3]]
   } else if (family=="binomial") {
-    res <- .Call("cdfit_binomial", XX, as.numeric(yy), penalty, lambda, eps, as.integer(max.iter), as.double(gamma), penalty.factor, alpha, as.integer(dfmax), as.integer(user.lambda | any(penalty.factor==0)), as.integer(warn))
+    res <- .Call("cdfit_binomial", XX, yy, penalty, lambda, eps, as.integer(max.iter), as.double(gamma), penalty.factor, alpha, as.integer(dfmax), as.integer(user.lambda | any(penalty.factor==0)), as.integer(warn))
     b <- rbind(res[[1]], matrix(res[[2]], p, nlambda))
     loss <- res[[3]]
     iter <- res[[4]]
   }
   
   ## Eliminate saturated lambda values, if any
-  ind <- !is.na(b[p,])
+  ind <- !is.na(iter)
   b <- b[, ind, drop=FALSE]
   iter <- iter[ind]
   lambda <- lambda[ind]
@@ -68,16 +69,23 @@ ncvreg <- function(X, y, family=c("gaussian","binomial"), penalty=c("MCP", "SCAD
   dimnames(beta) <- list(varnames, round(lambda,digits=4))
   
   ## Output
-  structure(list(beta = beta,
-                 iter = iter,
-                 lambda = lambda,
-                 penalty = penalty,
-                 family = family,
-                 gamma = gamma,
-                 alpha = alpha,
-                 convex.min = convex.min,
-                 loss = loss,
-                 penalty.factor = penalty.factor,
-                 n = n),
-            class = "ncvreg")
+  val <- structure(list(beta = beta,
+                        iter = iter,
+                        lambda = lambda,
+                        penalty = penalty,
+                        family = family,
+                        gamma = gamma,
+                        alpha = alpha,
+                        convex.min = convex.min,
+                        loss = loss,
+                        penalty.factor = penalty.factor,
+                        n = n),
+                   class = "ncvreg")
+  if (returnX) {
+    val$X <- XX
+    val$center <- center
+    val$scale <- scale
+    val$y <- yy
+  }
+  val
 }

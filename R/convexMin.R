@@ -1,17 +1,20 @@
-convexMin <- function(beta,X,penalty,gamma,l2,family) {
+convexMin <- function(beta, X, penalty, gamma, l2, family) {
   n <- nrow(X)
   p <- ncol(X)
   l <- ncol(beta)
   
-  if (penalty=="MCP") k <- 1/gamma
-  else if (penalty=="SCAD") k <- 1/(gamma-1)
-  else if (penalty=="lasso") return(NULL)
+  if (penalty=="MCP") {
+    k <- 1/gamma
+  } else if (penalty=="SCAD") {
+    k <- 1/(gamma-1)
+  } else if (penalty=="lasso") {
+    return(NULL)
+  }
   if (l==0) return(NULL)
   
   val <- NULL
   for (i in 1:l) {
-    if (i==1) A1 <- rep(1,p)
-    else A1 <- beta[-1,i]==0
+    A1 <- if (i==1) rep(1,p) else beta[-1,i]==0
     if (i==l) {
       L2 <- l2[i]
       U <- A1

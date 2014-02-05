@@ -6,10 +6,11 @@
   parameter lambda.  Fits linear and logistic regression models, with
   option for an additional L2 penalty.}
 \usage{
-ncvreg(X, y, family=c("gaussian", "binomial"), penalty=c("MCP", "SCAD",
-"lasso"), gamma=3, alpha=1, lambda.min=ifelse(n>p,.001,.05),
-nlambda=100, lambda, eps=.001, max.iter=1000, convex=TRUE, dfmax=p+1,
-penalty.factor=rep(1, ncol(X)), warn=TRUE, ...)
+ncvreg(X, y, family=c("gaussian","binomial"), penalty=c("MCP", "SCAD",
+"lasso"), gamma=switch(penalty, SCAD=3.7, 3), alpha=1,
+lambda.min=ifelse(n>p,.001,.05), nlambda=100, lambda, eps=.001,
+max.iter=1000, convex=TRUE, dfmax=p+1, penalty.factor=rep(1, ncol(X)),
+warn=TRUE, returnX=FALSE, ...)
 }
 \arguments{
   \item{X}{The design matrix, without an intercept.  \code{ncvreg}
@@ -20,7 +21,7 @@ penalty.factor=rep(1, ncol(X)), warn=TRUE, ...)
   \item{penalty}{The penalty to be applied to the model.  Either "MCP"
     (the default), "SCAD", or "lasso".}
   \item{gamma}{The tuning parameter of the MCP/SCAD penalty (see
-    details).}
+    details).  Default is 3 for MCP and 3.7 for SCAD.}
   \item{alpha}{Tuning parameter for the Mnet estimator which controls
     the relative contributions from the MCP/SCAD penalty and the ridge,
     or L2 penalty.  \code{alpha=1} is equivalent to MCP/SCAD penalty,
@@ -54,6 +55,8 @@ penalty.factor=rep(1, ncol(X)), warn=TRUE, ...)
     always in the model without shrinkage.}
   \item{warn}{Return warning messages for failures to converge and model
     saturation?  Default is TRUE.}
+  \item{returnX}{Return the standardized design matrix?  Default is
+    FALSE.}
   \item{...}{Not used.}
 }
 \details{
@@ -126,6 +129,14 @@ fit <- ncvreg(X,y,alpha=0.5)
 plot(fit,main=expression(paste(alpha,"=",0.5)))
 fit <- ncvreg(X,y,alpha=0.1)
 plot(fit,main=expression(paste(alpha,"=",0.1)))
+
+par(mfrow=c(2,2))
+fit <- ncvreg(X,y)
+plot(fir(fit))            ## Independence approximation
+plot(fir(fit), type="EF") ## Independence approximation
+perm.fit <- perm.ncvreg(X,y)
+plot(perm.fit)
+plot(perm.fit, type="EF")
 
 ## Logistic regression
 data(heart)

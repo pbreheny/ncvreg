@@ -24,12 +24,16 @@ cv.ncvreg <- function(X, y, ..., nfolds=10, seed, trace=FALSE) {
 
   for (i in 1:nfolds) {
     if (trace) cat("Starting CV fold #",i,sep="","\n")
-    X1 <- X[cv.ind!=i,]
-    y1 <- y[cv.ind!=i]
+
+    cv.args <- list(...)
+    cv.args$X <- X[cv.ind!=i,]
+    cv.args$y <- y[cv.ind!=i]
+    cv.args$lambda <- fit$lambda
+    cv.args$warn <- FALSE
+    fit.i <- do.call("ncvreg", cv.args)
+
     X2 <- X[cv.ind==i,]
     y2 <- y[cv.ind==i]
-
-    fit.i <- ncvreg(X1, y1, lambda=fit$lambda, warn=FALSE, ...)
     yhat <- predict(fit.i, X2, type="response")
     E[cv.ind==i, 1:ncol(yhat)] <- loss.ncvreg(y2, yhat, fit$family)
     if (fit$family=="binomial") PE[cv.ind==i, 1:ncol(yhat)] <- (yhat < 0.5) == y2
