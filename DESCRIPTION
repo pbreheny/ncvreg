@@ -1,6 +1,6 @@
 Package: ncvreg
 Title: Regularization paths for SCAD- and MCP-penalized regression models
-Version: 3.0-0
+Version: 3.1-0
 Date: 2014-02-05
 Author: Patrick Breheny
 Maintainer: Patrick Breheny <patrick-breheny@uiowa.edu>

@@ -26,13 +26,13 @@ cv.ncvreg <- function(X, y, ..., nfolds=10, seed, trace=FALSE) {
     if (trace) cat("Starting CV fold #",i,sep="","\n")
 
     cv.args <- list(...)
-    cv.args$X <- X[cv.ind!=i,]
+    cv.args$X <- X[cv.ind!=i, , drop=FALSE]
     cv.args$y <- y[cv.ind!=i]
     cv.args$lambda <- fit$lambda
     cv.args$warn <- FALSE
     fit.i <- do.call("ncvreg", cv.args)
 
-    X2 <- X[cv.ind==i,]
+    X2 <- X[cv.ind==i, , drop=FALSE]
     y2 <- y[cv.ind==i]
     yhat <- predict(fit.i, X2, type="response")
     E[cv.ind==i, 1:ncol(yhat)] <- loss.ncvreg(y2, yhat, fit$family)
