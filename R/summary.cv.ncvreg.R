@@ -3,7 +3,7 @@ summary.cv.ncvreg <- function(object, ...) {
   rsq <- S/object$null.dev
   snr <- S/object$cve
   nvars <- predict(object$fit, type="nvars")
-  model <- if (object$fit$family=="gaussian") "linear" else if (object$fit$family=="binomial") "logistic"
+  model <- switch(object$fit$family, gaussian=="linear", binomial="logistic", poisson="Poisson")
   val <- list(penalty=object$fit$penalty, model=model, n=object$fit$n, p=nrow(object$fit$beta)-1, min=object$min, lambda=object$lambda, cve=object$cve, r.squared=rsq, snr=snr, nvars=nvars)
   if (object$fit$family=="gaussian") val$sigma <- sqrt(object$cve)
   if (object$fit$family=="binomial") val$pe <- object$pe
@@ -16,7 +16,7 @@ print.summary.cv.ncvreg <- function(x, digits, ...) {
   cat("-------------------------------------------------\n")
   cat("  Nonzero coefficients: ", x$nvars[x$min], "\n", sep="")
   ##cat("  Minimum cross-validation error of ", formatC(min(x$cve), digits[1], format="f"), " at lambda=", formatC(x$lambda[x$min], digits[2], format="f"), "\n", sep="")
-  cat("  Cross-validation error: ", formatC(min(x$cve), digits[1], format="f"), "\n", sep="")
+  cat("  Cross-validation error (deviance): ", formatC(min(x$cve), digits[1], format="f"), "\n", sep="")
   cat("  R-squared: ", formatC(max(x$r.squared), digits[3], format="f"), "\n", sep="")
   cat("  Signal-to-noise ratio: ", formatC(max(x$snr), digits[4], format="f"), "\n", sep="")
   if (x$model == "logistic") cat("  Prediction error: ", formatC(x$pe[x$min], digits[5], format="f"), "\n", sep="")

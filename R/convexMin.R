@@ -31,8 +31,7 @@ convexMin <- function(beta, X, penalty, gamma, l2, family) {
         cmin <- min(eigen(crossprod(Xu)/n)$values)
       }
       eigen.min <- cmin - k + L2
-    }
-    if (family=="binomial") {
+    } else if (family=="binomial") {
       if (i==l) eta <- beta[1,i] + X%*%beta[-1,i]
       else eta <- beta[1,i+1] + X%*%beta[-1,i+1]
       pi. <- exp(eta)/(1+exp(eta))
@@ -42,7 +41,16 @@ convexMin <- function(beta, X, penalty, gamma, l2, family) {
       Xu <- sqrt(w) * cbind(1,Xu)
       xwxn <- crossprod(Xu)/n
       eigen.min <- min(eigen(xwxn-diag(c(0,diag(xwxn)[-1]*(k-L2))))$values)
+    } else if (family=="poisson") {
+      if (i==l) eta <- beta[1,i] + X%*%beta[-1,i]
+      else eta <- beta[1,i+1] + X%*%beta[-1,i+1]
+      mu <- exp(eta)
+      w <- as.numeric(mu)
+      Xu <- sqrt(w) * cbind(1,Xu)
+      xwxn <- crossprod(Xu)/n
+      eigen.min <- min(eigen(xwxn-diag(c(0,diag(xwxn)[-1]*(k-L2))))$values)
     }
+    
     if (eigen.min < 0) {
       val <- i
       break

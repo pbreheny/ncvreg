@@ -5,7 +5,8 @@ plot.cv.ncvreg <- function(x, log.l=TRUE, type=c("cve", "rsq", "scale", "snr", "
     plot(x, log.l=log.l, type="cve", selected=selected, ...)
     plot(x, log.l=log.l, type="rsq", selected=selected, ...)
     plot(x, log.l=log.l, type="snr", selected=selected, ...)
-    if (x$fit$family == "binomial") plot(x, log.l=log.l, type="pred", selected=selected, ...) else plot(x, log.l=log.l, type="scale", selected=selected, ...)
+    if (x$fit$family == "binomial") plot(x, log.l=log.l, type="pred", selected=selected, ...)
+    if (x$fit$family == "gaussian") plot(x, log.l=log.l, type="scale", selected=selected, ...)
     return(invisible(NULL))
   }
   l <- x$lambda
@@ -60,7 +61,7 @@ plot.cv.ncvreg <- function(x, log.l=TRUE, type=c("cve", "rsq", "scale", "snr", "
   suppressWarnings(arrows(x0=l[aind], x1=l[aind], y0=L[aind], y1=U[aind], code=3, angle=90, col="gray80", length=.05))
   points(l[ind], y[ind], col=col, pch=19, cex=.5)
   if (selected) {
-    n.s <- apply(coef(x$fit, lambda=x$lambda)!=0, 2, sum)-1
+    n.s <- predict(x$fit, lambda=x$lambda, type="nvars")
     axis(3, at=l, labels=n.s, tick=FALSE, line=-0.5)
     mtext("Variables selected", cex=0.8, line=1.5)
   }

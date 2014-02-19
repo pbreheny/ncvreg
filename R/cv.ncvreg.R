@@ -8,7 +8,7 @@ cv.ncvreg <- function(X, y, ..., nfolds=10, seed, trace=FALSE) {
   }
 
   n <- length(y)
-  if (fit$family=="gaussian") {
+  if (fit$family=="gaussian" | fit$family=="poisson") {
     cv.ind <- ceiling(sample(1:n)/n*nfolds)
   } else if (fit$family=="binomial") {
     ind1 <- which(y==1)
