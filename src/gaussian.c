@@ -118,9 +118,7 @@ SEXP cdfit_gaussian(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEX
 	INTEGER(iter)[l]++;
 	for (int j=0; j<p; j++) {
 	  if (e[j]) {
-	    Rprintf("a[%d]: %f\n", j, a[j]);
 	    z[j] = crossprod(X, r, n, j)/n + a[j];
-	    Rprintf("z[%d]: %f\n", j, z[j]);
 
 	    // Update beta_j
 	    l1 = lam[l] * m[j] * alpha;
@@ -128,12 +126,10 @@ SEXP cdfit_gaussian(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEX
 	    if (strcmp(penalty,"MCP")==0) b[l*p+j] = MCP(z[j], l1, l2, gamma, 1);
 	    if (strcmp(penalty,"SCAD")==0) b[l*p+j] = SCAD(z[j], l1, l2, gamma, 1);
 	    if (strcmp(penalty,"lasso")==0) b[l*p+j] = lasso(z[j], l1, l2, 1);
-	    Rprintf("b[%d] = %f\n", j, b[l*p+j]);
 
 	    // Update r
 	    double shift = b[l*p+j] - a[j];
 	    if (shift !=0) for (int i=0;i<n;i++) r[i] -= shift*X[j*n+i];
-	    Rprintf("r[0] = %f\n", r[0]);
 	  }
 	}
 
