@@ -11,32 +11,27 @@ double S(double z, double l);
 double MCP(double z, double l1, double l2, double gamma, double v);
 double SCAD(double z, double l1, double l2, double gamma, double v);
 double lasso(double z, double l1, double l2, double v);
+double gLoss(double *r, int n);
+double sqsum(double *X, int n, int j);
 
-// Memory handling, output formatting (Gaussian)
-SEXP cleanupG(double *a, double *r, int *e, double *z, SEXP beta, SEXP loss, SEXP iter) {
-  Free(a);
+// Memory handling, output formatting (raw)
+SEXP cleanupR(double *r, double *a, double *v, int *e, SEXP beta, SEXP Dev, SEXP iter) {
   Free(r);
+  Free(a);
+  Free(v);
   Free(e);
-  Free(z);
   SEXP res;
   PROTECT(res = allocVector(VECSXP, 3));
   SET_VECTOR_ELT(res, 0, beta);
-  SET_VECTOR_ELT(res, 1, loss);
+  SET_VECTOR_ELT(res, 1, Dev);
   SET_VECTOR_ELT(res, 2, iter);
   UNPROTECT(4);
   return(res);
 }
 
-// Gaussian loss
-double gLoss(double *r, int n)
-{
-  double l = 0;
-  for (int i=0;i<n;i++) l = l + pow(r[i],2);
-  return(l);
-}
 
-// Coordinate descent for gaussian models
-SEXP cdfit_gaussian(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max_iter_, SEXP gamma_, SEXP multiplier, SEXP alpha_, SEXP dfmax_, SEXP user_) {
+// Coordinate descent for raw, unstandardized least squares
+SEXP cdfit_raw(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max_iter_, SEXP gamma_, SEXP multiplier, SEXP alpha_, SEXP dfmax_) {
 
   // Declarations
   int n = length(y_);
@@ -61,26 +56,19 @@ SEXP cdfit_gaussian(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEX
   double *m = REAL(multiplier);
   double alpha = REAL(alpha_)[0];
   int dfmax = INTEGER(dfmax_)[0];
-  int user = INTEGER(user_)[0];
   double *r = Calloc(n, double);
   for (int i=0; i<n; i++) r[i] = y[i];
   double *z = Calloc(p, double);
   for (int j=0; j<p; j++) z[j] = crossprod(X, r, n, j)/n;
+  double *v = Calloc(p, double);
+  for (int j=0; j<p; j++) v[j] = sqsum(X, n, j)/n;
   int *e = Calloc(p, int);
   for (int j=0; j<p; j++) e[j] = 0;
-  double cutoff, l1, l2;
-  int converged, lstart;
-
-  // If lam[0]=lam_max, skip lam[0] -- closed form sol'n available
-  if (user) {
-    lstart = 0;
-  } else {
-    REAL(loss)[0] = gLoss(r,n);
-    lstart = 1;
-  }
+  double cutoff, l1, l2, u;
+  int converged;
 
   // Path
-  for (int l=lstart;l<L;l++) {
+  for (int l=0; l<L; l++) {
     if (l != 0) {
       // Assign a
       for (int j=0;j<p;j++) a[j] = b[(l-1)*p+j];
@@ -92,48 +80,28 @@ SEXP cdfit_gaussian(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEX
       }
       if (nv > dfmax) {
 	for (int ll=l; ll<L; ll++) INTEGER(iter)[ll] = NA_INTEGER;
-	res = cleanupG(a, r, e, z, beta, loss, iter);
+	res = cleanupR(r, a, v, e, beta, loss, iter);
 	return(res);
       }
-
-      // Determine eligible set
-      if (strcmp(penalty, "lasso")==0) cutoff = 2*lam[l] - lam[l-1];
-      if (strcmp(penalty, "MCP")==0) cutoff = lam[l] + gamma/(gamma-1)*(lam[l] - lam[l-1]);
-      if (strcmp(penalty, "SCAD")==0) cutoff = lam[l] + gamma/(gamma-2)*(lam[l] - lam[l-1]);
-      for (int j=0; j<p; j++) if (fabs(z[j]) > (cutoff * alpha * m[j])) e[j] = 1;
-    } else {
-      // Determine eligible set
-      double lmax = 0;
-      for (int j=0; j<p; j++) if (fabs(z[j]) > lmax) lmax = fabs(z[j]);
-      if (strcmp(penalty, "lasso")==0) cutoff = 2*lam[l] - lmax;
-      if (strcmp(penalty, "MCP")==0) cutoff = lam[l] + gamma/(gamma-1)*(lam[l] - lmax);
-      if (strcmp(penalty, "SCAD")==0) cutoff = lam[l] + gamma/(gamma-2)*(lam[l] - lmax);
-      for (int j=0; j<p; j++) if (fabs(z[j]) > (cutoff * alpha * m[j])) e[j] = 1;
     }
 
     while (INTEGER(iter)[l] < max_iter) {
-
-      // Solve over eligible set
       while (INTEGER(iter)[l] < max_iter) {
 	INTEGER(iter)[l]++;
 	for (int j=0; j<p; j++) {
 	  if (e[j]) {
-	    Rprintf("a[%d]: %f\n", j, a[j]);
-	    z[j] = crossprod(X, r, n, j)/n + a[j];
-	    Rprintf("z[%d]: %f\n", j, z[j]);
+	    u = crossprod(X, r, n, j)/n + v[j]*a[j];
 
-	    // Update beta_j
+	    // Update b_j
 	    l1 = lam[l] * m[j] * alpha;
 	    l2 = lam[l] * m[j] * (1-alpha);
-	    if (strcmp(penalty,"MCP")==0) b[l*p+j] = MCP(z[j], l1, l2, gamma, 1);
-	    if (strcmp(penalty,"SCAD")==0) b[l*p+j] = SCAD(z[j], l1, l2, gamma, 1);
-	    if (strcmp(penalty,"lasso")==0) b[l*p+j] = lasso(z[j], l1, l2, 1);
-	    Rprintf("b[%d] = %f\n", j, b[l*p+j]);
+	    if (strcmp(penalty,"MCP")==0) b[l*p+j] = MCP(u, l1, l2, gamma, v[j]);
+	    if (strcmp(penalty,"SCAD")==0) b[l*p+j] = SCAD(u, l1, l2, gamma, v[j]);
+	    if (strcmp(penalty,"lasso")==0) b[l*p+j] = lasso(u, l1, l2, v[j]);
 
 	    // Update r
 	    double shift = b[l*p+j] - a[j];
 	    if (shift !=0) for (int i=0;i<n;i++) r[i] -= shift*X[j*n+i];
-	    Rprintf("r[0] = %f\n", r[0]);
 	  }
 	}
 
@@ -147,15 +115,14 @@ SEXP cdfit_gaussian(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEX
       int violations = 0;
       for (int j=0; j<p; j++) {
 	if (e[j]==0) {
+	  u = crossprod(X, r, n, j)/n + v[j]*a[j];
 
-	  z[j] = crossprod(X, r, n, j)/n;
-
-	  // Update beta_j
+	  // Update b_j
 	  l1 = lam[l] * m[j] * alpha;
 	  l2 = lam[l] * m[j] * (1-alpha);
-	  if (strcmp(penalty,"MCP")==0) b[l*p+j] = MCP(z[j], l1, l2, gamma, 1);
-	  if (strcmp(penalty,"SCAD")==0) b[l*p+j] = SCAD(z[j], l1, l2, gamma, 1);
-	  if (strcmp(penalty,"lasso")==0) b[l*p+j] = lasso(z[j], l1, l2, 1);
+	  if (strcmp(penalty,"MCP")==0) b[l*p+j] = MCP(u, l1, l2, gamma, v[j]);
+	  if (strcmp(penalty,"SCAD")==0) b[l*p+j] = SCAD(u, l1, l2, gamma, v[j]);
+	  if (strcmp(penalty,"lasso")==0) b[l*p+j] = lasso(u, l1, l2, v[j]);
 
 	  // If something enters the eligible set, update eligible set & residuals
 	  if (b[l*p+j] !=0) {
@@ -173,6 +140,6 @@ SEXP cdfit_gaussian(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEX
       }
     }
   }
-  res = cleanupG(a, r, e, z, beta, loss, iter);
+  res = cleanupR(r, a, v, e, beta, loss, iter);
   return(res);
 }

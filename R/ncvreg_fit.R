@@ -6,7 +6,7 @@ ncvreg_fit <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=
   nlam <- length(lambda)
   
   if (family=="gaussian") {
-    res <- .Call("cdfit_gaussian", X, as.numeric(y), penalty, lambda, eps, as.integer(max.iter), as.double(gamma), penalty.factor, alpha, as.integer(dfmax), TRUE)
+    res <- .Call("cdfit_raw", X, as.numeric(y), penalty, lambda, eps, as.integer(max.iter), as.double(gamma), penalty.factor, alpha, as.integer(dfmax))
     b <- matrix(res[[1]], p, nlam)
     loss <- res[[2]]
     iter <- res[[3]]
@@ -30,7 +30,7 @@ ncvreg_fit <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=
   iter <- iter[ind]
   lambda <- lambda[ind]
   loss <- loss[ind]
-  if (warn & any(iter==max.iter)) warning("Algorithm failed to converge for all values of lambda")
+  if (warn & any(iter==max.iter)) warning("Algorithm failed to converge for some values of lambda")
   
   list(beta=b, loss=loss, iter=iter, lambda=lambda)
 }
