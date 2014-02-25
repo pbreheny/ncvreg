@@ -2,23 +2,24 @@
 \alias{ncvreg_fit}
 \title{Internal C function for fitting ncvreg models}
 \description{This function is a wrapper for the calls to C carried out
-  by \code{ncvreg}.  This function performs no checking or processing,
-  and is not intended to be called directly, unless you really know what
-  you're doing.}
+  by \code{ncvreg}.  This function performs no checking, processing or
+  standardization, so use \code{ncvreg} instead, unless you really know
+  what you're doing.}
 \usage{
-ncvreg_fit(X, y, family=c("gaussian","binomial"), penalty=c("MCP",
-"SCAD", "lasso"), gamma=3, alpha=1, lambda, eps=.001, max.iter=1000,
-dfmax=p+1, penalty.factor=rep(1, ncol(X)), warn=TRUE) 
+ncvreg_fit(X, y, family=c("gaussian", "binomial", "poisson"),
+penalty=c("MCP", "SCAD", "lasso"), gamma=3, alpha=1, lambda, eps=.001,
+max.iter=1000, dfmax=p+1, penalty.factor=rep(1, ncol(X)), warn=TRUE)
 }
 \arguments{
   \item{X}{The design matrix.  Unlike in \code{\link{ncvreg}},
     \code{ncvreg_fit} does not standardize the data.  For Gaussian
     responses, no intercept is included.  At least for now, an intercept
-    is still included automatically for binomial responses, as it is not
-    clear (to me) that removing the intercept here would make sense.}
+    is still included automatically for binomial and Poisson responses,
+    as it is not clear (to me) that removing the intercept here would
+    make sense.} 
   \item{y}{The response vector.}
-  \item{family}{Either "gaussian" or "binomial", depending on the
-    response.}
+  \item{family}{Either "gaussian", "binomial", or "poisson", depending
+    on the response.}
   \item{penalty}{The penalty to be applied to the model.  Either "MCP"
     (the default), "SCAD", or "lasso".}
   \item{gamma}{The tuning parameter of the MCP/SCAD penalty, as in
@@ -52,8 +53,9 @@ dfmax=p+1, penalty.factor=rep(1, ncol(X)), warn=TRUE)
     equal to the number of coefficients, and the number of columns is
     equal to the length of \code{lambda}.}
   \item{loss}{A vector containing either the residual sum of squares
-    (\code{"gaussian"}) or negative log-likelihood (\code{"binomial"})
-    of the fitted model at each value of \code{lambda}.}
+    (\code{"gaussian"}) or negative log-likelihood (\code{"binomial"} or
+    \code{"poisson"}) of the fitted model at each value of
+    \code{lambda}.}
   \item{iter}{A vector of length \code{nlambda} containing the number
     of iterations until convergence at each value of \code{lambda}.}
   \item{lambda}{The sequence of regularization parameter values in the

@@ -25,7 +25,7 @@ ncvreg_fit <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=
   }
   
   ## Eliminate saturated lambda values, if any
-  ind <- !is.na(b[p,])
+  ind <- !is.na(iter)
   b <- b[, ind, drop=FALSE]
   iter <- iter[ind]
   lambda <- lambda[ind]

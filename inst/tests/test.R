@@ -228,7 +228,8 @@ test_that("ncvreg_fit works", {
   p <- 10
   X <- matrix(rnorm(n*p), ncol=p)
   b <- c(-3, 3, rep(0, 8))
-  y <- rnorm(n, mean=X%*%b, sd=1) > 0.5
+  y <- rnorm(n, mean=X%*%b, sd=1)
+  yy <- y > 0
   
   b1 <- ncvreg_fit(X, y, penalty="lasso", lam=c(1, 0.1, 0.01))
   b2 <- glmnet(X, y, lambda=c(1, 0.1, 0.01), standardize=FALSE, intercept=FALSE)

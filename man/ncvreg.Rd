@@ -6,9 +6,9 @@
   parameter lambda.  Fits linear and logistic regression models, with
   option for an additional L2 penalty.}
 \usage{
-ncvreg(X, y, family=c("gaussian","binomial"), penalty=c("MCP", "SCAD",
-"lasso"), gamma=switch(penalty, SCAD=3.7, 3), alpha=1,
-lambda.min=ifelse(n>p,.001,.05), nlambda=100, lambda, eps=.001,
+ncvreg(X, y, family=c("gaussian", "binomial", "poisson"),
+penalty=c("MCP", "SCAD", "lasso"), gamma=switch(penalty, SCAD=3.7, 3),
+alpha=1, lambda.min=ifelse(n>p,.001,.05), nlambda=100, lambda, eps=.001,
 max.iter=1000, convex=TRUE, dfmax=p+1, penalty.factor=rep(1, ncol(X)),
 warn=TRUE, returnX=FALSE, ...)
 }
@@ -16,8 +16,8 @@ warn=TRUE, returnX=FALSE, ...)
   \item{X}{The design matrix, without an intercept.  \code{ncvreg}
   standardizes the data and includes an intercept by default.}
   \item{y}{The response vector.}
-  \item{family}{Either "gaussian" or "binomial", depending on the
-    response.}
+  \item{family}{Either "gaussian", "binomial", or "poisson", depending
+    on the response.}
   \item{penalty}{The penalty to be applied to the model.  Either "MCP"
     (the default), "SCAD", or "lasso".}
   \item{gamma}{The tuning parameter of the MCP/SCAD penalty (see
@@ -69,12 +69,13 @@ warn=TRUE, returnX=FALSE, ...)
     penalty} 
   for \code{"gaussian"} and
   \deqn{-\frac{1}{n}\ell + \textrm{penalty}}{-(1/n) loglik + penalty}
-  for \code{"binomial"}, where the likelihood is from a traditional
-  generalized linear model for the log-odds of an event.\cr
+  for \code{"binomial"} or \code{"poisson"}, where the likelihood is
+  from a traditional generalized linear model assuming the canonical
+  link (logit for \code{"binomial"}; log for \code{"poisson"}).\cr
   \cr
   This algorithm is stable, very efficient, and generally converges
-  quite rapidly to the solution.  For logistic regression, adaptive
-  rescaling (see reference) is used.\cr
+  quite rapidly to the solution.  For GLMs, adaptive rescaling (see
+  reference) is used.\cr
   \cr
   The convexity diagnostics rely on a fine covering of
   (lambda.min,lambda.max); choosing a low value of \code{nlambda} may
@@ -97,8 +98,9 @@ warn=TRUE, returnX=FALSE, ...)
     objective function is convex is therefore \code{lambda[convex.min]},
     with corresponding coefficients \code{beta[,convex.min]}.}
   \item{loss}{A vector containing either the residual sum of squares
-    (\code{"gaussian"}) or negative log-likelihood (\code{"binomial"})
-    of the fitted model at each value of \code{lambda}.}}
+    (\code{"gaussian"}) or negative log-likelihood (\code{"binomial"}
+    and \code{"poisson"}) of the fitted model at each value of
+    \code{lambda}.}}
 \references{Breheny, P. and Huang, J. (2011) Coordinate descent
   algorithms for nonconvex penalized regression, with applications to
   biological feature selection. Ann. Appl. Statist., 5: 232-253.}
