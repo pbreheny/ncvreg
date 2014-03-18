@@ -38,11 +38,11 @@ cv.ncvreg <- function(X, y, ..., nfolds=10, seed, trace=FALSE) {
     E[cv.ind==i, 1:ncol(yhat)] <- loss.ncvreg(y2, yhat, fit$family)
     if (fit$family=="binomial") PE[cv.ind==i, 1:ncol(yhat)] <- (yhat < 0.5) == y2
   }
-
+  
   ## Eliminate saturated lambda values, if any
   ind <- which(apply(is.finite(E), 2, all))
   E <- E[,ind]
-  lambda <- fit$lambda[ind]
+  lambda <- fit$lambda
 
   ## Return
   cve <- apply(E, 2, mean)
@@ -50,6 +50,9 @@ cv.ncvreg <- function(X, y, ..., nfolds=10, seed, trace=FALSE) {
   min <- which.min(cve)
   
   val <- list(cve=cve, cvse=cvse, lambda=lambda, fit=fit, min=min, lambda.min=lambda[min], null.dev=mean(loss.ncvreg(y, rep(mean(y), n), fit$family)))
-  if (fit$family=="binomial") val$pe <- apply(PE[,ind], 2, mean)
+  if (fit$family=="binomial") {
+    pe <- apply(PE, 2, mean)
+    val$pe <- pe[is.finite(pe)]
+  }
   structure(val, class="cv.ncvreg")
 }

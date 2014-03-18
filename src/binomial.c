@@ -9,18 +9,18 @@ double wcrossprod(double *X, double *y, double *w, int n, int j);
 double wsqsum(double *X, double *w, int n, int j);
 double sum(double *x, int n);
 int checkConvergence(double *beta, double *beta_old, double eps, int l, int J);
-double S(double z, double l);
 double MCP(double z, double l1, double l2, double gamma, double v);
 double SCAD(double z, double l1, double l2, double gamma, double v);
 double lasso(double z, double l1, double l2, double v);
 
 // Memory handling, output formatting (Binomial)
-SEXP cleanupB(double *s, double *w, double *a, double *r, int *e, double *z, double *eta, SEXP beta0, SEXP beta, SEXP Dev, SEXP iter) {
+SEXP cleanupB(double *s, double *w, double *a, double *r, int *e1, int *e2, double *z, double *eta, SEXP beta0, SEXP beta, SEXP Dev, SEXP iter) {
   Free(s);
   Free(w);
   Free(a);
   Free(r);
-  Free(e);
+  Free(e1);
+  Free(e2);
   Free(z);
   SEXP res;
   PROTECT(res = allocVector(VECSXP, 4));
@@ -69,8 +69,10 @@ SEXP cdfit_binomial(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEX
   double *s = Calloc(n, double);
   double *z = Calloc(p, double);
   double *eta = Calloc(n, double);
-  int *e = Calloc(p, int);
-  for (int j=0; j<p; j++) e[j] = 0;
+  int *e1 = Calloc(p, int);
+  for (int j=0; j<p; j++) e1[j] = 0;
+  int *e2 = Calloc(p, int);
+  for (int j=0; j<p; j++) e2[j] = 0;
   double xwr, xwx, pi, u, v, cutoff, l1, l2, shift, si;
   int converged, lstart;
 
@@ -105,7 +107,7 @@ SEXP cdfit_binomial(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEX
       }
       if (nv > dfmax) {
 	for (int ll=l; ll<L; ll++) INTEGER(iter)[ll] = NA_INTEGER;
-	res = cleanupB(s, w, a, r, e, z, eta, beta0, beta, Dev, iter);
+	res = cleanupB(s, w, a, r, e1, e2, z, eta, beta0, beta, Dev, iter);
 	return(res);
       }
 
@@ -113,7 +115,7 @@ SEXP cdfit_binomial(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEX
       if (strcmp(penalty, "lasso")==0) cutoff = 2*lam[l] - lam[l-1];
       if (strcmp(penalty, "MCP")==0) cutoff = lam[l] + gamma/(gamma-1)*(lam[l] - lam[l-1]);
       if (strcmp(penalty, "SCAD")==0) cutoff = lam[l] + gamma/(gamma-2)*(lam[l] - lam[l-1]);
-      for (int j=0; j<p; j++) if (fabs(z[j]) > (cutoff * alpha * m[j])) e[j] = 1;
+      for (int j=0; j<p; j++) if (fabs(z[j]) > (cutoff * alpha * m[j])) e2[j] = 1;
     } else {
 
       // Determine eligible set
@@ -122,118 +124,115 @@ SEXP cdfit_binomial(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEX
       if (strcmp(penalty, "lasso")==0) cutoff = 2*lam[l] - lmax;
       if (strcmp(penalty, "MCP")==0) cutoff = lam[l] + gamma/(gamma-1)*(lam[l] - lmax);
       if (strcmp(penalty, "SCAD")==0) cutoff = lam[l] + gamma/(gamma-2)*(lam[l] - lmax);
-      for (int j=0; j<p; j++) if (fabs(z[j]) > (cutoff * alpha * m[j])) e[j] = 1;
+      for (int j=0; j<p; j++) if (fabs(z[j]) > (cutoff * alpha * m[j])) e2[j] = 1;
     }
 
     while (INTEGER(iter)[l] < max_iter) {
-
-      // Solve over eligible set
       while (INTEGER(iter)[l] < max_iter) {
-	//int nv=0;
-	//for (int j=0; j<p; j++) if (e[j]) nv++;
-	//Rprintf("Starting new iteration, size of eligible set: %d\n", nv);
-	INTEGER(iter)[l]++;
-
-	// Approximate L
-	/* for (int i=0;i<n;i++) eta[i] = a0; */
-	/* for (int j=0; j<p; j++) { */
-	/*   if (e[j]) { */
-	/*     for (int i=0;i<n;i++) eta[i] += X[j*n+i]*a[j]; */
-	/*   } */
-	/* } */
-	REAL(Dev)[l] = 0;
-	for (int i=0;i<n;i++) {
-	  if (eta[i] > 10) {
-	    pi = 1;
-	    w[i] = .0001;
-	  } else if (eta[i] < -10) {
-	    pi = 0;
-	    w[i] = .0001;
-	  } else {
-	    pi = exp(eta[i])/(1+exp(eta[i]));
-	    w[i] = pi*(1-pi);
+	while (INTEGER(iter)[l] < max_iter) {
+	  INTEGER(iter)[l]++;
+	  REAL(Dev)[l] = 0;
+	  for (int i=0;i<n;i++) {
+	    if (eta[i] > 10) {
+	      pi = 1;
+	      w[i] = .0001;
+	    } else if (eta[i] < -10) {
+	      pi = 0;
+	      w[i] = .0001;
+	    } else {
+	      pi = exp(eta[i])/(1+exp(eta[i]));
+	      w[i] = pi*(1-pi);
+	    }
+	    s[i] = y[i] - pi;
+	    r[i] = s[i]/w[i];
+	    if (y[i]==1) REAL(Dev)[l] = REAL(Dev)[l] - log(pi);
+	    if (y[i]==0) REAL(Dev)[l] = REAL(Dev)[l] - log(1-pi);
 	  }
-	  s[i] = y[i] - pi;
-	  r[i] = s[i]/w[i];
-	  if (y[i]==1) REAL(Dev)[l] = REAL(Dev)[l] - log(pi);
-	  if (y[i]==0) REAL(Dev)[l] = REAL(Dev)[l] - log(1-pi);
-	}
-	if (REAL(Dev)[l]/nullDev < .01) {
-	  if (warn) warning("Model saturated; exiting...");
-	  for (int ll=l; ll<L; ll++) INTEGER(iter)[ll] = NA_INTEGER;
-	  res = cleanupB(s, w, a, r, e, z, eta, beta0, beta, Dev, iter);
-	  return(res);
-	}
+	  if (REAL(Dev)[l]/nullDev < .01) {
+	    if (warn) warning("Model saturated; exiting...");
+	    for (int ll=l; ll<L; ll++) INTEGER(iter)[ll] = NA_INTEGER;
+	    res = cleanupB(s, w, a, r, e1, e2, z, eta, beta0, beta, Dev, iter);
+	    return(res);
+	  }
 
-	// Intercept
-	xwr = crossprod(w, r, n, 0);
-	xwx = sum(w, n);
-	b0[l] = xwr/xwx + a0;
-	for (int i=0; i<n; i++) {
-	  si = b0[l] - a0;
-	  r[i] -= si;
-	  eta[i] += si;
-	}
+	  // Intercept
+	  xwr = crossprod(w, r, n, 0);
+	  xwx = sum(w, n);
+	  b0[l] = xwr/xwx + a0;
+	  for (int i=0; i<n; i++) {
+	    si = b0[l] - a0;
+	    r[i] -= si;
+	    eta[i] += si;
+	  }
 
-	// Covariates
-	for (int j=0; j<p; j++) {
-	  if (e[j]) {
+	  // Covariates
+	  for (int j=0; j<p; j++) {
+	    if (e1[j]) {
 
-	    // Calculate u, v
-	    xwr = wcrossprod(X, r, w, n, j);
-	    xwx = wsqsum(X, w, n, j);
-	    u = xwr/n + (xwx/n)*a[j];
-	    v = xwx/n;
+	      // Calculate u, v
+	      xwr = wcrossprod(X, r, w, n, j);
+	      xwx = wsqsum(X, w, n, j);
+	      u = xwr/n + (xwx/n)*a[j];
+	      v = xwx/n;
 
-	    // Update b_j
-	    l1 = lam[l] * m[j] * alpha;
-	    l2 = lam[l] * m[j] * (1-alpha);
-	    if (strcmp(penalty,"MCP")==0) b[l*p+j] = MCP(u, l1, l2, gamma, v);
-	    if (strcmp(penalty,"SCAD")==0) b[l*p+j] = SCAD(u, l1, l2, gamma, v);
-	    if (strcmp(penalty,"lasso")==0) b[l*p+j] = lasso(u, l1, l2, v);
+	      // Update b_j
+	      l1 = lam[l] * m[j] * alpha;
+	      l2 = lam[l] * m[j] * (1-alpha);
+	      if (strcmp(penalty,"MCP")==0) b[l*p+j] = MCP(u, l1, l2, gamma, v);
+	      if (strcmp(penalty,"SCAD")==0) b[l*p+j] = SCAD(u, l1, l2, gamma, v);
+	      if (strcmp(penalty,"lasso")==0) b[l*p+j] = lasso(u, l1, l2, v);
 
-	    // Update r
-	    shift = b[l*p+j] - a[j];
-	    if (shift !=0) {
-	      /* for (int i=0;i<n;i++) r[i] -= shift*X[j*n+i]; */
-	      /* for (int i=0;i<n;i++) eta[i] += shift*X[j*n+i]; */
-	      for (int i=0;i<n;i++) {
-	      	si = shift*X[j*n+i];
-	      	r[i] -= si;
-	      	eta[i] += si;
+	      // Update r
+	      shift = b[l*p+j] - a[j];
+	      if (shift !=0) {
+		/* for (int i=0;i<n;i++) r[i] -= shift*X[j*n+i]; */
+		/* for (int i=0;i<n;i++) eta[i] += shift*X[j*n+i]; */
+		for (int i=0;i<n;i++) {
+		  si = shift*X[j*n+i];
+		  r[i] -= si;
+		  eta[i] += si;
+		}
 	      }
 	    }
 	  }
+
+	  // Check for convergence
+	  converged = checkConvergence(b, a, eps, l, p);
+	  a0 = b0[l];
+	  for (int j=0; j<p; j++) a[j] = b[l*p+j];
+	  if (converged) break;
 	}
 
-	// Check for convergence
-	converged = checkConvergence(b, a, eps, l, p);
-	a0 = b0[l];
-	for (int j=0; j<p; j++) a[j] = b[l*p+j];
-	if (converged) break;
+	// Scan for violations in strong set
+	int violations = 0;
+	for (int j=0; j<p; j++) {
+	  if (e1[j]==0 & e2[j]==1) {
+	    z[j] = crossprod(X, s, n, j)/n;
+	    l1 = lam[l] * m[j] * alpha;
+	    if (fabs(z[j]) > l1) {
+	      e1[j] = e2[j] = 1;
+	      violations++;
+	    }
+	  }
+	}
+	if (violations==0) break;
       }
 
-      // Scan for violations
+      // Scan for violations in rest
       int violations = 0;
-      //Rprintf("Big scan\n");
-      //Rprintf("l1: %f\n", lam[l] * alpha);
-      //Rprintf("cutoff: %f\n", cutoff * alpha);
       for (int j=0; j<p; j++) {
-	if (e[j]==0) {
+	if (e2[j]==0) {
 	  z[j] = crossprod(X, s, n, j)/n;
 	  l1 = lam[l] * m[j] * alpha;
 	  if (fabs(z[j]) > l1) {
-	    e[j] = 1;
+	    e1[j] = e2[j] = 1;
 	    violations++;
-	    //Rprintf("z[j]: %f\n", z[j]);
 	  }
 	}
       }
-      if (violations==0) {
-	break;
-      }
+      if (violations==0) break;
     }
   }
-  res = cleanupB(s, w, a, r, e, z, eta, beta0, beta, Dev, iter);
+  res = cleanupB(s, w, a, r, e1, e2, z, eta, beta0, beta, Dev, iter);
   return(res);
 }

@@ -1,5 +1,4 @@
-plot.cv.ncvreg <- function(x, log.l=TRUE, type=c("cve", "rsq", "scale", "snr", "pred", "all"), selected=TRUE, vertical.line=TRUE, col="red", ...)
-{
+plot.cv.ncvreg <- function(x, log.l=TRUE, type=c("cve", "rsq", "scale", "snr", "pred", "all"), selected=TRUE, vertical.line=TRUE, col="red", ...) {
   type <- match.arg(type)
   if (type=="all") {
     plot(x, log.l=log.l, type="cve", selected=selected, ...)
@@ -50,7 +49,7 @@ plot.cv.ncvreg <- function(x, log.l=TRUE, type=c("cve", "rsq", "scale", "snr", "
     ylab <- "Prediction error"
   }
   
-  ind <- is.finite(l)
+  ind <- if (type=="pred") which(is.finite(l[1:length(x$pe)])) else which(is.finite(l[1:length(x$cve)]))
   ylim <- range(c(L[ind], U[ind]))
   aind <- ((U-L)/diff(ylim) > 1e-3) & ind
   plot.args = list(x=l[ind], y=y[ind], ylim=ylim, xlab=xlab, ylab=ylab, type="n", xlim=rev(range(l[ind])), las=1)
