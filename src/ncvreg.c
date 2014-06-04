@@ -7,6 +7,7 @@
 SEXP cdfit_gaussian(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max_iter_, SEXP gamma_, SEXP multiplier, SEXP alpha_, SEXP dfmax_, SEXP user_);
 SEXP cdfit_binomial(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max_iter_, SEXP gamma_, SEXP multiplier, SEXP alpha_, SEXP dfmax_, SEXP user_, SEXP warn_);
 SEXP cdfit_poisson(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max_iter_, SEXP gamma_, SEXP multiplier, SEXP alpha_, SEXP dfmax_, SEXP user_, SEXP warn_);
+SEXP cdfit_cox_dh(SEXP X_, SEXP y_, SEXP d_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max_iter_, SEXP gamma_, SEXP multiplier, SEXP alpha_, SEXP dfmax_, SEXP user_, SEXP warn_);
 SEXP cdfit_raw(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max_iter_, SEXP gamma_, SEXP multiplier, SEXP alpha_, SEXP dfmax_);
 SEXP standardize(SEXP X_);
 SEXP maxprod(SEXP X_, SEXP y_, SEXP v_, SEXP m_);
@@ -93,6 +94,7 @@ static R_CallMethodDef callMethods[] = {
   {"cdfit_raw", (DL_FUNC) &cdfit_raw, 10},
   {"cdfit_binomial", (DL_FUNC) &cdfit_binomial, 12},
   {"cdfit_poisson", (DL_FUNC) &cdfit_poisson, 12},
+  {"cdfit_cox_dh", (DL_FUNC) &cdfit_cox_dh, 13},
   {"standardize", (DL_FUNC) &standardize, 1},
   {"maxprod", (DL_FUNC) &maxprod, 4},
   {NULL, NULL, 0}

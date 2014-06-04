@@ -6,7 +6,9 @@ setupLambda <- function(X, y, family, alpha, lambda.min, nlambda, penalty.factor
   ind <- which(penalty.factor!=0)
   if (length(ind)!=p) {
     fit <- glm(y~X[, -ind], family=family)
-  } else fit <- glm(y~1, family=family)
+  } else {
+    fit <- glm(y~1, family=family)
+  }
   if (family=="gaussian") {
     zmax <- .Call("maxprod", X, fit$residuals, ind, penalty.factor) / n
   } else {
