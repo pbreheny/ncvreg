@@ -1,13 +1,21 @@
-predict.ncvreg <- function(object, X, lambda, which=1:length(object$lambda), type=c("link", "response", "class", "coefficients", "vars", "nvars"),...) {
+predict.ncvreg <- function(object, X, type=c("link", "response", "class", "coefficients", "vars", "nvars"), 
+                           lambda, which=1:length(object$lambda), ...) {
   type <- match.arg(type)
   beta <- coef.ncvreg(object, lambda=lambda, which=which, drop=FALSE)
   if (type=="coefficients") return(beta)
   if (type=="nvars") return(apply(beta[-1,,drop=FALSE]!=0,2,sum))
   if (type=="vars") return(drop(apply(beta[-1, , drop=FALSE]!=0, 2, FUN=which)))
-  eta <- sweep(X %*% beta[-1,,drop=FALSE], 2, beta[1,], "+")
+  if (object$family=="cox") {
+    eta <- X %*% beta
+  } else {
+    eta <- sweep(X %*% beta[-1,,drop=FALSE], 2, beta[1,], "+")
+  }
   if (object$family=="gaussian" | type=="link") return(drop(eta))
-  mu <- if (object$family=="binomial") exp(eta)/(1+exp(eta)) else if (object$family=="poisson") exp(eta)
-  if (type=="response") return(drop(mu))
+  resp <- switch(object$family,
+                 binomial = exp(eta)/(1+exp(eta)),
+                 poisson = exp(eta),
+                 cox = exp(eta))
+  if (type=="response") return(drop(resp))
   if (type=="class") {
     if (object$family=="binomial") {
       return(drop(1*(eta>0)))
