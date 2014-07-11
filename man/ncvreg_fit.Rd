@@ -7,7 +7,8 @@
   what you're doing.}
 \usage{
 ncvreg_fit(X, y, family=c("gaussian", "binomial", "poisson"),
-penalty=c("MCP", "SCAD", "lasso"), gamma=3, alpha=1, lambda, eps=.001,
+penalty=c("MCP", "SCAD", "lasso"), gamma=3, alpha=1,
+lambda.min=ifelse(n>p,0.001,0.05), nlambda=100, lambda, eps=.001,
 max.iter=1000, dfmax=p+1, penalty.factor=rep(1, ncol(X)), warn=TRUE)
 }
 \arguments{
@@ -27,9 +28,11 @@ max.iter=1000, dfmax=p+1, penalty.factor=rep(1, ncol(X)), warn=TRUE)
   \item{alpha}{Tuning parameter which controls the relative
     contributions from the MCP/SCAD penalty and the ridge, 
     or L2 penalty, as in \code{\link{ncvreg}}.}
-  \item{lambda}{A user-specified sequence of lambda values.  Unlike in
-    \code{\link{ncvreg}}, this must be specified directly in
-    \code{ncvreg_fit}.}
+  \item{lambda.min}{Smallest value of lambda (as a fraction of
+    lambda.max), as in \code{\link{ncvreg}}.}
+  \item{nlambda}{Number of lambda values, as in \code{\link{ncvreg}}.}
+  \item{lambda}{A user-specified sequence of lambda values, as in
+    \code{\link{ncvreg}}.}
   \item{eps}{Convergence threshhold, as in \code{\link{ncvreg}}.}
   \item{max.iter}{Maximum number of iterations.  Default is 1000.}
   \item{dfmax}{Upper bound for the number of nonzero coefficients, as in

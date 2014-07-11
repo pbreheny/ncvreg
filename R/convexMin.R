@@ -1,4 +1,4 @@
-convexMin <- function(b, X, penalty, gamma, l2, family, penalty.factor, a, Delta) {
+convexMin <- function(b, X, penalty, gamma, l2, family, penalty.factor, a, Delta=NULL) {
   n <- nrow(X)
   p <- ncol(X)
   l <- ncol(b)

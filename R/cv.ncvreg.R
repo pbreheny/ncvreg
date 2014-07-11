@@ -1,13 +1,13 @@
 cv.ncvreg <- function(X, y, ..., nfolds=10, seed, trace=FALSE) {
   if (!missing(seed)) set.seed(seed)
   fit <- ncvreg(X=X, y=y, ...)
-  E <- matrix(NA, nrow=length(y), ncol=length(fit$lambda))
+  n <- length(y)
+  E <- matrix(NA, nrow=n, ncol=length(fit$lambda))
   if (fit$family=="binomial") {
     if (min(table(y)) < nfolds) stop("nfolds is larger than the smaller of 0/1 in the data; decrease nfolds")
     PE <- E
   }
   
-  n <- if (is.matrix(y)) nrow(y) else length(y)
   if (fit$family=="binomial") {
     ind1 <- which(y==1)
     ind0 <- which(y==0)
@@ -27,11 +27,7 @@ cv.ncvreg <- function(X, y, ..., nfolds=10, seed, trace=FALSE) {
 
     cv.args <- list(...)
     cv.args$X <- X[cv.ind!=i, , drop=FALSE]
-    if (fit$family=="cox") {
-      cv.args$y <- y[cv.ind!=i,]
-    } else {
-      cv.args$y <- y[cv.ind!=i]
-    }
+    cv.args$y <- y[cv.ind!=i]
     cv.args$lambda <- fit$lambda
     cv.args$warn <- FALSE
     fit.i <- do.call("ncvreg", cv.args)
@@ -39,11 +35,7 @@ cv.ncvreg <- function(X, y, ..., nfolds=10, seed, trace=FALSE) {
     X2 <- X[cv.ind==i, , drop=FALSE]
     y2 <- y[cv.ind==i]
     yhat <- predict(fit.i, X2, type="response")
-    if (fit$family=="cox") {
-      E[cv.ind==i, 1:ncol(yhat)] <- coxCVL(y, cv.ind, yhat)
-    } else {
-      E[cv.ind==i, 1:ncol(yhat)] <- loss.ncvreg(y2, yhat, fit$family)
-    }
+    E[cv.ind==i, 1:ncol(yhat)] <- loss.ncvreg(y2, yhat, fit$family)
     if (fit$family=="binomial") PE[cv.ind==i, 1:ncol(yhat)] <- (yhat < 0.5) == y2
   }
   

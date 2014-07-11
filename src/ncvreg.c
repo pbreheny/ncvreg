@@ -91,7 +91,7 @@ double lasso(double z, double l1, double l2, double v) {
 
 static R_CallMethodDef callMethods[] = {
   {"cdfit_gaussian", (DL_FUNC) &cdfit_gaussian, 11},
-  {"cdfit_raw", (DL_FUNC) &cdfit_raw, 10},
+  {"cdfit_raw", (DL_FUNC) &cdfit_raw, 11},
   {"cdfit_binomial", (DL_FUNC) &cdfit_binomial, 12},
   {"cdfit_poisson", (DL_FUNC) &cdfit_poisson, 12},
   {"cdfit_cox_dh", (DL_FUNC) &cdfit_cox_dh, 13},

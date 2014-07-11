@@ -18,6 +18,7 @@ test_that("ncvreg works for logistic regression", {
   b <- rnorm(10)
   y <- rnorm(X%*%b) > 0
   beta <- glm(y~X,family="binomial")$coef
+  fit <- ncvreg(X,y,lambda=0,family="binomial",penalty="SCAD",eps=.0001)
   scad <- coef(ncvreg(X,y,lambda=0,family="binomial",penalty="SCAD",eps=.0001))
   mcp <- coef(ncvreg(X,y,lambda=0, family="binomial",penalty="MCP", eps=.0001))
   expect_that(scad,equals(beta,tolerance=.01,check.attributes=FALSE))
@@ -230,21 +231,21 @@ test_that("ncvreg_fit works", {
   b <- c(-3, 3, rep(0, 8))
   y <- rnorm(n, mean=X%*%b, sd=1)
   
-  b1 <- ncvreg_fit(X, y, penalty="lasso", lam=c(1, 0.1, 0.01))
-  b2 <- glmnet(X, y, lambda=c(1, 0.1, 0.01), standardize=FALSE, intercept=FALSE)
+  b1 <- ncvreg_fit(X, y, penalty="lasso")
+  b2 <- glmnet(X, y, lambda=b1$lam, standardize=FALSE, intercept=FALSE)
   expect_that(b1$beta, equals(as.matrix(coef(b2))[-1,], check.attributes=FALSE, tol=.001))
   
   yy <- y > 0
-  b1 <- ncvreg_fit(X, yy, "binomial", "lasso", lam=c(1, 0.1, 0.01))
-  b2 <- glmnet(X, yy, "binomial", lambda=c(1, 0.1, 0.01), standardize=FALSE, intercept=TRUE)
+  b1 <- ncvreg_fit(X, yy, "binomial", "lasso")
+  b2 <- glmnet(X, yy, "binomial", lambda=b1$lam, standardize=FALSE, intercept=TRUE)
   expect_that(b1$beta, equals(as.matrix(coef(b2)), check.attributes=FALSE, tol=.001))
   
-  b1 <- ncvreg_fit(X, yy, "poisson", "lasso", lam=c(1, 0.1, 0.01))
-  b2 <- glmnet(X, yy, "poisson", lambda=c(1, 0.1, 0.01), standardize=FALSE, intercept=TRUE)
+  b1 <- ncvreg_fit(X, yy, "poisson", "lasso")
+  b2 <- glmnet(X, yy, "poisson", lambda=b1$lam, standardize=FALSE, intercept=TRUE)
   expect_that(b1$beta, equals(as.matrix(coef(b2)), check.attributes=FALSE, tol=.001))
 
-  b1 <- ncvreg_fit(X, y, penalty="MCP", lam=0.01)
-  b2 <- ncvreg_fit(X, yy, "binomial", penalty="MCP", lam=c(1, 0.1, 0.01))
-  b3 <- ncvreg_fit(X, y, penalty="SCAD", lam=c(1, 0.1, 0.01))
-  b4 <- ncvreg_fit(X, yy, "binomial", penalty="SCAD", lam=c(1, 0.1, 0.01))
+  b1 <- ncvreg_fit(X, y, penalty="MCP")
+  b2 <- ncvreg_fit(X, yy, "binomial", penalty="MCP")
+  b3 <- ncvreg_fit(X, y, penalty="SCAD")
+  b4 <- ncvreg_fit(X, yy, "binomial", penalty="SCAD")
 })

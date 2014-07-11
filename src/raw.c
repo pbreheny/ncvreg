@@ -29,9 +29,8 @@ SEXP cleanupR(double *r, double *a, double *v, int *e, SEXP beta, SEXP Dev, SEXP
   return(res);
 }
 
-
 // Coordinate descent for raw, unstandardized least squares
-SEXP cdfit_raw(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max_iter_, SEXP gamma_, SEXP multiplier, SEXP alpha_, SEXP dfmax_) {
+SEXP cdfit_raw(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max_iter_, SEXP gamma_, SEXP multiplier, SEXP alpha_, SEXP dfmax_, SEXP user_) {
 
   // Declarations
   int n = length(y_);
@@ -56,6 +55,7 @@ SEXP cdfit_raw(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max
   double *m = REAL(multiplier);
   double alpha = REAL(alpha_)[0];
   int dfmax = INTEGER(dfmax_)[0];
+  int user = INTEGER(user_)[0];
   double *r = Calloc(n, double);
   for (int i=0; i<n; i++) r[i] = y[i];
   double *z = Calloc(p, double);
@@ -65,7 +65,15 @@ SEXP cdfit_raw(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max
   int *e = Calloc(p, int);
   for (int j=0; j<p; j++) e[j] = 0;
   double l1, l2, u;
-  int converged;
+  int converged, lstart;
+
+  // If lam[0]=lam_max, skip lam[0] -- closed form sol'n available
+  if (user) {
+    lstart = 0;
+  } else {
+    REAL(loss)[0] = gLoss(r,n);
+    lstart = 1;
+  }
 
   // Path
   for (int l=0; l<L; l++) {

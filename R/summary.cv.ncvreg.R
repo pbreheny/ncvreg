@@ -15,7 +15,6 @@ print.summary.cv.ncvreg <- function(x, digits, ...) {
   cat("At minimum cross-validation error (lambda=", formatC(x$lambda[x$min], digits[2], format="f"), "):\n", sep="")
   cat("-------------------------------------------------\n")
   cat("  Nonzero coefficients: ", x$nvars[x$min], "\n", sep="")
-  ##cat("  Minimum cross-validation error of ", formatC(min(x$cve), digits[1], format="f"), " at lambda=", formatC(x$lambda[x$min], digits[2], format="f"), "\n", sep="")
   cat("  Cross-validation error (deviance): ", formatC(min(x$cve), digits[1], format="f"), "\n", sep="")
   cat("  R-squared: ", formatC(max(x$r.squared), digits[3], format="f"), "\n", sep="")
   cat("  Signal-to-noise ratio: ", formatC(max(x$snr), digits[4], format="f"), "\n", sep="")

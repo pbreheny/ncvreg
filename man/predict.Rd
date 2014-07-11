@@ -7,9 +7,9 @@ Similar to other predict methods, this function returns predictions from
 a fitted \code{"ncvreg"} object.
 }
 \usage{
-\method{predict}{ncvreg}(object, X, lambda,
-which=1:length(object$lambda), type=c("link", "response", "class",
-"coefficients", "vars", "nvars"), ...)
+\method{predict}{ncvreg}(object, X, type=c("link", "response", "class",
+"coefficients", "vars", "nvars"), lambda, which=1:length(object$lambda),
+...)
 \method{coef}{ncvreg}(object, lambda, which=1:length(object$lambda),
 drop=TRUE, ...)
 }

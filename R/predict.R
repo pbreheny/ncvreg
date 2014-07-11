@@ -5,7 +5,7 @@ predict.ncvreg <- function(object, X, type=c("link", "response", "class", "coeff
   if (type=="coefficients") return(beta)
   if (type=="nvars") return(apply(beta[-1,,drop=FALSE]!=0,2,sum))
   if (type=="vars") return(drop(apply(beta[-1, , drop=FALSE]!=0, 2, FUN=which)))
-  if (object$family=="cox") {
+  if (length(object$penalty.factor)==nrow(object$beta)) {
     eta <- X %*% beta
   } else {
     eta <- sweep(X %*% beta[-1,,drop=FALSE], 2, beta[1,], "+")
