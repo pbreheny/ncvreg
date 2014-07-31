@@ -1,3 +1,9 @@
+3.2-1
+	* Fixed bug in cv.ncvreg when attempting to use leave-one-out
+	  cross-validation (thank you to Cajo ter Braak for pointing this
+	  out)
+	* CHANGES TO NCVREG_FIT
+
 3.2-0
 	* Updated algorithm to 'hybrid' strong/active cycling
 	* Automatically coerces X to matrix and y to numeric if possible

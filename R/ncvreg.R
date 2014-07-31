@@ -1,7 +1,7 @@
 ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("MCP", "SCAD", "lasso"), 
                    gamma=switch(penalty, SCAD=3.7, 3), alpha=1, lambda.min=ifelse(n>p,.001,.05), nlambda=100, 
-                   lambda, eps=.001, max.iter=1000, convex=TRUE, dfmax=p+1, penalty.factor=rep(1, ncol(X)), 
-                   warn=TRUE, returnX=FALSE, ...) {
+                   lambda, standardize=TRUE, eps=.001, max.iter=1000, convex=TRUE, dfmax=p+1, 
+                   penalty.factor=rep(1, ncol(X)), warn=TRUE, returnX=FALSE, ...) {
   ## Error checking
   if (class(X) != "matrix") {
     tmp <- try(X <- as.matrix(X), silent=TRUE)
@@ -26,32 +26,42 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
   if ("n.lambda" %in% names(dots)) nlambda <- dots$n.lambda
   
   ## Set up XX, yy, lambda
-  std <- .Call("standardize", X)
-  XX <- std[[1]]
-  center <- std[[2]]
-  scale <- std[[3]]
-  nz <- which(scale > 1e-6)
-  if (length(nz) != ncol(XX)) XX <- XX[ ,nz, drop=FALSE]
+  if (standardize) {
+    std <- .Call("standardize", X)
+    XX <- std[[1]]
+    center <- std[[2]]
+    scale <- std[[3]]
+    nz <- which(scale > 1e-6)
+    if (length(nz) != ncol(XX)) XX <- XX[ ,nz, drop=FALSE]
+    penalty.factor <- penalty.factor[nz]
+  } else {
+    XX <- X
+  }
+  p <- ncol(XX)
+  
   if (family=="gaussian") {
     yy <- y - mean(y)
   } else {
     yy <- y
   }
   n <- length(yy)
-  p <- ncol(XX)
-  penalty.factor <- penalty.factor[nz]
   if (missing(lambda)) {
-    lambda <- setupLambda(XX, yy, family, alpha, lambda.min, nlambda, penalty.factor)
+    lambda <- setupLambda(if (standardize) XX else X, yy, family, alpha, lambda.min, nlambda, penalty.factor)
     user.lambda <- FALSE
   } else {
     nlambda <- length(lambda)
     user.lambda <- TRUE
   }
-
+  
   ## Fit
-  if (family=="gaussian") {
+  if (family=="gaussian" & standardize==TRUE) {
     res <- .Call("cdfit_gaussian", XX, yy, penalty, lambda, eps, as.integer(max.iter), as.double(gamma), penalty.factor, alpha, as.integer(dfmax), as.integer(user.lambda | any(penalty.factor==0)))
     a <- rep(mean(y),nlambda)
+    b <- matrix(res[[1]], p, nlambda)
+    loss <- res[[2]]
+    iter <- res[[3]]
+  } else if (family=="gaussian" & standardize==FALSE) {
+    res <- .Call("cdfit_raw", X, y, penalty, lambda, eps, as.integer(max.iter), as.double(gamma), penalty.factor, alpha, as.integer(dfmax), as.integer(user.lambda | any(penalty.factor==0)))
     b <- matrix(res[[1]], p, nlambda)
     loss <- res[[2]]
     iter <- res[[3]]
@@ -71,7 +81,7 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
   
   ## Eliminate saturated lambda values, if any
   ind <- !is.na(iter)
-  a <- a[ind]
+  if (family!="gaussian" | standardize==TRUE) a <- a[ind]
   b <- b[, ind, drop=FALSE]
   iter <- iter[ind]
   lambda <- lambda[ind]
@@ -79,17 +89,21 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
   if (warn & any(iter==max.iter)) warning("Algorithm failed to converge for some values of lambda")
 
   ## Local convexity?
-  convex.min <- if (convex) convexMin(b, XX, penalty, gamma, lambda*(1-alpha), family, penalty.factor, a=a) else NULL
+  convex.min <- if (convex & standardize) convexMin(b, XX, penalty, gamma, lambda*(1-alpha), family, penalty.factor, a=a) else NULL
   
   ## Unstandardize
-  beta <- matrix(0, nrow=(ncol(X)+1), ncol=length(lambda))
-  bb <- b/scale[nz]
-  beta[nz+1,] <- bb
-  beta[1,] <- a - crossprod(center[nz], bb)
+  if (standardize) {
+    beta <- matrix(0, nrow=(ncol(X)+1), ncol=length(lambda))
+    bb <- b/scale[nz]
+    beta[nz+1,] <- bb
+    beta[1,] <- a - crossprod(center[nz], bb)
+  } else {
+    beta <- if (family=="gaussian") b else rbind(a, b)
+  }
   
   ## Names
   varnames <- if (is.null(colnames(X))) paste("V",1:ncol(X),sep="") else colnames(X)
-  varnames <- c("(Intercept)", varnames)
+  if (family!="gaussian" | standardize==TRUE) varnames <- c("(Intercept)", varnames)
   dimnames(beta) <- list(varnames, round(lambda,digits=4))
   
   ## Output

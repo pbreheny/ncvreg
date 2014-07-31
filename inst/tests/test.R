@@ -224,28 +224,32 @@ test_that("cv.ncvreg() options work for poisson", {
   plot(cvfit, type="all")
 })  
 
-test_that("ncvreg_fit works", {
+test_that("standardize=FALSE works", {
   n <- 200
   p <- 10
   X <- matrix(rnorm(n*p), ncol=p)
   b <- c(-3, 3, rep(0, 8))
   y <- rnorm(n, mean=X%*%b, sd=1)
+  X[,1] <- 5*X[,1]
   
-  b1 <- ncvreg_fit(X, y, penalty="lasso")
+  b1 <- ncvreg(X, y, penalty="lasso", standardize=FALSE)
   b2 <- glmnet(X, y, lambda=b1$lam, standardize=FALSE, intercept=FALSE)
   expect_that(b1$beta, equals(as.matrix(coef(b2))[-1,], check.attributes=FALSE, tol=.001))
   
   yy <- y > 0
-  b1 <- ncvreg_fit(X, yy, "binomial", "lasso")
+  b1 <- ncvreg(X, yy, "binomial", "lasso", standardize=FALSE)
   b2 <- glmnet(X, yy, "binomial", lambda=b1$lam, standardize=FALSE, intercept=TRUE)
   expect_that(b1$beta, equals(as.matrix(coef(b2)), check.attributes=FALSE, tol=.001))
   
-  b1 <- ncvreg_fit(X, yy, "poisson", "lasso")
+  b1 <- ncvreg(X, yy, "poisson", "lasso", standardize=FALSE)
   b2 <- glmnet(X, yy, "poisson", lambda=b1$lam, standardize=FALSE, intercept=TRUE)
   expect_that(b1$beta, equals(as.matrix(coef(b2)), check.attributes=FALSE, tol=.001))
 
-  b1 <- ncvreg_fit(X, y, penalty="MCP")
-  b2 <- ncvreg_fit(X, yy, "binomial", penalty="MCP")
-  b3 <- ncvreg_fit(X, y, penalty="SCAD")
-  b4 <- ncvreg_fit(X, yy, "binomial", penalty="SCAD")
+  b1 <- ncvreg(X, y, penalty="MCP", standardize=FALSE)
+  b2 <- ncvreg(X, yy, "binomial", penalty="MCP", standardize=FALSE)
+  b3 <- ncvreg(X, y, penalty="SCAD", standardize=FALSE)
+  b4 <- ncvreg(X, yy, "binomial", penalty="SCAD", standardize=FALSE)
+  
+  cvfit1 <- cv.ncvreg(X, y, penalty="lasso", standardize=FALSE)
+  cvfit2 <- cv.ncvreg(X, y, penalty="lasso")
 })

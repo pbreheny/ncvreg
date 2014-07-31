@@ -10,11 +10,10 @@ predict.ncvreg <- function(object, X, type=c("link", "response", "class", "coeff
   } else {
     eta <- sweep(X %*% beta[-1,,drop=FALSE], 2, beta[1,], "+")
   }
-  if (object$family=="gaussian" | type=="link") return(drop(eta))
+  if (type=="link" || object$family=="gaussian") return(drop(eta))
   resp <- switch(object$family,
                  binomial = exp(eta)/(1+exp(eta)),
-                 poisson = exp(eta),
-                 cox = exp(eta))
+                 poisson = exp(eta))
   if (type=="response") return(drop(resp))
   if (type=="class") {
     if (object$family=="binomial") {

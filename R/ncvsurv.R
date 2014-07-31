@@ -1,15 +1,16 @@
 ncvsurv <- function(X, y, model=c("cox","aft"), penalty=c("MCP", "SCAD", "lasso"), gamma=switch(penalty, SCAD=3.7, 3), 
                     alpha=1, lambda.min=ifelse(n>p,.001,.05), nlambda=100, lambda, eps=.001, max.iter=1000, convex=TRUE,
                     dfmax=p+1, penalty.factor=rep(1, ncol(X)), warn=TRUE, returnX=FALSE, ...) {
-  stop("ncvsurv is still in testing and not ready to be used yet")
+  ##stop("ncvsurv is still in testing and not ready to be used yet")
   ## Error checking
   if (class(X) != "matrix") {
     tmp <- try(X <- as.matrix(X), silent=TRUE)
     if (class(tmp)[1] == "try-error") stop("X must be a matrix or able to be coerced to a matrix")
   }
-  if (class(y) != "numeric") {
-    tmp <- try(y <- as.numeric(y), silent=TRUE)
-    if (class(tmp)[1] == "try-error") stop("y must numeric or able to be coerced to numeric")
+  if (class(y) != "matrix") {
+    tmp <- try(y <- as.matrix(y), silent=TRUE)
+    if (class(tmp)[1] == "try-error") stop("y must be a matrix or able to be coerced to a matrix")
+    if (ncol(y)!=2) stop("y must have two columns for survival data: time-on-study and a censoring indicator")
   }
   model <- match.arg(model)
   penalty <- match.arg(penalty)
@@ -63,7 +64,7 @@ ncvsurv <- function(X, y, model=c("cox","aft"), penalty=c("MCP", "SCAD", "lasso"
   if (warn & any(iter==max.iter)) warning("Algorithm failed to converge for some values of lambda")
   
   ## Local convexity?
-  convex.min <- if (convex) convexMin(b, XX, penalty, gamma, lambda*(1-alpha), family, penalty.factor, a=a, Delta=Delta) else NULL
+  convex.min <- if (convex) convexMin(b, XX, penalty, gamma, lambda*(1-alpha), "cox", penalty.factor, a=a, Delta=Delta) else NULL
   
   ## Unstandardize
   if (model=="cox") {
@@ -86,14 +87,14 @@ ncvsurv <- function(X, y, model=c("cox","aft"), penalty=c("MCP", "SCAD", "lasso"
                         iter = iter,
                         lambda = lambda,
                         penalty = penalty,
-                        family = family,
+                        model = model,
                         gamma = gamma,
                         alpha = alpha,
                         convex.min = convex.min,
                         loss = loss,
                         penalty.factor = penalty.factor,
                         n = n),
-                   class = "ncvreg")
+                   class = c("ncvsurv", "ncvreg"))
   if (returnX) {
     val$X <- XX
     val$center <- center
