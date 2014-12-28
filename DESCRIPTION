@@ -7,4 +7,4 @@ Maintainer: Patrick Breheny <patrick-breheny@uiowa.edu>
 Description: Efficient algorithms for fitting regularization paths for linear or logistic regression models penalized by MCP or SCAD, with optional additional L2 penalty ("Mnet").
 License: GPL-2
 URL: http://myweb.uiowa.edu/pbreheny/publications/Breheny2011.pdf
-Depends: 
+Depends:parallel 
