@@ -1,3 +1,4 @@
+import(parallel)
 useDynLib(ncvreg,.registration=TRUE)
 export(ncvreg, cv.ncvreg, pa.cv.ncvreg, ncvreg_fit, fir, perm.ncvreg, setupLambda)
 S3method(summary,cv.ncvreg)
