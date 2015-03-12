@@ -3,12 +3,17 @@ predict.ncvreg <- function(object, X, type=c("link", "response", "class", "coeff
   type <- match.arg(type)
   beta <- coef.ncvreg(object, lambda=lambda, which=which, drop=FALSE)
   if (type=="coefficients") return(beta)
-  if (type=="nvars") return(apply(beta[-1,,drop=FALSE]!=0,2,sum))
-  if (type=="vars") return(drop(apply(beta[-1, , drop=FALSE]!=0, 2, FUN=which)))
+  if (length(object$penalty.factor)!=nrow(object$beta)) {
+    beta <- beta[-1,,drop=FALSE]
+    alpha <- beta[1,]
+  }
+  
+  if (type=="nvars") return(apply(beta!=0,2,sum))
+  if (type=="vars") return(drop(apply(beta!=0, 2, FUN=which)))
   if (length(object$penalty.factor)==nrow(object$beta)) {
     eta <- X %*% beta
   } else {
-    eta <- sweep(X %*% beta[-1,,drop=FALSE], 2, beta[1,], "+")
+    eta <- sweep(X %*% beta, 2, alpha, "+")
   }
   if (type=="link" || object$family=="gaussian") return(drop(eta))
   resp <- switch(object$family,

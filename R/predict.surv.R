@@ -11,4 +11,3 @@ predict.ncvsurv <- function(object, X, type=c("link", "response", "coefficients"
   if (object$model=="cox") resp <- exp(eta)
   drop(resp)
 }
-  

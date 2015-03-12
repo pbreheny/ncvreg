@@ -15,12 +15,12 @@ cv.ncvreg <- function(X, y, ..., nfolds=10, seed, cv.ind, trace=FALSE) {
   n <- length(y)
   E <- matrix(NA, nrow=n, ncol=length(fit$lambda))
   if (fit$family=="binomial") {
-    if (min(table(y)) < nfolds) stop("nfolds is larger than the smaller of 0/1 in the data; decrease nfolds")
+    ##if (min(table(y)) < nfolds) stop("nfolds is larger than the smaller of 0/1 in the data; decrease nfolds")
     PE <- E
   }
   
   if (missing(cv.ind)) {
-    if (fit$family=="binomial") {
+    if (fit$family=="binomial" & (min(table(y)) > nfolds)) {
       ind1 <- which(y==1)
       ind0 <- which(y==0)
       n1 <- length(ind1)
@@ -47,7 +47,7 @@ cv.ncvreg <- function(X, y, ..., nfolds=10, seed, cv.ind, trace=FALSE) {
 
     X2 <- X[cv.ind==i, , drop=FALSE]
     y2 <- y[cv.ind==i]
-    yhat <- predict(fit.i, X2, type="response")
+    yhat <- matrix(predict(fit.i, X2, type="response"), length(y2))
     
     E[cv.ind==i, 1:length(fit.i$lambda)] <- loss.ncvreg(y2, yhat, fit$family)
     if (fit$family=="binomial") PE[cv.ind==i, 1:length(fit.i$lambda)] <- (yhat < 0.5) == y2

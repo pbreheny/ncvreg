@@ -4,8 +4,10 @@ plot.cv.ncvreg <- function(x, log.l=TRUE, type=c("cve", "rsq", "scale", "snr", "
     plot(x, log.l=log.l, type="cve", selected=selected, ...)
     plot(x, log.l=log.l, type="rsq", selected=selected, ...)
     plot(x, log.l=log.l, type="snr", selected=selected, ...)
-    if (x$fit$family == "binomial") plot(x, log.l=log.l, type="pred", selected=selected, ...)
-    if (x$fit$family == "gaussian") plot(x, log.l=log.l, type="scale", selected=selected, ...)
+    if (length(fit$family)) {
+      if (x$fit$family == "binomial") plot(x, log.l=log.l, type="pred", selected=selected, ...)
+      if (x$fit$family == "gaussian") plot(x, log.l=log.l, type="scale", selected=selected, ...)      
+    }
     return(invisible(NULL))
   }
   l <- x$lambda

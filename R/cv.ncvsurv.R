@@ -1,4 +1,4 @@
-cv.ncvsurv <- function(X, y, ..., nfolds=10, seed, trace=FALSE) {
+cv.ncvsurv <- function(X, y, ..., nfolds=10, seed, trace=FALSE, events.only=TRUE) {
   if (!missing(seed)) set.seed(seed)
   fit <- ncvsurv(X=X, y=y, ...)
   n <- nrow(X)
@@ -18,9 +18,13 @@ cv.ncvsurv <- function(X, y, ..., nfolds=10, seed, trace=FALSE) {
 
     X2 <- X[cv.ind==i, , drop=FALSE]
     y2 <- y[cv.ind==i,]
-    yhat <- predict(fit.i, X2, type="response")
     if (fit$model=="cox") {
-      E[cv.ind==i, 1:ncol(yhat)] <- coxCVL(y, cv.ind, yhat)
+      eta <- predict(fit.i, X)
+      ll <- loss.ncvsurv(y, eta)
+      for (ii in which(cv.ind==i)) {
+        eta.ii <- predict(fit.i, X[-ii,])
+        E[ii, 1:ncol(eta)] <- -2*(ll-loss.ncvsurv(y[-ii,], eta.ii))
+      }
     }
   }
   
@@ -30,10 +34,11 @@ cv.ncvsurv <- function(X, y, ..., nfolds=10, seed, trace=FALSE) {
   lambda <- fit$lambda
 
   ## Return
+  if (events.only) E <- E[y[,2]==1,]
   cve <- apply(E, 2, mean)
-  cvse <- apply(E, 2, sd) / sqrt(n)
+  cvse <- apply(E, 2, sd) / sqrt(nrow(E))
   min <- which.min(cve)
   
-  val <- list(cve=cve, cvse=cvse, lambda=lambda, fit=fit, min=min, lambda.min=lambda[min], null.dev=NA)
-  structure(val, class="cv.ncvsurv")
+  val <- list(cve=cve, cvse=cvse, lambda=lambda, fit=fit, min=min, lambda.min=lambda[min], null.dev=cve[1])
+  structure(val, class=c("cv.ncvsurv", "cv.ncvreg"))
 }

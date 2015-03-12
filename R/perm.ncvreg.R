@@ -14,11 +14,19 @@ perm.ncvreg <- function(X, y, ..., N=10, seed, trace=FALSE) {
       res <- .Call("cdfit_gaussian", fit$X, sample(fit$y), fit$penalty, fit$lambda, 0.001, as.integer(1000), as.double(fit$gamma), fit$penalty.factor, fit$alpha, as.integer(max(S)), as.integer(TRUE))
       b <- matrix(res[[1]], p, nlambda)
       L.perm[i,] <- res[[2]]
+      iter <- res[[3]]
     } else if (fit$family=="binomial") {
       res <- .Call("cdfit_binomial", fit$X, sample(fit$y), fit$penalty, fit$lambda, 0.001, as.integer(1000), as.double(fit$gamma), fit$penalty.factor, fit$alpha, as.integer(max(S)), as.integer(TRUE), as.integer(FALSE))
       b <- matrix(res[[2]], p, nlambda)
       L.perm[i,] <- res[[3]]
+      iter <- res[[4]]
     }
+#     ind <- !is.na(iter)
+#     b <- b[, ind, drop=FALSE]
+#     iter <- iter[ind]
+#     lambda <- lambda[ind]
+#     loss <- loss[ind]
+#     if (warn & any(iter==max.iter)) warning("Algorithm failed to converge for some values of lambda")
     
     S.perm[i,] <- apply(b!=0, 2, sum)
   }

@@ -19,5 +19,14 @@ logLik.ncvreg <- function(object, REML=FALSE, ...) {
   attr(val,"df") <- df
   attr(val,"nobs") <- n
   class(val) <- "logLik"
-  return(val)    
+  val
+}
+logLik.ncvsurv <- function(object, ...) {
+  n <- as.numeric(object$n)
+  df <- predict(object, type="nvars")
+  val <- -1*object$loss
+  attr(val,"df") <- df
+  attr(val,"nobs") <- n
+  class(val) <- "logLik"
+  val
 }

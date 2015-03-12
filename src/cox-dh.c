@@ -81,7 +81,9 @@ SEXP cdfit_cox_dh(SEXP X_, SEXP y_, SEXP d_, SEXP penalty_, SEXP lambda, SEXP ep
     lstart = 0;
   } else {
     lstart = 1;
-    // REAL(Loss)[0] = nullDev; ??
+    rsk[n-1] = 1;
+    for (int i=n-2; i>=0; i--) rsk[i] = rsk[i+1] + 1;
+    for (int i=0; i<n; i++) REAL(Loss)[0] -= d[i]*log(rsk[i]);
   }
 
   // Path
@@ -128,6 +130,9 @@ SEXP cdfit_cox_dh(SEXP X_, SEXP y_, SEXP d_, SEXP penalty_, SEXP lambda, SEXP ep
 	  for (int i=n-2; i>=0; i--) {
 	    rsk[i] = rsk[i+1] + haz[i];
 	  }
+	  for (int i=0; i<n; i++) {
+	    REAL(Loss)[l] += d[i]*eta[i] - d[i]*log(rsk[i]);
+	  }
 	  //Rprintf("haz[1]=%f, haz[2]=%f, haz[3]=%f\n", haz[0], haz[1], haz[2]);
 	  //Rprintf("rsk[1]=%f, rsk[2]=%f, rsk[3]=%f\n", rsk[0], rsk[1], rsk[2]);
 	  // Calculate h, r
@@ -144,8 +149,10 @@ SEXP cdfit_cox_dh(SEXP X_, SEXP y_, SEXP d_, SEXP penalty_, SEXP lambda, SEXP ep
 	    if (h[j]==0) r[j]=0;
 	    else r[j] = s/h[j];
 	  }
-	  //Rprintf("h[1]=%f, h[2]=%f, h[3]=%f\n", h[0], h[1], h[2]);
-	  //Rprintf("r[1]=%f, r[2]=%f, r[3]=%f\n", r[0], r[1], r[2]);
+	  /* Rprintf("r[1]=%f, r[2]=%f, r[3]=%f\n", r[0], r[1], r[2]); */
+	  /* Rprintf("h[1]=%f, h[2]=%f, h[3]=%f\n", h[0], h[1], h[2]); */
+	  /* Rprintf("rsk[1]=%f, rsk[2]=%f, rsk[3]=%f\n", rsk[0], rsk[1], rsk[2]); */
+	  /* Rprintf("s[1]=%f, s[2]=%f, s[3]=%f\n", r[0]*h[0], r[1]*h[1], r[2]*h[2]); */
 	  /*   mu = exp(eta[i]); */
 	  /*   w[i] = mu; */
 	  /*   s[i] = y[i] - mu; */

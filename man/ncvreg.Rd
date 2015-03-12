@@ -165,5 +165,3 @@ plot(fit,main=expression(paste(alpha,"=",0.5)))
 fit <- ncvreg(X,y,family="binomial",alpha=0.1)
 plot(fit,main=expression(paste(alpha,"=",0.1)))
 }
-\keyword{models}
-\keyword{regression}
