@@ -48,11 +48,13 @@ check(mcp, beta, tolerance=.01, check.attributes=FALSE)
 .test = "ncvsurv agrees with coxnet" ##
 #######################################
 require(glmnet)
-n <- 100
-p <- 10
+n <- 50
+p <- 5000
 y <- Surv(rexp(n), rbinom(n, 1, 0.5))
 X <- matrix(rnorm(n*p), n, p)
 par(mfrow=c(2,1))
+
+system.time(fit <- ncvsurv(X, y, penalty="lasso"))
 
 nlasso <- coef(nfit <- ncvsurv(X, y, penalty="lasso"))
 plot(nfit, log=TRUE)
