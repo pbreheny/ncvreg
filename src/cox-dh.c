@@ -68,22 +68,20 @@ SEXP cdfit_cox_dh(SEXP X_, SEXP y_, SEXP d_, SEXP penalty_, SEXP lambda, SEXP ep
   int *e = Calloc(p, int);
   for (int j=0; j<p; j++) e[j] = 1;
   double *eta = Calloc(n, double);
-  double xwr, xwx, mu, u, v, cutoff, l1, l2, shift, si, exp_eta, s, w;
+  for (int i=0; i<n; i++) eta[i] = 0;
+  double xwr, xwx, mu, u, v, cutoff, l1, l2, shift, si, exp_eta, s, w, nullDev;
   int converged, lstart;
 
-  // Initialization
-  for (int i=0; i<n; i++) eta[i] = 0;
-  // Setup z?  Crossprod at 0?
-  // for (int j=0; j<p; j++) z[j] = crossprod(X, s, n, j)/n;
-
   // If lam[0]=lam_max, skip lam[0] -- closed form sol'n available
+  rsk[n-1] = 1;
+  for (int i=n-2; i>=0; i--) rsk[i] = rsk[i+1] + 1;
+  nullDev = 0;
+  for (int i=0; i<n; i++) nullDev -= d[i]*log(rsk[i]);
   if (user) {
     lstart = 0;
   } else {
     lstart = 1;
-    rsk[n-1] = 1;
-    for (int i=n-2; i>=0; i--) rsk[i] = rsk[i+1] + 1;
-    for (int i=0; i<n; i++) REAL(Loss)[0] -= d[i]*log(rsk[i]);
+    REAL(Loss)[0] = nullDev;
   }
 
   // Path
@@ -159,12 +157,12 @@ SEXP cdfit_cox_dh(SEXP X_, SEXP y_, SEXP d_, SEXP penalty_, SEXP lambda, SEXP ep
 	  /*   r[i] = s[i]/w[i]; */
 	  /*   if (y[i]!=0) REAL(Dev)[l] += y[i]*log(y[i]/mu); */
 	  /* } */
-	  /* if (REAL(Dev)[l]/nullDev < .01) { */
-	  /*   if (warn) warning("Model saturated; exiting..."); */
-	  /*   for (int ll=l; ll<L; ll++) INTEGER(iter)[ll] = NA_INTEGER; */
-	  /*   res = cleanupP(s, w, a, r, e1, e2, z, eta, beta0, beta, Dev, iter); */
-	  /*   return(res); */
-	  /* } */
+	  if (REAL(Loss)[l]/nullDev < .01) {
+	    if (warn) warning("Model saturated; exiting...");
+	    for (int ll=l; ll<L; ll++) INTEGER(iter)[ll] = NA_INTEGER;
+	    res = cleanupCox(e, eta, haz, rsk, beta, Loss, iter, residuals, weights);
+	    return(res);
+	  }
 
 	  // Covariates
 	  for (int j=0; j<p; j++) {
