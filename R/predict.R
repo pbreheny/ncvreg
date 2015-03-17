@@ -4,8 +4,8 @@ predict.ncvreg <- function(object, X, type=c("link", "response", "class", "coeff
   beta <- coef.ncvreg(object, lambda=lambda, which=which, drop=FALSE)
   if (type=="coefficients") return(beta)
   if (length(object$penalty.factor)!=nrow(object$beta)) {
-    beta <- beta[-1,,drop=FALSE]
     alpha <- beta[1,]
+    beta <- beta[-1,,drop=FALSE]
   }
   
   if (type=="nvars") return(apply(beta!=0,2,sum))

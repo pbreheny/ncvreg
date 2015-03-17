@@ -48,22 +48,20 @@ check(mcp, beta, tolerance=.01, check.attributes=FALSE)
 .test = "ncvsurv agrees with coxnet" ##
 #######################################
 require(glmnet)
-n <- 50
-p <- 5000
+n <- 100
+p <- 25
 y <- Surv(rexp(n), rbinom(n, 1, 0.5))
 X <- matrix(rnorm(n*p), n, p)
 par(mfrow=c(2,1))
 
-system.time(fit <- ncvsurv(X, y, penalty="lasso"))
-
-nlasso <- coef(nfit <- ncvsurv(X, y, penalty="lasso"))
+nlasso <- coef(nfit <- ncvsurv(X, y, penalty="lasso", lambda.min=0.001))
 plot(nfit, log=TRUE)
 glasso <- as.matrix(coef(gfit <- glmnet(X, y, family="cox", lambda=nfit$lambda)))
 plot(gfit, "lambda")
-check(nlasso, glasso, tolerance=.01, check.attributes=FALSE)
+check(nlasso, glasso, tolerance=.02, check.attributes=FALSE)
 
 check(predict(nfit, X, "link"), predict(gfit, X, type="link"), tolerance=.01, check.attributes=FALSE)
-check(predict(nfit, X, "response"), predict(gfit, X, type="response"), tolerance=.01, check.attributes=FALSE)
+check(predict(nfit, X, "response"), predict(gfit, X, type="response"), tolerance=.05, check.attributes=FALSE)
 
 ############################################
 .test = "lasso/scad/mcp all seem to work" ##
@@ -122,11 +120,11 @@ par(mfrow=c(2,2))
 
 ncvfit <- cv.ncvsurv(X, y, penalty="lasso", lambda.min=0.2)
 plot(ncvfit)
-ncvfit <- cv.ncvsurv(X, y, penalty="lasso", events.only=TRUE, lambda.min=0.2)
+ncvfit <- cv.ncvsurv(X, y, penalty="lasso", events.only=FALSE, lambda.min=0.2)
 plot(ncvfit)
 ncvfit <- cv.ncvsurv(X, y, lambda.min=0.4)
 plot(ncvfit)
-ncvfit <- cv.ncvsurv(X, y, events.only=TRUE, lambda.min=0.4)
+ncvfit <- cv.ncvsurv(X, y, events.only=FALSE, lambda.min=0.4)
 plot(ncvfit)
 
 require(glmnet)

@@ -3,6 +3,8 @@ loss.ncvreg <- function(y, yhat, family) {
   if (family=="gaussian") {
     val <- (y-yhat)^2
   } else if (family=="binomial") {
+    yhat[yhat < 0.00001] <- 0.00001
+    yhat[yhat > 0.99999] <- 0.99999
     if (is.matrix(yhat)) {
       val <- matrix(NA, nrow=nrow(yhat), ncol=ncol(yhat))
       if (sum(y==1)) val[y==1,] <- -2*log(yhat[y==1, , drop=FALSE])

@@ -111,8 +111,8 @@ fit <- ncvreg(X, y, family="poisson")
 ######################################
 .test = "cv.ncvreg() seems to work" ##
 ######################################
-n <- 50
-p <- 100
+n <- 40
+p <- 10
 X <- matrix(rnorm(n*p), ncol=p)
 b <- c(2, -2, 1, -1, rep(0, p-4))
 y <- rnorm(n, mean=X%*%b, sd=2)
@@ -121,17 +121,17 @@ yp <- rpois(n, exp(X%*%b/3))
 par(mfrow=c(3,2))
 
 require(glmnet)
-cvfit <- cv.glmnet(X, y)
+gcvfit <- cv.glmnet(X, y, nfolds=n)
+plot(gcvfit)
+ncvfit <- cv.ncvreg(X, y, penalty="lasso", lambda=gcvfit$lambda, nfolds=n)
+plot(ncvfit)
+gcvfit <- cv.glmnet(X, yb, family="binomial", nfolds=n)
+plot(gcvfit)
+ncvfit <- cv.ncvreg(X, yb, family="binomial", penalty="lasso", lambda=gcvfit$lambda, nfolds=n)
+plot(ncvfit)
+cvfit <- cv.glmnet(X, yp, family="poisson")
 plot(cvfit)
-cvfit <- cv.ncvreg(X, y, penalty="lasso")
-plot(cvfit)
-cvfit <- cv.glmnet(X, yb, family="binomial", lambda.min=0)
-plot(cvfit)
-cvfit <- cv.ncvreg(X, yb, family="binomial", penalty="lasso", lambda.min=0)
-plot(cvfit)
-cvfit <- cv.glmnet(X, yp, family="poisson", lambda.min=0)
-plot(cvfit)
-cvfit <- cv.ncvreg(X, yp, family="poisson", penalty="lasso", lambda.min=0)
+cvfit <- cv.ncvreg(X, yp, family="poisson", penalty="lasso", lambda=cvfit$lambda)
 plot(cvfit)
 
 #########################################

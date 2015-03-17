@@ -1,4 +1,4 @@
-cv.ncvreg <- function(X, y, ..., nfolds=10, seed, cv.ind, trace=FALSE) {
+cv.ncvreg <- function(X, y, ..., cluster, nfolds=10, seed, cv.ind, trace=FALSE) {
 
   ## Error checking
   if (!missing(seed)) set.seed(seed)
@@ -15,10 +15,10 @@ cv.ncvreg <- function(X, y, ..., nfolds=10, seed, cv.ind, trace=FALSE) {
   n <- length(y)
   E <- matrix(NA, nrow=n, ncol=length(fit$lambda))
   if (fit$family=="binomial") {
-    ##if (min(table(y)) < nfolds) stop("nfolds is larger than the smaller of 0/1 in the data; decrease nfolds")
     PE <- E
   }
   
+  if (!missing(seed)) set.seed(seed)
   if (missing(cv.ind)) {
     if (fit$family=="binomial" & (min(table(y)) > nfolds)) {
       ind1 <- which(y==1)
@@ -34,29 +34,33 @@ cv.ncvreg <- function(X, y, ..., nfolds=10, seed, cv.ind, trace=FALSE) {
       cv.ind <- ceiling(sample(1:n)/n*nfolds)
     }
   }
-    
+  
+  cv.args <- list(...)
+  cv.args$lambda <- fit$lambda
+  if (!missing(cluster)) {
+    if (!("cluster" %in% class(cluster))) stop("cluster is not of class 'cluster'; see ?makeCluster")
+    clusterExport(cl, c("cv.ind","fit","X", "y", "cv.args"), envir=environment())
+    ##clusterCall(cl, function() require(ncvreg))
+    fold.results = parLapply(cl=cl, X=1:nfolds, fun=cvf, XX=X, y=y, cv.ind=cv.ind, cv.args=cv.args)
+  }
+
   for (i in 1:nfolds) {
-    if (trace) cat("Starting CV fold #",i,sep="","\n")
-
-    cv.args <- list(...)
-    cv.args$X <- X[cv.ind!=i, , drop=FALSE]
-    cv.args$y <- y[cv.ind!=i]
-    cv.args$lambda <- fit$lambda
-    cv.args$warn <- FALSE
-    fit.i <- do.call("ncvreg", cv.args)
-
-    X2 <- X[cv.ind==i, , drop=FALSE]
-    y2 <- y[cv.ind==i]
-    yhat <- matrix(predict(fit.i, X2, type="response"), length(y2))
-    
-    E[cv.ind==i, 1:length(fit.i$lambda)] <- loss.ncvreg(y2, yhat, fit$family)
-    if (fit$family=="binomial") PE[cv.ind==i, 1:length(fit.i$lambda)] <- (yhat < 0.5) == y2
+    if (!missing(cluster)) {
+      res <- fold.results[[i]]
+    } else {
+      if (trace) cat("Starting CV fold #",i,sep="","\n")
+      res <- cvf(i, X, y, cv.ind, cv.args)
+    }
+    E[cv.ind==i, 1:res$nl] <- res$loss
+    if (fit$family=="binomial") PE[cv.ind==i, 1:res$nl] <- res$pe
+    ## Y[cv.ind==i, 1:res$nl] <- res$yhat
   }
   
   ## Eliminate saturated lambda values, if any
   ind <- which(apply(is.finite(E), 2, all))
   E <- E[,ind]
-  lambda <- fit$lambda
+  ##Y <- Y[,ind]
+  lambda <- fit$lambda[ind]
 
   ## Return
   cve <- apply(E, 2, mean)
@@ -69,4 +73,17 @@ cv.ncvreg <- function(X, y, ..., nfolds=10, seed, cv.ind, trace=FALSE) {
     val$pe <- pe[is.finite(pe)]
   }
   structure(val, class="cv.ncvreg")
+}
+cvf <- function(i, XX, y, cv.ind, cv.args) {
+  cv.args$X <- XX[cv.ind!=i, , drop=FALSE]
+  cv.args$y <- y[cv.ind!=i]
+  cv.args$warn <- FALSE
+  fit.i <- do.call("ncvreg", cv.args)
+  
+  X2 <- XX[cv.ind==i, , drop=FALSE]
+  y2 <- y[cv.ind==i]
+  yhat <- matrix(predict(fit.i, X2, type="response"), length(y2))
+  loss <- loss.ncvreg(y2, yhat, fit.i$family)
+  pe <- if (fit.i$family=="binomial") {(yhat < 0.5) == y2} else NULL
+  list(loss=loss, pe=pe, nl=length(fit.i$lambda), yhat=yhat)
 }
