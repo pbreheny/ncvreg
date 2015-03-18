@@ -41,7 +41,7 @@ drop=TRUE, ...)
   algorithms for nonconvex penalized regression, with applications to
   biological feature selection. Ann. Appl. Statist., 5: 232-253.}
 \author{Patrick Breheny <patrick-breheny@uiowa.edu>}
-\seealso{\code{ncvreg}}
+\seealso{\code{\link{ncvreg}}}
 \examples{
 data(heart)
 X <- as.matrix(heart[,1:9])

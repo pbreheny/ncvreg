@@ -5,7 +5,6 @@
   survival models over a grid of values for the regularization
   parameter lambda.}
 \usage{
-cv.ncvsurv(X, y, ..., nfolds=10, seed, trace=FALSE
 cv.ncvsurv(X, y, ..., nfolds=10, seed, trace=FALSE, events.only=TRUE)
 }
 \arguments{
@@ -33,7 +32,8 @@ cv.ncvsurv(X, y, ..., nfolds=10, seed, trace=FALSE, events.only=TRUE)
   the full-data-set partial likelihood from the leave-one-out partial
   likelihood.}
 \value{
-  An object with S3 class \code{"cv.ncvsurv"} containing:
+  An object with S3 class \code{"cv.ncvsurv"} inheriting from
+  \code{"cv.ncvreg"} and containing:
   \item{cve}{The error for each value of \code{lambda}, averaged
     across the cross-validation folds.}
   \item{cvse}{The estimated standard error associated with each value of
@@ -68,11 +68,11 @@ cv.ncvsurv(X, y, ..., nfolds=10, seed, trace=FALSE, events.only=TRUE)
   }
 }
 \author{Patrick Breheny <patrick-breheny@uiowa.edu>}
-\seealso{\code{ncvsurv}, \code{plot.cv.ncvsurv}, \code{summary.cv.ncvsurv}}
+\seealso{\code{\link{ncvsurv}}, \code{\link{plot.cv.ncvreg}}, \code{\link{summary.cv.ncvreg}}}
 \examples{
-data(lungCancer)
-X <- lungCancer$X
-y <- lungCancer$y
+data(Lung)
+X <- Lung$X
+y <- Lung$y
 
 cvfit <- cv.ncvsurv(X, y)
 summary(cvfit)

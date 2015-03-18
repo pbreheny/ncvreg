@@ -19,7 +19,7 @@
   algorithms for nonconvex penalized regression, with applications to
   biological feature selection. Ann. Appl. Statist., 5: 232-253.}
 \author{Patrick Breheny <patrick-breheny@uiowa.edu>}
-\seealso{\code{ncvreg}}
+\seealso{\code{\link{ncvreg}}}
 \examples{
 data(prostate)
 X <- as.matrix(prostate[,1:8])

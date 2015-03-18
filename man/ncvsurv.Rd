@@ -8,7 +8,7 @@
 ncvsurv(X, y, model=c("cox","aft"), penalty=c("MCP", "SCAD", "lasso"),
 gamma=switch(penalty, SCAD=3.7, 3), alpha=1,
 lambda.min=ifelse(n>p,.001,.05), nlambda=100, lambda, eps=.001,
-max.iter=1000, convex=TRUE, dfmax=p+1, penalty.factor=rep(1, ncol(X)),
+max.iter=1000, convex=TRUE, dfmax=p, penalty.factor=rep(1, ncol(X)),
 warn=TRUE, returnX=FALSE, ...)
 }
 \arguments{
@@ -67,11 +67,12 @@ warn=TRUE, returnX=FALSE, ...)
   The sequence of models indexed by the regularization parameter
   \code{lambda} is fit using a coordinate descent algorithm.  In order
   to accomplish this, the second derivative (Hessian) of the Cox partial
-  likelihood is diagonalized (see references for details).  The
+  log-likelihood is diagonalized (see references for details).  The
   objective function is defined to be
   \deqn{-\frac{1}{n}L(\beta|X,y) + \textrm{penalty},}{-(1/n) L(beta|X,y)
     + penalty (beta),}
-  where L is the partial likelihood from the Cox regression model.\cr
+  where L is the partial log-likelihood from the Cox regression
+  model.\cr
   \cr
   Presently, ties are not handled by \code{ncvsurv} in a particularly
   sophisticated manner.  This will be improved upon in a future release
@@ -116,19 +117,29 @@ warn=TRUE, returnX=FALSE, ...)
   }
 }
 \author{Patrick Breheny <patrick-breheny@uiowa.edu>}
-\seealso{\code{plot.ncvsurv}, \code{cv.ncvsurv}}
+\seealso{\code{\link{plot.ncvreg}}, \code{\link{cv.ncvsurv}}}
 \examples{
-data(lungCancer)
-X <- lungCancer$X
-y <- lungCancer$y
+data(Lung)
+X <- Lung$X
+y <- Lung$y
 
 par(mfrow=c(2,2))
-fit <- ncvsurv(X, y, lambda.min=0.5)
+fit <- ncvsurv(X, y)
 plot(fit, main=expression(paste(gamma,"=",3)))
-fit <- ncvsurv(X, y, gamma=10, lambda.min=0.5)
+fit <- ncvsurv(X, y, gamma=10)
 plot(fit, main=expression(paste(gamma,"=",10)))
-fit <- ncvsurv(X, y, gamma=1.5, lambda.min=0.75)
+fit <- ncvsurv(X, y, gamma=1.5)
 plot(fit, main=expression(paste(gamma,"=",1.5)))
-fit <- ncvsurv(X, y, penalty="SCAD", lambda.min=0.5)
+fit <- ncvsurv(X, y, penalty="SCAD")
 plot(fit, main=expression(paste("SCAD, ",gamma,"=",3)))
+
+fit <- ncvsurv(X,y)
+ll <- log(fit$lambda)
+par(mfrow=c(2,1))
+plot(ll, BIC(fit), type="l", xlim=rev(range(ll)))
+b <- coef(fit, which=which.min(BIC(fit)))
+b[b!=0]
+
+plot(fit)
+abline(v=fit$lambda[which.min(BIC(fit))])
 }

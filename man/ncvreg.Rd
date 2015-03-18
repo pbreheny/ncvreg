@@ -105,7 +105,7 @@ warn=TRUE, returnX=FALSE, ...)
   algorithms for nonconvex penalized regression, with applications to
   biological feature selection. Ann. Appl. Statist., 5: 232-253.}
 \author{Patrick Breheny <patrick-breheny@uiow.edu>}
-\seealso{\code{plot.ncvreg}, \code{cv.ncvreg}}
+\seealso{\code{\link{plot.ncvreg}}, \code{\link{cv.ncvreg}}}
 \examples{
 ## Linear regression
 data(prostate)

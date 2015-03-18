@@ -44,7 +44,7 @@ perm.ncvreg(X, y, ..., N=10, seed, trace=FALSE)
   }
 %\references{None yet}
 \author{Patrick Breheny <patrick-breheny@uiowa.edu>}
-\seealso{\code{ncvreg}, \code{plot.fir}, \code{fir}}
+\seealso{\code{\link{ncvreg}}, \code{\link{plot.fir}}, \code{\link{fir}}}
 \examples{
 ## Linear regression
 data(prostate)

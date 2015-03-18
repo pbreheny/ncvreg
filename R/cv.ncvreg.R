@@ -39,9 +39,9 @@ cv.ncvreg <- function(X, y, ..., cluster, nfolds=10, seed, cv.ind, trace=FALSE) 
   cv.args$lambda <- fit$lambda
   if (!missing(cluster)) {
     if (!("cluster" %in% class(cluster))) stop("cluster is not of class 'cluster'; see ?makeCluster")
-    clusterExport(cl, c("cv.ind","fit","X", "y", "cv.args"), envir=environment())
-    ##clusterCall(cl, function() require(ncvreg))
-    fold.results = parLapply(cl=cl, X=1:nfolds, fun=cvf, XX=X, y=y, cv.ind=cv.ind, cv.args=cv.args)
+    parallel::clusterExport(cluster, c("cv.ind","fit","X", "y", "cv.args"), envir=environment())
+    parallel::clusterCall(cluster, function() require(ncvreg))
+    fold.results <- parallel::parLapply(cl=cluster, X=1:nfolds, fun=cvf, XX=X, y=y, cv.ind=cv.ind, cv.args=cv.args)
   }
 
   for (i in 1:nfolds) {

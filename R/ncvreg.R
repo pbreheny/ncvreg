@@ -1,7 +1,7 @@
 ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("MCP", "SCAD", "lasso"), 
                    gamma=switch(penalty, SCAD=3.7, 3), alpha=1, lambda.min=ifelse(n>p,.001,.05), nlambda=100, 
-                   lambda, standardize=TRUE, eps=.001, max.iter=1000, convex=TRUE, dfmax=p+1, 
-                   penalty.factor=rep(1, ncol(X)), warn=TRUE, returnX=FALSE, ...) {
+                   lambda, eps=.001, max.iter=1000, convex=TRUE, dfmax=p+1, penalty.factor=rep(1, ncol(X)),
+                   warn=TRUE, returnX=FALSE, ...) {
   ## Error checking
   if (class(X) != "matrix") {
     tmp <- try(X <- as.matrix(X), silent=TRUE)
@@ -13,6 +13,7 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
   }
   family <- match.arg(family)
   penalty <- match.arg(penalty)
+  standardize <- TRUE
   if (gamma <= 1 & penalty=="MCP") stop("gamma must be greater than 1 for the MC penalty")
   if (gamma <= 2 & penalty=="SCAD") stop("gamma must be greater than 2 for the SCAD penalty")
   if (nlambda < 2) stop("nlambda must be at least 2")

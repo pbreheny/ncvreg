@@ -39,7 +39,7 @@
   algorithms for nonconvex penalized regression, with applications to
   biological feature selection. Ann. Appl. Statist., 5: 232-253.}
 \author{Patrick Breheny <patrick-breheny@uiowa.edu>}
-\seealso{\code{ncvreg}, \code{cv.ncvreg}}
+\seealso{\code{\link{ncvreg}}, \code{\link{cv.ncvreg}}}
 \examples{
 ## Linear regression
 data(prostate)

@@ -20,13 +20,15 @@
  }}
 \usage{data(prostate)}
 \format{A data frame with 97 observations on 9 variables}
-\source{http://www-stat-class.stanford.edu/~tibs/ElemStatLearn/}
+\source{\url{http://statweb.stanford.edu/~tibs/ElemStatLearn/}}
 \references{
-  Hastie, T., Tibshirani, R., and Friedman, J. (2001). \emph{The
-   Elements of Statistical Learning}.  Springer. 
-    
-  Stamey, T., et al. (1989).  Prostate specific antigen in the diagnosis
-  and treatment of adenocarcinoma of the prostate. II. Radical
-  prostatectomy treated patients. \emph{Journal of Urology},
-  \strong{16}: 1076-1083.} 
+  \itemize{
+    \item Hastie T, Tibshirani R, and Friedman J. (2001). \emph{The
+      Elements of Statistical Learning}.  Springer.
+    \item Stamey T, et al. (1989).  Prostate specific antigen in the
+    diagnosis and treatment of adenocarcinoma of the
+    prostate. II. Radical prostatectomy treated patients. \emph{Journal 
+      of Urology}, \strong{16}: 1076-1083.
+  }
+}
 \keyword{datasets}

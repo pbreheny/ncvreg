@@ -1,8 +1,13 @@
-3.2-1
+3.3-0
+	* Support for fitting survival models added (ncvsurv), along
+	  with predict, plot, and cv.ncvsurv support functions.  Currently,
+	  Cox models are the only type of survival model implemented.
+	* Added parallel support for cv.ncvreg (with help from Grant Brown)
 	* Fixed bug in cv.ncvreg when attempting to use leave-one-out
 	  cross-validation (thank you to Cajo ter Braak for pointing this
 	  out)
-	* CHANGES TO NCVREG_FIT
+	* ncvreg_fit taken offline; it will return in a future version of
+	  the ncvreg package.
 
 3.2-0
 	* Updated algorithm to 'hybrid' strong/active cycling

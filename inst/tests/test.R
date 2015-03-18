@@ -51,9 +51,16 @@ par(mfrow=c(3,2))
 y <- rnorm(n)
 nlasso <- coef(fit <- ncvreg(X, y, penalty="lasso"))
 plot(fit, log=TRUE)
-glasso <- as.matrix(coef(fit <- glmnet(X, y, lambda=fit$lambda)))
+glasso <- as.matrix(coef(fit <- glmnet(X, y, lambda=fit$lambda))
 plot(fit, "lambda")
 check(nlasso,  glasso, tolerance=.01, check.attributes=FALSE)
+
+## y <- rnorm(n)
+## nlasso <- coef(fit <- ncvreg(cbind(1,X), y, penalty="lasso", standardize=FALSE), penalty.factor=c(0,rep(1,p)))
+## plot(fit, log=TRUE)
+## glasso <- as.matrix(coef(fit <- glmnet(X, y, lambda=fit$lambda, standardize=FALSE)))
+## plot(fit, "lambda")
+## check(nlasso,  glasso, tolerance=.01, check.attributes=FALSE)
 
 yy <- runif(n) > .5
 nlasso <- coef(fit <- ncvreg(X, yy, family="binomial", penalty="lasso"))

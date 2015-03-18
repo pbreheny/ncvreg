@@ -1,5 +1,5 @@
 useDynLib(ncvreg,.registration=TRUE)
-export(ncvreg, cv.ncvreg, ncvreg_fit, fir, perm.ncvreg, setupLambda, ncvsurv, cv.ncvsurv)
+export(ncvreg, cv.ncvreg, fir, perm.ncvreg, setupLambda, ncvsurv, cv.ncvsurv)
 S3method(summary, cv.ncvreg)
 S3method(summary, cv.ncvsurv)
 S3method(print, summary.cv.ncvreg)

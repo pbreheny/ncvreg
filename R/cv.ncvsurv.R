@@ -1,9 +1,21 @@
 cv.ncvsurv <- function(X, y, ..., nfolds=10, seed, trace=FALSE, events.only=TRUE) {
-  if (!missing(seed)) set.seed(seed)
+
+  ## Error checking
+  if (class(X) != "matrix") {
+    tmp <- try(X <- as.matrix(X), silent=TRUE)
+    if (class(tmp)[1] == "try-error") stop("X must be a matrix or able to be coerced to a matrix")
+  }
+  if (class(y) != "matrix") {
+    tmp <- try(y <- as.matrix(y), silent=TRUE)
+    if (class(tmp)[1] == "try-error") stop("y must be a matrix or able to be coerced to a matrix")
+    if (ncol(y)!=2) stop("y must have two columns for survival data: time-on-study and a censoring indicator")
+  }
+
   fit <- ncvsurv(X=X, y=y, ...)
   n <- nrow(X)
   E <- matrix(NA, nrow=n, ncol=length(fit$lambda))
   
+  if (!missing(seed)) set.seed(seed)
   cv.ind <- ceiling(sample(1:n)/n*nfolds)
 
   for (i in 1:nfolds) {
