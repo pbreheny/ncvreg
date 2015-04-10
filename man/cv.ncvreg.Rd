@@ -58,7 +58,8 @@ cv.ncvreg(X, y, ..., cluster, nfolds=10, seed, cv.ind, trace=FALSE)
 \references{Breheny, P. and Huang, J. (2011) Coordinate descent
   algorithms for nonconvex penalized regression, with applications to
   biological feature selection. Ann. Appl. Statist., 5: 232-253.}
-\author{Patrick Breheny <patrick-breheny@uiowa.edu>}
+\author{Patrick Breheny <patrick-breheny@uiowa.edu>\cr
+        Grant Brown helped with the parallelization support}
 \seealso{\code{\link{ncvreg}}, \code{\link{plot.cv.ncvreg}}, \code{\link{summary.cv.ncvreg}}}
 \examples{
 data(prostate)

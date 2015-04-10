@@ -6,11 +6,13 @@ ncvsurv <- function(X, y, model=c("cox","aft"), penalty=c("MCP", "SCAD", "lasso"
     tmp <- try(X <- as.matrix(X), silent=TRUE)
     if (class(tmp)[1] == "try-error") stop("X must be a matrix or able to be coerced to a matrix")
   }
+  if (storage.mode(X)=="integer") storage.mode(X) <- "double"
   if (class(y) != "matrix") {
     tmp <- try(y <- as.matrix(y), silent=TRUE)
     if (class(tmp)[1] == "try-error") stop("y must be a matrix or able to be coerced to a matrix")
     if (ncol(y)!=2) stop("y must have two columns for survival data: time-on-study and a censoring indicator")
   }
+  if (storage.mode(y)=="integer") storage.mode(y) <- "double"
   model <- match.arg(model)
   if (model=="aft") stop("AFT models not yet implemented")
   penalty <- match.arg(penalty)

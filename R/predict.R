@@ -3,14 +3,14 @@ predict.ncvreg <- function(object, X, type=c("link", "response", "class", "coeff
   type <- match.arg(type)
   beta <- coef.ncvreg(object, lambda=lambda, which=which, drop=FALSE)
   if (type=="coefficients") return(beta)
-  if (length(object$penalty.factor)!=nrow(object$beta)) {
+  if (class(object)[1]=="ncvreg") {
     alpha <- beta[1,]
     beta <- beta[-1,,drop=FALSE]
   }
   
   if (type=="nvars") return(apply(beta!=0,2,sum))
   if (type=="vars") return(drop(apply(beta!=0, 2, FUN=which)))
-  if (length(object$penalty.factor)==nrow(object$beta)) {
+  if (class(object)[1]=="ncvsurv") {
     eta <- X %*% beta
   } else {
     eta <- sweep(X %*% beta, 2, alpha, "+")
