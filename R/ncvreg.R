@@ -4,7 +4,7 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
                    warn=TRUE, returnX=FALSE, ...) {
   ## Error checking
   if (class(X) != "matrix") {
-    tmp <- try(X <- as.matrix(X), silent=TRUE)
+    tmp <- try(X <- model.matrix(~0+., data=X), silent=TRUE)
     if (class(tmp)[1] == "try-error") stop("X must be a matrix or able to be coerced to a matrix")
   }
   if (storage.mode(X)=="integer") storage.mode(X) <- "double"
@@ -22,6 +22,7 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
   if (length(penalty.factor)!=ncol(X)) stop("penalty.factor does not match up with X")
   if (any(is.na(y)) | any(is.na(X))) stop("Missing data (NA's) detected.  Take actions (e.g., removing cases, removing features, imputation) to eliminate missing data before passing X and y to ncvreg")
   if (family=="binomial" & length(table(y)) > 2) stop("Attemping to use family='binomial' with non-binary data")
+  if (family=="binomial" & !identical(sort(unique(y)), 0:1)) y <- as.numeric(y==max(y))
   
   ## Deprication support
   dots <- list(...)

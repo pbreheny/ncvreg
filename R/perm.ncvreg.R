@@ -1,40 +1,53 @@
-perm.ncvreg <- function(X, y, ..., N=10, seed, trace=FALSE) {
+perm.ncvreg <- function(X, y, ..., permute=c("outcome", "residuals"), res.lam, N=10, seed, trace=FALSE) {
+  permute <- match.arg(permute)
   if (!missing(seed)) set.seed(seed)
   fit <- ncvreg(X=X, y=y, returnX=TRUE, ...)
   S <- predict(fit, type="nvars")
-  p <- ncol(fit$X)
-  nlambda <- ncol(fit$beta)
-
-  S.perm <- L.perm <- matrix(NA, N, length(fit$lam))
-  for (i in 1:N) {
-    if (trace) cat("Starting permutation fit #",i,sep="","\n")
-
-    ## Fit
-    if (fit$family=="gaussian") {
-      res <- .Call("cdfit_gaussian", fit$X, sample(fit$y), fit$penalty, fit$lambda, 0.001, as.integer(1000), as.double(fit$gamma), fit$penalty.factor, fit$alpha, as.integer(max(S)), as.integer(TRUE))
-      b <- matrix(res[[1]], p, nlambda)
-      L.perm[i,] <- res[[2]]
-      iter <- res[[3]]
-    } else if (fit$family=="binomial") {
-      res <- .Call("cdfit_binomial", fit$X, sample(fit$y), fit$penalty, fit$lambda, 0.001, as.integer(1000), as.double(fit$gamma), fit$penalty.factor, fit$alpha, as.integer(max(S)), as.integer(TRUE), as.integer(FALSE))
-      b <- matrix(res[[2]], p, nlambda)
-      L.perm[i,] <- res[[3]]
-      iter <- res[[4]]
+  
+  if (permute=="outcome") {
+    pfit <- fit.perm.ncvreg(fit, fit$y, fit$lambda, N, max(S), trace)
+    S.perm <- pfit$S.perm
+    L.perm <- pfit$L.perm
+    EF <- pmin(apply(S.perm, 2, mean), S)
+    FIR <- EF/S
+    FIR[S==0] <- 0
+    loss <- apply(L.perm, 2, mean)
+  } else {
+    n.l <- length(fit$lambda)
+    EF <- FIR <- loss <- numeric(n.l)
+    for (i in 1:n.l) {
+      pres <- permres.ncvreg(fit, fit$lambda[i], N=N, seed=seed, trace=trace)
+      EF[i] <- pres$EF
+      FIR[i] <- pres$FIR
+      loss[i] <- pres$loss
+      names(EF) <- names(FIR) <- names(loss) <- fit$lambda
     }
-#     ind <- !is.na(iter)
-#     b <- b[, ind, drop=FALSE]
-#     iter <- iter[ind]
-#     lambda <- lambda[ind]
-#     loss <- loss[ind]
-#     if (warn & any(iter==max.iter)) warning("Algorithm failed to converge for some values of lambda")
-    
-    S.perm[i,] <- apply(b!=0, 2, sum)
   }
-
-  EF <- pmin(apply(S.perm, 2, mean), S)
-
-  FIR <- EF/S
-  FIR[S==0] <- 0
-  fit <- structure(fit[1:11], class="ncvreg")
-  structure(list(EF=EF, S=S, FIR=FIR, fit=fit, loss=apply(L.perm, 2, mean)), class=c("perm.ncvreg", "fir"))
+  
+  fit <- structure(fit[1:11], class="ncvreg") ## Don't return X, y, etc.
+  structure(list(EF=EF, S=S, FIR=FIR, fit=fit, loss=loss), class=c("perm.ncvreg", "fir"))
+}
+fit.perm.ncvreg <- function(fit, y, lam, N, maxdf, trace) {
+  n.l <- length(lam)
+  p <- ncol(fit$X)
+  S.perm <- L.perm <- matrix(NA, N, n.l)
+  for (i in 1:N) {
+    if (trace) cat("Starting permutation fit #", i, sep="","\n")
+    if (fit$family=="gaussian") {
+      res <- .Call("cdfit_gaussian", fit$X, sample(y), fit$penalty, lam, 0.001, as.integer(1000), as.double(fit$gamma), fit$penalty.factor, fit$alpha, as.integer(maxdf), as.integer(TRUE))
+      b <- matrix(res[[1]], p, n.l)
+      ind <- is.na(res[[3]])
+      L.perm[i,] <- res[[2]]
+      L.perm[i,ind] <- NA
+    } else if (fit$family=="binomial") {
+      res <- .Call("cdfit_binomial", fit$X, sample(y), fit$penalty, lam, 0.001, as.integer(1000), as.double(fit$gamma), fit$penalty.factor, fit$alpha, as.integer(maxdf), as.integer(TRUE), as.integer(FALSE))
+      b <- matrix(res[[2]], p, n.l)
+      ind <- is.na(res[[4]])
+      L.perm[i,] <- res[[3]]
+      L.perm[i,ind] <- NA
+    }
+    S.perm[i,] <- apply(b[,drop=FALSE]!=0, 2, sum)
+    S.perm[i,ind] <- NA
+  }
+  list(S.perm=S.perm, L.perm=L.perm)
 }
