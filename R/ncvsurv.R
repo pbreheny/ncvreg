@@ -71,7 +71,9 @@ ncvsurv <- function(X, y, model=c("cox","aft"), penalty=c("MCP", "SCAD", "lasso"
   ## Unstandardize
   if (model=="cox") {
     beta <- matrix(0, nrow=ncol(X), ncol=length(lambda))
-    beta[nz,] <- b / scale[nz]
+    bb <- b/scale[nz]
+    beta[nz,] <- bb
+    offset <- -crossprod(center[nz], bb)
   } else {
     beta <- matrix(0, nrow=(ncol(X)+1), ncol=length(lambda))
     bb <- b/scale[nz]
@@ -97,6 +99,12 @@ ncvsurv <- function(X, y, model=c("cox","aft"), penalty=c("MCP", "SCAD", "lasso"
                         penalty.factor = penalty.factor,
                         n = n),
                    class = c("ncvsurv", "ncvreg"))
+  if (model == 'cox') {
+    val$W <- exp(XX %*% b)
+    val$time <- yy
+    val$fail <- Delta
+    val$offset <- offset
+  }
   if (returnX) {
     val$X <- XX
     val$center <- center

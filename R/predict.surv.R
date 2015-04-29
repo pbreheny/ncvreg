@@ -1,13 +1,56 @@
-predict.ncvsurv <- function(object, X, type=c("link", "response", "coefficients", "vars", "nvars"), 
-                            lambda, which=1:length(object$lambda), ...) {
+predict.ncvsurv <- function(object, X, type=c("link", "response", "survival", "median", "coefficients", "vars", "nvars"),
+                            X.orig = X, lambda, which=1:length(object$lambda), ...) {
   type <- match.arg(type)
-  if (type!="response") return(predict.ncvreg(object=object, X=X, type=type, lambda=lambda, which=which, ...))
-  beta <- coef.ncvreg(object, lambda=lambda, which=which, drop=FALSE)
-  if (length(object$penalty.factor)==nrow(object$beta)) {
-    eta <- X %*% beta
+  if (type %in% c("coefficients", "vars", "nvars")) {
+    return(predict.ncvreg(object=object, X=X, type=type, lambda=lambda, which=which, ...))
+  } 
+  if (!missing(lambda)) {
+    ind <- approx(object$lambda,seq(object$lambda),lambda)$y
+    l <- floor(ind)
+    r <- ceiling(ind)
+    x <- ind %% 1
+    alpha <- (1-x)*object$offset[l,drop=FALSE] + x*object$offset[r,drop=FALSE]
+    beta <- (1-x)*object$beta[,l,drop=FALSE] + x*object$beta[,r,drop=FALSE]
+    if (length(lambda) > 1) colnames(beta) <- round(lambda,4)
   } else {
-    eta <- sweep(X %*% beta[-1,,drop=FALSE], 2, beta[1,], "+")
+    alpha <- object$offset[which]
+    beta <- object$beta[,which,drop=FALSE]
   }
-  if (object$model=="cox") resp <- exp(eta)
-  drop(resp)
+  
+  eta <- sweep(X %*% beta, 2, alpha, "+")
+  if (type=='link') return(drop(eta))
+  if (type=='response') return(drop(exp(eta)))
+  
+  if (!missing(lambda)) {
+    W <- (1-x)*object$W[,l,drop=FALSE] + x*object$W[,r,drop=FALSE]
+  } else {
+    W <- object$W[,which,drop=FALSE]
+  }
+  if (type == 'survival' & ncol(W) > 1) stop('Can only return type="survival" for a single lambda value')
+  if (type == 'survival') val <- vector('list', length(eta))
+  if (type == 'median') val <- matrix(NA, nrow(eta), ncol(eta))
+  for (j in 1:ncol(eta)) {
+    # Estimate baseline hazard
+    w <- W[,j]
+    r <- rev(cumsum(rev(w)))
+    a <- ifelse(object$fail, (1-w/r)^(1/w), 1)
+    S0 <- c(1, cumprod(a))
+    x <- c(0, object$time)
+    for (i in 1:nrow(eta)) {
+      S <- S0^exp(eta[i,j])
+      if (type == 'survival') val[[i]] <- approxfun(x, S, method='constant')
+      if (type == 'median') {
+        if (any(S < 0.5)) {
+          val[i,j] <- x[min(which(S < .5))]
+        }
+      }
+    }
+  }
+  if (type == 'survival') {
+    if (nrow(eta)==1) val <- val[[1]]
+    class(val) <- c('ncvsurv.func', class(val))
+    attr(val, 'time') <- object$time
+  }
+  if (type == 'median') val <- drop(val)
+  val
 }
