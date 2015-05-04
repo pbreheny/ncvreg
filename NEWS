@@ -1,3 +1,18 @@
+3.4-0
+	* Expanded predict function for Cox models.  predict.ncvsurv now
+	  estimates subject-specific survival functions and medians.
+	* Added plot method for survival curves.
+	* Added option in perm.ncvreg to permute residuals for linear regression
+	* On a related note, added permres() function to estimate false
+	  inclusion rates based on residuals at a specific value of lambda
+	* Added some support for factors in X, y.  It is still recommended that
+	  users convert X to a numeric matrix prior to fitting in order to
+	  ensure that predict() methods work properly, but ncvreg will now allow
+	  you to pass a data frame with factors and handle things appropriately.
+	* Fixed a bug for predict.ncvsurv when applied to models with
+	  saturation issues
+	* Fixed small memory leak in ncvsurv
+
 3.3-0
 	* Support for fitting survival models added (ncvsurv), along
 	  with predict, plot, and cv.ncvsurv support functions.  Currently,

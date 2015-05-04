@@ -14,7 +14,8 @@ double SCAD(double z, double l1, double l2, double gamma, double v);
 double lasso(double z, double l1, double l2, double v);
 
 // Memory handling, output formatting (Cox)
-SEXP cleanupCox(int *e, double *eta, double *haz, double *rsk, SEXP beta, SEXP Loss, SEXP iter, SEXP residuals, SEXP weights) {
+SEXP cleanupCox(double *a, int *e, double *eta, double *haz, double *rsk, SEXP beta, SEXP Loss, SEXP iter, SEXP residuals, SEXP weights) {
+  Free(a);
   Free(e);
   Free(eta);
   Free(haz);
@@ -97,7 +98,7 @@ SEXP cdfit_cox_dh(SEXP X_, SEXP y_, SEXP d_, SEXP penalty_, SEXP lambda, SEXP ep
       }
       if (nv > dfmax) {
 	for (int ll=l; ll<L; ll++) INTEGER(iter)[ll] = NA_INTEGER;
-	res = cleanupCox(e, eta, haz, rsk, beta, Loss, iter, residuals, weights);
+	res = cleanupCox(a, e, eta, haz, rsk, beta, Loss, iter, residuals, weights);
 	return(res);
       }
     }
@@ -137,7 +138,7 @@ SEXP cdfit_cox_dh(SEXP X_, SEXP y_, SEXP d_, SEXP penalty_, SEXP lambda, SEXP ep
 	  if (REAL(Loss)[l]/nullDev < .01) {
 	    if (warn) warning("Model saturated; exiting...");
 	    for (int ll=l; ll<L; ll++) INTEGER(iter)[ll] = NA_INTEGER;
-	    res = cleanupCox(e, eta, haz, rsk, beta, Loss, iter, residuals, weights);
+	    res = cleanupCox(a, e, eta, haz, rsk, beta, Loss, iter, residuals, weights);
 	    return(res);
 	  }
 
@@ -209,6 +210,6 @@ SEXP cdfit_cox_dh(SEXP X_, SEXP y_, SEXP d_, SEXP penalty_, SEXP lambda, SEXP ep
       if (violations==0) break;
     }
   }
-  res = cleanupCox(e, eta, haz, rsk, beta, Loss, iter, residuals, weights);
+  res = cleanupCox(a, e, eta, haz, rsk, beta, Loss, iter, residuals, weights);
   return(res);
 }

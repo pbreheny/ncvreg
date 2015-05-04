@@ -100,10 +100,9 @@ ncvsurv <- function(X, y, model=c("cox","aft"), penalty=c("MCP", "SCAD", "lasso"
                         n = n),
                    class = c("ncvsurv", "ncvreg"))
   if (model == 'cox') {
-    val$W <- exp(XX %*% b)
+    val$W <- exp(sweep(XX %*% b, 2, offset, "-"))
     val$time <- yy
     val$fail <- Delta
-    val$offset <- offset
   }
   if (returnX) {
     val$X <- XX

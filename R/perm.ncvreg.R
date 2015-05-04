@@ -1,9 +1,10 @@
-perm.ncvreg <- function(X, y, ..., permute=c("outcome", "residuals"), res.lam, N=10, seed, trace=FALSE) {
+perm.ncvreg <- function(X, y, ..., permute=c("outcome", "residuals"), N=10, seed, trace=FALSE) {
   permute <- match.arg(permute)
   if (!missing(seed)) set.seed(seed)
   fit <- ncvreg(X=X, y=y, returnX=TRUE, ...)
+  if (fit$family != 'gaussian' & permute=='residuals') stop("Cannot permute residuals with family = ", fit$family)
   S <- predict(fit, type="nvars")
-  
+
   if (permute=="outcome") {
     pfit <- fit.perm.ncvreg(fit, fit$y, fit$lambda, N, max(S), trace)
     S.perm <- pfit$S.perm
@@ -23,7 +24,7 @@ perm.ncvreg <- function(X, y, ..., permute=c("outcome", "residuals"), res.lam, N
       names(EF) <- names(FIR) <- names(loss) <- fit$lambda
     }
   }
-  
+
   fit <- structure(fit[1:11], class="ncvreg") ## Don't return X, y, etc.
   structure(list(EF=EF, S=S, FIR=FIR, fit=fit, loss=loss), class=c("perm.ncvreg", "fir"))
 }
@@ -41,6 +42,12 @@ fit.perm.ncvreg <- function(fit, y, lam, N, maxdf, trace) {
       L.perm[i,ind] <- NA
     } else if (fit$family=="binomial") {
       res <- .Call("cdfit_binomial", fit$X, sample(y), fit$penalty, lam, 0.001, as.integer(1000), as.double(fit$gamma), fit$penalty.factor, fit$alpha, as.integer(maxdf), as.integer(TRUE), as.integer(FALSE))
+      b <- matrix(res[[2]], p, n.l)
+      ind <- is.na(res[[4]])
+      L.perm[i,] <- res[[3]]
+      L.perm[i,ind] <- NA
+    } else if (fit$family=="poisson") {
+      res <- .Call("cdfit_poisson", fit$X, sample(y), fit$penalty, lam, 0.001, as.integer(1000), as.double(fit$gamma), fit$penalty.factor, fit$alpha, as.integer(maxdf), as.integer(TRUE), as.integer(FALSE))
       b <- matrix(res[[2]], p, n.l)
       ind <- is.na(res[[4]])
       L.perm[i,] <- res[[3]]

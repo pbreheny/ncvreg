@@ -66,7 +66,7 @@ warn=TRUE, returnX=FALSE, ...)
   saturation; the algorithm may exit early in this setting.  The
   objective function is defined to be
   \deqn{\frac{1}{2n}\textrm{RSS} + \textrm{penalty}}{RSS/(2*n) +
-    penalty} 
+    penalty}
   for \code{"gaussian"} and
   \deqn{-\frac{1}{n}\ell + \textrm{penalty}}{-(1/n) loglik + penalty}
   for \code{"binomial"} or \code{"poisson"}, where the likelihood is
@@ -100,7 +100,9 @@ warn=TRUE, returnX=FALSE, ...)
   \item{loss}{A vector containing either the residual sum of squares
     (\code{"gaussian"}) or negative log-likelihood (\code{"binomial"}
     and \code{"poisson"}) of the fitted model at each value of
-    \code{lambda}.}}
+    \code{lambda}.}
+  \item{penalty.factor}{Same as above.}
+}
 \references{Breheny, P. and Huang, J. (2011) Coordinate descent
   algorithms for nonconvex penalized regression, with applications to
   biological feature selection. Ann. Appl. Statist., 5: 232-253.}

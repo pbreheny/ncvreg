@@ -1,23 +1,28 @@
 \name{perm.ncvreg}
 \alias{perm.ncvreg}
 \title{Permutation fitting for ncvreg}
-\description{Fits multiple penalized regression models in which the
-  outcome is randomly permuted, thereby allowing estimation of the false
-  inclusion rate.}
+\description{Fits multiple penalized regression models in which the outcome is
+  randomly permuted, thereby allowing estimation of the false inclusion rate.}
 \usage{
-perm.ncvreg(X, y, ..., N=10, seed, trace=FALSE)
+  perm.ncvreg(X, y, ..., permute=c("outcome", "residuals"), N=10, seed,
+  trace=FALSE)
 }
 \arguments{
-  \item{X}{The design matrix, without an intercept, as in
-    \code{ncvreg}.}
+  \item{X}{The design matrix, without an intercept, as in \code{ncvreg}.}
   \item{y}{The response vector, as in \code{ncvreg}.}
   \item{...}{Additional arguments to \code{ncvreg}.}
+  \item{permute}{What to permute.  If \code{'outcome'}, the response vector,
+    \code{y}, is permuted.  If \code{'residuals'}, the residuals are permuted.
+    This is only available for linear regression (i.e., for
+    \code{family='gaussian'}).  Note that permuting the residuals may take a
+    long time, as the residuals differ for each value of \code{lambda}, so
+    separate permutations are required at every value of \code{lambda}.  See
+    also \code{\link{permres}}.}
   \item{N}{The number of permutation replications.  Default is 10.}
   \item{seed}{You may set the seed of the random number generator in
     order to obtain reproducible results.}
-  \item{trace}{If set to TRUE, perm.ncvreg will inform the user of its
-    progress by announcing the beginning of each permutation fit.
-    Default is FALSE.}
+  \item{trace}{If set to TRUE, perm.ncvreg will inform the user of its progress
+  by announcing the beginning of each permutation fit. Default is FALSE.}
   }
 \details{
   The function fits a penalized regression model to the actual data,
@@ -35,7 +40,7 @@ perm.ncvreg(X, y, ..., N=10, seed, trace=FALSE)
     data.}
   \item{FIR}{The estimated false inclusion rate (\code{EF/S}).}
   \item{fit}{The fitted \code{ncvreg} object for the original
-    (non-permuted) data.} 
+    (non-permuted) data.}
   \item{loss}{The loss/deviance for each value of \code{lambda},
     averaged over the permutation fits.  This is an estimate of the
     explanatory power of the model under null conditions, and can be
@@ -52,11 +57,14 @@ X <- as.matrix(prostate[,1:8])
 y <- prostate$lpsa
 pmfit <- perm.ncvreg(X, y)
 
-par(mfrow=c(2,2))
+par(mfcol=c(2,2))
 plot(pmfit)
 plot(pmfit, type="EF")
 plot(pmfit$fit)
-plot(pmfit$fit)
+
+pmfit.r <- perm.ncvreg(X, y, permute='residuals')
+plot(pmfit.r, col="red")                          # Permuting residuals is
+lines(pmfit$fit$lambda, pmfit$FIR, col="gray60")  # less conservative
 
 ## Logistic regression
 data(heart)
@@ -67,6 +75,5 @@ pmfit <- perm.ncvreg(X, y, family="binomial")
 par(mfrow=c(2,2))
 plot(pmfit)
 plot(pmfit, type="EF")
-plot(pmfit$fit)
 plot(pmfit$fit)
 }

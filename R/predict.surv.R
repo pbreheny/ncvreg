@@ -1,26 +1,26 @@
-predict.ncvsurv <- function(object, X, type=c("link", "response", "survival", "median", "coefficients", "vars", "nvars"),
-                            X.orig = X, lambda, which=1:length(object$lambda), ...) {
+predict.ncvsurv <- function(object, X, type=c("link", "response", "survival", 
+                                              "median", "coefficients", "vars",
+                                              "nvars"),
+                            lambda, which=1:length(object$lambda), ...) {
   type <- match.arg(type)
   if (type %in% c("coefficients", "vars", "nvars")) {
     return(predict.ncvreg(object=object, X=X, type=type, lambda=lambda, which=which, ...))
-  } 
+  }
   if (!missing(lambda)) {
     ind <- approx(object$lambda,seq(object$lambda),lambda)$y
     l <- floor(ind)
     r <- ceiling(ind)
     x <- ind %% 1
-    alpha <- (1-x)*object$offset[l,drop=FALSE] + x*object$offset[r,drop=FALSE]
     beta <- (1-x)*object$beta[,l,drop=FALSE] + x*object$beta[,r,drop=FALSE]
-    if (length(lambda) > 1) colnames(beta) <- round(lambda,4)
+    colnames(beta) <- round(lambda,4)
   } else {
-    alpha <- object$offset[which]
     beta <- object$beta[,which,drop=FALSE]
   }
-  
-  eta <- sweep(X %*% beta, 2, alpha, "+")
+
+  eta <- X %*% beta
   if (type=='link') return(drop(eta))
   if (type=='response') return(drop(exp(eta)))
-  
+
   if (!missing(lambda)) {
     W <- (1-x)*object$W[,l,drop=FALSE] + x*object$W[,r,drop=FALSE]
   } else {

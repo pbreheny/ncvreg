@@ -51,29 +51,22 @@ par(mfrow=c(3,2))
 y <- rnorm(n)
 nlasso <- coef(fit <- ncvreg(X, y, penalty="lasso"))
 plot(fit, log=TRUE)
-glasso <- as.matrix(coef(fit <- glmnet(X, y, lambda=fit$lambda))
+glasso <- as.matrix(coef(fit <- glmnet(X, y, lambda=fit$lambda)))
 plot(fit, "lambda")
 check(nlasso,  glasso, tolerance=.01, check.attributes=FALSE)
-
-## y <- rnorm(n)
-## nlasso <- coef(fit <- ncvreg(cbind(1,X), y, penalty="lasso", standardize=FALSE), penalty.factor=c(0,rep(1,p)))
-## plot(fit, log=TRUE)
-## glasso <- as.matrix(coef(fit <- glmnet(X, y, lambda=fit$lambda, standardize=FALSE)))
-## plot(fit, "lambda")
-## check(nlasso,  glasso, tolerance=.01, check.attributes=FALSE)
 
 yy <- runif(n) > .5
 nlasso <- coef(fit <- ncvreg(X, yy, family="binomial", penalty="lasso"))
 plot(fit, log=TRUE)
 glasso <- as.matrix(coef(fit <- glmnet(X, yy, family="binomial", lambda=fit$lambda)))
-plot(fit, "lambda")  
+plot(fit, "lambda")
 check(nlasso,  glasso, tolerance=.01, check.attributes=FALSE)
 
 yy <- rpois(n, 1)
 nlasso <- coef(fit <- ncvreg(X, yy, family="poisson", penalty="lasso"))
 plot(fit, log=TRUE)
 glasso <- as.matrix(coef(fit <- glmnet(X, yy, family="poisson", lambda=fit$lambda)))
-plot(fit, "lambda")  
+plot(fit, "lambda")
 check(nlasso,  glasso, tolerance=.01, check.attributes=FALSE)
 
 ################################
@@ -245,30 +238,30 @@ plot(cvfit, type="all")
 ####################################
 .test = "standardize=FALSE works" ##
 ####################################
-n <- 200
-p <- 10
-X <- matrix(rnorm(n*p), ncol=p)
-b <- c(-3, 3, rep(0, 8))
-y <- rnorm(n, mean=X%*%b, sd=1)
-X[,1] <- 5*X[,1]
+# n <- 200
+# p <- 10
+# X <- matrix(rnorm(n*p), ncol=p)
+# b <- c(-3, 3, rep(0, 8))
+# y <- rnorm(n, mean=X%*%b, sd=1)
+# X[,1] <- 5*X[,1]
 
-b1 <- ncvreg(X, y, penalty="lasso", standardize=FALSE)
-b2 <- glmnet(X, y, lambda=b1$lam, standardize=FALSE, intercept=FALSE)
-check(b1$beta,  as.matrix(coef(b2))[-1,], check.attributes=FALSE, tol= .001)
-
-yy <- y > 0
-b1 <- ncvreg(X, yy, "binomial", "lasso", standardize=FALSE)
-b2 <- glmnet(X, yy, "binomial", lambda=b1$lam, standardize=FALSE, intercept=TRUE)
-check(b1$beta,  as.matrix(coef(b2)), check.attributes=FALSE, tol= .001)
-
-b1 <- ncvreg(X, yy, "poisson", "lasso", standardize=FALSE)
-b2 <- glmnet(X, yy, "poisson", lambda=b1$lam, standardize=FALSE, intercept=TRUE)
-check(b1$beta,  as.matrix(coef(b2)), check.attributes=FALSE, tol= .001)
-
-b1 <- ncvreg(X, y, penalty="MCP", standardize=FALSE)
-b2 <- ncvreg(X, yy, "binomial", penalty="MCP", standardize=FALSE)
-b3 <- ncvreg(X, y, penalty="SCAD", standardize=FALSE)
-b4 <- ncvreg(X, yy, "binomial", penalty="SCAD", standardize=FALSE)
-
-cvfit1 <- cv.ncvreg(X, y, penalty="lasso", standardize=FALSE)
-cvfit2 <- cv.ncvreg(X, y, penalty="lasso")
+# fit1 <- ncvreg(X, y, penalty="lasso", standardize=FALSE)
+# fit2 <- glmnet(X, y, lambda=b1$lam, standardize=FALSE, intercept=FALSE)
+# check(fit1$beta,  as.matrix(coef(fit2))[-1,], check.attributes=FALSE, tol= .001)
+#
+# yy <- y > 0
+# b1 <- ncvreg(X, yy, "binomial", "lasso", standardize=FALSE)
+# b2 <- glmnet(X, yy, "binomial", lambda=b1$lam, standardize=FALSE, intercept=TRUE)
+# check(b1$beta,  as.matrix(coef(b2)), check.attributes=FALSE, tol= .001)
+#
+# b1 <- ncvreg(X, yy, "poisson", "lasso", standardize=FALSE)
+# b2 <- glmnet(X, yy, "poisson", lambda=b1$lam, standardize=FALSE, intercept=TRUE)
+# check(b1$beta,  as.matrix(coef(b2)), check.attributes=FALSE, tol= .001)
+#
+# b1 <- ncvreg(X, y, penalty="MCP", standardize=FALSE)
+# b2 <- ncvreg(X, yy, "binomial", penalty="MCP", standardize=FALSE)
+# b3 <- ncvreg(X, y, penalty="SCAD", standardize=FALSE)
+# b4 <- ncvreg(X, yy, "binomial", penalty="SCAD", standardize=FALSE)
+#
+# cvfit1 <- cv.ncvreg(X, y, penalty="lasso", standardize=FALSE)
+# cvfit2 <- cv.ncvreg(X, y, penalty="lasso")

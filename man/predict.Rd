@@ -49,9 +49,9 @@ y <- heart$chd
 
 fit <- ncvreg(X,y,family="binomial")
 coef(fit, lambda=0.05)
-predict(fit, X, type="link", lambda=0.05)
-predict(fit, X, type="response", lambda=0.05)
-predict(fit, X, type="class", lambda=0.05)
+head(predict(fit, X, type="link", lambda=0.05))
+head(predict(fit, X, type="response", lambda=0.05))
+head(predict(fit, X, type="class", lambda=0.05))
 predict(fit, type="vars", lambda=c(0.05, 0.01))
 predict(fit, type="nvars", lambda=c(0.05, 0.01))
 }

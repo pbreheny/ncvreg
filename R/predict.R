@@ -1,4 +1,4 @@
-predict.ncvreg <- function(object, X, type=c("link", "response", "class", "coefficients", "vars", "nvars"), 
+predict.ncvreg <- function(object, X, type=c("link", "response", "class", "coefficients", "vars", "nvars"),
                            lambda, which=1:length(object$lambda), ...) {
   type <- match.arg(type)
   beta <- coef.ncvreg(object, lambda=lambda, which=which, drop=FALSE)
@@ -7,7 +7,7 @@ predict.ncvreg <- function(object, X, type=c("link", "response", "class", "coeff
     alpha <- beta[1,]
     beta <- beta[-1,,drop=FALSE]
   }
-  
+
   if (type=="nvars") return(apply(beta!=0,2,sum))
   if (type=="vars") return(drop(apply(beta!=0, 2, FUN=which)))
   if (class(object)[1]=="ncvsurv") {
@@ -35,7 +35,7 @@ coef.ncvreg <- function(object, lambda, which=1:length(object$lambda), drop=TRUE
     r <- ceiling(ind)
     w <- ind %% 1
     beta <- (1-w)*object$beta[,l,drop=FALSE] + w*object$beta[,r,drop=FALSE]
-    if (length(lambda) > 1) colnames(beta) <- round(lambda,4)
+    colnames(beta) <- round(lambda,4)
   }
   else beta <- object$beta[,which,drop=FALSE]
   if (drop) return(drop(beta)) else return(beta)

@@ -70,18 +70,18 @@ warn=TRUE, returnX=FALSE, ...)
   log-likelihood is diagonalized (see references for details).  The
   objective function is defined to be
   \deqn{-\frac{1}{n}L(\beta|X,y) + \textrm{penalty},}{-(1/n) L(beta|X,y)
-    + penalty (beta),}
+    + penalty(beta),}
   where L is the partial log-likelihood from the Cox regression
-  model.\cr
-  \cr
+  model.
+
   Presently, ties are not handled by \code{ncvsurv} in a particularly
   sophisticated manner.  This will be improved upon in a future release
-  of \code{ncvreg}.\cr
-  \cr
+  of \code{ncvreg}.
+
   Adaptive rescaling (see references) is used for MCP and SCAD models.
   The convexity diagnostics rely on a fine covering of (lambda.min,
   lambda.max); choosing a low value of \code{nlambda} may produce
-  unreliable results.} 
+  unreliable results.}
 \value{
   An object with S3 class \code{"ncvsurv"} containing:
   \item{beta}{The fitted matrix of coefficients.  The number of rows is
@@ -100,7 +100,20 @@ warn=TRUE, returnX=FALSE, ...)
     objective function is convex is therefore \code{lambda[convex.min]},
     with corresponding coefficients \code{beta[,convex.min]}.}
   \item{loss}{The negative partial log-likelihood of the fitted model at
-    each value of \code{lambda}.}}
+    each value of \code{lambda}.}
+  \item{penalty.factor}{Same as above.}
+  \item{n}{The number of observations.}
+
+For Cox models, the following objects are also returned (and are necessary to
+estimate baseline survival conditonal on the estimated regression coefficients),
+all of which are ordered by time on study.  I.e., the ith row of \code{W} does
+not correspond to the ith row of \code{X}):
+
+  \item{W}{Matrix of \code{exp(beta)} values for each subject over all
+    \code{lambda} values.}
+  \item{time}{Times on study.}
+  \item{fail}{Failure event indicator.}
+}
 \references{
   \itemize{
     \item Breheny P and Huang J. (2011) Coordinate descentalgorithms
@@ -137,9 +150,13 @@ fit <- ncvsurv(X,y)
 ll <- log(fit$lambda)
 par(mfrow=c(2,1))
 plot(ll, BIC(fit), type="l", xlim=rev(range(ll)))
-b <- coef(fit, which=which.min(BIC(fit)))
+lam <- fit$lambda[which.min(BIC(fit))]
+b <- coef(fit, lambda=lam)
 b[b!=0]
-
 plot(fit)
-abline(v=fit$lambda[which.min(BIC(fit))])
+abline(v=lam)
+
+S <- predict(fit, X, type='survival', lambda=lam)
+par(mfrow=c(1,1))
+plot(S, xlim=c(0,200))
 }
