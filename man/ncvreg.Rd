@@ -38,7 +38,7 @@ warn=TRUE, returnX=FALSE, ...)
   \item{eps}{Convergence threshhold.  The algorithm iterates until the
     relative change in any coefficient is less than \code{eps}.  Default
     is \code{.001}.}
-  \item{max.iter}{Maximum number of iterations.  Default is 1000.x}
+  \item{max.iter}{Maximum number of iterations.  Default is 1000.}
   \item{convex}{Calculate index for which objective function ceases to
     be locally convex?  Default is TRUE.}
   \item{dfmax}{Upper bound for the number of nonzero coefficients.

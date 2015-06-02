@@ -1,3 +1,6 @@
+3.4-1
+	* Better double/int type checking for penalty.factor
+
 3.4-0
 	* Expanded predict function for Cox models.  predict.ncvsurv now
 	  estimates subject-specific survival functions and medians.
