@@ -235,6 +235,24 @@ cvfit <- cv.ncvreg(X, y, family="poisson")
 par(mfrow=c(2,2))
 plot(cvfit, type="all")
 
+##############################################
+.test = "cv.ncvreg() return LP array works" ##
+##############################################
+n <- 100
+p <- 10
+X <- matrix(rnorm(n*p), ncol=p)
+b <- c(-3, 3, rep(0, 8))
+
+y <- rnorm(n, mean=X%*%b, sd=1)
+cvfit <- cv.ncvreg(X, y, returnY=TRUE)
+cve <- apply(cvfit$Y - y, 2, crossprod)/n
+check(cve, cvfit$cve, check.attributes=FALSE, tol= .001)
+
+y <- rnorm(n, mean=X%*%b) > 0
+cvfit <- cv.ncvreg(X, y, family='binomial', returnY=TRUE)
+pe <- apply((cvfit$Y>0.5)!=y, 2, mean)
+check(pe, cvfit$pe, check.attributes=FALSE, tol= .001)
+
 ####################################
 .test = "standardize=FALSE works" ##
 ####################################
