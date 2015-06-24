@@ -8,7 +8,7 @@ loss.ncvreg <- function(y, yhat, family) {
     if (is.matrix(yhat)) {
       val <- matrix(NA, nrow=nrow(yhat), ncol=ncol(yhat))
       if (sum(y==1)) val[y==1,] <- -2*log(yhat[y==1, , drop=FALSE])
-      if (sum(y==0)) val[y==0,] <- -2*log(1-yhat[y==0, , drop=FALSE])      
+      if (sum(y==0)) val[y==0,] <- -2*log(1-yhat[y==0, , drop=FALSE])
     } else {
       val <- numeric(length(y))
       if (sum(y==1)) val[y==1] <- -2*log(yhat[y==1])
@@ -31,5 +31,5 @@ loss.ncvsurv <- function(y, eta) {
     eta <- eta[ind]
     r <- rev(cumsum(rev(exp(eta))))
   }
-  crossprod(d, eta) - crossprod(d, log(r))
+  -1*(crossprod(d, eta) - crossprod(d, log(r)))
 }

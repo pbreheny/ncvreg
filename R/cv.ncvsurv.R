@@ -1,4 +1,4 @@
-cv.ncvsurv <- function(X, y, ..., nfolds=10, seed, trace=FALSE, events.only=TRUE) {
+cv.ncvsurv <- function(X, y, ..., nfolds=10, seed, returnY=FALSE, trace=FALSE, events.only=TRUE) {
 
   ## Error checking
   if (class(X) != "matrix") {
@@ -13,8 +13,8 @@ cv.ncvsurv <- function(X, y, ..., nfolds=10, seed, trace=FALSE, events.only=TRUE
 
   fit <- ncvsurv(X=X, y=y, ...)
   n <- nrow(X)
-  E <- matrix(NA, nrow=n, ncol=length(fit$lambda))
-  
+  E <- Y <- matrix(NA, nrow=n, ncol=length(fit$lambda))
+
   if (!missing(seed)) set.seed(seed)
   cv.ind <- ceiling(sample(1:n)/n*nfolds)
 
@@ -30,27 +30,31 @@ cv.ncvsurv <- function(X, y, ..., nfolds=10, seed, trace=FALSE, events.only=TRUE
 
     X2 <- X[cv.ind==i, , drop=FALSE]
     y2 <- y[cv.ind==i,]
+    nl <- length(fit.i$lambda)
+    Y[cv.ind==i, 1:nl] <- predict(fit.i, X2)
     if (fit$model=="cox") {
       eta <- predict(fit.i, X)
       ll <- loss.ncvsurv(y, eta)
       for (ii in which(cv.ind==i)) {
         eta.ii <- predict(fit.i, X[-ii,])
-        E[ii, 1:ncol(eta)] <- -2*(ll-loss.ncvsurv(y[-ii,], eta.ii))
+        E[ii, 1:nl] <- 2*(ll-loss.ncvsurv(y[-ii,], eta.ii))
       }
     }
   }
-  
+
   ## Eliminate saturated lambda values, if any
   ind <- which(apply(is.finite(E), 2, all))
   E <- E[,ind]
-  lambda <- fit$lambda
+  Y <- Y[,ind]
+  lambda <- fit$lambda[ind]
 
   ## Return
   if (events.only) E <- E[y[,2]==1,]
   cve <- apply(E, 2, mean)
   cvse <- apply(E, 2, sd) / sqrt(nrow(E))
   min <- which.min(cve)
-  
+
   val <- list(cve=cve, cvse=cvse, lambda=lambda, fit=fit, min=min, lambda.min=lambda[min], null.dev=cve[1])
+  if (returnY) val$Y <- Y
   structure(val, class=c("cv.ncvsurv", "cv.ncvreg"))
 }
