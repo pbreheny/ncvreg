@@ -1,11 +1,11 @@
 cv.ncvreg <- function(X, y, ..., cluster, nfolds=10, seed, cv.ind, returnY=FALSE, trace=FALSE) {
 
-  ## Error checking
-  if (!missing(seed)) set.seed(seed)
+  # Coersion
   if (class(X) != "matrix") {
     tmp <- try(X <- model.matrix(~0+., data=X), silent=TRUE)
     if (class(tmp)[1] == "try-error") stop("X must be a matrix or able to be coerced to a matrix")
   }
+  if (storage.mode(X)=="integer") storage.mode(X) <- "double"
   if (class(y) != "numeric") {
     tmp <- try(y <- as.numeric(y), silent=TRUE)
     if (class(tmp)[1] == "try-error") stop("y must numeric or able to be coerced to numeric")
@@ -16,6 +16,7 @@ cv.ncvreg <- function(X, y, ..., cluster, nfolds=10, seed, cv.ind, returnY=FALSE
   E <- Y <- matrix(NA, nrow=n, ncol=length(fit$lambda))
   if (fit$family=="binomial") {
     PE <- E
+    if (!identical(sort(unique(y)), 0:1)) y <- as.numeric(y==max(y))
   }
 
   if (!missing(seed)) set.seed(seed)
