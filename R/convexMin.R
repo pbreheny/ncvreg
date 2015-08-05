@@ -2,7 +2,7 @@ convexMin <- function(b, X, penalty, gamma, l2, family, penalty.factor, a, Delta
   n <- nrow(X)
   p <- ncol(X)
   l <- ncol(b)
-  
+
   if (penalty=="MCP") {
     k <- 1/gamma
   } else if (penalty=="SCAD") {
@@ -11,7 +11,7 @@ convexMin <- function(b, X, penalty, gamma, l2, family, penalty.factor, a, Delta
     return(NULL)
   }
   if (l==0) return(NULL)
-  
+
   val <- NULL
   for (i in 1:l) {
     A1 <- if (i==1) rep(1,p) else b[,i]==0
@@ -25,10 +25,10 @@ convexMin <- function(b, X, penalty, gamma, l2, family, penalty.factor, a, Delta
     }
     if (sum(!U)==0) next
     Xu <- X[,!U]
-    L2 <- L2*penalty.factor[!U]
+    p.. <- k*(penalty.factor[!U]!=0) - L2*penalty.factor[!U]
     if (family=="gaussian") {
       if (any(A1!=A2)) {
-        eigen.min <- min(eigen(crossprod(Xu)/n - diag(k-L2, sum(!U), sum(!U)))$values)
+        eigen.min <- min(eigen(crossprod(Xu)/n - diag(p.., length(p..), length(p..)))$values)
       }
     } else if (family=="binomial") {
       if (i==l) eta <- a[i] + X%*%b[,i]
@@ -39,7 +39,7 @@ convexMin <- function(b, X, penalty, gamma, l2, family, penalty.factor, a, Delta
       w[eta < log(.0001/.9999)] <- .0001
       Xu <- sqrt(w) * cbind(1,Xu)
       xwxn <- crossprod(Xu)/n
-      eigen.min <- min(eigen(xwxn-diag(c(0,diag(xwxn)[-1]*(k-L2))))$values)
+      eigen.min <- min(eigen(xwxn-diag(c(0,diag(xwxn)[-1]*p..)))$values)
     } else if (family=="poisson") {
       if (i==l) eta <- a[i] + X%*%b[,i]
       else eta <- a[i+1] + X%*%b[,i+1]
@@ -47,7 +47,7 @@ convexMin <- function(b, X, penalty, gamma, l2, family, penalty.factor, a, Delta
       w <- as.numeric(mu)
       Xu <- sqrt(w) * cbind(1,Xu)
       xwxn <- crossprod(Xu)/n
-      eigen.min <- min(eigen(xwxn-diag(c(0,diag(xwxn)[-1]*(k-L2))))$values)
+      eigen.min <- min(eigen(xwxn-diag(c(0,diag(xwxn)[-1]*p..)))$values)
     } else if (family=="cox") {
       eta <- if (i==l) X%*%b[,i] else X%*%b[,i+1]
       haz <- exp(eta)
@@ -55,9 +55,9 @@ convexMin <- function(b, X, penalty, gamma, l2, family, penalty.factor, a, Delta
       W <- outer(drop(haz), rsk, "/")
       h <- apply(W, 1, function(x) cumsum(Delta*x*(1-x)))
       xwxn <- crossprod(sqrt(diag(h)) * Xu)/n
-      eigen.min <- min(eigen(xwxn-diag(diag(xwxn)*(k-L2), nrow(xwxn), ncol(xwxn)))$values)
+      eigen.min <- min(eigen(xwxn-diag(diag(xwxn)*p.., nrow(xwxn), ncol(xwxn)))$values)
     }
-    
+
     if (eigen.min < 0) {
       val <- i
       break

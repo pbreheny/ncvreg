@@ -137,22 +137,6 @@ plot(cvfit)
 #########################################
 .test = "penalty.factor seems to work" ##
 #########################################
-n <- 50
-p <- 4
-X <- matrix(rnorm(n*p), ncol=p)
-y <- rnorm(n)
-yy <- y > .5
-penalty.factor=c(0,0,1,10)
-
-par(mfrow=c(2,2))
-fit <- ncvreg(X, y)
-plot(fit)
-fit <- ncvreg(X, y, penalty.factor=penalty.factor)
-plot(fit)
-fit <- ncvreg(X, yy, family="binomial")
-plot(fit)
-fit <- ncvreg(X, yy, family="binomial", penalty.factor=penalty.factor)
-plot(fit)
 
 ##################################################
 .test = "cv.ncvreg() options work for gaussian" ##
