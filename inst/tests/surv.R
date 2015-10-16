@@ -229,3 +229,4 @@ S <- predict(fit, X, lambda=0.05, type='survival')
 plot(S, xlim=c(0,200))
 S <- predict(fit, X, lambda=0.44, type='survival')
 plot(S, xlim=c(0,200))
+

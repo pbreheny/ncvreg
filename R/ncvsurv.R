@@ -1,6 +1,6 @@
-ncvsurv <- function(X, y, model=c("cox","aft"), penalty=c("MCP", "SCAD", "lasso"), gamma=switch(penalty, SCAD=3.7, 3), 
-                    alpha=1, lambda.min=ifelse(n>p,.001,.05), nlambda=100, lambda, eps=.001, max.iter=1000, convex=TRUE,
-                    dfmax=p, penalty.factor=rep(1, ncol(X)), warn=TRUE, returnX=FALSE, ...) {
+ncvsurv <- function(X, y, model=c("cox","aft"), penalty=c("MCP", "SCAD", "lasso"), gamma=switch(penalty, SCAD=3.7, 3),
+                    alpha=1, lambda.min=ifelse(n>p,.001,.05), nlambda=100, lambda, eps=.001, max.iter=1000,
+                    convex=ifelse(n <= 1000, TRUE, FALSE), dfmax=p, penalty.factor=rep(1, ncol(X)), warn=TRUE, returnX=FALSE, ...) {
   ## Error checking
   if (class(X) != "matrix") {
     tmp <- try(X <- as.matrix(X), silent=TRUE)
@@ -22,7 +22,7 @@ ncvsurv <- function(X, y, model=c("cox","aft"), penalty=c("MCP", "SCAD", "lasso"
   if (alpha <= 0) stop("alpha must be greater than 0; choose a small positive number instead")
   if (length(penalty.factor)!=ncol(X)) stop("penalty.factor does not match up with X")
   if (any(is.na(y)) | any(is.na(X))) stop("Missing data (NA's) detected.  Take actions (e.g., removing cases, removing features, imputation) to eliminate missing data before passing X and y to ncvreg")
-  
+
   ## Set up XX, yy, lambda
   std <- .Call("standardize", X)
   XX <- std[[1]]
@@ -46,16 +46,16 @@ ncvsurv <- function(X, y, model=c("cox","aft"), penalty=c("MCP", "SCAD", "lasso"
     nlambda <- length(lambda)
     user.lambda <- TRUE
   }
-  
+
   ## Fit
   if (model=="cox") {
-    res <- .Call("cdfit_cox_dh", XX, yy, Delta, penalty, lambda, eps, as.integer(max.iter), as.double(gamma), penalty.factor, 
+    res <- .Call("cdfit_cox_dh", XX, yy, Delta, penalty, lambda, eps, as.integer(max.iter), as.double(gamma), penalty.factor,
                  alpha, as.integer(dfmax), as.integer(user.lambda | any(penalty.factor==0)), as.integer(warn))
     b <- matrix(res[[1]], p, nlambda)
     loss <- -1*res[[2]]
     iter <- res[[3]]
   }
-  
+
   ## Eliminate saturated lambda values, if any
   ind <- !is.na(iter)
   if (model !="cox") a <- a[ind]
@@ -64,10 +64,10 @@ ncvsurv <- function(X, y, model=c("cox","aft"), penalty=c("MCP", "SCAD", "lasso"
   lambda <- lambda[ind]
   loss <- loss[ind]
   if (warn & any(iter==max.iter)) warning("Algorithm failed to converge for some values of lambda")
-  
+
   ## Local convexity?
   convex.min <- if (convex) convexMin(b, XX, penalty, gamma, lambda*(1-alpha), "cox", penalty.factor, a=a, Delta=Delta) else NULL
-  
+
   ## Unstandardize
   if (model=="cox") {
     beta <- matrix(0, nrow=ncol(X), ncol=length(lambda))
@@ -80,12 +80,12 @@ ncvsurv <- function(X, y, model=c("cox","aft"), penalty=c("MCP", "SCAD", "lasso"
     beta[nz+1,] <- bb
     beta[1,] <- a - crossprod(center[nz], bb)
   }
-  
+
   ## Names
   varnames <- if (is.null(colnames(X))) paste("V",1:ncol(X),sep="") else colnames(X)
   varnames <- if (model=="cox") varnames else c("(Intercept)", varnames)
   dimnames(beta) <- list(varnames, round(lambda,digits=4))
-  
+
   ## Output
   val <- structure(list(beta = beta,
                         iter = iter,

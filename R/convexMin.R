@@ -50,11 +50,10 @@ convexMin <- function(b, X, penalty, gamma, l2, family, penalty.factor, a, Delta
       eigen.min <- min(eigen(xwxn-diag(c(0,diag(xwxn)[-1]*p..)))$values)
     } else if (family=="cox") {
       eta <- if (i==l) X%*%b[,i] else X%*%b[,i+1]
-      haz <- exp(eta)
+      haz <- drop(exp(eta))
       rsk <- rev(cumsum(rev(haz)))
-      W <- outer(drop(haz), rsk, "/")
-      h <- apply(W, 1, function(x) cumsum(Delta*x*(1-x)))
-      xwxn <- crossprod(sqrt(diag(h)) * Xu)/n
+      h <- sapply(1:length(haz), function(i) cumsum(Delta * haz[i]/rsk * (1-haz[i]/rsk))[i])
+      xwxn <- crossprod(sqrt(h) * Xu)/n
       eigen.min <- min(eigen(xwxn-diag(diag(xwxn)*p.., nrow(xwxn), ncol(xwxn)))$values)
     }
 
