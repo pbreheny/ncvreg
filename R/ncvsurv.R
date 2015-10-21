@@ -1,6 +1,6 @@
 ncvsurv <- function(X, y, model=c("cox","aft"), penalty=c("MCP", "SCAD", "lasso"), gamma=switch(penalty, SCAD=3.7, 3),
                     alpha=1, lambda.min=ifelse(n>p,.001,.05), nlambda=100, lambda, eps=.001, max.iter=1000,
-                    convex=ifelse(n <= 1000, TRUE, FALSE), dfmax=p, penalty.factor=rep(1, ncol(X)), warn=TRUE, returnX=FALSE, ...) {
+                    convex=TRUE, dfmax=p, penalty.factor=rep(1, ncol(X)), warn=TRUE, returnX=FALSE, ...) {
   ## Error checking
   if (class(X) != "matrix") {
     tmp <- try(X <- as.matrix(X), silent=TRUE)

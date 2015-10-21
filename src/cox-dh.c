@@ -119,20 +119,35 @@ SEXP cdfit_cox_dh(SEXP X_, SEXP y_, SEXP d_, SEXP penalty_, SEXP lambda, SEXP ep
 	    REAL(Loss)[l] += d[i]*eta[i] - d[i]*log(rsk[i]);
 	  }
 
-	  // Calculate h, r
-	  for (int j=0; j<n; j++) {
-	    h[j] = 0;
-	    s = d[j];
-	    for (int i=0; i<=j; i++) {
-	      w = haz[j]/rsk[i];
-	      //Rprintf("w: %f, ", w);
-	      h[j] += d[i]*w*(1-w);
-	      s -= d[i]*w;
-	    }
-	    //Rprintf("\n");
-	    if (h[j]==0) r[j]=0;
-	    else r[j] = s/h[j];
+	  /* // Calculate h, r */
+          /* Rprintf("Starting O(n^2) loop\n"); */
+	  /* for (int j=0; j<n; j++) { */
+	  /*   h[j] = 0; */
+	  /*   s = d[j]; */
+	  /*   for (int i=0; i<=j; i++) { */
+	  /*     if (!d[i]) continue; */
+	  /*     w = haz[j]/rsk[i]; */
+	  /*     h[j] += d[i]*w*(1-w); */
+	  /*     s -= d[i]*w; */
+	  /*   } */
+	  /*   if (h[j]==0) r[j]=0; */
+	  /*   else r[j] = s/h[j]; */
+	  /* } */
+          /* Rprintf("Done\n"); */
+
+  	  // Alternate
+          //Rprintf("Starting O(n^2) loop\n");
+	  h[0] = d[0]/rsk[0];
+	  for (int i=1; i<n; i++) {
+	    h[i] = h[i-1] + d[i]/rsk[i];
 	  }
+	  for (int i=0; i<n; i++) {
+	    h[i] = h[i]*haz[i];
+	    s = d[i] - h[i];
+	    if (h[i]==0) r[i]=0;
+	    else r[i] = s/h[i];
+	  }
+          //Rprintf("Done\n");
 
 	  // Check for saturation
 	  if (REAL(Loss)[l]/nullDev < .01) {

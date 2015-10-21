@@ -52,7 +52,7 @@ convexMin <- function(b, X, penalty, gamma, l2, family, penalty.factor, a, Delta
       eta <- if (i==l) X%*%b[,i] else X%*%b[,i+1]
       haz <- drop(exp(eta))
       rsk <- rev(cumsum(rev(haz)))
-      h <- sapply(1:length(haz), function(i) cumsum(Delta * haz[i]/rsk * (1-haz[i]/rsk))[i])
+      h <- haz*cumsum(Delta/rsk)
       xwxn <- crossprod(sqrt(h) * Xu)/n
       eigen.min <- min(eigen(xwxn-diag(diag(xwxn)*p.., nrow(xwxn), ncol(xwxn)))$values)
     }

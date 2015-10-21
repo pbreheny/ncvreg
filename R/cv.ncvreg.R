@@ -38,6 +38,8 @@ cv.ncvreg <- function(X, y, ..., cluster, nfolds=10, seed, cv.ind, returnY=FALSE
 
   cv.args <- list(...)
   cv.args$lambda <- fit$lambda
+  cv.args$warn <- FALSE
+  cv.args$convex <- FALSE
   if (!missing(cluster)) {
     if (!("cluster" %in% class(cluster))) stop("cluster is not of class 'cluster'; see ?makeCluster")
     parallel::clusterExport(cluster, c("cv.ind","fit","X", "y", "cv.args"), envir=environment())
@@ -80,7 +82,6 @@ cv.ncvreg <- function(X, y, ..., cluster, nfolds=10, seed, cv.ind, returnY=FALSE
 cvf <- function(i, XX, y, cv.ind, cv.args) {
   cv.args$X <- XX[cv.ind!=i, , drop=FALSE]
   cv.args$y <- y[cv.ind!=i]
-  cv.args$warn <- FALSE
   fit.i <- do.call("ncvreg", cv.args)
 
   X2 <- XX[cv.ind==i, , drop=FALSE]
