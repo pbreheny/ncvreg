@@ -1,6 +1,6 @@
 useDynLib(ncvreg,.registration=TRUE)
 export(ncvreg, cv.ncvreg, fir, perm.ncvreg, setupLambda, ncvsurv, cv.ncvsurv,
-       permres)
+       permres, auc)
 S3method(permres, ncvreg)
 S3method(summary, cv.ncvreg)
 S3method(summary, cv.ncvsurv)
@@ -20,3 +20,4 @@ S3method(coef, cv.ncvreg)
 importFrom(stats, logLik)
 S3method(logLik, ncvreg)
 S3method(logLik, ncvsurv)
+S3method(auc, cv.ncvsurv)

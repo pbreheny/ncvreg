@@ -5,8 +5,8 @@
   regression models over a grid of values for the regularization
   parameter lambda.}
 \usage{
-cv.ncvreg(X, y, ..., cluster, nfolds=10, seed, cv.ind, trace=FALSE)
-}
+cv.ncvreg(X, y, ..., cluster, nfolds=10, seed, cv.ind, returnY=FALSE,
+trace=FALSE) }
 \arguments{
   \item{X}{The design matrix, without an intercept, as in
     \code{ncvreg}.}
@@ -22,6 +22,11 @@ cv.ncvreg(X, y, ..., cluster, nfolds=10, seed, cv.ind, trace=FALSE)
     observations are randomly assigned by \code{cv.ncvreg}.}
   \item{seed}{You may set the seed of the random number generator in
     order to obtain reproducible results.}
+  \item{returnY}{Should \code{cv.ncvreg} return the fitted values from
+    the cross-validation folds?  Default is FALSE; if TRUE, this will
+    return a matrix in which the element for row i, column j is the
+    fitted value for observation i from the fold in which observation i
+    was excluded from the fit, at the jth value of lambda.}
   \item{trace}{If set to TRUE, cv.ncvreg will inform the user of its
     progress by announcing the beginning of each CV fold.  Default is
     FALSE.}
@@ -54,6 +59,8 @@ cv.ncvreg(X, y, ..., cluster, nfolds=10, seed, cv.ind, trace=FALSE)
   \item{null.dev}{The deviance for the intercept-only model.}
   \item{pe}{If \code{family="binomial"}, the cross-validation prediction
     error for each value of \code{lambda}.}
+  \item{Y}{If \code{returnY=TRUE}, the matrix of cross-validated fitted
+    values (see above).}
   }
 \references{Breheny, P. and Huang, J. (2011) Coordinate descent
   algorithms for nonconvex penalized regression, with applications to
