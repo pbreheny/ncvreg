@@ -24,4 +24,4 @@ auc.cv.ncvsurv <- function(obj, ...) {
   auct[is.nan(auct)] <- 0
   as.vector(crossprod(rt[idx]-1, auct)/sum(rt[idx]-1))
 }
-auc <- function(obj, ...) UseMethod("auc")
+#auc <- function(obj, ...) UseMethod("auc")

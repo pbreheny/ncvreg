@@ -26,7 +26,10 @@ trace=FALSE) }
     the cross-validation folds?  Default is FALSE; if TRUE, this will
     return a matrix in which the element for row i, column j is the
     fitted value for observation i from the fold in which observation i
-    was excluded from the fit, at the jth value of lambda.}
+    was excluded from the fit, at the jth value of lambda.  NOTE: The
+    rows of \code{Y} are ordered by time on study, and therefore do not
+    correspond to the original order of observations pased to
+    \code{cv.ncvreg}.}
   \item{trace}{If set to TRUE, cv.ncvreg will inform the user of its
     progress by announcing the beginning of each CV fold.  Default is
     FALSE.}

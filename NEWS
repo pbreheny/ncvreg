@@ -1,5 +1,19 @@
-3.4-1
+3.5-0
+	* Substantial efficiency improvements throughout for Cox models.
+          Coordinate descent redesigned to work in O(n) instead of O(n^2)
+          operations, and R code redesigned at various points to avoid the
+          creation of any n x n matrices when fitting and cross-validating Cox
+          regression models.
+	* Added function auc() to calculate cross-validated AUC values for
+          ncvsurv models.
+	* Changed method for calculation of cross-validation loss in
+          cv.ncvsurv().
+	* More accurate calculation for convexMin in the presence of unpenalized variables
+	* Bug fix for factor-valued y with CV logistic regression
+	* Added option to return fitted values from cross-validation folds
+          (returnY=TRUE) to cv.ncvreg and cv.ncvsurv.
 	* Better double/int type checking for penalty.factor
+	* Modifications to NAMESPACE for compatibility with R 3.3.
 
 3.4-0
 	* Expanded predict function for Cox models.  predict.ncvsurv now
