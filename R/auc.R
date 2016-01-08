@@ -1,4 +1,4 @@
-auc.cv.ncvsurv <- function(obj, ...) {
+AUC.cv.ncvsurv <- function(obj, ...) {
   if (!("Y" %in% names(obj))) stop("Must run cv.ncvsurv with 'returnY=TRUE' in order to calculate AUC")
   X <- obj$Y
   y <- cbind(obj$fit$time, obj$fit$fail)
@@ -24,4 +24,4 @@ auc.cv.ncvsurv <- function(obj, ...) {
   auct[is.nan(auct)] <- 0
   as.vector(crossprod(rt[idx]-1, auct)/sum(rt[idx]-1))
 }
-#auc <- function(obj, ...) UseMethod("auc")
+AUC <- function(obj, ...) UseMethod("AUC")

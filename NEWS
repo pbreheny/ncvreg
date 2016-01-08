@@ -4,11 +4,12 @@
           operations, and R code redesigned at various points to avoid the
           creation of any n x n matrices when fitting and cross-validating Cox
           regression models.
-	* Added function auc() to calculate cross-validated AUC values for
+	* Added function AUC() to calculate cross-validated AUC values for
           ncvsurv models.
 	* Changed method for calculation of cross-validation loss in
           cv.ncvsurv().
-	* More accurate calculation for convexMin in the presence of unpenalized variables
+	* More accurate calculation for convexMin in the presence of unpenalized
+          variables
 	* Bug fix for factor-valued y with CV logistic regression
 	* Added option to return fitted values from cross-validation folds
           (returnY=TRUE) to cv.ncvreg and cv.ncvsurv.

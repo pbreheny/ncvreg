@@ -1,15 +1,15 @@
-\name{auc.cv.ncvsurv}
-\alias{auc}
-\alias{auc.cv.ncvsurv}
+\name{AUC.cv.ncvsurv}
+\alias{AUC}
+\alias{AUC.cv.ncvsurv}
 \title{Calculates AUC for cv.ncvsurv objects}
 \description{Calculates the cross-validated AUC (concordance) from a
   "cv.ncvsurv" object.}
 \usage{
-\method{auc}{cv.ncvsurv}(obj, ...)
+\method{AUC}{cv.ncvsurv}(obj, ...)
 }
 \arguments{
   \item{obj}{A \code{cv.ncvsurv} object.  You must run \code{cv.ncvsurv}
-  with the option \code{returnY=TRUE} in order for \code{auc} to work.}
+  with the option \code{returnY=TRUE} in order for \code{AUC} to work.}
   \item{\dots}{For S3 method compatibility.}
 }
 \details{
@@ -19,7 +19,7 @@
   \code{survConcordance} function in the \code{survival} package, except
   for the fact that the cross-validated linear predictors are used to
   guard against overfitting.  Thus, the values returned by
-  \code{auc.cv.ncvsurv} will be somewhat lower than those you would
+  \code{AUC.cv.ncvsurv} will be somewhat lower than those you would
   obtain with \code{survConcordance} if you fit the full (unpenalized)
   model.
   }
@@ -34,9 +34,9 @@ X <- Lung$X
 y <- Lung$y
 
 cvfit <- cv.ncvsurv(X, y, returnY=TRUE)
-head(auc(cvfit))
+head(AUC(cvfit))
 
 ll <- log(cvfit$fit$lambda)
-plot(ll, auc(cvfit), xlim=rev(range(ll)), lwd=3, type='l',
+plot(ll, AUC(cvfit), xlim=rev(range(ll)), lwd=3, type='l',
      xlab=expression(log(lambda)), ylab='AUC')
 }
