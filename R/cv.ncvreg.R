@@ -70,8 +70,12 @@ cv.ncvreg <- function(X, y, ..., cluster, nfolds=10, seed, cv.ind, returnY=FALSE
   cvse <- apply(E, 2, sd) / sqrt(n)
   min <- which.min(cve)
 
+  # Bias correction
+  e <- sapply(1:nfolds, function(i) apply(E[cv.ind==i,], 2, mean))
+  Bias <- mean(e[min,] - apply(e, 2, min))
+
   val <- list(cve=cve, cvse=cvse, lambda=lambda, fit=fit, min=min, lambda.min=lambda[min],
-              null.dev=mean(loss.ncvreg(y, rep(mean(y), n), fit$family)))
+              null.dev=mean(loss.ncvreg(y, rep(mean(y), n), fit$family)), Bias=Bias)
   if (fit$family=="binomial") {
     pe <- apply(PE, 2, mean)
     val$pe <- pe[is.finite(pe)]
