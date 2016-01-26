@@ -1,18 +1,18 @@
 cv.ncvsurv <- function(X, y, ..., cluster, nfolds=10, seed, returnY=FALSE, trace=FALSE) {
-  
+
   # Complete data fit
   fit.args <- list(...)
   fit.args$X <- X
   fit.args$y <- y
   fit.args$returnX <- TRUE
   fit <- do.call("ncvsurv", fit.args)
-  
+
   # Get standardized X, y
   X <- fit$X
   y <- cbind(fit$time, fit$fail)
   returnX <- list(...)$returnX
   if (is.null(returnX) || !returnX) fit$X <- NULL
-  
+
   # Set up folds
   n <- nrow(X)
   if (!missing(seed)) set.seed(seed)
@@ -23,6 +23,7 @@ cv.ncvsurv <- function(X, y, ..., cluster, nfolds=10, seed, returnY=FALSE, trace
   cv.args$lambda <- fit$lambda
   cv.args$warn <- FALSE
   cv.args$convex <- FALSE
+  cv.args$penalty.factor <- fit$penalty.factor
   if (!missing(cluster)) {
     if (!("cluster" %in% class(cluster))) stop("cluster is not of class 'cluster'; see ?makeCluster")
     parallel::clusterExport(cluster, c("cv.ind","fit","X", "y", "cv.args"), envir=environment())
@@ -73,7 +74,7 @@ cvf.surv <- function(i, XX, y, cv.ind, cv.args) {
 #   eta.i <- predict(fit.i, XX[cv.ind!=i, , drop=FALSE])
 #   ll.i <- loss.ncvsurv(y[cv.ind!=i,], eta.i)
 #   loss <- matrix(ll.i, sum(cv.ind==i), nl, byrow=TRUE)
-  
+
 #   ind <- which(cv.ind==i)
 #   n <- length(ind)
 #   loss <- matrix(NA, n, nl)
