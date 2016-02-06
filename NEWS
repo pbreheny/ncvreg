@@ -1,3 +1,6 @@
+3.5-1
+	* 
+
 3.5-0
 	* Substantial efficiency improvements throughout for Cox models.
           Coordinate descent redesigned to work in O(n) instead of O(n^2)
