@@ -15,28 +15,28 @@
 \details{
   The area under the curve (AUC), or equivalently, the concordance
   statistic (C), is calculated according to the procedure outlined in
-  the reference below.  This is the same procedure used by the
-  \code{survConcordance} function in the \code{survival} package, except
-  for the fact that the cross-validated linear predictors are used to
-  guard against overfitting.  Thus, the values returned by
-  \code{AUC.cv.ncvsurv} will be somewhat lower than those you would
-  obtain with \code{survConcordance} if you fit the full (unpenalized)
-  model.
-  }
+  the reference below.  This calls the \code{survConcordance} function
+  in the \code{survival} package, except the cross-validated linear
+  predictors are used to guard against overfitting.  Thus, the values
+  returned by \code{AUC.cv.ncvsurv} will be lower than those
+  you would obtain with \code{survConcordance} if you fit the full
+  (unpenalized) model.}
 \references{van Houwelingen H, Putter H (2011). Dynamic Prediction in
   Clinical Survival Analysis.  CRC Press.}
-\author{Brandon Butcher; imported into the ncvreg package by Patrick
-  Breheny}
-\seealso{\code{\link{cv.ncvsurv}}}
+\author{Patrick Breheny, Brandon Butcher, and Lawrence Hunsicker}
+\seealso{\code{\link{cv.ncvsurv}}, \code{survConcordance}}
 \examples{
 data(Lung)
 X <- Lung$X
 y <- Lung$y
 
 cvfit <- cv.ncvsurv(X, y, returnY=TRUE)
+## Requires the survival package
+\dontrun{
 head(AUC(cvfit))
-
 ll <- log(cvfit$fit$lambda)
 plot(ll, AUC(cvfit), xlim=rev(range(ll)), lwd=3, type='l',
      xlab=expression(log(lambda)), ylab='AUC')
+}
+
 }

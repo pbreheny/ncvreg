@@ -60,6 +60,10 @@ trace=FALSE) }
   \item{lambda.min}{The value of \code{lambda} with the minimum
     cross-validation error.}
   \item{null.dev}{The deviance for the intercept-only model.}
+  \item{Bias}{The estimated bias of the minimum cross-validation error,
+    as in Tibshirani RJ and Tibshirani R (2009),
+    "A Bias Correction for the Minimum Error Rate in Cross-Validation",
+    Ann. Appl. Stat. 3:822-829.}
   \item{pe}{If \code{family="binomial"}, the cross-validation prediction
     error for each value of \code{lambda}.}
   \item{Y}{If \code{returnY=TRUE}, the matrix of cross-validated fitted

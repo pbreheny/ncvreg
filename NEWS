@@ -1,5 +1,10 @@
 3.5-1
-	* 
+	* Fixed bug with penalty.factor for cv.ncvsurv when some columns may be
+	  degenerate
+	* Replaced AUC function with more efficient version using survival
+	  package
+	* Compute bias correction for CV error; this is an experimental feature
+	  at this point and may change in the future
 
 3.5-0
 	* Substantial efficiency improvements throughout for Cox models.
