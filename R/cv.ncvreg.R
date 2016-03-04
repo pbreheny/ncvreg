@@ -20,19 +20,20 @@ cv.ncvreg <- function(X, y, ..., cluster, nfolds=10, seed, cv.ind, returnY=FALSE
   }
 
   if (!missing(seed)) set.seed(seed)
+  sde <- sqrt(.Machine$double.eps)
   if (missing(cv.ind)) {
     if (fit$family=="binomial" & (min(table(y)) > nfolds)) {
       ind1 <- which(y==1)
       ind0 <- which(y==0)
       n1 <- length(ind1)
       n0 <- length(ind0)
-      cv.ind1 <- ceiling(sample(1:n1)/n1*nfolds)
-      cv.ind0 <- ceiling(sample(1:n0)/n0*nfolds)
+      cv.ind1 <- ceiling(sample(1:n1)/(n1+sde)*nfolds)
+      cv.ind0 <- ceiling(sample(1:n0)/(n0+sde)*nfolds)
       cv.ind <- numeric(n)
       cv.ind[y==1] <- cv.ind1
       cv.ind[y==0] <- cv.ind0
     } else {
-      cv.ind <- ceiling(sample(1:n)/n*nfolds)
+      cv.ind <- ceiling(sample(1:n)/(n+sqrt(.Machine$double.eps))*nfolds)
     }
   }
 
@@ -61,7 +62,7 @@ cv.ncvreg <- function(X, y, ..., cluster, nfolds=10, seed, cv.ind, returnY=FALSE
 
   ## Eliminate saturated lambda values, if any
   ind <- which(apply(is.finite(E), 2, all))
-  E <- E[,ind]
+  E <- E[, ind, drop=FALSE]
   Y <- Y[,ind]
   lambda <- fit$lambda[ind]
 
@@ -71,7 +72,7 @@ cv.ncvreg <- function(X, y, ..., cluster, nfolds=10, seed, cv.ind, returnY=FALSE
   min <- which.min(cve)
 
   # Bias correction
-  e <- sapply(1:nfolds, function(i) apply(E[cv.ind==i,], 2, mean))
+  e <- sapply(1:nfolds, function(i) apply(E[cv.ind==i,,drop=FALSE], 2, mean))
   Bias <- mean(e[min,] - apply(e, 2, min))
 
   val <- list(cve=cve, cvse=cvse, lambda=lambda, fit=fit, min=min, lambda.min=lambda[min],

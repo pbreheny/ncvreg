@@ -77,6 +77,7 @@ SEXP cdfit_raw(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max
 
   // Path
   for (int l=0; l<L; l++) {
+    R_CheckUserInterrupt();
     if (l != 0) {
       // Assign a
       for (int j=0;j<p;j++) a[j] = b[(l-1)*p+j];

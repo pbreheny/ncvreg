@@ -96,6 +96,7 @@ SEXP cdfit_binomial(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEX
 
   // Path
   for (int l=lstart; l<L; l++) {
+    R_CheckUserInterrupt();
     if (l != 0) {
       // Assign a, a0
       a0 = b0[l-1];
