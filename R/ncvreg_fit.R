@@ -1,3 +1,3 @@
-ncvreg_fit <- function(...) {
-  ncvreg(..., standardize=FALSE)
-}
+# ncvreg_fit <- function(...) {
+#   ncvreg(..., standardize=FALSE)
+# }

@@ -50,6 +50,10 @@ fit <- ncvreg(as.data.frame(X), y, returnX=TRUE)
 # Constant columns
 fit <- ncvreg(cbind(5, X), y)
 
+# Plot
+plot(fit)
+plot(fit, log.l=TRUE)
+
 #### Logistic regression ####
 
 # Works
