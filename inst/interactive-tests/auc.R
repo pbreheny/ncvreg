@@ -1,4 +1,4 @@
-source("~/dev/.ncvreg.setup.R")
+#source("~/dev/.ncvreg.setup.R")
 require(ROCR)
 
 ##############################################

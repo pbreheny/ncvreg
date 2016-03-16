@@ -1,7 +1,7 @@
-source("~/dev/.ncvreg.setup.R")
+#source("~/dev/.ncvreg.setup.R")
 require(parallel)
 cl <- makeCluster(4)
-clusterCall(cl, function() source("~/dev/.ncvreg.setup.R"))
+#clusterCall(cl, function() source("~/dev/.ncvreg.setup.R"))
 
 ################################################
 .test = "parallel version of cv.ncvreg works" ##
@@ -36,6 +36,7 @@ stopCluster(cl)
 #################################################
 .test = "parallel version of cv.ncvsurv works" ##
 #################################################
+cl <- makeCluster(4)
 n <- 50
 p <- 100
 X <- matrix(rnorm(n*p), ncol=p)
