@@ -37,6 +37,6 @@ coef.ncvreg <- function(object, lambda, which=1:length(object$lambda), drop=TRUE
     beta <- (1-w)*object$beta[,l,drop=FALSE] + w*object$beta[,r,drop=FALSE]
     colnames(beta) <- round(lambda,4)
   }
-  else beta <- object$beta[,which,drop=FALSE]
+  else beta <- object$beta[, which, drop=FALSE]
   if (drop) return(drop(beta)) else return(beta)
 }
