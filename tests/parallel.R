@@ -1,3 +1,4 @@
+require(ncvreg)
 if (Sys.getenv('USER')=="pbreheny") {
   require(parallel)
   cl <- makeCluster(4)

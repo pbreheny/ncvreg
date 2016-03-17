@@ -1,4 +1,4 @@
-![version](http://www.r-pkg.org/badges/version/ncvreg)
+[![version](http://www.r-pkg.org/badges/version/ncvreg)](http://cran.r-project.org/web/packages/ncvreg/index.html)
 ![downloads](http://cranlogs.r-pkg.org/badges/ncvreg)
 [![codecov.io](https://codecov.io/github/pbreheny/ncvreg/coverage.svg?branch=master)](https://codecov.io/github/pbreheny/ncvreg?branch=master)
 

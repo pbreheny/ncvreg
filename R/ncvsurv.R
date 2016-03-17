@@ -63,7 +63,7 @@ ncvsurv <- function(X, y, penalty=c("MCP", "SCAD", "lasso"), gamma=switch(penalt
   if (warn & any(iter==max.iter)) warning("Algorithm failed to converge for some values of lambda")
 
   ## Local convexity?
-  convex.min <- if (convex) convexMin(b, XX, penalty, gamma, lambda*(1-alpha), "cox", penalty.factor, a=a, Delta=Delta) else NULL
+  convex.min <- if (convex) convexMin(b, XX, penalty, gamma, lambda*(1-alpha), "cox", penalty.factor, Delta=Delta) else NULL
 
   ## Unstandardize
   beta <- matrix(0, nrow=ncol(X), ncol=length(lambda))
