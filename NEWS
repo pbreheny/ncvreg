@@ -1,3 +1,9 @@
+3.5-2
+	* Fixed bug for ncvsurv with integer penalty factors
+	* Fixed rare numerical accuracy bug in cv fold assignments
+	* Fixed LOOCV bug introduced by bias-correction feature
+	* Added user interrupt checking
+
 3.5-1
 	* Fixed bug with penalty.factor for cv.ncvsurv when some columns may be
 	  degenerate

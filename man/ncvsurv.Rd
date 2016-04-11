@@ -5,7 +5,7 @@
   Cox regression models over a grid of values for the regularization
   parameter lambda, with option for an additional L2 penalty.}
 \usage{
-ncvsurv(X, y, model=c("cox","aft"), penalty=c("MCP", "SCAD", "lasso"),
+ncvsurv(X, y, penalty=c("MCP", "SCAD", "lasso"),
 gamma=switch(penalty, SCAD=3.7, 3), alpha=1,
 lambda.min=ifelse(n>p,.001,.05), nlambda=100, lambda, eps=.001,
 max.iter=1000, convex=TRUE, dfmax=p, penalty.factor=rep(1, ncol(X)),
@@ -19,9 +19,6 @@ warn=TRUE, returnX=FALSE, ...)
     up time); the second column should be a binary variable with 1
     indicating that the event has occurred and 0 indicating (right)
     censoring.}
-  \item{model}{Either "cox" for a Cox proportional hazards model or
-    "aft" for an accelerated failure time (AFT) model.  Note: AFT models
-    are not yet implemented in this release of \code{ncvreg}.}
   \item{penalty}{The penalty to be applied to the model.  Either "MCP"
     (the default), "SCAD", or "lasso".}
   \item{gamma}{The tuning parameter of the MCP/SCAD penalty (see
