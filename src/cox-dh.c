@@ -34,23 +34,12 @@ SEXP cleanupCox(double *a, int *e, double *eta, double *haz, double *rsk, SEXP b
 // Coordinate descent for Cox models
 SEXP cdfit_cox_dh(SEXP X_, SEXP y_, SEXP d_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max_iter_, SEXP gamma_, SEXP multiplier, SEXP alpha_, SEXP dfmax_, SEXP user_, SEXP warn_) {
 
-  // Declarations
+  // Lengths/dimensions
   int n = length(y_);
   int p = length(X_)/n;
   int L = length(lambda);
-  SEXP res, beta, Loss, iter, residuals, weights;
-  PROTECT(beta = allocVector(REALSXP, L*p));
-  double *b = REAL(beta);
-  for (int j=0; j<(L*p); j++) b[j] = 0;
-  PROTECT(residuals = allocVector(REALSXP, n));
-  double *r = REAL(residuals);
-  PROTECT(weights = allocVector(REALSXP, n));
-  double *h = REAL(weights);
-  PROTECT(Loss = allocVector(REALSXP, L));
-  PROTECT(iter = allocVector(INTSXP, L));
-  for (int i=0; i<L; i++) INTEGER(iter)[i] = 0;
-  double *a = Calloc(p, double);    // Beta from previous iteration
-  for (int j=0; j<p; j++) a[j] = 0;
+
+  // Pointers
   double *X = REAL(X_);
   double *y = REAL(y_);
   double *d = REAL(d_);
@@ -64,6 +53,23 @@ SEXP cdfit_cox_dh(SEXP X_, SEXP y_, SEXP d_, SEXP penalty_, SEXP lambda, SEXP ep
   int dfmax = INTEGER(dfmax_)[0];
   int user = INTEGER(user_)[0];
   int warn = INTEGER(warn_)[0];
+
+  // Outcome
+  SEXP res, beta, Loss, iter, residuals, weights;
+  PROTECT(beta = allocVector(REALSXP, L*p));
+  for (int j=0; j<(L*p); j++) REAL(beta)[j] = 0;
+  PROTECT(residuals = allocVector(REALSXP, n));
+  PROTECT(weights = allocVector(REALSXP, n));
+  PROTECT(Loss = allocVector(REALSXP, L));
+  PROTECT(iter = allocVector(INTSXP, L));
+  for (int i=0; i<L; i++) INTEGER(iter)[i] = 0;
+  double *b = REAL(beta);
+  double *r = REAL(residuals);
+  double *h = REAL(weights);
+
+  // Intermediate quantities
+  double *a = Calloc(p, double);    // Beta from previous iteration
+  for (int j=0; j<p; j++) a[j] = 0;
   double *haz = Calloc(n, double);
   double *rsk = Calloc(n, double);
   int *e = Calloc(p, int);
@@ -120,24 +126,7 @@ SEXP cdfit_cox_dh(SEXP X_, SEXP y_, SEXP d_, SEXP penalty_, SEXP lambda, SEXP ep
 	    REAL(Loss)[l] += d[i]*eta[i] - d[i]*log(rsk[i]);
 	  }
 
-	  /* // Calculate h, r */
-          /* Rprintf("Starting O(n^2) loop\n"); */
-	  /* for (int j=0; j<n; j++) { */
-	  /*   h[j] = 0; */
-	  /*   s = d[j]; */
-	  /*   for (int i=0; i<=j; i++) { */
-	  /*     if (!d[i]) continue; */
-	  /*     w = haz[j]/rsk[i]; */
-	  /*     h[j] += d[i]*w*(1-w); */
-	  /*     s -= d[i]*w; */
-	  /*   } */
-	  /*   if (h[j]==0) r[j]=0; */
-	  /*   else r[j] = s/h[j]; */
-	  /* } */
-          /* Rprintf("Done\n"); */
-
-  	  // Alternate
-          //Rprintf("Starting O(n^2) loop\n");
+  	  // Approximate L
 	  h[0] = d[0]/rsk[0];
 	  for (int i=1; i<n; i++) {
 	    h[i] = h[i-1] + d[i]/rsk[i];
@@ -148,7 +137,6 @@ SEXP cdfit_cox_dh(SEXP X_, SEXP y_, SEXP d_, SEXP penalty_, SEXP lambda, SEXP ep
 	    if (h[i]==0) r[i]=0;
 	    else r[i] = s/h[i];
 	  }
-          //Rprintf("Done\n");
 
 	  // Check for saturation
 	  if (REAL(Loss)[l]/nullDev < .01) {
