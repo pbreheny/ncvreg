@@ -94,7 +94,7 @@ static R_CallMethodDef callMethods[] = {
   {"cdfit_raw", (DL_FUNC) &cdfit_raw, 11},
   {"cdfit_binomial", (DL_FUNC) &cdfit_binomial, 12},
   {"cdfit_poisson", (DL_FUNC) &cdfit_poisson, 12},
-  {"cdfit_cox_dh", (DL_FUNC) &cdfit_cox_dh, 13},
+  {"cdfit_cox_dh", (DL_FUNC) &cdfit_cox_dh, 12},
   {"standardize", (DL_FUNC) &standardize, 1},
   {"maxprod", (DL_FUNC) &maxprod, 4},
   {NULL, NULL, 0}

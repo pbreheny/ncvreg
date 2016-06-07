@@ -48,7 +48,7 @@ ncvsurv <- function(X, y, penalty=c("MCP", "SCAD", "lasso"), gamma=switch(penalt
   }
 
   ## Fit
-  res <- .Call("cdfit_cox_dh", XX, yy, Delta, penalty, lambda, eps, as.integer(max.iter), as.double(gamma), penalty.factor,
+  res <- .Call("cdfit_cox_dh", XX, Delta, penalty, lambda, eps, as.integer(max.iter), as.double(gamma), penalty.factor,
                alpha, as.integer(dfmax), as.integer(user.lambda | any(penalty.factor==0)), as.integer(warn))
   b <- matrix(res[[1]], p, nlambda)
   loss <- -1*res[[2]]

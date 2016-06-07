@@ -32,16 +32,15 @@ SEXP cleanupCox(double *a, int *e, double *eta, double *haz, double *rsk, SEXP b
 }
 
 // Coordinate descent for Cox models
-SEXP cdfit_cox_dh(SEXP X_, SEXP y_, SEXP d_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max_iter_, SEXP gamma_, SEXP multiplier, SEXP alpha_, SEXP dfmax_, SEXP user_, SEXP warn_) {
+SEXP cdfit_cox_dh(SEXP X_, SEXP d_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max_iter_, SEXP gamma_, SEXP multiplier, SEXP alpha_, SEXP dfmax_, SEXP user_, SEXP warn_) {
 
   // Lengths/dimensions
-  int n = length(y_);
+  int n = length(d_);
   int p = length(X_)/n;
   int L = length(lambda);
 
   // Pointers
   double *X = REAL(X_);
-  double *y = REAL(y_);
   double *d = REAL(d_);
   const char *penalty = CHAR(STRING_ELT(penalty_, 0));
   double *lam = REAL(lambda);
@@ -76,7 +75,7 @@ SEXP cdfit_cox_dh(SEXP X_, SEXP y_, SEXP d_, SEXP penalty_, SEXP lambda, SEXP ep
   for (int j=0; j<p; j++) e[j] = 0;
   double *eta = Calloc(n, double);
   for (int i=0; i<n; i++) eta[i] = 0;
-  double xwr, xwx, mu, u, v, cutoff, l1, l2, shift, si, exp_eta, s, w, nullDev;
+  double xwr, xwx, u, v, l1, l2, shift, si, s, nullDev;
   int converged, lstart;
 
   // If lam[0]=lam_max, skip lam[0] -- closed form sol'n available
