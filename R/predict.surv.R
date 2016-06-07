@@ -1,4 +1,4 @@
-predict.ncvsurv <- function(object, X, type=c("link", "response", "survival", 
+predict.ncvsurv <- function(object, X, type=c("link", "response", "survival",
                                               "median", "coefficients", "vars",
                                               "nvars"),
                             lambda, which=1:length(object$lambda), ...) {

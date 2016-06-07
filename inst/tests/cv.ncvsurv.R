@@ -1,4 +1,3 @@
-require(ncvreg)
 set.seed(1)
 equal <- function(x, y) {all.equal(x, y, tol=0.001, check.attributes=FALSE)}
 
