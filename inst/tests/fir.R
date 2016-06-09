@@ -1,4 +1,3 @@
-require(ncvreg)
 set.seed(1)
 
 #### Permutation ####

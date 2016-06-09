@@ -31,12 +31,8 @@ X <- Lung$X
 y <- Lung$y
 
 cvfit <- cv.ncvsurv(X, y, returnY=TRUE)
-## Requires the survival package
-\dontrun{
 head(AUC(cvfit))
 ll <- log(cvfit$fit$lambda)
 plot(ll, AUC(cvfit), xlim=rev(range(ll)), lwd=3, type='l',
      xlab=expression(log(lambda)), ylab='AUC')
-}
-
 }

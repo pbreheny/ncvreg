@@ -1,27 +1,23 @@
-require(ncvreg)
 set.seed(1)
-equal <- function(x, y) {all.equal(x, y, tol=0.001, check.attributes=FALSE)}
 
-#### Linear regression ####
+# Linear regression -------------------------------------------------------
 
 # Works
 X <- matrix(rnorm(500), 50, 10)
 y <- rnorm(50)
 fit <- ncvreg(X, y, lambda.min=0, penalty="MCP")
 
-# Equals MLE when lam=0
+.test="Equals MLE when lam=0"
 fit.mle <- lm(y~X)
-stopifnot(equal(coef(fit)[,100], coef(fit.mle)))
-
-# logLik
-stopifnot(equal(logLik(fit)[100], logLik(fit.mle)[1]))
-stopifnot(equal(AIC(fit)[100], AIC(fit.mle)))
-
-# Different penalties
+check(coef(fit)[,100], coef(fit.mle), tol=0.001)
 fit <- ncvreg(X, y, lambda.min=0, penalty="SCAD")
-stopifnot(equal(coef(fit)[,100], coef(fit.mle)))
+check(coef(fit)[,100], coef(fit.mle), tol=0.001)
 fit <- ncvreg(X, y, lambda.min=0, penalty="lasso")
-stopifnot(equal(coef(fit)[,100], coef(fit.mle)))
+check(coef(fit)[,100], coef(fit.mle), tol=0.001)
+
+.test="logLik is correct"
+check(logLik(fit)[100], logLik(fit.mle)[1])
+check(AIC(fit)[100], AIC(fit.mle), tol=0.001)
 
 # Predict
 p <- predict(fit, X, 'link', lambda=0.1)
@@ -55,7 +51,7 @@ fit <- ncvreg(cbind(5, X), y)
 plot(fit)
 plot(fit, log.l=TRUE)
 
-#### Logistic regression ####
+# Logistic regression -----------------------------------------------------
 
 # Works
 y <- rbinom(50, 1, 0.5)
@@ -69,28 +65,28 @@ p <- predict(fit, X, 'coef')
 p <- predict(fit, X, 'vars')
 p <- predict(fit, X, 'nvars')
 
-# Equals MLE when lam=0
+.test="Equals MLE (logistic)"
 fit.mle <- glm(y~X, family='binomial')
-stopifnot(equal(coef(fit)[,100], coef(fit.mle)))
+check(coef(fit)[,100], coef(fit.mle), tol=0.001)
 
-# logLik
-stopifnot(equal(logLik(fit)[100], logLik(fit.mle)[1]))
-stopifnot(equal(AIC(fit)[100], AIC(fit.mle)))
+.test="logLik is correct (logistic)"
+check(logLik(fit)[100], logLik(fit.mle)[1], tol=0.001)
+check(AIC(fit)[100], AIC(fit.mle), tol=0.001)
 
 # y logical
 fit <- ncvreg(X, y==1, lambda.min=0, family='binomial')
 
-#### Poisson regression ####
+# Poisson regression ------------------------------------------------------
 
 fit <- ncvreg(X, y, lambda.min=0, family='poisson')
 
-# Equals MLE when lam=0
+.test="Equals MLE (Poisson)"
 fit.mle <- glm(y~X, family='poisson')
-stopifnot(equal(coef(fit)[,100], coef(fit.mle)))
+check(coef(fit)[,100], coef(fit.mle), tol=0.001)
 
-# logLik
-stopifnot(equal(logLik(fit)[100], logLik(fit.mle)[1]))
-stopifnot(equal(AIC(fit)[100], AIC(fit.mle)))
+.test="logLik is correct (Poisson)"
+check(logLik(fit)[100], logLik(fit.mle)[1], tol=0.001)
+check(AIC(fit)[100], AIC(fit.mle), tol=0.001)
 
 # Predict
 p <- predict(fit, X, 'link')
