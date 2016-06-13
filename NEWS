@@ -1,3 +1,12 @@
+3.6-0
+	* Improved efficiency for cox models (avoids recalculating linear
+          predictors)
+	* Exported std() function for standardizing a design matrix
+	* Reorganized testing suite
+	* Fixed bug in predict.cv.ncvsurv
+	* Added 'quick start' vignette
+	* 'survival' package now used for setupLambda in Cox models
+
 3.5-2
 	* Fixed bug for ncvsurv with integer penalty factors
 	* Fixed rare numerical accuracy bug in cv fold assignments

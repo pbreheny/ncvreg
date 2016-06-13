@@ -33,7 +33,13 @@ fit <- ncvreg(X, y)
 f <- fir(fit)
 cbind(EF=f$EF, S=f$S, FIR=f$FIR)[1:10,]
 
-## Comparison with perm.ncvreg
+# Some plotting options
+plot(f)
+plot(f, type="EF")
+plot(f, log=TRUE)
+
+
+# Comparison with perm.ncvreg
 par(mfrow=c(2,2))
 plot(f)
 plot(f, type="EF")

@@ -7,7 +7,6 @@ equal <- function(x, y) {all.equal(x, y, tol=0.001, check.attributes=FALSE)}
 X <- matrix(rnorm(500), 50, 10)
 y <- rnorm(50)
 cvfit <- cv.ncvreg(X, y)
-plot(cvfit, type='all')
 print(summary(cvfit))
 
 # Predict
@@ -30,7 +29,6 @@ cvfit <- cv.ncvreg(as.data.frame(X), y)
 X <- matrix(rnorm(25*4), 25, 4)
 y <- rnorm(25)
 cvfit <- cv.ncvreg(X, y, nfolds=25)
-plot(cvfit, type='all')
 print(summary(cvfit))
 
 #### Logistic regression ####
@@ -39,7 +37,6 @@ print(summary(cvfit))
 X <- matrix(rnorm(500), 50, 10)
 y <- rbinom(50, 1, 0.5)
 cvfit <- cv.ncvreg(X, y, family='binomial')
-plot(cvfit, type='all')
 print(summary(cvfit))
 
 # Predict
@@ -55,14 +52,12 @@ p <- predict(cvfit, X, type='nvars')
 X <- matrix(rnorm(30*2), 30, 2)
 y <- rbinom(30, 1, 0.5)
 cvfit <- cv.ncvreg(X, y, nfolds=30, family='binomial')
-plot(cvfit, type='all')
 print(summary(cvfit))
 
 #### Poisson regression ####
 
 # Works
 cvfit <- cv.ncvreg(X, y, family='poisson')
-plot(cvfit, type='all')
 print(summary(cvfit))
 
 # Predict
@@ -75,5 +70,4 @@ p <- predict(cvfit, X, type='nvars')
 
 # LOOCV
 cvfit <- cv.ncvreg(X, y, nfolds=30, family='poisson')
-plot(cvfit, type='all')
 print(summary(cvfit))
