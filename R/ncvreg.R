@@ -26,6 +26,7 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
   if (length(penalty.factor)!=ncol(X)) stop("penalty.factor does not match up with X")
   if (family=="binomial" & length(table(y)) > 2) stop("Attemping to use family='binomial' with non-binary data")
   if (family=="binomial" & !identical(sort(unique(y)), 0:1)) y <- as.numeric(y==max(y))
+  if (length(y) != nrow(X)) stop("X and y do not have the same number of observations")
 
   ## Deprication support
   dots <- list(...)
