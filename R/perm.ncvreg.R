@@ -9,7 +9,7 @@ perm.ncvreg <- function(X, y, ..., permute=c("outcome", "residuals"), N=10, seed
     pfit <- fit.perm.ncvreg(fit, fit$y, fit$lambda, N, max(S), trace)
     S.perm <- pfit$S.perm
     L.perm <- pfit$L.perm
-    EF <- pmin(apply(S.perm, 2, mean), S)
+    EF <- pmin(apply(S.perm, 2, mean, na.rm=TRUE), S)
     FIR <- EF/S
     FIR[S==0] <- 0
     loss <- apply(L.perm, 2, mean)
