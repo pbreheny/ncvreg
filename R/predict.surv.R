@@ -12,7 +12,7 @@ predict.ncvsurv <- function(object, X, type=c("link", "response", "survival",
     r <- ceiling(ind)
     x <- ind %% 1
     beta <- (1-x)*object$beta[,l,drop=FALSE] + x*object$beta[,r,drop=FALSE]
-    colnames(beta) <- round(lambda,4)
+    colnames(beta) <- lamNames(lambda)
   } else {
     beta <- object$beta[,which,drop=FALSE]
   }

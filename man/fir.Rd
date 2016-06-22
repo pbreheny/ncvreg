@@ -19,7 +19,8 @@ fir(fit)
   inclusion rate in the presence of correlated predictors, see
   \code{\link{perm.ncvreg}}.}
 \value{
-  An object with S3 class \code{"fir"} containing:
+  An object with S3 class \code{fir} inheriting from \code{data.frame} and
+  containing:
   \item{EF}{The number of variables selected at each value of
     \code{lambda}, averaged over the permutation fits.}
   \item{S}{The actual number of selected variables for the non-permuted
@@ -36,7 +37,7 @@ y <- prostate$lpsa
 fit <- ncvreg(X, y)
 
 f <- fir(fit)
-cbind(EF=f$EF, S=f$S, FIR=f$FIR)[1:10,]
+f[1:10,]
 
 ## Comparison with perm.ncvreg
 par(mfrow=c(2,2))

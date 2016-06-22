@@ -73,7 +73,7 @@ ncvsurv <- function(X, y, penalty=c("MCP", "SCAD", "lasso"), gamma=switch(penalt
 
   ## Names
   varnames <- if (is.null(colnames(X))) paste("V",1:ncol(X),sep="") else colnames(X)
-  dimnames(beta) <- list(varnames, round(lambda,digits=4))
+  dimnames(beta) <- list(varnames, lamNames(lambda))
 
   ## Output
   val <- structure(list(beta = beta,

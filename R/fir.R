@@ -7,5 +7,7 @@ fir <- function(fit) {
   EF <- pmin(p*2*pnorm(-l/tau), S)
   FIR <- EF/S
   FIR[S==0] <- 0
-  structure(list(EF=EF, S=S, FIR=FIR), class="fir")
+  df <- data.frame(EF=EF, S=S, FIR=FIR)
+  rownames(df) <- lamNames(fit$lambda)
+  structure(df, class=c("fir", "data.frame"))
 }
