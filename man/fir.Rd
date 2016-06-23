@@ -36,13 +36,13 @@ X <- as.matrix(prostate[,1:8])
 y <- prostate$lpsa
 fit <- ncvreg(X, y)
 
-f <- fir(fit)
-f[1:10,]
+obj <- fir(fit)
+obj[1:10,]
 
 ## Comparison with perm.ncvreg
 par(mfrow=c(2,2))
-plot(f)
-plot(f, type="EF")
+plot(obj)
+plot(obj, type="EF")
 pmfit <- perm.ncvreg(X, y)
 plot(pmfit)
 plot(pmfit, type="EF")
