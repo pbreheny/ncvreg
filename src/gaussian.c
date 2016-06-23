@@ -192,10 +192,10 @@ SEXP cdfit_gaussian(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEX
       }
 
       if (violations==0) {
-	REAL(loss)[l] = gLoss(r, n);
 	break;
       }
     }
+    REAL(loss)[l] = gLoss(r, n);
   }
   res = cleanupG(a, r, e1, e2, z, beta, loss, iter);
   return(res);
