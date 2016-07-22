@@ -4,7 +4,6 @@ Version: 3.6-1
 Date: 2016-06-13
 Author: Patrick Breheny [aut,cre], Sangin Lee [ctb]
 Maintainer: Patrick Breheny <patrick-breheny@uiowa.edu>
-Depends:
 Suggests: survival, parallel, knitr
 VignetteBuilder: knitr
 Description: Efficient algorithms for fitting regularization paths for linear or
