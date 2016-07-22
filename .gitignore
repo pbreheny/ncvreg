@@ -1,6 +1,3 @@
-.Rproj.user
-.Rhistory
-.RData
 src/*.o
 src/*.so
 src/*.dll
