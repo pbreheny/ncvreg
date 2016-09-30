@@ -10,7 +10,7 @@ ncvreg(X, y, family=c("gaussian", "binomial", "poisson"),
 penalty=c("MCP", "SCAD", "lasso"), gamma=switch(penalty, SCAD=3.7, 3),
 alpha=1, lambda.min=ifelse(n>p,.001,.05), nlambda=100, lambda, eps=.001,
 max.iter=1000, convex=TRUE, dfmax=p+1, penalty.factor=rep(1, ncol(X)),
-warn=TRUE, returnX=FALSE, ...)
+warn=TRUE, returnX=FALSE, standardize=TRUE, ...)
 }
 \arguments{
   \item{X}{The design matrix, without an intercept.  \code{ncvreg}
@@ -57,6 +57,7 @@ warn=TRUE, returnX=FALSE, ...)
     saturation?  Default is TRUE.}
   \item{returnX}{Return the standardized design matrix?  Default is
     FALSE.}
+  \item{standardize}{Standardize the design matrix or not before fitting? Default is TRUE.}
   \item{...}{Not used.}
 }
 \details{
