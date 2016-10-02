@@ -15,36 +15,42 @@ double gLoss(double *r, int n);
 double sqsum(double *X, int n, int j);
 
 // Memory handling, output formatting (raw)
-SEXP cleanupR(double *r, double *a, double *v, int *e, SEXP beta, SEXP Dev, SEXP iter) {
+SEXP cleanupR(double *r, double *a, double *v, int *e, SEXP beta0, SEXP beta, SEXP Dev, SEXP iter) {
   Free(r);
   Free(a);
   Free(v);
   Free(e);
   SEXP res;
   PROTECT(res = allocVector(VECSXP, 3));
-  SET_VECTOR_ELT(res, 0, beta);
-  SET_VECTOR_ELT(res, 1, Dev);
-  SET_VECTOR_ELT(res, 2, iter);
-  UNPROTECT(4);
+  SET_VECTOR_ELT(res, 0, beta0);
+  SET_VECTOR_ELT(res, 1, beta);
+  SET_VECTOR_ELT(res, 2, Dev);
+  SET_VECTOR_ELT(res, 3, iter);
+  UNPROTECT(5);
   return(res);
 }
 
 // Coordinate descent for raw, unstandardized least squares
+// need to fit an intercept
 SEXP cdfit_raw(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max_iter_, SEXP gamma_, SEXP multiplier, SEXP alpha_, SEXP dfmax_, SEXP user_) {
 
   // Declarations
   int n = length(y_);
   int p = length(X_)/n;
   int L = length(lambda);
-  SEXP res, beta, loss, iter;
+  SEXP res, beta0, beta, loss, iter;
+  PROTECT(beta0 = allocVector(REALSXP, L));
+  double *b0 = REAL(beta0);
+  for (int i=0; i<L; i++) b0[i] = 0;
   PROTECT(beta = allocVector(REALSXP, L*p));
   double *b = REAL(beta);
   for (int j=0; j<(L*p); j++) b[j] = 0;
   PROTECT(loss = allocVector(REALSXP, L));
   PROTECT(iter = allocVector(INTSXP, L));
   for (int i=0; i<L; i++) INTEGER(iter)[i] = 0;
-  double *a = Calloc(p, double); // Beta from previous iteration
+  double *a = Calloc(p, double);    // Beta from previous iteration
   for (int j=0; j<p; j++) a[j]=0;
+  double a0 = 0;                    // Beta0 from previous iteration, initially 0 from KKT since y is mean-centered
   double *X = REAL(X_);
   double *y = REAL(y_);
   const char *penalty = CHAR(STRING_ELT(penalty_, 0));
@@ -64,7 +70,7 @@ SEXP cdfit_raw(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max
   for (int j=0; j<p; j++) v[j] = sqsum(X, n, j)/n;
   int *e = Calloc(p, int);
   for (int j=0; j<p; j++) e[j] = 0;
-  double l1, l2, u;
+  double l1, l2, u, mean_resid, shift;
   int converged, lstart;
 
   // If lam[0]=lam_max, skip lam[0] -- closed form sol'n available
@@ -76,10 +82,11 @@ SEXP cdfit_raw(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max
   }
 
   // Path
-  for (int l=0; l<L; l++) {
+  for (int l=lstart; l<L; l++) {
     R_CheckUserInterrupt();
     if (l != 0) {
-      // Assign a
+      // Assign a0, a
+      a0 = b0[l-1];
       for (int j=0;j<p;j++) a[j] = b[(l-1)*p+j];
 
       // Check dfmax
@@ -89,7 +96,7 @@ SEXP cdfit_raw(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max
       }
       if (nv > dfmax) {
 	for (int ll=l; ll<L; ll++) INTEGER(iter)[ll] = NA_INTEGER;
-	res = cleanupR(r, a, v, e, beta, loss, iter);
+	res = cleanupR(r, a, v, e, beta0, beta, loss, iter);
 	return(res);
       }
     }
@@ -97,6 +104,14 @@ SEXP cdfit_raw(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max
     while (INTEGER(iter)[l] < max_iter) {
       while (INTEGER(iter)[l] < max_iter) {
 	INTEGER(iter)[l]++;
+	// intercept
+	mean_resid = 0.0;
+	for (int i=0; i<n; i++) mean_resid += r[i];
+	mean_resid /= n;
+	b0[l] = mean_resid + a0;
+	for (int i=0; i<n; i++) r[i] -= mean_resid;
+	
+	// covariates
 	for (int j=0; j<p; j++) {
 	  if (e[j]) {
 	    u = crossprod(X, r, n, j)/n + v[j]*a[j];
@@ -109,13 +124,14 @@ SEXP cdfit_raw(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max
 	    if (strcmp(penalty,"lasso")==0) b[l*p+j] = lasso(u, l1, l2, v[j]);
 
 	    // Update r
-	    double shift = b[l*p+j] - a[j];
+	    shift = b[l*p+j] - a[j];
 	    if (shift !=0) for (int i=0;i<n;i++) r[i] -= shift*X[j*n+i];
 	  }
 	}
 
 	// Check for convergence
 	converged = checkConvergence(b, a, eps, l, p);
+	a0 = b0[l];
 	for (int j=0; j<p; j++) a[j] = b[l*p+j];
 	if (converged) break;
       }
@@ -149,6 +165,6 @@ SEXP cdfit_raw(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max
       }
     }
   }
-  res = cleanupR(r, a, v, e, beta, loss, iter);
+  res = cleanupR(r, a, v, e, beta0, beta, loss, iter);
   return(res);
 }
