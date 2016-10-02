@@ -69,7 +69,7 @@ SEXP cdfit_raw(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max
   double *v = Calloc(p, double);
   for (int j=0; j<p; j++) v[j] = sqsum(X, n, j)/n;
   int *e = Calloc(p, int);
-  for (int j=0; j<p; j++) e[j] = 0;
+  for (int j=0; j<p; j++) e[j] = 1;
   double l1, l2, u, mean_resid, shift;
   int converged, lstart;
 
