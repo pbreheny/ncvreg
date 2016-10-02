@@ -88,7 +88,7 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
 
   ## Eliminate saturated lambda values, if any
   ind <- !is.na(iter)
-  if (family!="gaussian" || standardize==TRUE) a <- a[ind]
+  a <- a[ind]
   b <- b[, ind, drop=FALSE]
   iter <- iter[ind]
   lambda <- lambda[ind]
