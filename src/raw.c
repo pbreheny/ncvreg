@@ -9,10 +9,11 @@ int checkConvergence(double *beta, double *beta_old, double eps, int l, int J);
 double MCP(double z, double l1, double l2, double gamma, double v);
 double SCAD(double z, double l1, double l2, double gamma, double v);
 double lasso(double z, double l1, double l2, double v);
+double gLoss(double *r, int n);
 double sqsum(double *X, int n, int j);
 
-// Memory handling, output formatting (Gaussian)
-SEXP cleanupG(double *a, double *r, double *v, double *z, int *e1, int *e2, SEXP beta0, SEXP beta, SEXP loss, SEXP iter) {
+// Memory handling, output formatting (raw)
+SEXP cleanupR(double *a, double *r, double *v, double *z, int *e1, int *e2, SEXP beta0, SEXP beta, SEXP loss, SEXP iter) {
   Free(a);
   Free(r);
   Free(v);
@@ -27,13 +28,6 @@ SEXP cleanupG(double *a, double *r, double *v, double *z, int *e1, int *e2, SEXP
   SET_VECTOR_ELT(res, 3, iter);
   UNPROTECT(5);
   return(res);
-}
-
-// Gaussian loss
-double gLoss(double *r, int n) {
-  double l = 0;
-  for (int i=0;i<n;i++) l = l + pow(r[i],2);
-  return(l);
 }
 
 // Coordinate descent for gaussian models
@@ -103,7 +97,7 @@ SEXP cdfit_raw(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max
       }
       if (nv > dfmax) {
       	for (int ll=l; ll<L; ll++) INTEGER(iter)[ll] = NA_INTEGER;
-      	res = cleanupG(a, r, v, z, e1, e2, beta0, beta, loss, iter);
+      	res = cleanupR(a, r, v, z, e1, e2, beta0, beta, loss, iter);
       	return(res);
       }
 
@@ -146,7 +140,7 @@ SEXP cdfit_raw(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max
       	      if (strcmp(penalty,"lasso")==0) b[l*p+j] = lasso(z[j], l1, l2, v[j]);
       
       	      // Update r
-      	      double shift = b[l*p+j] - a[j];
+      	      shift = b[l*p+j] - a[j];
       	      if (shift !=0) for (int i=0;i<n;i++) r[i] -= shift*X[j*n+i];
       	    }
       	  }
@@ -161,7 +155,7 @@ SEXP cdfit_raw(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max
       	// Scan for violations in strong set
       	int violations = 0;
       	for (int j=0; j<p; j++) {
-      	  if (e1[j]==0 & e2[j]==1) {
+      	  if (e1[j]==0 && e2[j]==1) {
       
       	    z[j] = crossprod(X, r, n, j)/n; // a[j] = 0
 
@@ -214,6 +208,6 @@ SEXP cdfit_raw(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max
     }
     REAL(loss)[l] = gLoss(r, n);
   }
-  res = cleanupG(a, r, v, z, e1, e2, beta0, beta, loss, iter);
+  res = cleanupR(a, r, v, z, e1, e2, beta0, beta, loss, iter);
   return(res);
 }
