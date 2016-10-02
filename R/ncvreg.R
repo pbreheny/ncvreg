@@ -67,7 +67,7 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
     loss <- res[[2]]
     iter <- res[[3]]
   } else if (family=="gaussian" && standardize==FALSE) {
-    res <- .Call("cdfit_raw", X, y, penalty, lambda, eps, as.integer(max.iter), as.double(gamma), penalty.factor, alpha, as.integer(dfmax), as.integer(user.lambda | any(penalty.factor==0)))
+    res <- .Call("cdfit_raw", XX, yy, penalty, lambda, eps, as.integer(max.iter), as.double(gamma), penalty.factor, alpha, as.integer(dfmax), as.integer(user.lambda | any(penalty.factor==0)))
     a <- res[[1]] + mean(y)
     b <- matrix(res[[2]], p, nlambda)
     loss <- res[[3]]
