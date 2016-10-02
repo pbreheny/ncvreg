@@ -110,7 +110,7 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
 
   ## Names
   varnames <- if (is.null(colnames(X))) paste("V",1:ncol(X),sep="") else colnames(X)
-  if (family!="gaussian" || standardize==TRUE) varnames <- c("(Intercept)", varnames)
+  varnames <- c("(Intercept)", varnames)
   dimnames(beta) <- list(varnames, lamNames(lambda))
 
   ## Output
