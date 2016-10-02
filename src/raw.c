@@ -21,7 +21,7 @@ SEXP cleanupR(double *a, double *r, double *v, double *z, int *e1, int *e2, SEXP
   Free(e1);
   Free(e2);
   SEXP res;
-  PROTECT(res = allocVector(VECSXP, 3));
+  PROTECT(res = allocVector(VECSXP, 4));
   SET_VECTOR_ELT(res, 0, beta0);
   SET_VECTOR_ELT(res, 1, beta);
   SET_VECTOR_ELT(res, 2, loss);
