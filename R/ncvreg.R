@@ -17,14 +17,14 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
   if (storage.mode(penalty.factor) != "double") storage.mode(penalty.factor) <- "double"
 
   # Error checking
-  if (gamma <= 1 & penalty=="MCP") stop("gamma must be greater than 1 for the MC penalty")
-  if (gamma <= 2 & penalty=="SCAD") stop("gamma must be greater than 2 for the SCAD penalty")
+  if (gamma <= 1 && penalty=="MCP") stop("gamma must be greater than 1 for the MC penalty")
+  if (gamma <= 2 && penalty=="SCAD") stop("gamma must be greater than 2 for the SCAD penalty")
   if (nlambda < 2) stop("nlambda must be at least 2")
   if (alpha <= 0) stop("alpha must be greater than 0; choose a small positive number instead")
-  if (any(is.na(y)) | any(is.na(X))) stop("Missing data (NA's) detected.  Take actions (e.g., removing cases, removing features, imputation) to eliminate missing data before passing X and y to ncvreg")
+  if (any(is.na(y)) || any(is.na(X))) stop("Missing data (NA's) detected.  Take actions (e.g., removing cases, removing features, imputation) to eliminate missing data before passing X and y to ncvreg")
   if (length(penalty.factor)!=ncol(X)) stop("penalty.factor does not match up with X")
-  if (family=="binomial" & length(table(y)) > 2) stop("Attemping to use family='binomial' with non-binary data")
-  if (family=="binomial" & !identical(sort(unique(y)), 0:1)) y <- as.numeric(y==max(y))
+  if (family=="binomial" && length(table(y)) > 2) stop("Attemping to use family='binomial' with non-binary data")
+  if (family=="binomial" && !identical(sort(unique(y)), 0:1)) y <- as.numeric(y==max(y))
   if (length(y) != nrow(X)) stop("X and y do not have the same number of observations")
 
   ## Deprication support
@@ -60,17 +60,18 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
   }
 
   ## Fit
-  if (family=="gaussian" & standardize==TRUE) {
+  if (family=="gaussian" && standardize==TRUE) {
     res <- .Call("cdfit_gaussian", XX, yy, penalty, lambda, eps, as.integer(max.iter), as.double(gamma), penalty.factor, alpha, as.integer(dfmax), as.integer(user.lambda | any(penalty.factor==0)))
     a <- rep(mean(y),nlambda)
     b <- matrix(res[[1]], p, nlambda)
     loss <- res[[2]]
     iter <- res[[3]]
-  } else if (family=="gaussian" & standardize==FALSE) {
+  } else if (family=="gaussian" && standardize==FALSE) {
     res <- .Call("cdfit_raw", X, y, penalty, lambda, eps, as.integer(max.iter), as.double(gamma), penalty.factor, alpha, as.integer(dfmax), as.integer(user.lambda | any(penalty.factor==0)))
-    b <- matrix(res[[1]], p, nlambda)
-    loss <- res[[2]]
-    iter <- res[[3]]
+    a <- res[[1]] + mean(y)
+    b <- matrix(res[[2]], p, nlambda)
+    loss <- res[[3]]
+    iter <- res[[4]]
   } else if (family=="binomial") {
     res <- .Call("cdfit_binomial", XX, yy, penalty, lambda, eps, as.integer(max.iter), as.double(gamma), penalty.factor, alpha, as.integer(dfmax), as.integer(user.lambda | any(penalty.factor==0)), as.integer(warn))
     a <- res[[1]]
@@ -87,7 +88,7 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
 
   ## Eliminate saturated lambda values, if any
   ind <- !is.na(iter)
-  if (family!="gaussian" | standardize==TRUE) a <- a[ind]
+  if (family!="gaussian" || standardize==TRUE) a <- a[ind]
   b <- b[, ind, drop=FALSE]
   iter <- iter[ind]
   lambda <- lambda[ind]
@@ -95,7 +96,7 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
   if (warn & any(iter==max.iter)) warning("Algorithm failed to converge for some values of lambda")
 
   ## Local convexity?
-  convex.min <- if (convex & standardize) convexMin(b, XX, penalty, gamma, lambda*(1-alpha), family, penalty.factor, a=a) else NULL
+  convex.min <- if (convex && standardize) convexMin(b, XX, penalty, gamma, lambda*(1-alpha), family, penalty.factor, a=a) else NULL
 
   ## Unstandardize
   if (standardize) {
@@ -104,12 +105,12 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
     beta[nz+1,] <- bb
     beta[1,] <- a - crossprod(center[nz], bb)
   } else {
-    beta <- if (family=="gaussian") b else rbind(a, b)
+    beta <- rbind(a, b)
   }
 
   ## Names
   varnames <- if (is.null(colnames(X))) paste("V",1:ncol(X),sep="") else colnames(X)
-  if (family!="gaussian" | standardize==TRUE) varnames <- c("(Intercept)", varnames)
+  if (family!="gaussian" || standardize==TRUE) varnames <- c("(Intercept)", varnames)
   dimnames(beta) <- list(varnames, lamNames(lambda))
 
   ## Output
