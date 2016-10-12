@@ -1,6 +1,6 @@
 plot.ncvreg <- function(x, alpha=1, log.l=FALSE, shade=TRUE, ...) {
   YY <- if (length(x$penalty.factor)==nrow(x$beta)) coef(x) else coef(x)[-1,,drop=FALSE]
-  p <- nrow(Y)
+  p <- nrow(YY)
   cols <- hcl(h=seq(15, 375, len=max(4, p+1)), l=60, c=150, alpha=alpha)
   cols <- if (p==2) cols[c(1,3)] else cols[1:p]
   
