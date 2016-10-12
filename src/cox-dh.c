@@ -14,20 +14,18 @@ double SCAD(double z, double l1, double l2, double gamma, double v);
 double lasso(double z, double l1, double l2, double v);
 
 // Memory handling, output formatting (Cox)
-SEXP cleanupCox(double *a, int *e, double *eta, double *haz, double *rsk, SEXP beta, SEXP Loss, SEXP iter, SEXP residuals, SEXP weights) {
+SEXP cleanupCox(double *a, int *e, double *eta, double *haz, double *rsk, SEXP beta, SEXP Loss, SEXP iter) {
   Free(a);
   Free(e);
   Free(eta);
   Free(haz);
   Free(rsk);
   SEXP res;
-  PROTECT(res = allocVector(VECSXP, 5));
+  PROTECT(res = allocVector(VECSXP, 3));
   SET_VECTOR_ELT(res, 0, beta);
   SET_VECTOR_ELT(res, 1, Loss);
   SET_VECTOR_ELT(res, 2, iter);
-  SET_VECTOR_ELT(res, 3, residuals);
-  SET_VECTOR_ELT(res, 4, weights);
-  UNPROTECT(6);
+  UNPROTECT(4);
   return(res);
 }
 
@@ -57,20 +55,19 @@ SEXP cdfit_cox_dh(SEXP X_, SEXP d_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP 
   SEXP res, beta, Loss, iter, residuals, weights;
   PROTECT(beta = allocVector(REALSXP, L*p));
   for (int j=0; j<(L*p); j++) REAL(beta)[j] = 0;
-  PROTECT(residuals = allocVector(REALSXP, n));
   PROTECT(weights = allocVector(REALSXP, n));
   PROTECT(Loss = allocVector(REALSXP, L));
   PROTECT(iter = allocVector(INTSXP, L));
   for (int i=0; i<L; i++) INTEGER(iter)[i] = 0;
   double *b = REAL(beta);
-  double *r = REAL(residuals);
-  double *h = REAL(weights);
 
   // Intermediate quantities
   double *a = Calloc(p, double);    // Beta from previous iteration
   for (int j=0; j<p; j++) a[j] = 0;
   double *haz = Calloc(n, double);
   double *rsk = Calloc(n, double);
+  double *r = Calloc(n, double);
+  double *h = Calloc(n, double);
   int *e = Calloc(p, int);
   for (int j=0; j<p; j++) e[j] = 0;
   double *eta = Calloc(n, double);
@@ -100,102 +97,102 @@ SEXP cdfit_cox_dh(SEXP X_, SEXP d_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP 
       // Check dfmax
       int nv = 0;
       for (int j=0; j<p; j++) {
-	if (a[j] != 0) nv++;
+        if (a[j] != 0) nv++;
       }
       if (nv > dfmax) {
-	for (int ll=l; ll<L; ll++) INTEGER(iter)[ll] = NA_INTEGER;
-	res = cleanupCox(a, e, eta, haz, rsk, beta, Loss, iter, residuals, weights);
-	return(res);
+        for (int ll=l; ll<L; ll++) INTEGER(iter)[ll] = NA_INTEGER;
+        res = cleanupCox(a, e, eta, haz, rsk, beta, Loss, iter);
+        return(res);
       }
     }
 
     while (INTEGER(iter)[l] < max_iter) {
       while (INTEGER(iter)[l] < max_iter) {
-	while (INTEGER(iter)[l] < max_iter) {
-	  INTEGER(iter)[l]++;
-	  REAL(Loss)[l] = 0;
+        while (INTEGER(iter)[l] < max_iter) {
+          INTEGER(iter)[l]++;
+          REAL(Loss)[l] = 0;
 
-	  // Calculate haz, risk
-	  for (int i=0; i<n; i++) haz[i] = exp(eta[i]);
-	  rsk[n-1] = haz[n-1];
-	  for (int i=n-2; i>=0; i--) {
-	    rsk[i] = rsk[i+1] + haz[i];
-	  }
-	  for (int i=0; i<n; i++) {
-	    REAL(Loss)[l] += d[i]*eta[i] - d[i]*log(rsk[i]);
-	  }
+          // Calculate haz, risk
+          for (int i=0; i<n; i++) haz[i] = exp(eta[i]);
+          rsk[n-1] = haz[n-1];
+          for (int i=n-2; i>=0; i--) {
+            rsk[i] = rsk[i+1] + haz[i];
+          }
+          for (int i=0; i<n; i++) {
+            REAL(Loss)[l] += d[i]*eta[i] - d[i]*log(rsk[i]);
+          }
 
-  	  // Approximate L
-	  h[0] = d[0]/rsk[0];
-	  for (int i=1; i<n; i++) {
-	    h[i] = h[i-1] + d[i]/rsk[i];
-	  }
-	  for (int i=0; i<n; i++) {
-	    h[i] = h[i]*haz[i];
-	    s = d[i] - h[i];
-	    if (h[i]==0) r[i]=0;
-	    else r[i] = s/h[i];
-	  }
+          // Approximate L
+          h[0] = d[0]/rsk[0];
+          for (int i=1; i<n; i++) {
+            h[i] = h[i-1] + d[i]/rsk[i];
+          }
+          for (int i=0; i<n; i++) {
+            h[i] = h[i]*haz[i];
+            s = d[i] - h[i];
+            if (h[i]==0) r[i]=0;
+            else r[i] = s/h[i];
+          }
 
-	  // Check for saturation
-	  if (REAL(Loss)[l]/nullDev < .01) {
-	    if (warn) warning("Model saturated; exiting...");
-	    for (int ll=l; ll<L; ll++) INTEGER(iter)[ll] = NA_INTEGER;
-	    res = cleanupCox(a, e, eta, haz, rsk, beta, Loss, iter, residuals, weights);
-	    return(res);
-	  }
+          // Check for saturation
+          if (REAL(Loss)[l]/nullDev < .01) {
+            if (warn) warning("Model saturated; exiting...");
+            for (int ll=l; ll<L; ll++) INTEGER(iter)[ll] = NA_INTEGER;
+            res = cleanupCox(a, e, eta, haz, rsk, beta, Loss, iter);
+            return(res);
+          }
 
-	  // Covariates
-	  for (int j=0; j<p; j++) {
-	    if (e[j]) {
+          // Covariates
+          for (int j=0; j<p; j++) {
+            if (e[j]) {
 
-	      // Calculate u, v
-	      xwr = wcrossprod(X, r, h, n, j);
-	      xwx = wsqsum(X, h, n, j);
-	      u = xwr/n + (xwx/n)*a[j];
-	      v = xwx/n;
+              // Calculate u, v
+              xwr = wcrossprod(X, r, h, n, j);
+              xwx = wsqsum(X, h, n, j);
+              u = xwr/n + (xwx/n)*a[j];
+              v = xwx/n;
 
-	      // Update b_j
-	      l1 = lam[l] * m[j] * alpha;
-	      l2 = lam[l] * m[j] * (1-alpha);
-	      if (strcmp(penalty,"MCP")==0) b[l*p+j] = MCP(u, l1, l2, gamma, v);
-	      if (strcmp(penalty,"SCAD")==0) b[l*p+j] = SCAD(u, l1, l2, gamma, v);
-	      if (strcmp(penalty,"lasso")==0) b[l*p+j] = lasso(u, l1, l2, v);
-	      //Rprintf("u=%f, v=%f, b=%f\n", u, v, b[l*p+j]);
+              // Update b_j
+              l1 = lam[l] * m[j] * alpha;
+              l2 = lam[l] * m[j] * (1-alpha);
+              if (strcmp(penalty,"MCP")==0) b[l*p+j] = MCP(u, l1, l2, gamma, v);
+              if (strcmp(penalty,"SCAD")==0) b[l*p+j] = SCAD(u, l1, l2, gamma, v);
+              if (strcmp(penalty,"lasso")==0) b[l*p+j] = lasso(u, l1, l2, v);
+              //Rprintf("u=%f, v=%f, b=%f\n", u, v, b[l*p+j]);
 
-	      // Update r
-	      shift = b[l*p+j] - a[j];
-	      if (shift !=0) {
-		/* for (int i=0;i<n;i++) r[i] -= shift*X[j*n+i]; */
-		/* for (int i=0;i<n;i++) eta[i] += shift*X[j*n+i]; */
-		for (int i=0;i<n;i++) {
-		  si = shift*X[j*n+i];
-		  r[i] -= si;
-		  eta[i] += si;
-		}
-	      }
-	    }
-	  }
+              // Update r
+              shift = b[l*p+j] - a[j];
+              if (shift !=0) {
+                /* for (int i=0;i<n;i++) r[i] -= shift*X[j*n+i]; */
+                /* for (int i=0;i<n;i++) eta[i] += shift*X[j*n+i]; */
+                for (int i=0;i<n;i++) {
+                  si = shift*X[j*n+i];
+                  r[i] -= si;
+                  eta[i] += si;
+                }
+              }
+            }
+          }
 
-	  // Check for convergence
-	  converged = checkConvergence(b, a, eps, l, p);
-	  for (int j=0; j<p; j++) a[j] = b[l*p+j];
-	  if (converged) break;
-	}
+          // Check for convergence
+          converged = checkConvergence(b, a, eps, l, p);
+          for (int j=0; j<p; j++) a[j] = b[l*p+j];
+          if (converged) break;
+        }
 
-	// Scan for violations
-	int violations = 0;
-	for (int j=0; j<p; j++) {
-	  if (e[j]==0) {
-	    xwr = wcrossprod(X, r, h, n, j)/n;
-	    l1 = lam[l] * m[j] * alpha;
-	    if (fabs(xwr) > l1) {
-	      e[j] = 1;
-	      violations++;
-	    }
-	  }
-	}
-	if (violations==0) break;
+        // Scan for violations
+        int violations = 0;
+        for (int j=0; j<p; j++) {
+          if (e[j]==0) {
+            xwr = wcrossprod(X, r, h, n, j)/n;
+            l1 = lam[l] * m[j] * alpha;
+            if (fabs(xwr) > l1) {
+              e[j] = 1;
+              violations++;
+            }
+          }
+        }
+        if (violations==0) break;
       }
 
       // Scan for violations in rest
@@ -213,6 +210,6 @@ SEXP cdfit_cox_dh(SEXP X_, SEXP d_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP 
       if (violations==0) break;
     }
   }
-  res = cleanupCox(a, e, eta, haz, rsk, beta, Loss, iter, residuals, weights);
+  res = cleanupCox(a, e, eta, haz, rsk, beta, Loss, iter);
   return(res);
 }
