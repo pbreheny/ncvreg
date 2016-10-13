@@ -42,3 +42,6 @@ fit <- ncvsurv(as.data.frame(X), y)
 # Loss
 eta <- predict(fit, X, 'link', lambda=0.1)
 ncvreg:::loss.ncvsurv(y, eta)
+
+# Summary
+summary(fit, which=10)
