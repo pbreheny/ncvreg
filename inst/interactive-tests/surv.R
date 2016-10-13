@@ -207,8 +207,6 @@ predict(fit, X[1,], which=1, type='median')
 ######################################################
 n <- 50
 p <- 5
-# Standardize X, otherwise coxph makes strange adjustments for the mean
-#X <- .Call('standardize', rbind(rep(0,p), matrix(rnorm((n-1)*p), ncol=p)))[[1]]
 X <- matrix(rnorm(n*p), ncol=p)
 b <- c(2, -2, rep(0, p-2))
 y <- Surv(rexp(n, exp(X%*%b)), rbinom(n, 1, 0.5))
