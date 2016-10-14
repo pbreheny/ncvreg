@@ -8,7 +8,6 @@ double crossprod(double *X, double *y, int n, int j);
 double wcrossprod(double *X, double *y, double *w, int n, int j);
 double wsqsum(double *X, double *w, int n, int j);
 double sum(double *x, int n);
-int checkConvergence(double *beta, double *beta_old, double eps, int l, int J);
 double MCP(double z, double l1, double l2, double gamma, double v);
 double SCAD(double z, double l1, double l2, double gamma, double v);
 double lasso(double z, double l1, double l2, double v);
@@ -75,7 +74,7 @@ SEXP cdfit_poisson(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP
   int *e2 = Calloc(p, int);
   for (int j=0; j<p; j++) e2[j] = 0;
   double xwr, xwx, mu, u, v, cutoff, l1, l2, shift, si;
-  int converged, lstart;
+  int lstart;
 
   // Initialization
   double ybar = sum(y, n)/n;
@@ -134,6 +133,7 @@ SEXP cdfit_poisson(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP
 	while (INTEGER(iter)[l] < max_iter) {
 	  INTEGER(iter)[l]++;
 	  REAL(Dev)[l] = 0;
+          double maxChange = 0;
 	  for (int i=0;i<n;i++) {
 	    mu = exp(eta[i]);
 	    w[i] = mu;
@@ -178,22 +178,20 @@ SEXP cdfit_poisson(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP
 	      // Update r
 	      shift = b[l*p+j] - a[j];
 	      if (shift !=0) {
-		/* for (int i=0;i<n;i++) r[i] -= shift*X[j*n+i]; */
-		/* for (int i=0;i<n;i++) eta[i] += shift*X[j*n+i]; */
 		for (int i=0;i<n;i++) {
 		  si = shift*X[j*n+i];
 		  r[i] -= si;
 		  eta[i] += si;
 		}
+                if (fabs(shift)*v > maxChange) maxChange = fabs(shift)*v;
 	      }
 	    }
 	  }
 
 	  // Check for convergence
-	  converged = checkConvergence(b, a, eps, l, p);
 	  a0 = b0[l];
 	  for (int j=0; j<p; j++) a[j] = b[l*p+j];
-	  if (converged) break;
+          if (maxChange < eps) break;
 	}
 
 	// Scan for violations in strong set

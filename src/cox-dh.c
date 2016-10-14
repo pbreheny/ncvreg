@@ -8,7 +8,6 @@ double crossprod(double *X, double *y, int n, int j);
 double wcrossprod(double *X, double *y, double *w, int n, int j);
 double wsqsum(double *X, double *w, int n, int j);
 double sum(double *x, int n);
-int checkConvergence(double *beta, double *beta_old, double eps, int l, int J);
 double MCP(double z, double l1, double l2, double gamma, double v);
 double SCAD(double z, double l1, double l2, double gamma, double v);
 double lasso(double z, double l1, double l2, double v);
@@ -75,7 +74,7 @@ SEXP cdfit_cox_dh(SEXP X_, SEXP d_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP 
   double *eta = Calloc(n, double);
   for (int i=0; i<n; i++) eta[i] = 0;
   double xwr, xwx, u, v, l1, l2, shift, si, s, nullDev;
-  int converged, lstart;
+  int lstart;
 
   // If lam[0]=lam_max, skip lam[0] -- closed form sol'n available
   rsk[n-1] = 1;
@@ -112,6 +111,7 @@ SEXP cdfit_cox_dh(SEXP X_, SEXP d_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP 
       while (INTEGER(iter)[l] < max_iter) {
         INTEGER(iter)[l]++;
         REAL(Loss)[l] = 0;
+        double maxChange = 0;
 
         // Calculate haz, risk
         for (int i=0; i<n; i++) haz[i] = exp(eta[i]);
@@ -159,26 +159,23 @@ SEXP cdfit_cox_dh(SEXP X_, SEXP d_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP 
             if (strcmp(penalty,"MCP")==0) b[l*p+j] = MCP(u, l1, l2, gamma, v);
             if (strcmp(penalty,"SCAD")==0) b[l*p+j] = SCAD(u, l1, l2, gamma, v);
             if (strcmp(penalty,"lasso")==0) b[l*p+j] = lasso(u, l1, l2, v);
-            //Rprintf("u=%f, v=%f, b=%f\n", u, v, b[l*p+j]);
 
             // Update r
             shift = b[l*p+j] - a[j];
             if (shift !=0) {
-              /* for (int i=0;i<n;i++) r[i] -= shift*X[j*n+i]; */
-              /* for (int i=0;i<n;i++) eta[i] += shift*X[j*n+i]; */
               for (int i=0;i<n;i++) {
                 si = shift*X[j*n+i];
                 r[i] -= si;
                 eta[i] += si;
               }
+              if (fabs(shift)*v > maxChange) maxChange = fabs(shift)*v;
             }
           }
         }
 
         // Check for convergence
-        converged = checkConvergence(b, a, eps, l, p);
         for (int j=0; j<p; j++) a[j] = b[l*p+j];
-        if (converged) break;
+        if (maxChange < eps) break;
       }
 
       // Scan for violations

@@ -12,7 +12,6 @@ SEXP cdfit_raw(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max
 SEXP standardize(SEXP X_);
 SEXP maxprod(SEXP X_, SEXP y_, SEXP v_, SEXP m_);
 
-
 // Cross product of y with jth column of X
 double crossprod(double *X, double *y, int n, int j) {
   int nn = n*j;
@@ -49,17 +48,6 @@ double sum(double *x, int n) {
   double val=0;
   for (int i=0;i<n;i++) val += x[i];
   return(val);
-}
-
-int checkConvergence(double *beta, double *beta_old, double eps, int l, int J) {
-  int converged = 1;
-  for (int j=0; j<J; j++) {
-    if (fabs((beta[l*J+j]-beta_old[j])/beta_old[j]) > eps) {
-      converged = 0;
-      break;
-    }
-  }
-  return(converged);
 }
 
 double MCP(double z, double l1, double l2, double gamma, double v) {
