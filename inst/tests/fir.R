@@ -31,11 +31,20 @@ plot(fir(fit), type="EF")
 par(op)
 
 # Analytic: Cox
-y <- cbind(rexp(50), sample(rep(0:1, c(10,40))))
 X <- matrix(rnorm(50*10), 50, 10)
+y <- cbind(rexp(50, exp(X[,1])), sample(rep(0:1, c(10,40))))
 fit <- ncvsurv(X, y, lambda.min=0)
 fir(fit)
+op <- par(mfrow=2:1)
+plot(fir(fit))
+plot(fir(fit), type="EF")
+par(op)
 
+# Analytic: Penalty.factor
+X <- matrix(rnorm(500), 50, 10)
+y <- rnorm(50, X[,10])
+fit <- ncvreg(X, y, penalty.factor=rep(0:1, c(3, 7)))
+fir(fit)
 op <- par(mfrow=2:1)
 plot(fir(fit))
 plot(fir(fit), type="EF")
