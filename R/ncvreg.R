@@ -77,7 +77,8 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
     a <- res[[1]]
     b <- matrix(res[[2]], p, nlambda)
     loss <- res[[3]]
-    iter <- res[[4]]
+    wMean <- res[[4]]
+    iter <- res[[5]]
   } else if (family=="poisson") {
     res <- .Call("cdfit_poisson", XX, yy, penalty, lambda, eps, as.integer(max.iter), as.double(gamma), penalty.factor, alpha, as.integer(dfmax), as.integer(user.lambda | any(penalty.factor==0)), as.integer(warn))
     a <- res[[1]]
@@ -127,6 +128,7 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
                         n = n),
                    class = "ncvreg")
   if (family=="poisson") val$y <- y
+  if (family=="binomial") val$wMean <- wMean
   if (returnX) {
     val$X <- XX
     val$center <- center
