@@ -1,4 +1,4 @@
-summary.ncvreg <- function(object, lambda, which) {
+summary.ncvreg <- function(object, lambda, which, ...) {
   nvars <- predict(object, type="nvars", lambda=lambda, which=which)
   if (length(nvars) > 1) stop("You must specify a single model (i.e., a single value of lambda)")
   FIR <- fir(object)

@@ -17,7 +17,6 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
   if (storage.mode(penalty.factor) != "double") storage.mode(penalty.factor) <- "double"
 
   # Error checking
-  standardize <- TRUE
   if (gamma <= 1 & penalty=="MCP") stop("gamma must be greater than 1 for the MC penalty")
   if (gamma <= 2 & penalty=="SCAD") stop("gamma must be greater than 2 for the SCAD penalty")
   if (nlambda < 2) stop("nlambda must be at least 2")
@@ -33,17 +32,13 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
   if ("n.lambda" %in% names(dots)) nlambda <- dots$n.lambda
 
   ## Set up XX, yy, lambda
-  if (standardize) {
-    std <- .Call("standardize", X)
-    XX <- std[[1]]
-    center <- std[[2]]
-    scale <- std[[3]]
-    nz <- which(scale > 1e-6)
-    if (length(nz) != ncol(XX)) XX <- XX[ ,nz, drop=FALSE]
-    penalty.factor <- penalty.factor[nz]
-  } else {
-    XX <- X
-  }
+  std <- .Call("standardize", X)
+  XX <- std[[1]]
+  center <- std[[2]]
+  scale <- std[[3]]
+  nz <- which(scale > 1e-6)
+  if (length(nz) != ncol(XX)) XX <- XX[ ,nz, drop=FALSE]
+  penalty.factor <- penalty.factor[nz]
   p <- ncol(XX)
 
   if (family=="gaussian") {
@@ -53,7 +48,7 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
   }
   n <- length(yy)
   if (missing(lambda)) {
-    lambda <- setupLambda(if (standardize) XX else X, yy, family, alpha, lambda.min, nlambda, penalty.factor)
+    lambda <- setupLambda(XX, yy, family, alpha, lambda.min, nlambda, penalty.factor)
     user.lambda <- FALSE
   } else {
     nlambda <- length(lambda)
@@ -61,14 +56,9 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
   }
 
   ## Fit
-  if (family=="gaussian" & standardize==TRUE) {
+  if (family=="gaussian") {
     res <- .Call("cdfit_gaussian", XX, yy, penalty, lambda, eps, as.integer(max.iter), as.double(gamma), penalty.factor, alpha, as.integer(dfmax), as.integer(user.lambda | any(penalty.factor==0)))
     a <- rep(mean(y),nlambda)
-    b <- matrix(res[[1]], p, nlambda)
-    loss <- res[[2]]
-    iter <- res[[3]]
-  } else if (family=="gaussian" & standardize==FALSE) {
-    res <- .Call("cdfit_raw", X, y, penalty, lambda, eps, as.integer(max.iter), as.double(gamma), penalty.factor, alpha, as.integer(dfmax), as.integer(user.lambda | any(penalty.factor==0)))
     b <- matrix(res[[1]], p, nlambda)
     loss <- res[[2]]
     iter <- res[[3]]
@@ -89,7 +79,7 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
 
   ## Eliminate saturated lambda values, if any
   ind <- !is.na(iter)
-  if (family!="gaussian" | standardize==TRUE) a <- a[ind]
+  a <- a[ind]
   b <- b[, ind, drop=FALSE]
   iter <- iter[ind]
   lambda <- lambda[ind]
@@ -97,21 +87,17 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
   if (warn & any(iter==max.iter)) warning("Algorithm failed to converge for some values of lambda")
 
   ## Local convexity?
-  convex.min <- if (convex & standardize) convexMin(b, XX, penalty, gamma, lambda*(1-alpha), family, penalty.factor, a=a) else NULL
+  convex.min <- if (convex) convexMin(b, XX, penalty, gamma, lambda*(1-alpha), family, penalty.factor, a=a) else NULL
 
   ## Unstandardize
-  if (standardize) {
-    beta <- matrix(0, nrow=(ncol(X)+1), ncol=length(lambda))
-    bb <- b/scale[nz]
-    beta[nz+1,] <- bb
-    beta[1,] <- a - crossprod(center[nz], bb)
-  } else {
-    beta <- if (family=="gaussian") b else rbind(a, b)
-  }
+  beta <- matrix(0, nrow=(ncol(X)+1), ncol=length(lambda))
+  bb <- b/scale[nz]
+  beta[nz+1,] <- bb
+  beta[1,] <- a - crossprod(center[nz], bb)
 
   ## Names
   varnames <- if (is.null(colnames(X))) paste("V",1:ncol(X),sep="") else colnames(X)
-  if (family!="gaussian" | standardize==TRUE) varnames <- c("(Intercept)", varnames)
+  varnames <- c("(Intercept)", varnames)
   dimnames(beta) <- list(varnames, lamNames(lambda))
 
   ## Output

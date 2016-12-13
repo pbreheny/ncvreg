@@ -1,3 +1,16 @@
+# 3.7-0 (2016-12-13)
+  * New: fir extended to Cox and logistic regression
+  * New: summary function for ncvreg and ncvsurv objects
+  * Change: Convergence criterion now based on RMSD of linear predictors
+  * Change: Additional options and improvements to plot.fir
+  * Change: Better display of fir objects
+  * Internal: Improved efficiency for Cox models (linear predictor calculation
+    now occurs in C, not R)
+  * Internal: Reorganized testing suite
+  * Fixed: lamNames with single lambda passed
+  * Fixed: loss wasn't being returned for gaussian if failure to converge
+  * Fixed: perm.ncvreg would return NAs when models were saturated
+
 # 3.6-0 (2016-06-13)
   * New: Exports std() function for standardizing a design matrix
   * Fixed: In predict.cv.ncvsurv

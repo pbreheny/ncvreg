@@ -80,6 +80,10 @@ check(AIC(fit)[100], AIC(fit.mle), tol=0.001)
 # y logical
 fit <- ncvreg(X, y==1, lambda.min=0, family='binomial')
 
+# Summary
+summary(fit, which=10)
+summary(fit, lam=0.05)
+
 # Poisson regression ------------------------------------------------------
 
 fit <- ncvreg(X, y, lambda.min=0, family='poisson')
