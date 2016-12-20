@@ -61,6 +61,7 @@ ncvsurv <- function(X, y, penalty=c("MCP", "SCAD", "lasso"), gamma=switch(penalt
   iter <- iter[ind]
   lambda <- lambda[ind]
   loss <- loss[ind]
+  W <- W[,ind]
   if (warn & any(iter==max.iter)) warning("Algorithm failed to converge for some values of lambda")
 
   ## Local convexity?
