@@ -23,6 +23,18 @@ plot(fir(fit))
 plot(fir(fit), type="EF")
 par(op)
 
+# Linear: HD
+n <- 50
+p <- 100
+X <- matrix(rnorm(n*p), n, p)
+y <- rnorm(n)
+fit <- ncvreg(X, y)
+fir(fit)
+op <- par(mfrow=2:1)
+plot(fir(fit))
+plot(fir(fit), type="EF")
+par(op)
+
 # Logistic
 n <- 50
 p <- 10

@@ -10,7 +10,7 @@ fir <- function(fit) {
   } else {
     p <- dim(fit$beta)[1]-1
     if (fit$family=="gaussian") {
-      tau <- sqrt(fit$loss/(fit$n - p + 1))
+      tau <- sqrt(fit$loss/(fit$n - S + 1))
     } else if (fit$family=="binomial") {
       tau <- sqrt(fit$wMean)
     } else {
