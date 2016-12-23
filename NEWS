@@ -1,3 +1,7 @@
+# 3.7-1 (2016-12-23)
+  * Fixed: Various fixes for fir function
+  * Fixed: Bug with high dimensional (p > n) Cox models
+
 # 3.7-0 (2016-12-13)
   * New: fir extended to Cox and logistic regression
   * New: summary function for ncvreg and ncvsurv objects

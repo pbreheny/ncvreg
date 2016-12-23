@@ -2,8 +2,7 @@
 \alias{fir}
 \title{False inclusion rates for ncvreg}
 \description{Estimates false inclusion rates (FIR) for penalized
-  regression models based on an approximation of independence between
-  the predictors.}
+  regression models.}
 \usage{
 fir(fit)
 }
@@ -12,11 +11,10 @@ fir(fit)
   }
 \details{
   The function estimates the false inclusion rate (FIR) for a penalized
-  regression model.  The calculation is based on an approximation of
-  independence between the predictors, and is reasonably accurate in
-  near-independent settings.  However, the estimate is conservative when
-  predictors are correlated.  For another way of estimating the false
-  inclusion rate, typically more accurate in highly correlated cases, see
+  regression model.  The estimate tends to be accurate in most settings,
+  but will be slightly conservative if predictors are highly correlated.
+  For an alternative way of estimating the false inclusion rate,
+  typically more accurate in highly correlated cases,  see
   \code{\link{perm.ncvreg}}.}
 \value{
   An object with S3 class \code{fir} inheriting from \code{data.frame} and
