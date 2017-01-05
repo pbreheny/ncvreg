@@ -9,7 +9,7 @@
 ncvreg(X, y, family=c("gaussian", "binomial", "poisson"),
 penalty=c("MCP", "SCAD", "lasso"), gamma=switch(penalty, SCAD=3.7, 3),
 alpha=1, lambda.min=ifelse(n>p,.001,.05), nlambda=100, lambda, eps=1e-4,
-max.iter=1000, convex=TRUE, dfmax=p+1, penalty.factor=rep(1, ncol(X)),
+max.iter=5000, convex=TRUE, dfmax=p+1, penalty.factor=rep(1, ncol(X)),
 warn=TRUE, returnX=FALSE, ...)
 }
 \arguments{
@@ -38,7 +38,7 @@ warn=TRUE, returnX=FALSE, ...)
   \item{eps}{Convergence threshhold.  The algorithm iterates until the
     RMSD for the change in linear predictors for any coefficient is less
     than \code{eps}.  Default is \code{1e-4}.}
-  \item{max.iter}{Maximum number of iterations.  Default is 1000.}
+  \item{max.iter}{Maximum number of iterations.  Default is 5000.}
   \item{convex}{Calculate index for which objective function ceases to
     be locally convex?  Default is TRUE.}
   \item{dfmax}{Upper bound for the number of nonzero coefficients.
