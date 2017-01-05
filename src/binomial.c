@@ -195,7 +195,7 @@ SEXP cdfit_binomial(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEX
 		  r[i] -= si;
 		  eta[i] += si;
 		}
-                if (fabs(shift)*v > maxChange) maxChange = fabs(shift)*v;
+                if (fabs(shift)*sqrt(v) > maxChange) maxChange = fabs(shift)*sqrt(v);
 	      }
 	    }
 	  }

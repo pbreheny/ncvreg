@@ -168,7 +168,7 @@ SEXP cdfit_cox_dh(SEXP X_, SEXP d_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP 
                 r[i] -= si;
                 eta[i] += si;
               }
-              if (fabs(shift)*v > maxChange) maxChange = fabs(shift)*v;
+              if (fabs(shift)*sqrt(v) > maxChange) maxChange = fabs(shift)*sqrt(v);
             }
           }
         }
