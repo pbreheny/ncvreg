@@ -8,5 +8,6 @@ std <- function(X) {
   attr(val, "center") <- STD[[2]]
   attr(val, "center") <- STD[[2]]
   attr(val, "scale") <- STD[[3]]
+  dimnames(val) <- dimnames(X)
   val
 }
