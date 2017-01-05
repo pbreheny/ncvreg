@@ -60,6 +60,7 @@ SEXP cdfit_binomial(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEX
   double *lam = REAL(lambda);
   double eps = REAL(eps_)[0];
   int max_iter = INTEGER(max_iter_)[0];
+  int tot_iter = 0;
   double gamma = REAL(gamma_)[0];
   double *m = REAL(multiplier);
   double alpha = REAL(alpha_)[0];
@@ -109,7 +110,7 @@ SEXP cdfit_binomial(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEX
       for (int j=0; j<p; j++) {
 	if (a[j] != 0) nv++;
       }
-      if (nv > dfmax) {
+      if ((nv > dfmax) | (tot_iter == max_iter)) {
 	for (int ll=l; ll<L; ll++) INTEGER(iter)[ll] = NA_INTEGER;
 	res = cleanupB(s, w, a, r, e1, e2, z, eta, beta0, beta, Dev, wMean, iter);
 	return(res);
@@ -131,10 +132,11 @@ SEXP cdfit_binomial(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEX
       for (int j=0; j<p; j++) if (fabs(z[j]) > (cutoff * alpha * m[j])) e2[j] = 1;
     }
 
-    while (INTEGER(iter)[l] < max_iter) {
-      while (INTEGER(iter)[l] < max_iter) {
-	while (INTEGER(iter)[l] < max_iter) {
+    while (tot_iter < max_iter) {
+      while (tot_iter < max_iter) {
+	while (tot_iter < max_iter) {
 	  INTEGER(iter)[l]++;
+          tot_iter++;
 	  REAL(Dev)[l] = 0;
 	  for (int i=0;i<n;i++) {
 	    if (eta[i] > 10) {

@@ -1,6 +1,6 @@
 ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("MCP", "SCAD", "lasso"),
                    gamma=switch(penalty, SCAD=3.7, 3), alpha=1, lambda.min=ifelse(n>p,.001,.05), nlambda=100,
-                   lambda, eps=5e-4, max.iter=1000, convex=TRUE, dfmax=p+1, penalty.factor=rep(1, ncol(X)),
+                   lambda, eps=3e-4, max.iter=10000, convex=TRUE, dfmax=p+1, penalty.factor=rep(1, ncol(X)),
                    warn=TRUE, returnX=FALSE, ...) {
   # Coersion
   family <- match.arg(family)
@@ -85,7 +85,7 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
   lambda <- lambda[ind]
   loss <- loss[ind]
   if (family=="binomial") wMean <- wMean[ind]
-  if (warn & any(iter==max.iter)) warning("Algorithm failed to converge for some values of lambda")
+  if (warn & sum(iter)==max.iter) warning("Maximum number of iterations reached")
 
   ## Local convexity?
   convex.min <- if (convex) convexMin(b, XX, penalty, gamma, lambda*(1-alpha), family, penalty.factor, a=a) else NULL

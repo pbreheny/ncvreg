@@ -1,5 +1,5 @@
 ncvsurv <- function(X, y, penalty=c("MCP", "SCAD", "lasso"), gamma=switch(penalty, SCAD=3.7, 3),
-                    alpha=1, lambda.min=ifelse(n>p,.001,.05), nlambda=100, lambda, eps=1e-4, max.iter=1000,
+                    alpha=1, lambda.min=ifelse(n>p,.001,.05), nlambda=100, lambda, eps=3e-4, max.iter=10000,
                     convex=TRUE, dfmax=p, penalty.factor=rep(1, ncol(X)), warn=TRUE, returnX=FALSE, ...) {
 
   # Coersion
@@ -62,7 +62,7 @@ ncvsurv <- function(X, y, penalty=c("MCP", "SCAD", "lasso"), gamma=switch(penalt
   lambda <- lambda[ind]
   loss <- loss[ind]
   W <- W[,ind,drop=FALSE]
-  if (warn & any(iter==max.iter)) warning("Algorithm failed to converge for some values of lambda")
+  if (warn & sum(iter)==max.iter) warning("Algorithm failed to converge for some values of lambda")
 
   ## Local convexity?
   convex.min <- if (convex) convexMin(b, XX, penalty, gamma, lambda*(1-alpha), "cox", penalty.factor, Delta=Delta) else NULL
