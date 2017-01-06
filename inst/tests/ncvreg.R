@@ -16,7 +16,7 @@ fit <- ncvreg(X, y, lambda.min=0, penalty="lasso")
 check(coef(fit)[,100], coef(fit.mle), tol=0.001)
 
 .test="logLik is correct"
-check(logLik(fit)[100], logLik(fit.mle)[1])
+check(logLik(fit)[100], logLik(fit.mle)[1], tol=1e-5)
 check(AIC(fit)[100], AIC(fit.mle), tol=0.001)
 
 # Predict
