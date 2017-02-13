@@ -1,11 +1,14 @@
 summary.ncvreg <- function(object, lambda, which, ...) {
   nvars <- predict(object, type="nvars", lambda=lambda, which=which)
   if (length(nvars) > 1) stop("You must specify a single model (i.e., a single value of lambda)")
-  FIR <- fir(object)
   if (missing(lambda)) lambda <- object$lambda[which]
-  f <- approxfun(object$lambda, FIR$EF)
   model <- switch(object$family, gaussian="linear", binomial="logistic", poisson="Poisson")
-  val <- list(penalty=object$penalty, model=model, n=object$n, p=nrow(object$beta)-1, lambda=lambda, nvars=nvars, EF=f(lambda))
+  val <- list(penalty=object$penalty, model=model, n=object$n, p=nrow(object$beta)-1, lambda=lambda, nvars=nvars)
+  if ("X" %in% names(object) || object$family=="gaussian") {
+    mFDR <- mfdr(object)
+    f <- approxfun(object$lambda, mFDR$EF)
+    val$EF = f(lambda)
+  }
   structure(val, class="summary.ncvreg")
 }
 print.summary.ncvreg <- function(x, digits, ...) {
@@ -14,6 +17,8 @@ print.summary.ncvreg <- function(x, digits, ...) {
   cat("At lambda=", formatC(x$lambda, digits[1], format="f"), ":\n", sep="")
   cat("-------------------------------------------------\n")
   cat("  Nonzero coefficients: ", x$nvars, "\n", sep="")
-  cat("  Expected nonzero coefficients: ", formatC(x$EF, digits=digits[2], format="f"), "\n", sep="")
-  cat("  FIR: ", formatC(x$EF/x$nvars, digits=3, format="f"), "\n", sep="")
+  if ("EF" %in% names(x)) {
+    cat("  Expected nonzero coefficients: ", formatC(x$EF, digits=digits[2], format="f"), "\n", sep="")
+    cat("  FIR: ", formatC(x$EF/x$nvars, digits=3, format="f"), "\n", sep="")
+  }
 }

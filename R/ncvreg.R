@@ -32,13 +32,9 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
   if ("n.lambda" %in% names(dots)) nlambda <- dots$n.lambda
 
   ## Set up XX, yy, lambda
-  std <- .Call("standardize", X)
-  XX <- std[[1]]
-  center <- std[[2]]
-  scale <- std[[3]]
-  nz <- which(scale > 1e-6)
-  if (length(nz) != ncol(XX)) XX <- XX[ ,nz, drop=FALSE]
-  penalty.factor <- penalty.factor[nz]
+  XX <- std(X)
+  ns <- attr(XX, "nonsingular")
+  penalty.factor <- penalty.factor[ns]
   p <- ncol(XX)
 
   if (family=="gaussian") {
@@ -67,7 +63,7 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
     a <- res[[1]]
     b <- matrix(res[[2]], p, nlambda)
     loss <- res[[3]]
-    wMean <- res[[4]]
+    Eta <- matrix(res[[4]], n, nlambda)
     iter <- res[[5]]
   } else if (family=="poisson") {
     res <- .Call("cdfit_poisson", XX, yy, penalty, lambda, eps, as.integer(max.iter), as.double(gamma), penalty.factor, alpha, as.integer(dfmax), as.integer(user.lambda | any(penalty.factor==0)), as.integer(warn))
@@ -84,7 +80,7 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
   iter <- iter[ind]
   lambda <- lambda[ind]
   loss <- loss[ind]
-  if (family=="binomial") wMean <- wMean[ind]
+  if (family=="binomial") Eta <- Eta[,ind]
   if (warn & sum(iter)==max.iter) warning("Maximum number of iterations reached")
 
   ## Local convexity?
@@ -92,9 +88,9 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
 
   ## Unstandardize
   beta <- matrix(0, nrow=(ncol(X)+1), ncol=length(lambda))
-  bb <- b/scale[nz]
-  beta[nz+1,] <- bb
-  beta[1,] <- a - crossprod(center[nz], bb)
+  bb <- b/attr(XX, "scale")[ns]
+  beta[ns+1,] <- bb
+  beta[1,] <- a - crossprod(attr(XX, "center")[ns], bb)
 
   ## Names
   varnames <- if (is.null(colnames(X))) paste("V",1:ncol(X),sep="") else colnames(X)
@@ -115,11 +111,9 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
                         n = n),
                    class = "ncvreg")
   if (family=="poisson") val$y <- y
-  if (family=="binomial") val$wMean <- wMean
+  if (family=="binomial") val$Eta <- Eta
   if (returnX) {
     val$X <- XX
-    val$center <- center
-    val$scale <- scale
     val$y <- yy
   }
   val

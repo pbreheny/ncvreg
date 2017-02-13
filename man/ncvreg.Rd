@@ -137,8 +137,8 @@ plot(fit,main=expression(paste(alpha,"=",0.1)))
 
 par(mfrow=c(2,2))
 fit <- ncvreg(X,y)
-plot(fir(fit))            ## Independence approximation
-plot(fir(fit), type="EF") ## Independence approximation
+plot(mfdr(fit))            ## Independence approximation
+plot(mfdr(fit), type="EF") ## Independence approximation
 perm.fit <- perm.ncvreg(X,y)
 plot(perm.fit)
 plot(perm.fit, type="EF")

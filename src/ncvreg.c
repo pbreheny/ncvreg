@@ -11,6 +11,20 @@ SEXP cdfit_cox_dh(SEXP X_, SEXP y_, SEXP d_, SEXP penalty_, SEXP lambda, SEXP ep
 SEXP cdfit_raw(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max_iter_, SEXP gamma_, SEXP multiplier, SEXP alpha_, SEXP dfmax_);
 SEXP standardize(SEXP X_);
 SEXP maxprod(SEXP X_, SEXP y_, SEXP v_, SEXP m_);
+SEXP mfdr_gaussian(SEXP fit);
+SEXP mfdr_binomial(SEXP fit);
+SEXP mfdr_cox(SEXP fit);
+
+// List accessor function
+SEXP getListElement(SEXP list, const char *str) {
+  SEXP elmt = R_NilValue, names = getAttrib(list, R_NamesSymbol);
+  for (int i = 0; i < length(list); i++)
+    if(strcmp(CHAR(STRING_ELT(names, i)), str) == 0) {
+      elmt = VECTOR_ELT(list, i);
+      break;
+    }
+  return elmt;
+}
 
 // Cross product of y with jth column of X
 double crossprod(double *X, double *y, int n, int j) {
@@ -85,6 +99,9 @@ static R_CallMethodDef callMethods[] = {
   {"cdfit_cox_dh", (DL_FUNC) &cdfit_cox_dh, 12},
   {"standardize", (DL_FUNC) &standardize, 1},
   {"maxprod", (DL_FUNC) &maxprod, 4},
+  {"mfdr_gaussian", (DL_FUNC) &mfdr_gaussian, 1},
+  {"mfdr_binomial", (DL_FUNC) &mfdr_binomial, 1},
+  {"mfdr_cox", (DL_FUNC) &mfdr_cox, 1},
   {NULL, NULL, 0}
 };
 

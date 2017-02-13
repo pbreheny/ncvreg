@@ -71,3 +71,47 @@ p <- predict(cvfit, X, type='nvars')
 # LOOCV
 cvfit <- cv.ncvreg(X, y, nfolds=30, family='poisson')
 print(summary(cvfit))
+
+######################################
+.test = "cv.ncvreg() seems to work" ##
+######################################
+n <- 40
+p <- 10
+X <- matrix(rnorm(n*p), ncol=p)
+b <- c(2, -2, 1, -1, rep(0, p-4))
+y <- rnorm(n, mean=X%*%b, sd=2)
+yb <- y > .5
+yp <- rpois(n, exp(X%*%b/3))
+par(mfrow=c(3,2))
+
+require(glmnet)
+gcvfit <- cv.glmnet(X, y, nfolds=n)
+plot(gcvfit)
+ncvfit <- cv.ncvreg(X, y, penalty="lasso", lambda=gcvfit$lambda, nfolds=n)
+plot(ncvfit)
+gcvfit <- cv.glmnet(X, yb, family="binomial", nfolds=n)
+plot(gcvfit)
+ncvfit <- cv.ncvreg(X, yb, family="binomial", penalty="lasso", lambda=gcvfit$lambda, nfolds=n)
+plot(ncvfit)
+cvfit <- cv.glmnet(X, yp, family="poisson")
+plot(cvfit)
+cvfit <- cv.ncvreg(X, yp, family="poisson", penalty="lasso", lambda=cvfit$lambda)
+plot(cvfit)
+
+##############################################
+.test = "cv.ncvreg() return LP array works" ##
+##############################################
+n <- 100
+p <- 10
+X <- matrix(rnorm(n*p), ncol=p)
+b <- c(-3, 3, rep(0, 8))
+
+y <- rnorm(n, mean=X%*%b, sd=1)
+cvfit <- cv.ncvreg(X, y, returnY=TRUE)
+cve <- apply(cvfit$Y - y, 2, crossprod)/n
+check(cve, cvfit$cve, check.attributes=FALSE, tol= .001)
+
+y <- rnorm(n, mean=X%*%b) > 0
+cvfit <- cv.ncvreg(X, y, family='binomial', returnY=TRUE)
+pe <- apply((cvfit$Y>0.5)!=y, 2, mean)
+check(pe, cvfit$pe, check.attributes=FALSE, tol= .001)

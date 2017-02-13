@@ -1,5 +1,3 @@
-#source("~/dev/.ncvreg.setup.R")
-
 ## Gen data
 n <- 40
 p <- 10
@@ -38,12 +36,6 @@ plot(pmfit)
 plot(pmfit, type="EF")
 plot(pmfit$fit)
 plot(pmfit$fit, log=TRUE)
-
-##########################
-.test = "permres works" ##
-##########################
-fit <- ncvreg(X, y, returnX=TRUE)
-permres.ncvreg(fit, lam=0.2)
 
 #############################################################
 .test = "permute='residuals' option for perm.ncvreg works" ##

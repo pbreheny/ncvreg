@@ -3,6 +3,7 @@
 #include "Rinternals.h"
 #include "R_ext/Rdynload.h"
 #include <R.h>
+#include <Rmath.h>
 #include <R_ext/Applic.h>
 double crossprod(double *X, double *y, int n, int j);
 double wcrossprod(double *X, double *y, double *w, int n, int j);
@@ -11,9 +12,10 @@ double sum(double *x, int n);
 double MCP(double z, double l1, double l2, double gamma, double v);
 double SCAD(double z, double l1, double l2, double gamma, double v);
 double lasso(double z, double l1, double l2, double v);
+double fmax2 (double x, double y);
 
 // Memory handling, output formatting (Binomial)
-SEXP cleanupB(double *s, double *w, double *a, double *r, int *e1, int *e2, double *z, double *eta, SEXP beta0, SEXP beta, SEXP Dev, SEXP wMean, SEXP iter) {
+SEXP cleanupB(double *s, double *w, double *a, double *r, int *e1, int *e2, double *z, double *eta, SEXP beta0, SEXP beta, SEXP Dev, SEXP Eta, SEXP iter) {
   Free(s);
   Free(w);
   Free(a);
@@ -27,10 +29,20 @@ SEXP cleanupB(double *s, double *w, double *a, double *r, int *e1, int *e2, doub
   SET_VECTOR_ELT(res, 0, beta0);
   SET_VECTOR_ELT(res, 1, beta);
   SET_VECTOR_ELT(res, 2, Dev);
-  SET_VECTOR_ELT(res, 3, wMean);
+  SET_VECTOR_ELT(res, 3, Eta);
   SET_VECTOR_ELT(res, 4, iter);
   UNPROTECT(6);
   return(res);
+}
+
+double p_binomial(double eta) {
+  if (eta > 10) {
+    return(1);
+  } else if (eta < -10) {
+    return(0);
+  } else {
+    return(exp(eta)/(1+exp(eta)));
+  }
 }
 
 // Coordinate descent for binomial models
@@ -40,7 +52,7 @@ SEXP cdfit_binomial(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEX
   int n = length(y_);
   int p = length(X_)/n;
   int L = length(lambda);
-  SEXP res, beta0, beta, Dev, wMean, iter;
+  SEXP res, beta0, beta, Dev, Eta, iter;
   PROTECT(beta0 = allocVector(REALSXP, L));
   double *b0 = REAL(beta0);
   for (int i=0; i<L; i++) b0[i] = 0;
@@ -48,7 +60,8 @@ SEXP cdfit_binomial(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEX
   double *b = REAL(beta);
   for (int j=0; j<(L*p); j++) b[j] = 0;
   PROTECT(Dev = allocVector(REALSXP, L));
-  PROTECT(wMean = allocVector(REALSXP, L));
+  PROTECT(Eta = allocVector(REALSXP, L*n));
+  for (int j=0; j<(L*n); j++) REAL(Eta)[j] = 0;
   PROTECT(iter = allocVector(INTSXP, L));
   for (int i=0; i<L; i++) INTEGER(iter)[i] = 0;
   double *a = Calloc(p, double);    // Beta from previous iteration
@@ -94,7 +107,7 @@ SEXP cdfit_binomial(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEX
   } else {
     lstart = 1;
     REAL(Dev)[0] = nullDev;
-    REAL(wMean)[0] = 0.25;
+    for (int i=0; i<n; i++) REAL(Eta)[i] = eta[i];
   }
 
   // Path
@@ -112,7 +125,7 @@ SEXP cdfit_binomial(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEX
       }
       if ((nv > dfmax) | (tot_iter == max_iter)) {
 	for (int ll=l; ll<L; ll++) INTEGER(iter)[ll] = NA_INTEGER;
-	res = cleanupB(s, w, a, r, e1, e2, z, eta, beta0, beta, Dev, wMean, iter);
+	res = cleanupB(s, w, a, r, e1, e2, z, eta, beta0, beta, Dev, Eta, iter);
 	return(res);
       }
 
@@ -138,17 +151,9 @@ SEXP cdfit_binomial(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEX
 	  INTEGER(iter)[l]++;
           tot_iter++;
 	  REAL(Dev)[l] = 0;
-	  for (int i=0;i<n;i++) {
-	    if (eta[i] > 10) {
-	      pi = 1;
-	      w[i] = .0001;
-	    } else if (eta[i] < -10) {
-	      pi = 0;
-	      w[i] = .0001;
-	    } else {
-	      pi = exp(eta[i])/(1+exp(eta[i]));
-	      w[i] = pi*(1-pi);
-	    }
+	  for (int i=0; i<n; i++) {
+            pi = p_binomial(eta[i]);
+            w[i] = fmax2(pi*(1-pi), 0.0001);
 	    s[i] = y[i] - pi;
 	    r[i] = s[i]/w[i];
 	    if (y[i]==1) REAL(Dev)[l] = REAL(Dev)[l] - log(pi);
@@ -157,7 +162,7 @@ SEXP cdfit_binomial(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEX
 	  if (REAL(Dev)[l]/nullDev < .01) {
 	    if (warn) warning("Model saturated; exiting...");
 	    for (int ll=l; ll<L; ll++) INTEGER(iter)[ll] = NA_INTEGER;
-	    res = cleanupB(s, w, a, r, e1, e2, z, eta, beta0, beta, Dev, wMean, iter);
+	    res = cleanupB(s, w, a, r, e1, e2, z, eta, beta0, beta, Dev, Eta, iter);
 	    return(res);
 	  }
 
@@ -236,11 +241,11 @@ SEXP cdfit_binomial(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEX
 	}
       }
       if (violations==0) {
-        REAL(wMean)[l] = sum(w, n)/n;
+        for (int i=0; i<n; i++) REAL(Eta)[n*l+i] = eta[i];
         break;
       }
     }
   }
-  res = cleanupB(s, w, a, r, e1, e2, z, eta, beta0, beta, Dev, wMean, iter);
+  res = cleanupB(s, w, a, r, e1, e2, z, eta, beta0, beta, Dev, Eta, iter);
   return(res);
 }

@@ -10,23 +10,23 @@ perm.ncvreg <- function(X, y, ..., permute=c("outcome", "residuals"), N=10, seed
     S.perm <- pfit$S.perm
     L.perm <- pfit$L.perm
     EF <- pmin(apply(S.perm, 2, mean, na.rm=TRUE), S)
-    FIR <- EF/S
-    FIR[S==0] <- 0
+    mFDR <- EF/S
+    mFDR[S==0] <- 0
     loss <- apply(L.perm, 2, mean)
   } else {
     n.l <- length(fit$lambda)
-    EF <- FIR <- loss <- numeric(n.l)
+    EF <- mFDR <- loss <- numeric(n.l)
     for (i in 1:n.l) {
       pres <- permres(fit, fit$lambda[i], N=N, seed=seed, trace=trace)
       EF[i] <- pres$EF
-      FIR[i] <- pres$FIR
+      mFDR[i] <- pres$mFDR
       loss[i] <- pres$loss
-      names(EF) <- names(FIR) <- names(loss) <- fit$lambda
+      names(EF) <- names(mFDR) <- names(loss) <- fit$lambda
     }
   }
 
   fit <- structure(fit[1:11], class="ncvreg") ## Don't return X, y, etc.
-  structure(list(EF=EF, S=S, FIR=FIR, fit=fit, loss=loss), class=c("perm.ncvreg", "fir"))
+  structure(list(EF=EF, S=S, mFDR=mFDR, fit=fit, loss=loss), class=c("perm.ncvreg", "mfdr"))
 }
 fit.perm.ncvreg <- function(fit, y, lam, N, maxdf, trace) {
   n.l <- length(lam)
@@ -43,7 +43,7 @@ fit.perm.ncvreg <- function(fit, y, lam, N, maxdf, trace) {
     } else if (fit$family=="binomial") {
       res <- .Call("cdfit_binomial", fit$X, sample(y), fit$penalty, lam, 0.001, as.integer(1000), as.double(fit$gamma), fit$penalty.factor, fit$alpha, as.integer(maxdf), as.integer(TRUE), as.integer(FALSE))
       b <- matrix(res[[2]], p, n.l)
-      ind <- is.na(res[[4]])
+      ind <- is.na(res[[5]])
       L.perm[i,] <- res[[3]]
       L.perm[i,ind] <- NA
     } else if (fit$family=="poisson") {

@@ -1,7 +1,7 @@
-plot.fir <- function(x, type=c("FIR", "EF"), log.l=FALSE, selected=TRUE, legend=TRUE, ...) {
+plot.mfdr <- function(x, type=c("mFDR", "EF"), log.l=FALSE, selected=TRUE, legend=TRUE, ...) {
   if (class(x)[1]=="perm.ncvreg") {
     l <- x$fit$lambda
-    x <- data.frame(EF=x$EF, S=x$S, FIR=x$FIR)
+    x <- data.frame(EF=x$EF, S=x$S, mFDR=x$mFDR)
   } else {
     l <- as.numeric(rownames(x))
   }
@@ -11,8 +11,8 @@ plot.fir <- function(x, type=c("FIR", "EF"), log.l=FALSE, selected=TRUE, legend=
     xlab <- expression(log(lambda))
   } else xlab <- expression(lambda)
 
-  if (type=="FIR") {
-    plot.args <- list(x=l, y=x$FIR, xlim=rev(range(l)), las=1, xlab=xlab, ylab="FIR", type="l")
+  if (type=="mFDR") {
+    plot.args <- list(x=l, y=x$mFDR, xlim=rev(range(l)), las=1, xlab=xlab, ylab="mFDR", type="l")
     new.args <- list(...)
     if (length(new.args)) plot.args[names(new.args)] <- new.args
     do.call("plot", plot.args)
