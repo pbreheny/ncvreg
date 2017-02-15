@@ -71,6 +71,15 @@ plot(mfdr(fit))
 plot(mfdr(fit), type="EF")
 par(op)
 
+#############################################################
+.test = "mfdr works for Cox regression when X is supplied" ##
+#############################################################
+m1 <- mfdr(fit)
+fit <- ncvsurv(X, y, lambda.min=0)
+m2 <- mfdr(fit, X)
+check(m1$EF, m2$EF)
+
+
 # Cox: HD
 X <- matrix(rnorm(100*100), 100, 100)
 y <- cbind(rexp(100, exp(X[,1])), sample(rep(0:1, c(10,40))))

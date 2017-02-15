@@ -26,11 +26,11 @@ ncvsurv <- function(X, y, penalty=c("MCP", "SCAD", "lasso"), gamma=switch(penalt
   if (any(is.na(y)) | any(is.na(X))) stop("Missing data (NA's) detected.  Take actions (e.g., removing cases, removing features, imputation) to eliminate missing data before passing X and y to ncvreg")
 
   ## Set up XX, yy, lambda
-  ind <- order(y[,1])
-  yy <- as.numeric(y[ind,1])
-  Delta <- y[ind,2]
+  tOrder <- order(y[,1])
+  yy <- as.numeric(y[tOrder,1])
+  Delta <- y[tOrder,2]
   n <- length(yy)
-  XX <- std(X[ind,,drop=FALSE])
+  XX <- std(X[tOrder,,drop=FALSE])
   ns <- attr(XX, "nonsingular")
   penalty.factor <- penalty.factor[ns]
   p <- ncol(XX)
@@ -82,11 +82,12 @@ ncvsurv <- function(X, y, penalty=c("MCP", "SCAD", "lasso"), gamma=switch(penalt
                         convex.min = convex.min,
                         loss = loss,
                         penalty.factor = penalty.factor,
-                        n = n),
+                        n = n,
+                        time = yy,
+                        fail = Delta,
+                        order = tOrder),
                    class = c("ncvsurv", "ncvreg"))
   val$Eta <- sweep(Eta, 2, offset, "-")
-  val$time <- yy
-  val$fail <- Delta
   if (returnX) {
     val$X <- XX
     val$y <- yy

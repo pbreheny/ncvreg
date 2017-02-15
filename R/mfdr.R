@@ -10,7 +10,11 @@ mfdr <- function(fit, X) {
         stop("For Cox/GLM models, you must either supply X or run ncvsurv with
 returnX=TRUE to calculate an mFDR")
       } else {
-        fit$X <- std(X)
+        if (class(fit)[1] == "ncvsurv") {
+          fit$X <- std(X)[fit$order,]
+        } else {
+          fit$X <- std(X)
+        }
       }
     }
   }
