@@ -1,17 +1,17 @@
-\name{plot.fir}
-\alias{plot.fir}
-\title{Plot false inclusion rate curves}
-\description{Plot false inclusion rate curves from an \code{"fir"} or
+\name{plot.mfdr}
+\alias{plot.mfdr}
+\title{Plot marginal false discovery rate curves}
+\description{Plot marginal false discovery rate curves from an \code{"mfdr"} or
   \code{"perm.ncvreg"} object.}
 \usage{
-\method{plot}{fir}(x, type=c("FIR", "EF"), log.l=FALSE, selected=TRUE,
+\method{plot}{mfdr}(x, type=c("mFDR", "EF"), log.l=FALSE, selected=TRUE,
 legend=TRUE, ...)
 }
 \arguments{
-  \item{x}{A \code{"perm.ncvreg"} or \code{"fir"} object.}
-  \item{type}{What to plot on the vertical axis.  \code{FIR} plots the
-    false inclusion rate; \code{EF} plots the expected number of false
-    inclusions along with the actual number of variables included in the
+  \item{x}{A \code{"perm.ncvreg"} or \code{"mfdr"} object.}
+  \item{type}{What to plot on the vertical axis.  \code{mFDR} plots the
+    marginal false discovery rate; \code{EF} plots the expected number of false
+    discoveries along with the actual number of variables included in the
     model.}
   \item{log.l}{Should horizontal axis be on the log scale?  Default is
     FALSE.}
@@ -21,20 +21,20 @@ legend=TRUE, ...)
     \code{lambda}.}
   \item{legend}{For \code{type="EF"} plots, draw a legend to indicate
     which line is for the actual selections and which line is for the
-    expected number of false inclusions?  Default is \code{TRUE}.}
+    expected number of false discoveries?  Default is \code{TRUE}.}
   \item{\dots}{Other graphical parameters to pass to \code{plot}}
 }
 %\details{}
 %\references{None yet}
 \author{Patrick Breheny <patrick-breheny@uiowa.edu>}
-\seealso{\code{\link{fir}}, \code{\link{perm.ncvreg}}}
+\seealso{\code{\link{mfdr}}, \code{\link{perm.ncvreg}}}
 \examples{
 data(prostate)
 X <- as.matrix(prostate[,1:8])
 y <- prostate$lpsa
 fit <- ncvreg(X, y)
 
-obj <- fir(fit)
+obj <- mfdr(fit)
 obj[1:10,]
 
 # Some plotting options
@@ -50,5 +50,5 @@ plot(obj, type="EF")
 pmfit <- perm.ncvreg(X, y)
 plot(pmfit)
 plot(pmfit, type="EF")
-## Note that fir() is more conservative
+## Note that mfdr() is more conservative
 }

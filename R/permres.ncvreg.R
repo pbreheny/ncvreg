@@ -14,8 +14,8 @@ permres.ncvreg <- function(fit, lambda, N=10, seed, trace=FALSE, ...) {
   L.perm <- pfit$L.perm[,ncol(pfit$S.perm)]
 
   EF <- mean(S.perm, na.rm=TRUE)
-  FIR <- EF/S
-  FIR[S==0] <- 0
-  list(EF=EF, S=S, FIR=FIR, loss=mean(L.perm, na.rm=TRUE))
+  mFDR <- EF/S
+  mFDR[S==0] <- 0
+  list(EF=EF, S=S, mFDR=mFDR, loss=mean(L.perm, na.rm=TRUE))
 }
 permres <- function(fit, ...) UseMethod("permres")

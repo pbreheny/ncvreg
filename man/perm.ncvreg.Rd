@@ -30,15 +30,15 @@
   response vector.  This allows estimation of the expected number of
   variables included by chance for each value of \code{lambda}.  The
   ratio of this expected quantity to the number of selected variables
-  using the actual (non-permuted) response is called the false inclusion
-  rate (FIR).}
+  using the actual (non-permuted) response is called the marginal false
+  discovery rate (mFDR).}
 \value{
   An object with S3 class \code{"perm.ncvreg"} containing:
   \item{EF}{The number of variables selected at each value of
     \code{lambda}, averaged over the permutation fits.}
   \item{S}{The actual number of selected variables for the non-permuted
     data.}
-  \item{FIR}{The estimated false inclusion rate (\code{EF/S}).}
+  \item{mFDR}{The estimated marginal false discovery rate (\code{EF/S}).}
   \item{fit}{The fitted \code{ncvreg} object for the original
     (non-permuted) data.}
   \item{loss}{The loss/deviance for each value of \code{lambda},
@@ -49,7 +49,7 @@
   }
 %\references{None yet}
 \author{Patrick Breheny <patrick-breheny@uiowa.edu>}
-\seealso{\code{\link{ncvreg}}, \code{\link{plot.fir}}, \code{\link{fir}}}
+\seealso{\code{\link{ncvreg}}, \code{\link{plot.mfdr}}, \code{\link{mfdr}}}
 \examples{
 ## Linear regression
 data(prostate)
@@ -63,8 +63,8 @@ plot(pmfit, type="EF")
 plot(pmfit$fit)
 
 pmfit.r <- perm.ncvreg(X, y, permute='residuals')
-plot(pmfit.r, col="red")                          # Permuting residuals is
-lines(pmfit$fit$lambda, pmfit$FIR, col="gray60")  # less conservative
+plot(pmfit.r, col="red")                           # Permuting residuals is
+lines(pmfit$fit$lambda, pmfit$mFDR, col="gray60")  # less conservative
 
 ## Logistic regression
 data(heart)

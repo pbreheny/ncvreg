@@ -5,7 +5,12 @@
 #include <R.h>
 #include <R_ext/Applic.h>
 double crossprod(double *X, double *y, int n, int j);
+<<<<<<< HEAD
 int checkConvergence(double *beta, double *beta_old, double eps, int l, int J);
+=======
+double wcrossprod(double *X, double *y, double *w, int n, int j);
+double S(double z, double l);
+>>>>>>> 77281810ac7807a11de80ecd0c0bb5ad70dd09a8
 double MCP(double z, double l1, double l2, double gamma, double v);
 double SCAD(double z, double l1, double l2, double gamma, double v);
 double lasso(double z, double l1, double l2, double v);
@@ -65,6 +70,7 @@ SEXP cdfit_raw(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max
   for (int i=0; i<n; i++) r[i] = y[i];
   double *v = Calloc(p, double);
   for (int j=0; j<p; j++) v[j] = sqsum(X, n, j)/n;
+<<<<<<< HEAD
   double *z = Calloc(p, double);
   for (int j=0; j<p; j++) z[j] = crossprod(X, r, n, j)/n; // initial a[j] = 0
   int *e1 = Calloc(p, int);
@@ -73,14 +79,22 @@ SEXP cdfit_raw(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max
   for (int j=0; j<p; j++) e2[j] = 0;
   double cutoff, l1, l2, mean_resid, shift;
   int converged, lstart;
+=======
+  int *e = Calloc(p, int);
+  for (int j=0; j<p; j++) e[j] = 0;
+  double l1, l2, u;
+  int lstart;
+>>>>>>> 77281810ac7807a11de80ecd0c0bb5ad70dd09a8
 
   // If lam[0]=lam_max, skip lam[0] -- closed form sol'n available
+  double rss = gLoss(r,n);
   if (user) {
     lstart = 0;
   } else {
     REAL(loss)[0] = gLoss(r,n);
     lstart = 1;
   }
+  double sdy = sqrt(rss/n);
 
   // Path
   for (int l=lstart;l<L;l++) {
@@ -118,6 +132,7 @@ SEXP cdfit_raw(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max
 
     while (INTEGER(iter)[l] < max_iter) {
       while (INTEGER(iter)[l] < max_iter) {
+<<<<<<< HEAD
       	while (INTEGER(iter)[l] < max_iter) {
       	  // Solve over the active set
       	  INTEGER(iter)[l]++;
@@ -144,6 +159,13 @@ SEXP cdfit_raw(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max
       	      if (shift !=0) for (int i=0;i<n;i++) r[i] -= shift*X[j*n+i];
       	    }
       	  }
+=======
+	INTEGER(iter)[l]++;
+        double maxChange = 0;
+	for (int j=0; j<p; j++) {
+	  if (e[j]) {
+	    u = crossprod(X, r, n, j)/n + v[j]*a[j];
+>>>>>>> 77281810ac7807a11de80ecd0c0bb5ad70dd09a8
 
       	  // Check for convergence
       	  converged = checkConvergence(b, a, eps, l, p);
@@ -152,6 +174,7 @@ SEXP cdfit_raw(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max
       	  if (converged) break;
       	}
 
+<<<<<<< HEAD
       	// Scan for violations in strong set
       	int violations = 0;
       	for (int j=0; j<p; j++) {
@@ -176,6 +199,20 @@ SEXP cdfit_raw(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max
       	  }
       	}
       	if (violations==0) break;
+=======
+	    // Update r
+	    double shift = b[l*p+j] - a[j];
+	    if (shift !=0) {
+              for (int i=0;i<n;i++) r[i] -= shift*X[j*n+i];
+              if (fabs(shift) > maxChange) maxChange = fabs(shift);
+            }
+	  }
+	}
+
+	// Check for convergence
+	for (int j=0; j<p; j++) a[j] = b[l*p+j];
+        if (maxChange < eps*sdy) break;
+>>>>>>> 77281810ac7807a11de80ecd0c0bb5ad70dd09a8
       }
 
       // Scan for violations in rest

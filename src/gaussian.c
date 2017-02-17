@@ -6,7 +6,6 @@
 #include <R_ext/Applic.h>
 double crossprod(double *X, double *y, int n, int j);
 double sum(double *x, int n);
-int checkConvergence(double *beta, double *beta_old, double eps, int l, int J);
 double MCP(double z, double l1, double l2, double gamma, double v);
 double SCAD(double z, double l1, double l2, double gamma, double v);
 double lasso(double z, double l1, double l2, double v);
@@ -56,6 +55,7 @@ SEXP cdfit_gaussian(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEX
   double *lam = REAL(lambda);
   double eps = REAL(eps_)[0];
   int max_iter = INTEGER(max_iter_)[0];
+  int tot_iter = 0;
   double gamma = REAL(gamma_)[0];
   double *m = REAL(multiplier);
   double alpha = REAL(alpha_)[0];
@@ -70,15 +70,17 @@ SEXP cdfit_gaussian(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEX
   int *e2 = Calloc(p, int);
   for (int j=0; j<p; j++) e2[j] = 0;
   double cutoff, l1, l2;
-  int converged, lstart;
+  int lstart;
 
   // If lam[0]=lam_max, skip lam[0] -- closed form sol'n available
+  double rss = gLoss(r,n);
   if (user) {
     lstart = 0;
   } else {
-    REAL(loss)[0] = gLoss(r,n);
+    REAL(loss)[0] = rss;
     lstart = 1;
   }
+  double sdy = sqrt(rss/n);
 
   // Path
   for (int l=lstart;l<L;l++) {
@@ -92,7 +94,7 @@ SEXP cdfit_gaussian(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEX
       for (int j=0; j<p; j++) {
 	if (a[j] != 0) nv++;
       }
-      if (nv > dfmax) {
+      if ((nv > dfmax) | (tot_iter == max_iter)) {
 	for (int ll=l; ll<L; ll++) INTEGER(iter)[ll] = NA_INTEGER;
 	res = cleanupG(a, r, e1, e2, z, beta, loss, iter);
 	return(res);
@@ -113,11 +115,13 @@ SEXP cdfit_gaussian(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEX
       for (int j=0; j<p; j++) if (fabs(z[j]) > (cutoff * alpha * m[j])) e2[j] = 1;
     }
 
-    while (INTEGER(iter)[l] < max_iter) {
-      while (INTEGER(iter)[l] < max_iter) {
-	while (INTEGER(iter)[l] < max_iter) {
+    while (tot_iter < max_iter) {
+      while (tot_iter < max_iter) {
+	while (tot_iter < max_iter) {
 	  // Solve over the active set
 	  INTEGER(iter)[l]++;
+          tot_iter++;
+          double maxChange = 0;
 	  for (int j=0; j<p; j++) {
 	    if (e1[j]) {
 	      z[j] = crossprod(X, r, n, j)/n + a[j];
@@ -131,14 +135,16 @@ SEXP cdfit_gaussian(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEX
 
 	      // Update r
 	      double shift = b[l*p+j] - a[j];
-	      if (shift !=0) for (int i=0;i<n;i++) r[i] -= shift*X[j*n+i];
+	      if (shift !=0) {
+                for (int i=0;i<n;i++) r[i] -= shift*X[j*n+i];
+                if (fabs(shift) > maxChange) maxChange = fabs(shift);
+              }
 	    }
 	  }
 
 	  // Check for convergence
-	  converged = checkConvergence(b, a, eps, l, p);
 	  for (int j=0; j<p; j++) a[j] = b[l*p+j];
-	  if (converged) break;
+	  if (maxChange < eps*sdy) break;
 	}
 
 	// Scan for violations in strong set

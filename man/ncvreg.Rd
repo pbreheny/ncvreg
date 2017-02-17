@@ -8,9 +8,15 @@
 \usage{
 ncvreg(X, y, family=c("gaussian", "binomial", "poisson"),
 penalty=c("MCP", "SCAD", "lasso"), gamma=switch(penalty, SCAD=3.7, 3),
+<<<<<<< HEAD
 alpha=1, lambda.min=ifelse(n>p,.001,.05), nlambda=100, lambda, eps=.001,
 max.iter=1000, convex=TRUE, dfmax=p+1, penalty.factor=rep(1, ncol(X)),
 warn=TRUE, returnX=FALSE, standardize=TRUE, ...)
+=======
+alpha=1, lambda.min=ifelse(n>p,.001,.05), nlambda=100, lambda, eps=1e-4,
+max.iter=10000, convex=TRUE, dfmax=p+1, penalty.factor=rep(1, ncol(X)),
+warn=TRUE, returnX=FALSE, ...)
+>>>>>>> 77281810ac7807a11de80ecd0c0bb5ad70dd09a8
 }
 \arguments{
   \item{X}{The design matrix, without an intercept.  \code{ncvreg}
@@ -36,9 +42,10 @@ warn=TRUE, returnX=FALSE, standardize=TRUE, ...)
     a sequence of values of length \code{nlambda} is computed, equally
     spaced on the log scale.}
   \item{eps}{Convergence threshhold.  The algorithm iterates until the
-    relative change in any coefficient is less than \code{eps}.  Default
-    is \code{.001}.}
-  \item{max.iter}{Maximum number of iterations.  Default is 1000.}
+    RMSD for the change in linear predictors for any coefficient is less
+    than \code{eps}.  Default is \code{1e-4}.}
+  \item{max.iter}{Maximum number of iterations (total across entire path).
+    Default is 1000.}
   \item{convex}{Calculate index for which objective function ceases to
     be locally convex?  Default is TRUE.}
   \item{dfmax}{Upper bound for the number of nonzero coefficients.
@@ -137,8 +144,8 @@ plot(fit,main=expression(paste(alpha,"=",0.1)))
 
 par(mfrow=c(2,2))
 fit <- ncvreg(X,y)
-plot(fir(fit))            ## Independence approximation
-plot(fir(fit), type="EF") ## Independence approximation
+plot(mfdr(fit))            ## Independence approximation
+plot(mfdr(fit), type="EF") ## Independence approximation
 perm.fit <- perm.ncvreg(X,y)
 plot(perm.fit)
 plot(perm.fit, type="EF")

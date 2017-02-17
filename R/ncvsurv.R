@@ -1,5 +1,5 @@
 ncvsurv <- function(X, y, penalty=c("MCP", "SCAD", "lasso"), gamma=switch(penalty, SCAD=3.7, 3),
-                    alpha=1, lambda.min=ifelse(n>p,.001,.05), nlambda=100, lambda, eps=.001, max.iter=1000,
+                    alpha=1, lambda.min=ifelse(n>p,.001,.05), nlambda=100, lambda, eps=1e-4, max.iter=10000,
                     convex=TRUE, dfmax=p, penalty.factor=rep(1, ncol(X)), warn=TRUE, returnX=FALSE, ...) {
 
   # Coersion
@@ -26,19 +26,14 @@ ncvsurv <- function(X, y, penalty=c("MCP", "SCAD", "lasso"), gamma=switch(penalt
   if (any(is.na(y)) | any(is.na(X))) stop("Missing data (NA's) detected.  Take actions (e.g., removing cases, removing features, imputation) to eliminate missing data before passing X and y to ncvreg")
 
   ## Set up XX, yy, lambda
-  std <- .Call("standardize", X)
-  XX <- std[[1]]
-  center <- std[[2]]
-  scale <- std[[3]]
-  nz <- which(scale > 1e-6)
-  if (length(nz) != ncol(XX)) XX <- XX[ ,nz, drop=FALSE]
-  ind <- order(y[,1])
-  yy <- as.numeric(y[ind,1])
-  Delta <- y[ind,2]
-  XX <- XX[ind,,drop=FALSE]
+  tOrder <- order(y[,1])
+  yy <- as.numeric(y[tOrder,1])
+  Delta <- y[tOrder,2]
   n <- length(yy)
+  XX <- std(X[tOrder,,drop=FALSE])
+  ns <- attr(XX, "nonsingular")
+  penalty.factor <- penalty.factor[ns]
   p <- ncol(XX)
-  penalty.factor <- penalty.factor[nz]
   if (missing(lambda)) {
     lambda <- setupLambdaCox(XX, yy, Delta, alpha, lambda.min, nlambda, penalty.factor)
     user.lambda <- FALSE
@@ -53,6 +48,7 @@ ncvsurv <- function(X, y, penalty=c("MCP", "SCAD", "lasso"), gamma=switch(penalt
   b <- matrix(res[[1]], p, nlambda)
   loss <- -1*res[[2]]
   iter <- res[[3]]
+  Eta <- matrix(res[[4]], n, nlambda)
 
   ## Eliminate saturated lambda values, if any
   ind <- !is.na(iter)
@@ -60,16 +56,17 @@ ncvsurv <- function(X, y, penalty=c("MCP", "SCAD", "lasso"), gamma=switch(penalt
   iter <- iter[ind]
   lambda <- lambda[ind]
   loss <- loss[ind]
-  if (warn & any(iter==max.iter)) warning("Algorithm failed to converge for some values of lambda")
+  Eta <- Eta[,ind,drop=FALSE]
+  if (warn & sum(iter)==max.iter) warning("Algorithm failed to converge for some values of lambda")
 
   ## Local convexity?
   convex.min <- if (convex) convexMin(b, XX, penalty, gamma, lambda*(1-alpha), "cox", penalty.factor, Delta=Delta) else NULL
 
   ## Unstandardize
   beta <- matrix(0, nrow=ncol(X), ncol=length(lambda))
-  bb <- b/scale[nz]
-  beta[nz,] <- bb
-  offset <- -crossprod(center[nz], bb)
+  bb <- b/attr(XX, "scale")[ns]
+  beta[ns,] <- bb
+  offset <- -crossprod(attr(XX, "center")[ns], bb)
 
   ## Names
   varnames <- if (is.null(colnames(X))) paste("V",1:ncol(X),sep="") else colnames(X)
@@ -85,15 +82,14 @@ ncvsurv <- function(X, y, penalty=c("MCP", "SCAD", "lasso"), gamma=switch(penalt
                         convex.min = convex.min,
                         loss = loss,
                         penalty.factor = penalty.factor,
-                        n = n),
+                        n = n,
+                        time = yy,
+                        fail = Delta,
+                        order = tOrder),
                    class = c("ncvsurv", "ncvreg"))
-  val$W <- exp(sweep(XX %*% b, 2, offset, "-"))
-  val$time <- yy
-  val$fail <- Delta
+  val$Eta <- sweep(Eta, 2, offset, "-")
   if (returnX) {
     val$X <- XX
-    val$center <- center
-    val$scale <- scale
     val$y <- yy
   }
   val
