@@ -4,6 +4,7 @@
     approximation of 3.7-0.  These calculations are much more accurate, but
     more computationally, so these are carried out in C now.
   * Change: mfdr for Cox and logistic models requires the model matrix X now.
+  * Internal: Registration of native routines
   * Fixed: std() wasn't matching up column names if one column got dropped
 
 # 3.8-0 (2017-01-06)
