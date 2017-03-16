@@ -1,19 +1,20 @@
+#include <R.h>
+#include <Rinternals.h>
+#include <stdlib.h>
 #include <math.h>
 #include <string.h>
-#include "Rinternals.h"
-#include "R_ext/Rdynload.h"
-#include <R.h>
+#include <R_ext/Rdynload.h>
 #include <R_ext/Applic.h>
-SEXP cdfit_gaussian(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max_iter_, SEXP gamma_, SEXP multiplier, SEXP alpha_, SEXP dfmax_, SEXP user_);
-SEXP cdfit_binomial(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max_iter_, SEXP gamma_, SEXP multiplier, SEXP alpha_, SEXP dfmax_, SEXP user_, SEXP warn_);
-SEXP cdfit_poisson(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max_iter_, SEXP gamma_, SEXP multiplier, SEXP alpha_, SEXP dfmax_, SEXP user_, SEXP warn_);
-SEXP cdfit_cox_dh(SEXP X_, SEXP y_, SEXP d_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max_iter_, SEXP gamma_, SEXP multiplier, SEXP alpha_, SEXP dfmax_, SEXP user_, SEXP warn_);
-SEXP cdfit_raw(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max_iter_, SEXP gamma_, SEXP multiplier, SEXP alpha_, SEXP dfmax_);
-SEXP standardize(SEXP X_);
-SEXP maxprod(SEXP X_, SEXP y_, SEXP v_, SEXP m_);
-SEXP mfdr_gaussian(SEXP fit);
-SEXP mfdr_binomial(SEXP fit);
-SEXP mfdr_cox(SEXP fit);
+
+extern SEXP cdfit_binomial(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP cdfit_cox_dh(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP cdfit_gaussian(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP cdfit_poisson(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP maxprod(SEXP, SEXP, SEXP, SEXP);
+extern SEXP mfdr_binomial(SEXP);
+extern SEXP mfdr_cox(SEXP);
+extern SEXP mfdr_gaussian(SEXP);
+extern SEXP standardize(SEXP);
 
 // List accessor function
 SEXP getListElement(SEXP list, const char *str) {
@@ -91,20 +92,20 @@ double lasso(double z, double l1, double l2, double v) {
   else return(s*(fabs(z)-l1)/(v*(1+l2)));
 }
 
-static R_CallMethodDef callMethods[] = {
-  {"cdfit_gaussian", (DL_FUNC) &cdfit_gaussian, 11},
-  {"cdfit_raw", (DL_FUNC) &cdfit_raw, 11},
+static const R_CallMethodDef CallEntries[] = {
   {"cdfit_binomial", (DL_FUNC) &cdfit_binomial, 12},
-  {"cdfit_poisson", (DL_FUNC) &cdfit_poisson, 12},
-  {"cdfit_cox_dh", (DL_FUNC) &cdfit_cox_dh, 12},
-  {"standardize", (DL_FUNC) &standardize, 1},
-  {"maxprod", (DL_FUNC) &maxprod, 4},
-  {"mfdr_gaussian", (DL_FUNC) &mfdr_gaussian, 1},
-  {"mfdr_binomial", (DL_FUNC) &mfdr_binomial, 1},
-  {"mfdr_cox", (DL_FUNC) &mfdr_cox, 1},
+  {"cdfit_cox_dh",   (DL_FUNC) &cdfit_cox_dh,   12},
+  {"cdfit_gaussian", (DL_FUNC) &cdfit_gaussian, 11},
+  {"cdfit_poisson",  (DL_FUNC) &cdfit_poisson,  12},
+  {"maxprod",        (DL_FUNC) &maxprod,         4},
+  {"mfdr_binomial",  (DL_FUNC) &mfdr_binomial,   1},
+  {"mfdr_cox",       (DL_FUNC) &mfdr_cox,        1},
+  {"mfdr_gaussian",  (DL_FUNC) &mfdr_gaussian,   1},
+  {"standardize",    (DL_FUNC) &standardize,     1},
   {NULL, NULL, 0}
 };
 
-void R_init_ncvreg(DllInfo *info) {
-  R_registerRoutines(info, NULL, callMethods, NULL, NULL);
+void R_init_ncvreg(DllInfo *dll) {
+  R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
+  R_useDynamicSymbols(dll, FALSE);
 }

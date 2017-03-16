@@ -4,10 +4,15 @@
 \description{Estimates the marginal false discovery rate (mFDR) of a penalized
   regression model.}
 \usage{
-mfdr(fit)
+mfdr(fit, X)
 }
 \arguments{
   \item{fit}{An \code{ncvreg} or \code{ncvsurv} object.}
+  \item{X}{The model matrix corresponding to \code{fit}.  This is not
+    necessary for linear regression, but in logistic and Cox regression,
+    the mFDR depends on X.  It is not necessary to supply \code{X} if it
+    is already contained in \code{fit}; i.e., if
+    \code{ncvreg}/\code{ncvsurv} was run with \code{returnX=TRUE}.}
   }
 \details{
   The function estimates the marginal false discovery rate (mFDR) for a
