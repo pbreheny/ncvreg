@@ -22,7 +22,7 @@ SEXP cleanupG(double *a, double *r, int *e1, int *e2, double *z, SEXP beta, SEXP
   SET_VECTOR_ELT(res, 0, beta);
   SET_VECTOR_ELT(res, 1, loss);
   SET_VECTOR_ELT(res, 2, iter);
-  UNPROTECT(4);
+  UNPROTECT(1);
   return(res);
 }
 
@@ -96,8 +96,7 @@ SEXP cdfit_gaussian(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEX
       }
       if ((nv > dfmax) | (tot_iter == max_iter)) {
 	for (int ll=l; ll<L; ll++) INTEGER(iter)[ll] = NA_INTEGER;
-	res = cleanupG(a, r, e1, e2, z, beta, loss, iter);
-	return(res);
+        break;
       }
 
       // Determine eligible set
@@ -204,5 +203,6 @@ SEXP cdfit_gaussian(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEX
     REAL(loss)[l] = gLoss(r, n);
   }
   res = cleanupG(a, r, e1, e2, z, beta, loss, iter);
+  UNPROTECT(3);
   return(res);
 }

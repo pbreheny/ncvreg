@@ -31,7 +31,7 @@ SEXP cleanupB(double *s, double *w, double *a, double *r, int *e1, int *e2, doub
   SET_VECTOR_ELT(res, 2, Dev);
   SET_VECTOR_ELT(res, 3, Eta);
   SET_VECTOR_ELT(res, 4, iter);
-  UNPROTECT(6);
+  UNPROTECT(1);
   return(res);
 }
 
@@ -125,8 +125,7 @@ SEXP cdfit_binomial(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEX
       }
       if ((nv > dfmax) | (tot_iter == max_iter)) {
 	for (int ll=l; ll<L; ll++) INTEGER(iter)[ll] = NA_INTEGER;
-	res = cleanupB(s, w, a, r, e1, e2, z, eta, beta0, beta, Dev, Eta, iter);
-	return(res);
+        break;
       }
 
       // Determine eligible set
@@ -162,8 +161,8 @@ SEXP cdfit_binomial(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEX
 	  if (REAL(Dev)[l]/nullDev < .01) {
 	    if (warn) warning("Model saturated; exiting...");
 	    for (int ll=l; ll<L; ll++) INTEGER(iter)[ll] = NA_INTEGER;
-	    res = cleanupB(s, w, a, r, e1, e2, z, eta, beta0, beta, Dev, Eta, iter);
-	    return(res);
+            tot_iter = max_iter;
+            break;
 	  }
 
 	  // Intercept
@@ -247,5 +246,6 @@ SEXP cdfit_binomial(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEX
     }
   }
   res = cleanupB(s, w, a, r, e1, e2, z, eta, beta0, beta, Dev, Eta, iter);
+  UNPROTECT(5);
   return(res);
 }

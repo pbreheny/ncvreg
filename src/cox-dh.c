@@ -25,7 +25,7 @@ SEXP cleanupCox(double *a, int *e, double *eta, double *haz, double *rsk, SEXP b
   SET_VECTOR_ELT(res, 1, Loss);
   SET_VECTOR_ELT(res, 2, iter);
   SET_VECTOR_ELT(res, 3, Eta);
-  UNPROTECT(5);
+  UNPROTECT(1);
   return(res);
 }
 
@@ -103,8 +103,7 @@ SEXP cdfit_cox_dh(SEXP X_, SEXP d_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP 
       }
       if ((nv > dfmax) | (tot_iter == max_iter)) {
         for (int ll=l; ll<L; ll++) INTEGER(iter)[ll] = NA_INTEGER;
-        res = cleanupCox(a, e, eta, haz, rsk, beta, Loss, iter, Eta);
-        return(res);
+        break;
       }
     }
 
@@ -141,8 +140,8 @@ SEXP cdfit_cox_dh(SEXP X_, SEXP d_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP 
         if (REAL(Loss)[l]/nullDev < .01) {
           if (warn) warning("Model saturated; exiting...");
           for (int ll=l; ll<L; ll++) INTEGER(iter)[ll] = NA_INTEGER;
-          res = cleanupCox(a, e, eta, haz, rsk, beta, Loss, iter, Eta);
-          return(res);
+          tot_iter = max_iter;
+          break;
         }
 
         // Covariates
@@ -201,5 +200,6 @@ SEXP cdfit_cox_dh(SEXP X_, SEXP d_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP 
     }
   }
   res = cleanupCox(a, e, eta, haz, rsk, beta, Loss, iter, Eta);
+  UNPROTECT(4);
   return(res);
 }

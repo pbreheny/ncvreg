@@ -13,7 +13,7 @@ double SCAD(double z, double l1, double l2, double gamma, double v);
 double lasso(double z, double l1, double l2, double v);
 
 // Memory handling, output formatting (Poisson)
-SEXP cleanupP(double *s, double *w, double *a, double *r, int *e1, int *e2, double *z, double *eta, SEXP beta0, SEXP beta, SEXP Dev, SEXP iter) {
+SEXP cleanupP(double *s, double *w, double *a, double *r, int *e1, int *e2, double *z, double *eta, SEXP beta0, SEXP beta, SEXP Dev, SEXP Eta, SEXP iter) {
   Free(s);
   Free(w);
   Free(a);
@@ -23,12 +23,13 @@ SEXP cleanupP(double *s, double *w, double *a, double *r, int *e1, int *e2, doub
   Free(z);
   Free(eta);
   SEXP res;
-  PROTECT(res = allocVector(VECSXP, 4));
+  PROTECT(res = allocVector(VECSXP, 5));
   SET_VECTOR_ELT(res, 0, beta0);
   SET_VECTOR_ELT(res, 1, beta);
   SET_VECTOR_ELT(res, 2, Dev);
-  SET_VECTOR_ELT(res, 3, iter);
-  UNPROTECT(5);
+  SET_VECTOR_ELT(res, 3, Eta);
+  SET_VECTOR_ELT(res, 4, iter);
+  UNPROTECT(1);
   return(res);
 }
 
@@ -39,7 +40,7 @@ SEXP cdfit_poisson(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP
   int n = length(y_);
   int p = length(X_)/n;
   int L = length(lambda);
-  SEXP res, beta0, beta, Dev, iter;
+  SEXP res, beta0, beta, Dev, Eta, iter;
   PROTECT(beta0 = allocVector(REALSXP, L));
   double *b0 = REAL(beta0);
   for (int i=0; i<L; i++) b0[i] = 0;
@@ -47,6 +48,8 @@ SEXP cdfit_poisson(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP
   double *b = REAL(beta);
   for (int j=0; j<(L*p); j++) b[j] = 0;
   PROTECT(Dev = allocVector(REALSXP, L));
+  PROTECT(Eta = allocVector(REALSXP, L*n));
+  for (int j=0; j<(L*n); j++) REAL(Eta)[j] = 0;
   PROTECT(iter = allocVector(INTSXP, L));
   for (int i=0; i<L; i++) INTEGER(iter)[i] = 0;
   double *a = Calloc(p, double);    // Beta from previous iteration
@@ -92,6 +95,7 @@ SEXP cdfit_poisson(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP
   } else {
     lstart = 1;
     REAL(Dev)[0] = nullDev;
+    for (int i=0; i<n; i++) REAL(Eta)[i] = eta[i];
   }
 
   // Path
@@ -109,8 +113,7 @@ SEXP cdfit_poisson(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP
       }
       if ((nv > dfmax) | (tot_iter == max_iter)) {
 	for (int ll=l; ll<L; ll++) INTEGER(iter)[ll] = NA_INTEGER;
-	res = cleanupP(s, w, a, r, e1, e2, z, eta, beta0, beta, Dev, iter);
-	return(res);
+        break;
       }
 
       // Determine eligible set
@@ -146,8 +149,8 @@ SEXP cdfit_poisson(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP
 	  if (REAL(Dev)[l]/nullDev < .01) {
 	    if (warn) warning("Model saturated; exiting...");
 	    for (int ll=l; ll<L; ll++) INTEGER(iter)[ll] = NA_INTEGER;
-	    res = cleanupP(s, w, a, r, e1, e2, z, eta, beta0, beta, Dev, iter);
-	    return(res);
+            tot_iter = max_iter;
+            break;
 	  }
 
 	  // Intercept
@@ -223,9 +226,13 @@ SEXP cdfit_poisson(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP
 	  }
 	}
       }
-      if (violations==0) break;
+      if (violations==0) {
+        for (int i=0; i<n; i++) REAL(Eta)[n*l+i] = eta[i];
+        break;
+      }
     }
   }
-  res = cleanupP(s, w, a, r, e1, e2, z, eta, beta0, beta, Dev, iter);
+  res = cleanupP(s, w, a, r, e1, e2, z, eta, beta0, beta, Dev, Eta, iter);
+  UNPROTECT(5);
   return(res);
 }

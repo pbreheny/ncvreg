@@ -1,3 +1,7 @@
+# 3.9-1 (2017-04-26)
+  * Change: Poission now returns linear predictors, like other families
+  * Internal: Changing PROTECT/UNPROTECT to conform to new coding standards
+
 # 3.9-0 (2017-03-16)
   * Deprecated: fir() is now called mfdr()
   * Change: mfdr for Cox and logistic models no longer use the simplistic

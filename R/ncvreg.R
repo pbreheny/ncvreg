@@ -58,20 +58,18 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
     b <- matrix(res[[1]], p, nlambda)
     loss <- res[[2]]
     iter <- res[[3]]
-  } else if (family=="binomial") {
-    res <- .Call("cdfit_binomial", XX, yy, penalty, lambda, eps, as.integer(max.iter), as.double(gamma), penalty.factor, alpha, as.integer(dfmax), as.integer(user.lambda | any(penalty.factor==0)), as.integer(warn))
+  } else {
+    if (family=="binomial") {
+      res <- .Call("cdfit_binomial", XX, yy, penalty, lambda, eps, as.integer(max.iter), as.double(gamma), penalty.factor, alpha, as.integer(dfmax), as.integer(user.lambda | any(penalty.factor==0)), as.integer(warn))
+    } else if (family=="poisson") {
+      res <- .Call("cdfit_poisson", XX, yy, penalty, lambda, eps, as.integer(max.iter), as.double(gamma), penalty.factor, alpha, as.integer(dfmax), as.integer(user.lambda | any(penalty.factor==0)), as.integer(warn))
+    }
     a <- res[[1]]
     b <- matrix(res[[2]], p, nlambda)
     loss <- res[[3]]
     Eta <- matrix(res[[4]], n, nlambda)
     iter <- res[[5]]
-  } else if (family=="poisson") {
-    res <- .Call("cdfit_poisson", XX, yy, penalty, lambda, eps, as.integer(max.iter), as.double(gamma), penalty.factor, alpha, as.integer(dfmax), as.integer(user.lambda | any(penalty.factor==0)), as.integer(warn))
-    a <- res[[1]]
-    b <- matrix(res[[2]], p, nlambda)
-    loss <- res[[3]]
-    iter <- res[[4]]
-  }
+  } 
 
   ## Eliminate saturated lambda values, if any
   ind <- !is.na(iter)

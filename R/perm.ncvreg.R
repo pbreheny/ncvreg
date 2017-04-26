@@ -40,16 +40,14 @@ fit.perm.ncvreg <- function(fit, y, lam, N, maxdf, trace) {
       ind <- is.na(res[[3]])
       L.perm[i,] <- res[[2]]
       L.perm[i,ind] <- NA
-    } else if (fit$family=="binomial") {
-      res <- .Call("cdfit_binomial", fit$X, sample(y), fit$penalty, lam, 0.001, as.integer(1000), as.double(fit$gamma), fit$penalty.factor, fit$alpha, as.integer(maxdf), as.integer(TRUE), as.integer(FALSE))
+    } else {
+      if (fit$family=="binomial") {
+        res <- .Call("cdfit_binomial", fit$X, sample(y), fit$penalty, lam, 0.001, as.integer(1000), as.double(fit$gamma), fit$penalty.factor, fit$alpha, as.integer(maxdf), as.integer(TRUE), as.integer(FALSE))
+      } else if (fit$family=="poisson") {
+        res <- .Call("cdfit_poisson", fit$X, sample(y), fit$penalty, lam, 0.001, as.integer(1000), as.double(fit$gamma), fit$penalty.factor, fit$alpha, as.integer(maxdf), as.integer(TRUE), as.integer(FALSE))
+      }
       b <- matrix(res[[2]], p, n.l)
       ind <- is.na(res[[5]])
-      L.perm[i,] <- res[[3]]
-      L.perm[i,ind] <- NA
-    } else if (fit$family=="poisson") {
-      res <- .Call("cdfit_poisson", fit$X, sample(y), fit$penalty, lam, 0.001, as.integer(1000), as.double(fit$gamma), fit$penalty.factor, fit$alpha, as.integer(maxdf), as.integer(TRUE), as.integer(FALSE))
-      b <- matrix(res[[2]], p, n.l)
-      ind <- is.na(res[[4]])
       L.perm[i,] <- res[[3]]
       L.perm[i,ind] <- NA
     }
