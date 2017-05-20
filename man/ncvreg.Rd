@@ -36,10 +36,10 @@ warn=TRUE, returnX=FALSE, ...)
     a sequence of values of length \code{nlambda} is computed, equally
     spaced on the log scale.}
   \item{eps}{Convergence threshhold.  The algorithm iterates until the
-    RMSD for the change in linear predictors for any coefficient is less
-    than \code{eps}.  Default is \code{1e-4}.}
+    RMSD for the change in linear predictors for each coefficient is
+    less than \code{eps}.  Default is \code{1e-4}.}
   \item{max.iter}{Maximum number of iterations (total across entire path).
-    Default is 1000.}
+    Default is 10000.}
   \item{convex}{Calculate index for which objective function ceases to
     be locally convex?  Default is TRUE.}
   \item{dfmax}{Upper bound for the number of nonzero coefficients.
