@@ -2,7 +2,7 @@ import('stats')
 import('graphics')
 import('grDevices')
 useDynLib(ncvreg,.registration=TRUE)
-export(ncvreg, cv.ncvreg, mfdr, perm.ncvreg, setupLambda, ncvsurv, cv.ncvsurv,
+export(ncvreg, ncvreg_raw, cv.ncvreg, mfdr, perm.ncvreg, setupLambda, ncvsurv, cv.ncvsurv,
        permres, AUC, std)
 S3method(permres, ncvreg)
 S3method(summary, ncvreg)

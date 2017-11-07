@@ -12,7 +12,7 @@ double gLoss(double *r, int n);
 double sqsum(double *X, int n, int j);
 
 // Memory handling, output formatting (raw)
-SEXP cleanupR(double *a, double *r, double *v, double *z, int *e1, int *e2, SEXP beta0, SEXP beta, SEXP loss, SEXP iter) {
+SEXP cleanupR(double *a, double *r, double *v, double *z, int *e1, int *e2, SEXP beta, SEXP loss, SEXP iter) {
   Free(a);
   Free(r);
   Free(v);
@@ -21,11 +21,10 @@ SEXP cleanupR(double *a, double *r, double *v, double *z, int *e1, int *e2, SEXP
   Free(e2);
   SEXP res;
   PROTECT(res = allocVector(VECSXP, 4));
-  SET_VECTOR_ELT(res, 0, beta0);
-  SET_VECTOR_ELT(res, 1, beta);
-  SET_VECTOR_ELT(res, 2, loss);
-  SET_VECTOR_ELT(res, 3, iter);
-  UNPROTECT(5);
+  SET_VECTOR_ELT(res, 0, beta);
+  SET_VECTOR_ELT(res, 1, loss);
+  SET_VECTOR_ELT(res, 2, iter);
+  UNPROTECT(4);
   return(res);
 }
 
@@ -36,10 +35,7 @@ SEXP cdfit_raw(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max
   int n = length(y_);
   int p = length(X_)/n;
   int L = length(lambda);
-  SEXP res, beta0, beta, loss, iter;
-  PROTECT(beta0 = allocVector(REALSXP, L));
-  double *b0 = REAL(beta0);
-  for (int i=0; i<L; i++) b0[i] = 0;
+  SEXP res, beta, loss, iter;
   PROTECT(beta = allocVector(REALSXP, L*p));
   double *b = REAL(beta);
   for (int j=0; j<(L*p); j++) b[j] = 0;
@@ -48,7 +44,6 @@ SEXP cdfit_raw(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max
   for (int i=0; i<L; i++) INTEGER(iter)[i] = 0;
   double *a = Calloc(p, double); // Beta from previous iteration
   for (int j=0; j<p; j++) a[j]=0;
-  double a0 = 0; // Beta0 from previous iteration, initially 0 from KKT since y is mean-centered
   double *X = REAL(X_);
   double *y = REAL(y_);
   const char *penalty = CHAR(STRING_ELT(penalty_, 0));
@@ -70,7 +65,7 @@ SEXP cdfit_raw(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max
   for (int j=0; j<p; j++) e1[j] = 0;
   int *e2 = Calloc(p, int);
   for (int j=0; j<p; j++) e2[j] = 0;
-  double cutoff, l1, l2, mean_resid, shift, maxChange;
+  double cutoff, l1, l2, shift, maxChange;
   int lstart;
 
   // If lam[0]=lam_max, skip lam[0] -- closed form sol'n available
@@ -87,8 +82,7 @@ SEXP cdfit_raw(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max
   for (int l=lstart;l<L;l++) {
     R_CheckUserInterrupt();
     if (l != 0) {
-      // Assign a0, a
-      a0 = b0[l-1];
+      // Assign a
       for (int j=0;j<p;j++) a[j] = b[(l-1)*p+j];
 
       // Check dfmax
@@ -98,7 +92,7 @@ SEXP cdfit_raw(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max
       }
       if (nv > dfmax) {
       	for (int ll=l; ll<L; ll++) INTEGER(iter)[ll] = NA_INTEGER;
-      	res = cleanupR(a, r, v, z, e1, e2, beta0, beta, loss, iter);
+      	res = cleanupR(a, r, v, z, e1, e2, beta, loss, iter);
       	return(res);
       }
 
@@ -123,12 +117,6 @@ SEXP cdfit_raw(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max
       	  // Solve over the active set
       	  INTEGER(iter)[l]++;
           maxChange = 0.0;
-      	  // intercept
-        	mean_resid = 0.0;
-        	for (int i=0; i<n; i++) mean_resid += r[i];
-        	mean_resid /= n;
-        	b0[l] = mean_resid + a0;
-        	for (int i=0; i<n; i++) r[i] -= mean_resid;
       	
       	  for (int j=0; j<p; j++) {
       	    if (e1[j]) {
@@ -151,10 +139,8 @@ SEXP cdfit_raw(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max
       	  }
 
       	  // Check for convergence
-      	  converged = checkConvergence(b, a, eps, l, p);
-        	a0 = b0[l];
       	  for (int j=0; j<p; j++) a[j] = b[l*p+j];
-      	  if (converged) break;
+          if (maxChange < eps*sdy) break;
       	}
 
       	// Scan for violations in strong set
@@ -207,12 +193,10 @@ SEXP cdfit_raw(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max
       	}
       }
 
-      if (violations==0) {
-      	break;
-      }
+      if (violations==0) break;
     }
     REAL(loss)[l] = gLoss(r, n);
   }
-  res = cleanupR(a, r, v, z, e1, e2, beta0, beta, loss, iter);
+  res = cleanupR(a, r, v, z, e1, e2, beta, loss, iter);
   return(res);
 }

@@ -1,13 +1,22 @@
-setupLambda <- function(X, y, family, alpha, lambda.min, nlambda, penalty.factor) {
+setupLambda <- function(X, y, family, alpha, lambda.min, nlambda, penalty.factor, raw) {
   n <- nrow(X)
   p <- ncol(X)
 
   ## Determine lambda.max
   ind <- which(penalty.factor!=0)
-  if (length(ind)!=p) {
-    fit <- glm(y~X[, -ind], family=family)
+  if (raw) {
+    # the first column of X is 1 with penalty factor 0 when "intercept = TRUE"
+    if (length(ind)!=p) { 
+      fit <- glm(y~X[,-ind]+0, family=family)
+    } else {
+      fit <- glm(y~0, family=family)      
+    }
   } else {
-    fit <- glm(y~1, family=family)
+    if (length(ind)!=p) {
+      fit <- glm(y~X[, -ind], family=family)
+    } else {
+      fit <- glm(y~1, family=family)
+    }    
   }
   if (family=="gaussian") {
     zmax <- .Call("maxprod", X, fit$residuals, ind, penalty.factor) / n
