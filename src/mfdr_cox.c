@@ -46,7 +46,6 @@ SEXP mfdr_cox(SEXP fit) {
       REAL(EF)[l] += 2*pnorm(-sqrt(n)*lambda[l]*alpha*m[j]/tau, 0, 1, 1, 0);
     }
   }
-  // Rprintf("L: %d\n", L);
 
   // Return
   Free(w);
