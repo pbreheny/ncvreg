@@ -29,13 +29,6 @@ plot.ncvreg <- function(x, alpha=1, log.l=FALSE, shade=TRUE, ...) {
     l2 <- min(l)
     polygon(x=c(l1,l2,l2,l1),y=c(plot.args$ylim[1],plot.args$ylim[1],plot.args$ylim[2],plot.args$ylim[2]),col="gray85",border=FALSE)
   }
-<<<<<<< HEAD
-  
-=======
-
-  cols <- hcl(h=seq(15, 375, len=max(4, p+1)), l=60, c=150, alpha=alpha)
-  cols <- if (p==2) cols[c(1,3)] else cols[1:p]
->>>>>>> 77281810ac7807a11de80ecd0c0bb5ad70dd09a8
   line.args <- list(col=cols, lwd=1+2*exp(-p/20), lty=1)
   if (length(new.args)) line.args[names(new.args)] <- new.args
   line.args$x <- l
