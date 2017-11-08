@@ -1,9 +1,10 @@
 ncvreg_raw <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("MCP", "SCAD", "lasso"),
                    gamma=switch(penalty, SCAD=3.7, 3), alpha=1, lambda.min=ifelse(n > p,.001,.05), nlambda=100,
                    lambda, eps=1e-4, max.iter=10000, convex=TRUE, dfmax= p+1, penalty.factor=rep(1, ncol(X)),
-                   warn=TRUE, returnX=FALSE, interecept=TRUE, ...) {
+                   warn=TRUE, returnX=FALSE, intercept=TRUE, ...) {
   # Coersion
   family <- match.arg(family)
+  if (family != "gaussian") stop("ncvreg_raw currently only support gaussian family (least squares)")
   penalty <- match.arg(penalty)
   if (class(X) != "matrix") {
     tmp <- try(X <- model.matrix(~0+., data=X), silent=TRUE)
@@ -23,8 +24,8 @@ ncvreg_raw <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=
   if (alpha <= 0) stop("alpha must be greater than 0; choose a small positive number instead")
   if (any(is.na(y)) || any(is.na(X))) stop("Missing data (NA's) detected.  Take actions (e.g., removing cases, removing features, imputation) to eliminate missing data before passing X and y to ncvreg")
   if (length(penalty.factor)!=ncol(X)) stop("penalty.factor does not match up with X")
-  if (family=="binomial" && length(table(y)) > 2) stop("Attemping to use family='binomial' with non-binary data")
-  if (family=="binomial" && !identical(sort(unique(y)), 0:1)) y <- as.numeric(y==max(y))
+  #if (family=="binomial" && length(table(y)) > 2) stop("Attemping to use family='binomial' with non-binary data")
+  #if (family=="binomial" && !identical(sort(unique(y)), 0:1)) y <- as.numeric(y==max(y))
   if (length(y) != nrow(X)) stop("X and y do not have the same number of observations")
 
   ## Deprication support
@@ -61,25 +62,12 @@ ncvreg_raw <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=
   }
 
   ## Fit
-  if (family=="gaussian") {
+  #if (family=="gaussian") {
     res <- .Call("cdfit_raw", XX, yy, penalty, lambda, eps, as.integer(max.iter), as.double(gamma), penalty.factor, alpha, as.integer(dfmax), as.integer(user.lambda | any(penalty.factor==0)))
     beta <- matrix(res[[1]], ncoef, nlambda)
     loss <- res[[2]]
-    iter <- res[[3]]
-  } else if (family=="binomial") {
-    res <- .Call("cdfit_binomial", XX, yy, penalty, lambda, eps, as.integer(max.iter), as.double(gamma), penalty.factor, alpha, as.integer(dfmax), as.integer(user.lambda | any(penalty.factor==0)), as.integer(warn))
-    a <- res[[1]]
-    b <- matrix(res[[2]], p, nlambda)
-    loss <- res[[3]]
-    Eta <- matrix(res[[4]], n, nlambda)
-    iter <- res[[5]]
-  } else if (family=="poisson") {
-    res <- .Call("cdfit_poisson", XX, yy, penalty, lambda, eps, as.integer(max.iter), as.double(gamma), penalty.factor, alpha, as.integer(dfmax), as.integer(user.lambda | any(penalty.factor==0)), as.integer(warn))
-    a <- res[[1]]
-    b <- matrix(res[[2]], p, nlambda)
-    loss <- res[[3]]
-    iter <- res[[4]]
-  }
+    iter <- res[[3]]    
+  #}
 
   ## Eliminate saturated lambda values, if any
   ind <- !is.na(iter)
@@ -87,19 +75,19 @@ ncvreg_raw <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=
   iter <- iter[ind]
   lambda <- lambda[ind]
   loss <- loss[ind]
-  if (family=="binomial") Eta <- Eta[,ind]
-  if (warn & sum(iter)==max.iter) warning("Maximum number of iterations reached")
+  #if (family=="binomial") Eta <- Eta[,ind]
+  if (warn && sum(iter) == max.iter) warning("Maximum number of iterations reached")
 
   ## Local convexity?
-  convex.min <- if (convex) convexMin(b, XX, penalty, gamma, lambda*(1-alpha), family, penalty.factor, a=a) else NULL
+  convex.min <- if (convex) convexMin(beta, XX, penalty, gamma, lambda*(1-alpha), family, penalty.factor, a=a) else NULL
 
   # Names
-  vnames <- colnames(X)
+  varnames <- colnames(X)
   if (intercept == TRUE) {
-    if (is.null(vnames)) vnames=paste0("V",seq(p-1))
-    vnames <- c("(Intercept)", vnames)
-  } else if (is.null(vnames)) {
-    vnames=paste0("V",seq(p))
+    if (is.null(varnames)) varnames <- paste0("V",seq(p-1))
+    varnames <- c("(Intercept)", varnames)
+  } else if (is.null(varnames)) {
+    varnames <- paste0("V",seq(p))
   }
   dimnames(beta) <- list(varnames, lamNames(lambda))
 
@@ -116,8 +104,8 @@ ncvreg_raw <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=
                         penalty.factor = penalty.factor,
                         n = n),
                    class = "ncvreg")
-  if (family=="poisson") val$y <- y
-  if (family=="binomial") val$Eta <- Eta
+  #if (family=="poisson") val$y <- y
+  #if (family=="binomial") val$Eta <- Eta
   if (returnX) {
     val$X <- XX
     val$y <- yy

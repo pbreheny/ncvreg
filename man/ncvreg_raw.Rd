@@ -10,7 +10,7 @@ ncvreg_raw(X, y, family=c("gaussian", "binomial", "poisson"),
 penalty=c("MCP", "SCAD", "lasso"), gamma=switch(penalty, SCAD=3.7, 3),
 alpha=1, lambda.min=ifelse(n>p,.001,.05), nlambda=100, lambda, eps=1e-4,
 max.iter=10000, convex=TRUE, dfmax=p+1, penalty.factor=rep(1, ncol(X)),
-warn=TRUE, returnX=FALSE, interecept=TRUE, ...)
+warn=TRUE, returnX=FALSE, intercept=TRUE, ...)
 }
 \arguments{
   \item{X}{The design matrix, without an intercept.  \code{ncvreg_raw}
@@ -122,14 +122,15 @@ plot(fit,main="With Intercept")
 fit <- ncvreg_raw(X,y,intercept = FALSE)
 plot(fit,main="Without Intercept")
 
-## Logistic regression
-data(heart)
-X <- as.matrix(heart[,1:9])
-y <- heart$chd
 
-par(mfrow=c(2,1))
-fit <- ncvreg_raw(X,y,family="binomial")
-plot(fit,main="With Intercept")
-fit <- ncvreg_raw(X,y,family="binomial")
-plot(fit,main="Without Intercept")
+## Logistic regression
+#data(heart)
+#X <- as.matrix(heart[,1:9])
+#y <- heart$chd
+
+#par(mfrow=c(2,1))
+#fit <- ncvreg_raw(X,y,family="binomial")
+#plot(fit,main="With Intercept")
+#fit <- ncvreg_raw(X,y,family="binomial")
+#plot(fit,main="Without Intercept")
 }
