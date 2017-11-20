@@ -6,6 +6,14 @@ predict.ncvreg <- function(object, X, type=c("link", "response", "class", "coeff
   if (class(object)[1]=='ncvreg') {
     alpha <- beta[1,]
     beta <- beta[-1,,drop=FALSE]
+  } else if (class(object)[1]=='ncvreg_raw') {
+    if (length(object$penalty.factor) == nrow(beta)) {
+      # no intercept
+      alpha <- double(ncol(beta))
+    } else {
+      alpha <- beta[1,]  
+      beta <- beta[-1,,drop=FALSE]
+    }
   } else {
     beta <- beta
   }
