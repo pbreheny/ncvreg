@@ -1,6 +1,11 @@
 logLik.ncvreg <- function(object, REML=FALSE, ...) {
   n <- as.numeric(object$n)
-  df <- predict(object, type="nvars") + 1
+
+  df <- predict(object, type="nvars")
+  if (class(object)[1] != "ncvreg_raw" || 
+    nrow(object$beta) != length(object$penalty.factor)) {
+    df <- df + 1
+  }
   if (object$family=="gaussian") {
     if (REML) rdf <- n-df
     else rdf <- n

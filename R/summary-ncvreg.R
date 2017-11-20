@@ -3,7 +3,7 @@ summary.ncvreg <- function(object, lambda, which, ...) {
   if (length(nvars) > 1) stop("You must specify a single model (i.e., a single value of lambda)")
   if (missing(lambda)) lambda <- object$lambda[which]
   model <- switch(object$family, gaussian="linear", binomial="logistic", poisson="Poisson")
-  val <- list(penalty=object$penalty, model=model, n=object$n, p=nrow(object$beta)-1, lambda=lambda, nvars=nvars)
+  val <- list(penalty=object$penalty, model=model, n=object$n, p=length(object$penalty.factor), lambda=lambda, nvars=nvars)
   if ("X" %in% names(object) || object$family=="gaussian") {
     mFDR <- mfdr(object)
     f <- approxfun(object$lambda, mFDR$EF)

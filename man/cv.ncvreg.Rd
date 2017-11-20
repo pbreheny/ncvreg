@@ -6,12 +6,12 @@
   parameter lambda.}
 \usage{
 cv.ncvreg(X, y, ..., cluster, nfolds=10, seed, cv.ind, returnY=FALSE,
-trace=FALSE) }
+trace=FALSE, raw=FALSE) }
 \arguments{
   \item{X}{The design matrix, without an intercept, as in
     \code{ncvreg}.}
   \item{y}{The response vector, as in \code{ncvreg}.}
-  \item{...}{Additional arguments to \code{ncvreg}.}
+  \item{...}{Additional arguments to \code{ncvreg} when \code{raw = FALSE}, and \code{ncvreg_raw} when \code{raw = TRUE}.}
   \item{cluster}{\code{cv.ncvreg} can be run in parallel across a
     cluster using the \code{parallel} package.  The cluster must be set
     up in advance using the \code{makeCluster} function from that
@@ -30,6 +30,8 @@ trace=FALSE) }
   \item{trace}{If set to TRUE, cv.ncvreg will inform the user of its
     progress by announcing the beginning of each CV fold.  Default is
     FALSE.}
+  \item{raw}{Default is FALSE, which means standardized data is used 
+    internally for model fitting. If set to TRUE, \code{ncvreg_raw} instead of \code{ncvreg} is used to fit on raw data without standardization.}
   }
 \details{
   The function calls \code{ncvreg} \code{nfolds} times, each time

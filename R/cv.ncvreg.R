@@ -1,4 +1,4 @@
-cv.ncvreg <- function(X, y, ..., cluster, nfolds=10, seed, cv.ind, returnY=FALSE, trace=FALSE) {
+cv.ncvreg <- function(X, y, ..., cluster, nfolds=10, seed, cv.ind, returnY=FALSE, trace=FALSE, raw=FALSE) {
 
   # Coersion
   if (class(X) != "matrix") {
@@ -10,8 +10,8 @@ cv.ncvreg <- function(X, y, ..., cluster, nfolds=10, seed, cv.ind, returnY=FALSE
     tmp <- try(y <- as.numeric(y), silent=TRUE)
     if (class(tmp)[1] == "try-error") stop("y must numeric or able to be coerced to numeric")
   }
-
-  fit <- ncvreg(X=X, y=y, ...)
+  FUNC <- if(raw) ncvreg_raw else ncvreg
+  fit <- FUNC(X=X, y=y, ...)
   n <- length(y)
   E <- Y <- matrix(NA, nrow=n, ncol=length(fit$lambda))
   if (fit$family=="binomial") {
@@ -45,7 +45,7 @@ cv.ncvreg <- function(X, y, ..., cluster, nfolds=10, seed, cv.ind, returnY=FALSE
     if (!("cluster" %in% class(cluster))) stop("cluster is not of class 'cluster'; see ?makeCluster")
     parallel::clusterExport(cluster, c("cv.ind","fit","X", "y", "cv.args"), envir=environment())
     parallel::clusterCall(cluster, function() require(ncvreg))
-    fold.results <- parallel::parLapply(cl=cluster, X=1:nfolds, fun=cvf, XX=X, y=y, cv.ind=cv.ind, cv.args=cv.args)
+    fold.results <- parallel::parLapply(cl=cluster, X=1:nfolds, fun=cvf, XX=X, y=y, cv.ind=cv.ind, cv.args=cv.args, raw=raw)
   }
 
   for (i in 1:nfolds) {
@@ -53,7 +53,7 @@ cv.ncvreg <- function(X, y, ..., cluster, nfolds=10, seed, cv.ind, returnY=FALSE
       res <- fold.results[[i]]
     } else {
       if (trace) cat("Starting CV fold #",i,sep="","\n")
-      res <- cvf(i, X, y, cv.ind, cv.args)
+      res <- cvf(i, X, y, cv.ind, cv.args, raw)
     }
     E[cv.ind==i, 1:res$nl] <- res$loss
     if (fit$family=="binomial") PE[cv.ind==i, 1:res$nl] <- res$pe
@@ -84,10 +84,11 @@ cv.ncvreg <- function(X, y, ..., cluster, nfolds=10, seed, cv.ind, returnY=FALSE
   if (returnY) val$Y <- Y
   structure(val, class="cv.ncvreg")
 }
-cvf <- function(i, XX, y, cv.ind, cv.args) {
+cvf <- function(i, XX, y, cv.ind, cv.args, raw = FALSE) {
   cv.args$X <- XX[cv.ind!=i, , drop=FALSE]
   cv.args$y <- y[cv.ind!=i]
-  fit.i <- do.call("ncvreg", cv.args)
+  FUNC <- if (raw) "ncvreg_raw" else "ncvreg"
+  fit.i <- do.call(FUNC, cv.args)
 
   X2 <- XX[cv.ind==i, , drop=FALSE]
   y2 <- y[cv.ind==i]
