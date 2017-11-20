@@ -34,7 +34,7 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
   ## Set up XX, yy, lambda
   XX <- std(X)
   ns <- attr(XX, "nonsingular")
-  penalty.factor <- penalty.factor[ns]
+  pf <- penalty.factor[ns]
   p <- ncol(XX)
 
   if (family=="gaussian") {
@@ -44,7 +44,7 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
   }
   n <- length(yy)
   if (missing(lambda)) {
-    lambda <- setupLambda(XX, yy, family, alpha, lambda.min, nlambda, penalty.factor, raw=FALSE)
+    lambda <- setupLambda(XX, yy, family, alpha, lambda.min, nlambda, pf)
     user.lambda <- FALSE
   } else {
     nlambda <- length(lambda)
@@ -53,16 +53,16 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
 
   ## Fit
   if (family=="gaussian") {
-    res <- .Call("cdfit_gaussian", XX, yy, penalty, lambda, eps, as.integer(max.iter), as.double(gamma), penalty.factor, alpha, as.integer(dfmax), as.integer(user.lambda | any(penalty.factor==0)))
+    res <- .Call("cdfit_gaussian", XX, yy, penalty, lambda, eps, as.integer(max.iter), as.double(gamma), pf, alpha, as.integer(dfmax), as.integer(user.lambda | any(pf==0)))
     a <- rep(mean(y),nlambda)
     b <- matrix(res[[1]], p, nlambda)
     loss <- res[[2]]
     iter <- res[[3]]
   } else {
     if (family=="binomial") {
-      res <- .Call("cdfit_binomial", XX, yy, penalty, lambda, eps, as.integer(max.iter), as.double(gamma), penalty.factor, alpha, as.integer(dfmax), as.integer(user.lambda | any(penalty.factor==0)), as.integer(warn))
+      res <- .Call("cdfit_binomial", XX, yy, penalty, lambda, eps, as.integer(max.iter), as.double(gamma), pf, alpha, as.integer(dfmax), as.integer(user.lambda | any(pf==0)), as.integer(warn))
     } else if (family=="poisson") {
-      res <- .Call("cdfit_poisson", XX, yy, penalty, lambda, eps, as.integer(max.iter), as.double(gamma), penalty.factor, alpha, as.integer(dfmax), as.integer(user.lambda | any(penalty.factor==0)), as.integer(warn))
+      res <- .Call("cdfit_poisson", XX, yy, penalty, lambda, eps, as.integer(max.iter), as.double(gamma), pf, alpha, as.integer(dfmax), as.integer(user.lambda | any(pf==0)), as.integer(warn))
     }
     a <- res[[1]]
     b <- matrix(res[[2]], p, nlambda)
@@ -82,7 +82,7 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
   if (warn & sum(iter)==max.iter) warning("Maximum number of iterations reached")
 
   ## Local convexity?
-  convex.min <- if (convex) convexMin(b, XX, penalty, gamma, lambda*(1-alpha), family, penalty.factor, a=a) else NULL
+  convex.min <- if (convex) convexMin(b, XX, penalty, gamma, lambda*(1-alpha), family, pf, a=a) else NULL
 
   ## Unstandardize
   beta <- matrix(0, nrow=(ncol(X)+1), ncol=length(lambda))
