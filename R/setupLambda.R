@@ -1,4 +1,4 @@
-setupLambda <- function(X, y, family, alpha, lambda.min, nlambda, penalty.factor, raw) {
+setupLambda <- function(X, y, family, alpha, lambda.min, nlambda, penalty.factor, raw = FALSE) {
   n <- nrow(X)
   p <- ncol(X)
 

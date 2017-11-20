@@ -3,12 +3,12 @@
 \title{Fit an MCP- or SCAD-penalized regression path on raw input data}
 \description{Fit coefficients paths for MCP- or SCAD-penalized
   regression models on raw input data over a grid of values for the regularization
-  parameter lambda.  Fits linear and logistic regression models, with
+  parameter lambda.  Currently supports linear regression, with
   option for an additional L2 penalty.}
 \usage{
 ncvreg_raw(X, y, family=c("gaussian", "binomial", "poisson"),
 penalty=c("MCP", "SCAD", "lasso"), gamma=switch(penalty, SCAD=3.7, 3),
-alpha=1, lambda.min=ifelse(n>p,.001,.05), nlambda=100, lambda, eps=1e-4,
+alpha=1, lambda.min=ifelse(n>p,.0001,.01), nlambda=100, lambda, eps=1e-4,
 max.iter=10000, convex=TRUE, dfmax=p+1, penalty.factor=rep(1, ncol(X)),
 warn=TRUE, returnX=FALSE, intercept=TRUE, ...)
 }
@@ -17,7 +17,7 @@ warn=TRUE, returnX=FALSE, intercept=TRUE, ...)
   uses X as is without standardization.}
   \item{y}{The response vector.}
   \item{family}{Either "gaussian", "binomial", or "poisson", depending
-    on the response.}
+    on the response. Currently only "gaussian" is supported.}
   \item{penalty}{The penalty to be applied to the model.  Either "MCP"
     (the default), "SCAD", or "lasso".}
   \item{gamma}{The tuning parameter of the MCP/SCAD penalty (see
@@ -29,8 +29,8 @@ warn=TRUE, returnX=FALSE, intercept=TRUE, ...)
     However, \code{alpha=0} is not supported; \code{alpha} may be
     arbitrarily small, but not exactly 0.}
   \item{lambda.min}{The smallest value for lambda, as a fraction of
-    lambda.max.  Default is .001 if the number of observations is larger
-    than the number of covariates and .05 otherwise.}
+    lambda.max.  Default is .0001 if the number of observations is larger
+    than the number of covariates and .01 otherwise.}
   \item{nlambda}{The number of lambda values.  Default is 100.}
   \item{lambda}{A user-specified sequence of lambda values.  By default,
     a sequence of values of length \code{nlambda} is computed, equally
@@ -53,7 +53,8 @@ warn=TRUE, returnX=FALSE, intercept=TRUE, ...)
     differential penalization if some coefficients are thought to be
     more likely than others to be in the model.  In particular,
     \code{penalty.factor} can be 0, in which case the coefficient is
-    always in the model without shrinkage.}
+    always in the model without shrinkage. Intercept is not penalized 
+    when one is included by setting \code{intercept} to TRUE.}
   \item{warn}{Return warning messages for failures to converge and model
     saturation?  Default is TRUE.}
   \item{returnX}{Return the standardized design matrix?  Default is
@@ -69,15 +70,7 @@ warn=TRUE, returnX=FALSE, intercept=TRUE, ...)
   objective function is defined to be
   \deqn{\frac{1}{2n}\textrm{RSS} + \textrm{penalty}}{RSS/(2*n) +
     penalty}
-  for \code{"gaussian"} and
-  \deqn{-\frac{1}{n}\ell + \textrm{penalty}}{-(1/n) loglik + penalty}
-  for \code{"binomial"} or \code{"poisson"}, where the likelihood is
-  from a traditional generalized linear model assuming the canonical
-  link (logit for \code{"binomial"}; log for \code{"poisson"}).\cr
-  \cr
-  This algorithm is stable, very efficient, and generally converges
-  quite rapidly to the solution.  For GLMs, adaptive rescaling (see
-  reference) is used.\cr
+  for \code{"gaussian"}.\cr
   \cr
   The convexity diagnostics rely on a fine covering of
   (lambda.min,lambda.max); choosing a low value of \code{nlambda} may
@@ -108,8 +101,8 @@ warn=TRUE, returnX=FALSE, intercept=TRUE, ...)
 \references{Breheny, P. and Huang, J. (2011) Coordinate descent
   algorithms for nonconvex penalized regression, with applications to
   biological feature selection. Ann. Appl. Statist., 5: 232-253.}
-\author{Patrick Breheny <patrick-breheny@uiow.edu>}
-\seealso{\code{\link{plot.ncvreg}}, \code{\link{cv.ncvreg}}}
+\author{Congrui Yi <congrui-yi@uiowa.edu>}
+\seealso{\code{\link{ncvreg}}, \code{\link{plot.ncvreg}}, \code{\link{cv.ncvreg}}}
 \examples{
 ## Linear regression
 data(prostate)
@@ -121,16 +114,4 @@ fit <- ncvreg_raw(X,y)
 plot(fit,main="With Intercept")
 fit <- ncvreg_raw(X,y,intercept = FALSE)
 plot(fit,main="Without Intercept")
-
-
-## Logistic regression
-#data(heart)
-#X <- as.matrix(heart[,1:9])
-#y <- heart$chd
-
-#par(mfrow=c(2,1))
-#fit <- ncvreg_raw(X,y,family="binomial")
-#plot(fit,main="With Intercept")
-#fit <- ncvreg_raw(X,y,family="binomial")
-#plot(fit,main="Without Intercept")
 }

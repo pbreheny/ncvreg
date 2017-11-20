@@ -1,10 +1,10 @@
 ncvreg_raw <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("MCP", "SCAD", "lasso"),
-                   gamma=switch(penalty, SCAD=3.7, 3), alpha=1, lambda.min=ifelse(n > p,.001,.05), nlambda=100,
+                   gamma=switch(penalty, SCAD=3.7, 3), alpha=1, lambda.min=ifelse(n > p,.0001,.01), nlambda=100,
                    lambda, eps=1e-4, max.iter=10000, convex=TRUE, dfmax= p+1, penalty.factor=rep(1, ncol(X)),
                    warn=TRUE, returnX=FALSE, intercept=TRUE, ...) {
   # Coersion
   family <- match.arg(family)
-  if (family != "gaussian") stop("ncvreg_raw currently only support gaussian family (least squares)")
+  if (family != "gaussian") stop("ncvreg_raw currently only supports gaussian family")
   penalty <- match.arg(penalty)
   if (class(X) != "matrix") {
     tmp <- try(X <- model.matrix(~0+., data=X), silent=TRUE)
@@ -36,25 +36,25 @@ ncvreg_raw <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=
   col.se <- apply(X, 2, sd)
   ns <- which(col.se > 1e-6)
   XX <- X[, ns, drop=FALSE]
-  penalty.factor <- penalty.factor[ns]
+  pf <- penalty.factor[ns]
   p <- ncol(XX)
 
-  if (intercept == TRUE) {
+  if (intercept) {
     XX <- cbind(1, XX)
-    penalty.factor <- c(0, penalty.factor)
+    pf <- c(0, pf)
     ncoef <- p+1
   } else {
     ncoef <- p
   }
-
-  if (family=="gaussian" && intercept == TRUE) {
+  # family = "gaussian"
+  if (intercept) {
     yy <- y - mean(y)
   } else {
     yy <- y
   }
   n <- length(yy)
   if (missing(lambda)) {
-    lambda <- setupLambda(XX, yy, family, alpha, lambda.min, nlambda, penalty.factor, raw=TRUE)
+    lambda <- setupLambda(XX, yy, family, alpha, lambda.min, nlambda, pf, raw=TRUE)
     user.lambda <- FALSE
   } else {
     nlambda <- length(lambda)
@@ -63,32 +63,38 @@ ncvreg_raw <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=
 
   ## Fit
   #if (family=="gaussian") {
-    res <- .Call("cdfit_raw", XX, yy, penalty, lambda, eps, as.integer(max.iter), as.double(gamma), penalty.factor, alpha, as.integer(dfmax), as.integer(user.lambda | any(penalty.factor==0)))
-    beta <- matrix(res[[1]], ncoef, nlambda)
-    loss <- res[[2]]
-    iter <- res[[3]]    
+  res <- .Call("cdfit_raw", XX, yy, penalty, lambda, eps, as.integer(max.iter), as.double(gamma), pf, alpha, as.integer(dfmax), as.integer(user.lambda | any(pf==0)))
+  coefs <- matrix(res[[1]], ncoef, nlambda)
+  loss <- res[[2]]
+  iter <- res[[3]]
   #}
 
   ## Eliminate saturated lambda values, if any
   ind <- !is.na(iter)
-  beta <- beta[, ind, drop=FALSE]
+  coefs <- coefs[, ind, drop=FALSE]
   iter <- iter[ind]
   lambda <- lambda[ind]
   loss <- loss[ind]
-  #if (family=="binomial") Eta <- Eta[,ind]
+  if (intercept) {
+    a <- coefs[1,] + mean(y)
+    b <- coefs[-1,,drop=FALSE]
+    beta <- matrix(0, nrow=ncol(X) + 1, ncol=length(lambda))
+    beta[1,] <- a
+    beta[ns+1,] <- b
+    pf <- pf[-1]
+  } else {
+    a <- double(length(ind))
+    b <- coefs
+    beta <- matrix(0, nrow=ncol(X), ncol=length(lambda))
+    beta[ns,] <- b
+  }
   if (warn && sum(iter) == max.iter) warning("Maximum number of iterations reached")
-
   ## Local convexity?
-  convex.min <- if (convex) convexMin(beta, XX, penalty, gamma, lambda*(1-alpha), family, penalty.factor, a=a) else NULL
+  convex.min <- if (convex) convexMin(b, X[,ns,drop=FALSE], penalty, gamma, lambda*(1-alpha), family, pf, a=a) else NULL
 
   # Names
-  varnames <- colnames(X)
-  if (intercept == TRUE) {
-    if (is.null(varnames)) varnames <- paste0("V",seq(p-1))
-    varnames <- c("(Intercept)", varnames)
-  } else if (is.null(varnames)) {
-    varnames <- paste0("V",seq(p))
-  }
+  varnames <- if (is.null(colnames(X))) paste("V",1:ncol(X),sep="") else colnames(X)
+  if (intercept) varnames <- c("(Intercept)", varnames)
   dimnames(beta) <- list(varnames, lamNames(lambda))
 
   ## Output
@@ -103,7 +109,7 @@ ncvreg_raw <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=
                         loss = loss,
                         penalty.factor = penalty.factor,
                         n = n),
-                   class = "ncvreg")
+                   class = c("ncvreg_raw", "ncvreg"))
   #if (family=="poisson") val$y <- y
   #if (family=="binomial") val$Eta <- Eta
   if (returnX) {
