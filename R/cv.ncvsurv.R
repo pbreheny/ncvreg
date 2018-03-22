@@ -1,4 +1,5 @@
-cv.ncvsurv <- function(X, y, ..., cluster, nfolds=10, seed, cv.ind, returnY=FALSE, trace=FALSE) {
+cv.ncvsurv <- function(X, y, ..., cluster, nfolds=10, seed, cv.ind, se=c('quick', 'bootstrap'), returnY=FALSE, trace=FALSE) {
+  se <- match.arg(se)
 
   # Complete data fit
   fit.args <- list(...)
@@ -52,26 +53,25 @@ cv.ncvsurv <- function(X, y, ..., cluster, nfolds=10, seed, cv.ind, returnY=FALS
       res <- cvf.surv(i, X, y, cv.ind, cv.args)
     }
     Y[cv.ind==i, 1:res$nl] <- res$yhat
-    #E[cv.ind==i, 1:res$nl] <- res$loss
   }
 
-  ## Eliminate saturated lambda values, if any
+  # Eliminate saturated lambda values, if any
   ind <- which(apply(is.finite(Y), 2, all))
-  #E <- E[,ind]
   Y <- Y[,ind]
   lambda <- fit$lambda[ind]
 
-  ## Return
-  #browser()
-  #cve <- as.numeric(loss.ncvsurv(y, Y))
-  #cvse <- se.ncvsurv(y, Y)
-  L <- loss.ncvsurv2(y, Y)
-  cve <- apply(L, 2, mean)
-  cvse <- apply(L, 2, sd)/sqrt(nrow(L))
-  #cvse <- NULL
+  # Return
+  if (se == "quick") {
+    L <- loss.ncvsurv(y, Y, total=FALSE)
+    cve <- apply(L, 2, sum)
+    cvse <- apply(L, 2, sd)*sqrt(nrow(L))
+  } else {
+    cve <- as.numeric(loss.ncvsurv(y, Y))
+    cvse <- se.ncvsurv(y, Y)
+  }
   min <- which.min(cve)
 
-  val <- list(cve=cve, cvse=cvse, lambda=lambda, fit=fit, min=min, lambda.min=lambda[min], null.dev=cve[1])
+  val <- list(cve=cve, cvse=cvse, lambda=lambda, fit=fit, min=min, lambda.min=lambda[min], null.dev=cve[1], cv.ind=cv.ind)
   if (returnY) val$Y <- Y
   structure(val, class=c("cv.ncvsurv", "cv.ncvreg"))
 }

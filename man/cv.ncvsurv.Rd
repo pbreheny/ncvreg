@@ -5,8 +5,8 @@
   survival models over a grid of values for the regularization
   parameter lambda.}
 \usage{
-cv.ncvsurv(X, y, ..., cluster, nfolds=10, seed, cv.ind, returnY=FALSE,
-trace=FALSE)
+cv.ncvsurv(X, y, ..., cluster, nfolds=10, seed, cv.ind, se=c('quick',
+'bootstrap'), returnY=FALSE, trace=FALSE)
 }
 \arguments{
   \item{X}{The design matrix, as in \code{ncvsurv}.}
@@ -18,12 +18,16 @@ trace=FALSE)
     pacakge.  The cluster must then be passed to \code{cv.ncvsurv} (see
     example).}
   \item{nfolds}{The number of cross-validation folds.  Default is 10.}
+  \item{seed}{You may set the seed of the random number generator in
+    order to obtain reproducible results.}
   \item{cv.ind}{Which fold each observation belongs to.  By default the
     observations are randomly assigned by \code{cv.ncvsurv} in a manner
     that balances (as best as possible) the number of censored
     observations across the folds.}
-  \item{seed}{You may set the seed of the random number generator in
-    order to obtain reproducible results.}
+  \item{se}{Method by which the cross-valiation standard error (CVSE) is
+    calculated.  The 'quick' approach is based on a rough approximation,
+    but can be calculated more or less instantly.  The 'bootstrap'
+    approach is more accurate, but requires additional computing time.}
   \item{returnY}{Should \code{cv.ncvsurv} return the linear predictors
     from the cross-validation folds?  Default is FALSE; if TRUE, this
     will return a matrix in which the element for row i, column j is the

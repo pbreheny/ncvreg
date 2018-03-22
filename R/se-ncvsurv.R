@@ -1,8 +1,9 @@
+# Bootstrap method for calculating CVSE for Cox models
 se.ncvsurv <-function (y, eta, B = 100) {
   cve <- matrix(NA, B, ncol(eta))
   for (b in 1:B) {
-    eta.b <- apply(eta, 2, sample, replace=TRUE)
-    cve[b,] <- loss.ncvsurv(y, eta.b)
+    ind <- sample(1:nrow(eta), replace=TRUE)
+    cve[b,] <- loss.ncvsurv(y, eta[ind,])
   }
   apply(cve, 2, sd)
 }

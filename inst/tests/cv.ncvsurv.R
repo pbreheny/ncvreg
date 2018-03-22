@@ -55,10 +55,18 @@ plot(ncvfit)
 
 require(glmnet)
 par(mfrow=c(2,1))
-ncvfit <- cv.ncvsurv(X, y, penalty="lasso")
+gcvfit <- cv.glmnet(X, y, family="cox", grouped=TRUE, foldid=ncvfit$cv.ind, lambda.min=0.01)
+ncvfit <- cv.ncvsurv(X, y, penalty="lasso", cv.ind=ncvfit$cv.ind, lambda=gcvfit$lambda)
 plot(ncvfit)
-gcvfit <- cv.glmnet(X, y, family="cox", grouped=TRUE, lambda=ncvfit$lambda)
-plot(gcvfit)
+plot(gcvfit, sign.lambda = -1)
+
+require(glmnet)
+par(mfrow=c(2,1))
+ncvfit1 <- cv.ncvsurv(X, y, penalty="lasso", cv.ind=ncvfit$cv.ind, se='quick')
+ncvfit2 <- cv.ncvsurv(X, y, penalty="lasso", cv.ind=ncvfit$cv.ind, se='bootstrap')
+ylim <- range(c(ncvfit1$cve+ncvfit1$cvse, ncvfit1$cve-ncvfit1$cvse, ncvfit2$cve+ncvfit2$cvse, ncvfit2$cve-ncvfit2$cvse))
+plot(ncvfit1, ylim=ylim)
+plot(ncvfit2, ylim=ylim)
 
 ######################################
 .test = "cv.ncvsurv() options work" ##
@@ -73,9 +81,8 @@ par(mfrow=c(2,2))
 cvfit <- cv.ncvsurv(X, y)
 plot(cvfit, type="all")
 par(mfrow=c(2,2))
-cvfit <- cv.ncvsurv(X, y, events.only=FALSE)
-plot(cvfit, type="all")
 print(summary(cvfit))
 print(predict(cvfit, type="coefficients"))
 print(predict(cvfit, type="vars"))
 print(predict(cvfit, type="nvars"))
+
