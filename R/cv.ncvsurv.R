@@ -1,4 +1,4 @@
-cv.ncvsurv <- function(X, y, ..., cluster, nfolds=10, seed, returnY=FALSE, trace=FALSE) {
+cv.ncvsurv <- function(X, y, ..., cluster, nfolds=10, seed, cv.ind, returnY=FALSE, trace=FALSE) {
 
   # Complete data fit
   fit.args <- list(...)
@@ -15,10 +15,23 @@ cv.ncvsurv <- function(X, y, ..., cluster, nfolds=10, seed, returnY=FALSE, trace
 
   # Set up folds
   n <- nrow(X)
+  sde <- sqrt(.Machine$double.eps)
   if (!missing(seed)) set.seed(seed)
-  cv.ind <- ceiling(sample(1:n)/n*nfolds)
+  if (missing(cv.ind)) {
+    ind1 <- which(fit$fail==1)
+    ind0 <- which(fit$fail==0)
+    n1 <- length(ind1)
+    n0 <- length(ind0)
+    cv.ind1 <- ceiling(sample(1:n1)/(n1+sde)*nfolds)
+    cv.ind0 <- ceiling(sample(1:n0)/(n0+sde)*nfolds)
+    cv.ind <- numeric(n)
+    cv.ind[fit$fail==1] <- cv.ind1
+    cv.ind[fit$fail==0] <- cv.ind0
+  } else {
+    cv.ind <- ceiling(sample(1:n)/(n+sqrt(.Machine$double.eps))*nfolds)
+  }
+  
   Y <- matrix(NA, nrow=n, ncol=length(fit$lambda))
-
   cv.args <- list(...)
   cv.args$lambda <- fit$lambda
   cv.args$warn <- FALSE
@@ -49,13 +62,16 @@ cv.ncvsurv <- function(X, y, ..., cluster, nfolds=10, seed, returnY=FALSE, trace
   lambda <- fit$lambda[ind]
 
   ## Return
-  cve <- as.numeric(loss.ncvsurv(y, Y))
-  #if (events.only) E <- E[y[,2]==1,]
-  #cve <- apply(E, 2, mean)
-  #cvse <- apply(E, 2, sd) / sqrt(nrow(E))
+  #browser()
+  #cve <- as.numeric(loss.ncvsurv(y, Y))
+  #cvse <- se.ncvsurv(y, Y)
+  L <- loss.ncvsurv2(y, Y)
+  cve <- apply(L, 2, mean)
+  cvse <- apply(L, 2, sd)/sqrt(nrow(L))
+  #cvse <- NULL
   min <- which.min(cve)
 
-  val <- list(cve=cve, lambda=lambda, fit=fit, min=min, lambda.min=lambda[min], null.dev=cve[1])
+  val <- list(cve=cve, cvse=cvse, lambda=lambda, fit=fit, min=min, lambda.min=lambda[min], null.dev=cve[1])
   if (returnY) val$Y <- Y
   structure(val, class=c("cv.ncvsurv", "cv.ncvreg"))
 }
@@ -69,19 +85,5 @@ cvf.surv <- function(i, XX, y, cv.ind, cv.args) {
   nl <- length(fit.i$lambda)
   yhat <- predict(fit.i, X2)
 
-#   eta <- predict(fit.i, XX)
-#   ll <- loss.ncvsurv(y, eta)
-#   eta.i <- predict(fit.i, XX[cv.ind!=i, , drop=FALSE])
-#   ll.i <- loss.ncvsurv(y[cv.ind!=i,], eta.i)
-#   loss <- matrix(ll.i, sum(cv.ind==i), nl, byrow=TRUE)
-
-#   ind <- which(cv.ind==i)
-#   n <- length(ind)
-#   loss <- matrix(NA, n, nl)
-#   for (j in 1:n) {
-#     k <- ind[j]
-#     eta.j <- predict(fit.i, XX[-k,])
-#     loss[j,] <- 2*(ll-loss.ncvsurv(y[-k,], eta.j))
-#   }
-  list(nl=length(fit.i$lambda), yhat=yhat)#, loss=loss)
+  list(nl=length(fit.i$lambda), yhat=yhat)
 }

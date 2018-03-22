@@ -1,6 +1,6 @@
 cv.ncvreg <- function(X, y, ..., cluster, nfolds=10, seed, cv.ind, returnY=FALSE, trace=FALSE) {
 
-  # Coersion
+  # Coercion
   if (class(X) != "matrix") {
     tmp <- try(X <- model.matrix(~0+., data=X), silent=TRUE)
     if (class(tmp)[1] == "try-error") stop("X must be a matrix or able to be coerced to a matrix")
@@ -22,7 +22,7 @@ cv.ncvreg <- function(X, y, ..., cluster, nfolds=10, seed, cv.ind, returnY=FALSE
   if (!missing(seed)) set.seed(seed)
   sde <- sqrt(.Machine$double.eps)
   if (missing(cv.ind)) {
-    if (fit$family=="binomial" & (min(table(y)) > nfolds)) {
+    if (fit$family=="binomial") {
       ind1 <- which(y==1)
       ind0 <- which(y==0)
       n1 <- length(ind1)

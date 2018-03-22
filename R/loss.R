@@ -33,3 +33,15 @@ loss.ncvsurv <- function(y, eta) {
   }
   -1*(crossprod(d, eta) - crossprod(d, log(r)))
 }
+loss.ncvsurv2 <- function(y, eta) {
+  ind <- order(y[,1])
+  d <- as.numeric(y[ind,2])
+  if (is.matrix(eta)) {
+    eta <- eta[ind, , drop=FALSE]
+    r <- apply(eta, 2, function(x) rev(cumsum(rev(exp(x)))))
+  } else {
+    eta <- eta[ind]
+    r <- rev(cumsum(rev(exp(eta))))
+  }
+  -1*(eta[d==1,] - log(r)[d==1,])
+}

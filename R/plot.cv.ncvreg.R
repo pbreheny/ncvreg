@@ -52,8 +52,8 @@ plot.cv.ncvreg <- function(x, log.l=TRUE, type=c("cve", "rsq", "scale", "snr", "
   }
   
   ind <- if (type=="pred") which(is.finite(l[1:length(x$pe)])) else which(is.finite(l[1:length(x$cve)]))
-  ylim <- if (class(x)[1]=='cv.ncvsurv') range(y[ind]) else range(c(L[ind], U[ind]))
-  aind <- ((U-L)/diff(ylim) > 1e-3) & ind
+  ylim <- if (is.null(x$cvse)) range(y[ind]) else range(c(L[ind], U[ind]))
+  aind <- intersect(ind, which((U-L)/diff(ylim) > 1e-3))
   plot.args = list(x=l[ind], y=y[ind], ylim=ylim, xlab=xlab, ylab=ylab, type="n", xlim=rev(range(l[ind])), las=1)
   new.args = list(...)
   if (length(new.args)) plot.args[names(new.args)] = new.args

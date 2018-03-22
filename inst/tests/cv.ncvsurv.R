@@ -2,9 +2,10 @@ set.seed(1)
 equal <- function(x, y) {all.equal(x, y, tol=0.001, check.attributes=FALSE)}
 
 # Works
-y <- cbind(rexp(50), sample(rep(0:1, c(10,40))))
 X <- matrix(rnorm(50*10), 50, 10)
+y <- cbind(rexp(50, exp(X[,1])), sample(rep(0:1, c(10,40))))
 cvfit <- cv.ncvsurv(X, y, lambda.min=0)
+plot(cvfit)
 plot(cvfit, type='all')
 print(summary(cvfit))
 
