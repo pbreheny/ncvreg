@@ -5,7 +5,7 @@
   survival models over a grid of values for the regularization
   parameter lambda.}
 \usage{
-cv.ncvsurv(X, y, ..., cluster, nfolds=10, seed, cv.ind, se=c('quick',
+cv.ncvsurv(X, y, ..., cluster, nfolds=10, seed, fold, se=c('quick',
 'bootstrap'), returnY=FALSE, trace=FALSE)
 }
 \arguments{
@@ -20,7 +20,7 @@ cv.ncvsurv(X, y, ..., cluster, nfolds=10, seed, cv.ind, se=c('quick',
   \item{nfolds}{The number of cross-validation folds.  Default is 10.}
   \item{seed}{You may set the seed of the random number generator in
     order to obtain reproducible results.}
-  \item{cv.ind}{Which fold each observation belongs to.  By default the
+  \item{fold}{Which fold each observation belongs to.  By default the
     observations are randomly assigned by \code{cv.ncvsurv} in a manner
     that balances (as best as possible) the number of censored
     observations across the folds.}

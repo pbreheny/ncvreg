@@ -1,4 +1,4 @@
-cv.ncvsurv <- function(X, y, ..., cluster, nfolds=10, seed, cv.ind, se=c('quick', 'bootstrap'), returnY=FALSE, trace=FALSE) {
+cv.ncvsurv <- function(X, y, ..., cluster, nfolds=10, seed, fold, se=c('quick', 'bootstrap'), returnY=FALSE, trace=FALSE) {
   se <- match.arg(se)
 
   # Complete data fit
@@ -18,20 +18,20 @@ cv.ncvsurv <- function(X, y, ..., cluster, nfolds=10, seed, cv.ind, se=c('quick'
   n <- nrow(X)
   sde <- sqrt(.Machine$double.eps)
   if (!missing(seed)) set.seed(seed)
-  if (missing(cv.ind)) {
+  if (missing(fold)) {
     ind1 <- which(fit$fail==1)
     ind0 <- which(fit$fail==0)
     n1 <- length(ind1)
     n0 <- length(ind0)
-    cv.ind1 <- ceiling(sample(1:n1)/(n1+sde)*nfolds)
-    cv.ind0 <- ceiling(sample(1:n0)/(n0+sde)*nfolds)
-    cv.ind <- numeric(n)
-    cv.ind[fit$fail==1] <- cv.ind1
-    cv.ind[fit$fail==0] <- cv.ind0
+    fold1 <- ceiling(sample(1:n1)/(n1+sde)*nfolds)
+    fold0 <- ceiling(sample(1:n0)/(n0+sde)*nfolds)
+    fold <- numeric(n)
+    fold[fit$fail==1] <- fold1
+    fold[fit$fail==0] <- fold0
   } else {
-    cv.ind <- ceiling(sample(1:n)/(n+sqrt(.Machine$double.eps))*nfolds)
+    fold <- ceiling(sample(1:n)/(n+sqrt(.Machine$double.eps))*nfolds)
   }
-  
+
   Y <- matrix(NA, nrow=n, ncol=length(fit$lambda))
   cv.args <- list(...)
   cv.args$lambda <- fit$lambda
@@ -40,9 +40,9 @@ cv.ncvsurv <- function(X, y, ..., cluster, nfolds=10, seed, cv.ind, se=c('quick'
   cv.args$penalty.factor <- fit$penalty.factor
   if (!missing(cluster)) {
     if (!("cluster" %in% class(cluster))) stop("cluster is not of class 'cluster'; see ?makeCluster")
-    parallel::clusterExport(cluster, c("cv.ind","fit","X", "y", "cv.args"), envir=environment())
+    parallel::clusterExport(cluster, c("fold","fit","X", "y", "cv.args"), envir=environment())
     parallel::clusterCall(cluster, function() require(ncvreg))
-    fold.results <- parallel::parLapply(cl=cluster, X=1:nfolds, fun=cvf.surv, XX=X, y=y, cv.ind=cv.ind, cv.args=cv.args)
+    fold.results <- parallel::parLapply(cl=cluster, X=1:nfolds, fun=cvf.surv, XX=X, y=y, fold=fold, cv.args=cv.args)
   }
 
   for (i in 1:nfolds) {
@@ -50,9 +50,9 @@ cv.ncvsurv <- function(X, y, ..., cluster, nfolds=10, seed, cv.ind, se=c('quick'
       res <- fold.results[[i]]
     } else {
       if (trace) cat("Starting CV fold #",i,sep="","\n")
-      res <- cvf.surv(i, X, y, cv.ind, cv.args)
+      res <- cvf.surv(i, X, y, fold, cv.args)
     }
-    Y[cv.ind==i, 1:res$nl] <- res$yhat
+    Y[fold==i, 1:res$nl] <- res$yhat
   }
 
   # Eliminate saturated lambda values, if any
@@ -71,17 +71,17 @@ cv.ncvsurv <- function(X, y, ..., cluster, nfolds=10, seed, cv.ind, se=c('quick'
   }
   min <- which.min(cve)
 
-  val <- list(cve=cve, cvse=cvse, lambda=lambda, fit=fit, min=min, lambda.min=lambda[min], null.dev=cve[1], cv.ind=cv.ind)
+  val <- list(cve=cve, cvse=cvse, lambda=lambda, fit=fit, min=min, lambda.min=lambda[min], null.dev=cve[1], fold=fold)
   if (returnY) val$Y <- Y
   structure(val, class=c("cv.ncvsurv", "cv.ncvreg"))
 }
-cvf.surv <- function(i, XX, y, cv.ind, cv.args) {
-  cv.args$X <- XX[cv.ind!=i, , drop=FALSE]
-  cv.args$y <- y[cv.ind!=i,]
+cvf.surv <- function(i, XX, y, fold, cv.args) {
+  cv.args$X <- XX[fold!=i, , drop=FALSE]
+  cv.args$y <- y[fold!=i,]
   fit.i <- do.call("ncvsurv", cv.args)
 
-  X2 <- XX[cv.ind==i, , drop=FALSE]
-  y2 <- y[cv.ind==i,]
+  X2 <- XX[fold==i, , drop=FALSE]
+  y2 <- y[fold==i,]
   nl <- length(fit.i$lambda)
   yhat <- predict(fit.i, X2)
 
