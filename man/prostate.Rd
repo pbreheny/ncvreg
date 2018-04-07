@@ -20,7 +20,7 @@
  }}
 \usage{data(prostate)}
 \format{A data frame with 97 observations on 9 variables}
-\source{\url{http://statweb.stanford.edu/~tibs/ElemStatLearn/}}
+\source{\url{https://web.stanford.edu/~hastie/ElemStatLearn}}
 \references{
   \itemize{
     \item Hastie T, Tibshirani R, and Friedman J. (2001). \emph{The
