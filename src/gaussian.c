@@ -149,7 +149,7 @@ SEXP cdfit_gaussian(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEX
 	// Scan for violations in strong set
 	int violations = 0;
 	for (int j=0; j<p; j++) {
-	  if (e1[j]==0 & e2[j]==1) {
+	  if (e1[j]==0 && e2[j]==1) {
 
 	    z[j] = crossprod(X, r, n, j)/n;
 
