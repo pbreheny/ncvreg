@@ -1,4 +1,4 @@
-cv.ncvreg <- function(X, y, ..., cluster, nfolds=10, seed, cv.ind, returnY=FALSE, trace=FALSE, raw=FALSE) {
+cv.ncvreg <- function(X, y, ..., cluster, nfolds=10, seed, fold, returnY=FALSE, trace=FALSE, raw=FALSE) {
 
   # Coersion
   if (class(X) != "matrix") {
@@ -21,19 +21,19 @@ cv.ncvreg <- function(X, y, ..., cluster, nfolds=10, seed, cv.ind, returnY=FALSE
 
   if (!missing(seed)) set.seed(seed)
   sde <- sqrt(.Machine$double.eps)
-  if (missing(cv.ind)) {
+  if (missing(fold)) {
     if (fit$family=="binomial" & (min(table(y)) > nfolds)) {
       ind1 <- which(y==1)
       ind0 <- which(y==0)
       n1 <- length(ind1)
       n0 <- length(ind0)
-      cv.ind1 <- ceiling(sample(1:n1)/(n1+sde)*nfolds)
-      cv.ind0 <- ceiling(sample(1:n0)/(n0+sde)*nfolds)
-      cv.ind <- numeric(n)
-      cv.ind[y==1] <- cv.ind1
-      cv.ind[y==0] <- cv.ind0
+      fold1 <- ceiling(sample(1:n1)/(n1+sde)*nfolds)
+      fold0 <- ceiling(sample(1:n0)/(n0+sde)*nfolds)
+      fold <- numeric(n)
+      fold[y==1] <- fold1
+      fold[y==0] <- fold0
     } else {
-      cv.ind <- ceiling(sample(1:n)/(n+sqrt(.Machine$double.eps))*nfolds)
+      fold <- ceiling(sample(1:n)/(n+sqrt(.Machine$double.eps))*nfolds)
     }
   }
 
@@ -43,9 +43,9 @@ cv.ncvreg <- function(X, y, ..., cluster, nfolds=10, seed, cv.ind, returnY=FALSE
   cv.args$convex <- FALSE
   if (!missing(cluster)) {
     if (!("cluster" %in% class(cluster))) stop("cluster is not of class 'cluster'; see ?makeCluster")
-    parallel::clusterExport(cluster, c("cv.ind","fit","X", "y", "cv.args"), envir=environment())
+    parallel::clusterExport(cluster, c("fold","fit","X", "y", "cv.args"), envir=environment())
     parallel::clusterCall(cluster, function() require(ncvreg))
-    fold.results <- parallel::parLapply(cl=cluster, X=1:nfolds, fun=cvf, XX=X, y=y, cv.ind=cv.ind, cv.args=cv.args, raw=raw)
+    fold.results <- parallel::parLapply(cl=cluster, X=1:nfolds, fun=cvf, XX=X, y=y, fold=fold, cv.args=cv.args, raw=raw)
   }
 
   for (i in 1:nfolds) {
@@ -53,11 +53,11 @@ cv.ncvreg <- function(X, y, ..., cluster, nfolds=10, seed, cv.ind, returnY=FALSE
       res <- fold.results[[i]]
     } else {
       if (trace) cat("Starting CV fold #",i,sep="","\n")
-      res <- cvf(i, X, y, cv.ind, cv.args, raw)
+      res <- cvf(i, X, y, fold, cv.args, raw)
     }
-    E[cv.ind==i, 1:res$nl] <- res$loss
-    if (fit$family=="binomial") PE[cv.ind==i, 1:res$nl] <- res$pe
-    Y[cv.ind==i, 1:res$nl] <- res$yhat
+    E[fold==i, 1:res$nl] <- res$loss
+    if (fit$family=="binomial") PE[fold==i, 1:res$nl] <- res$pe
+    Y[fold==i, 1:res$nl] <- res$yhat
   }
 
   ## Eliminate saturated lambda values, if any
@@ -72,7 +72,7 @@ cv.ncvreg <- function(X, y, ..., cluster, nfolds=10, seed, cv.ind, returnY=FALSE
   min <- which.min(cve)
 
   # Bias correction
-  e <- sapply(1:nfolds, function(i) apply(E[cv.ind==i,,drop=FALSE], 2, mean))
+  e <- sapply(1:nfolds, function(i) apply(E[fold==i,,drop=FALSE], 2, mean))
   Bias <- mean(e[min,] - apply(e, 2, min))
 
   val <- list(cve=cve, cvse=cvse, lambda=lambda, fit=fit, min=min, lambda.min=lambda[min],
@@ -84,14 +84,14 @@ cv.ncvreg <- function(X, y, ..., cluster, nfolds=10, seed, cv.ind, returnY=FALSE
   if (returnY) val$Y <- Y
   structure(val, class="cv.ncvreg")
 }
-cvf <- function(i, XX, y, cv.ind, cv.args, raw = FALSE) {
-  cv.args$X <- XX[cv.ind!=i, , drop=FALSE]
-  cv.args$y <- y[cv.ind!=i]
+cvf <- function(i, XX, y, fold, cv.args, raw = FALSE) {
+  cv.args$X <- XX[fold!=i, , drop=FALSE]
+  cv.args$y <- y[fold!=i]
   FUNC <- if (raw) "ncvreg_raw" else "ncvreg"
   fit.i <- do.call(FUNC, cv.args)
 
-  X2 <- XX[cv.ind==i, , drop=FALSE]
-  y2 <- y[cv.ind==i]
+  X2 <- XX[fold==i, , drop=FALSE]
+  y2 <- y[fold==i]
   yhat <- matrix(predict(fit.i, X2, type="response"), length(y2))
   loss <- loss.ncvreg(y2, yhat, fit.i$family)
   pe <- if (fit.i$family=="binomial") {(yhat < 0.5) == y2} else NULL
