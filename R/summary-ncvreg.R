@@ -3,7 +3,7 @@ summary.ncvreg <- function(object, lambda, which, ...) {
   if (length(nvars) > 1) stop("You must specify a single model (i.e., a single value of lambda)")
   if (missing(lambda)) lambda <- object$lambda[which]
   model <- switch(object$family, gaussian="linear", binomial="logistic", poisson="Poisson")
-  if (class(object)[0] == "ncvreg_raw") {
+  if (class(object)[1] == "ncvreg_raw") {
     val <- list(penalty=object$penalty, model=model, n=object$n, p=length(object$penalty.factor), lambda=lambda, nvars=nvars)
   else {
     local <- local_mfdr(object, lambda, ...)
