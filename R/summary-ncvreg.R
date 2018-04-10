@@ -3,11 +3,16 @@ summary.ncvreg <- function(object, lambda, which, ...) {
   if (length(nvars) > 1) stop("You must specify a single model (i.e., a single value of lambda)")
   if (missing(lambda)) lambda <- object$lambda[which]
   model <- switch(object$family, gaussian="linear", binomial="logistic", poisson="Poisson")
-  val <- list(penalty=object$penalty, model=model, n=object$n, p=length(object$penalty.factor), lambda=lambda, nvars=nvars)
-  if ("X" %in% names(object) || object$family=="gaussian") {
-    mFDR <- mfdr(object)
-    f <- approxfun(object$lambda, mFDR$EF)
-    val$EF = f(lambda)
+  if (class(object)[0] == "ncvreg_raw") {
+    val <- list(penalty=object$penalty, model=model, n=object$n, p=length(object$penalty.factor), lambda=lambda, nvars=nvars)
+  else {
+    local <- local_mfdr(object, lambda, ...)
+    val <- list(penalty=object$penalty, model=model, n=object$n, p=nrow(object$beta)-1, lambda=lambda, nvars=nvars, table=local$pen.vars, unpenTable = local$unpen.vars)
+    if ("X" %in% names(object) || object$family=="gaussian") {
+      mFDR <- mfdr(object)
+      f <- approxfun(object$lambda, mFDR$EF)
+      val$EF = f(lambda)
+    }
   }
   structure(val, class="summary.ncvreg")
 }
@@ -19,6 +24,19 @@ print.summary.ncvreg <- function(x, digits, ...) {
   cat("  Nonzero coefficients: ", x$nvars, "\n", sep="")
   if ("EF" %in% names(x)) {
     cat("  Expected nonzero coefficients: ", formatC(x$EF, digits=digits[2], format="f"), "\n", sep="")
-    cat("  FIR: ", formatC(x$EF/x$nvars, digits=3, format="f"), "\n", sep="")
+    cat("  mFDR: ", formatC(x$EF/x$nvars, digits=3, format="f"), "\n", sep="")
+    if (nrow(x$table) == x$nvars & all(x$table$Estimate != 0)) {
+      cat("  (local) Expected nonzero coefficients: ", formatC(sum(x$table$mfdr), digits=3), '\n', sep="")
+      cat("  (local) mfdr: ", formatC(mean(x$table$mfdr), digits=3), '\n', sep="")
+    }
+    cat("\n")
+  }
+  if ("table" %in% names(x)) {
+    x$table$mfdr <- format.pval(x$table$mfdr, eps=1e-4)
+    print(x$table, digits=digits)
+  }
+  if (!is.null(x$unpenTable)) {
+    x$unpenTable$mfdr <- format.pval(x$unpenTable$mfdr, eps=1e-4)
+    print(x$unpenTable, digits=digits)
   }
 }
