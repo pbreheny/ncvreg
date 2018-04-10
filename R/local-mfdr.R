@@ -8,7 +8,9 @@ local_mfdr <- function(fit, lambda, X = NULL, y = NULL, number=NULL, cutoff=NULL
   if(!is.null(cutoff)){
     if(cutoff > 1 | cutoff <= 0) stop("'cutoff' should be in the interval (0,1]")
   }  
-  
+  if(class(fit)[1] == "ncvreg_raw") {
+    stop("local_mfdr currently does not support raw data fit with ncvreg_raw")
+  }
   # Standardize X
   if(is.null(X)) {
     if(is.null(fit$X)) {
