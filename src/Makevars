@@ -1,1 +1,1 @@
-PKG_CFLAGS += -std=c99
+CXX_STD = CXX99

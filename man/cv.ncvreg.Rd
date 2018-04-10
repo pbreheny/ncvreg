@@ -5,7 +5,7 @@
   regression models over a grid of values for the regularization
   parameter lambda.}
 \usage{
-cv.ncvreg(X, y, ..., cluster, nfolds=10, seed, cv.ind, returnY=FALSE,
+cv.ncvreg(X, y, ..., cluster, nfolds=10, seed, fold, returnY=FALSE,
 trace=FALSE, raw=FALSE) }
 \arguments{
   \item{X}{The design matrix, without an intercept, as in
@@ -18,7 +18,7 @@ trace=FALSE, raw=FALSE) }
     pacakge.  The cluster must then be passed to \code{cv.ncvreg} (see
     example).}
   \item{nfolds}{The number of cross-validation folds.  Default is 10.}
-  \item{cv.ind}{Which fold each observation belongs to.  By default the
+  \item{fold}{Which fold each observation belongs to.  By default the
     observations are randomly assigned by \code{cv.ncvreg}.}
   \item{seed}{You may set the seed of the random number generator in
     order to obtain reproducible results.}

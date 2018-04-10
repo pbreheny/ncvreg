@@ -17,7 +17,7 @@
     \item chd: Coronary heart disease at baseline; 1=Yes 0=No}} 
 \usage{data(heart)}
 \format{A data frame with 462 observations on 10 variables}
-\source{\url{http://statweb.stanford.edu/~tibs/ElemStatLearn/}}
+\source{\url{https://web.stanford.edu/~hastie/ElemStatLearn/}}
 \references{
   \itemize{
     \item Hastie T, Tibshirani R, and Friedman J. (2001). \emph{The
