@@ -35,14 +35,14 @@ local_mfdr <- function(fit, lambda, X = NULL, y = NULL, number=NULL, cutoff=NULL
   beta <- coef(fit, lambda=lambda)
   pen.idx <- fit$penalty.factor > 0
   
-  ##### Linear Regression
+  # Linear Regression
   if(class(fit)[1] == "ncvreg"){
     if(fit$family == "gaussian"){
-      ### Setup standardized beta and centered y
+      # Setup standardized beta and centered y
       yy <- y - mean(y)
       bb <- c(mean(y), beta[ns+1]*sc)
       
-      ### Calculate standardized z_j's
+      # Calculate standardized z_j's
       R <- yy - cbind(1, XX) %*% bb
       z <- (1/n)*t(XX) %*% R + bb[-1]
       rss <- approxfun(fit$lambda, fit$loss)
@@ -50,21 +50,21 @@ local_mfdr <- function(fit, lambda, X = NULL, y = NULL, number=NULL, cutoff=NULL
       z <- z/(sig.est/sqrt(n))
     }
     
-    ### Logistic regression 
+    # Logistic regression 
     else if (fit$family == "binomial"){
-      ## Setup standardized beta
+      # Setup standardized beta
       yy <- y
       if(is.factor(y)){
         yy <- as.numeric(y)-1
       } 
       bb <- c(beta[1] + sum(beta[ns+1]*cen), beta[ns+1]*sc)
       
-      ### Setup the score vector and W matrix
+      # Setup the score vector and W matrix
       P <- 1/(1 + exp(-cbind(1,XX) %*% bb))
       U <- yy - P   
       W <- diag(as.vector(P*(1 - P)))  
       
-      ### Calculate v_j and z_j
+      # Calculate v_j and z_j
       z <- numeric(p)
       for (j in 1:p){
         vj <- t(XX[,j]) %*% W %*% XX[,j]
@@ -73,22 +73,22 @@ local_mfdr <- function(fit, lambda, X = NULL, y = NULL, number=NULL, cutoff=NULL
     }
   }
   
-  ### Cox regression
+  # Cox regression
   if(class(fit)[1] == "ncvsurv"){
-    ## Setup standardized beta
+    # Setup standardized beta
     bb <- beta[ns]*sc
     
-    ### Calculate score vector and W (maybe diagonalize it for speed?)
+    # Calculate score vector and W (maybe diagonalize it for speed?)
     d <- fit$fail
-    rsk <- rev(cumsum(rev(exp(fit$Eta[,lid]))))
-    P <- outer(exp(fit$Eta[,lid]), rsk, '/')
+    Eta <- predict(fit, lambda=lambda)
+    rsk <- rev(cumsum(rev(exp(Eta))))
+    P <- outer(exp(Eta), rsk, '/')
     P[upper.tri(P)] <- 0
     U <- d - P%*%d  
     W <- -P %*% diag(d) %*% t(P)
-    #W <- matrix(0,n,n)
     diag(W) <- diag(P %*% diag(d) %*% t(1-P))
     
-    ### Calculate v_j and z_j
+    # Calculate v_j and z_j
     z <- numeric(p)
     for (j in 1:p){
       vj <- t(XX[,j]) %*% W %*% XX[,j]
@@ -96,35 +96,18 @@ local_mfdr <- function(fit, lambda, X = NULL, y = NULL, number=NULL, cutoff=NULL
     }
   }
   
-  ### Calculate locfdr
-  if (require(ashr)) {
-    ash_fit <- ash(z[pen.idx], rep(1, sum(pen.idx)), optmethod='mixEM')
-    est.gam <- get_lfdr(ash_fit)
-  } else {
-    f <- density(z[pen.idx])
-    ff <- approxfun(f$x, f$y)
-    est.gam <- pmin(dnorm(z[pen.idx], 0, 1)/ff(z[pen.idx]), 1)
-  }
+  # Calculate locfdr
+  f <- density(z[pen.idx])
+  ff <- approxfun(f$x, f$y)
+  est.gam <- pmin(dnorm(z[pen.idx], 0, 1)/ff(z[pen.idx]), 1)
 
-  #### Calculate Fdr (using both est cdf and empirical cdf)
-  #### Remove this section if only care about locfdr
-  # est.Fdr <- emp.Fdr <- numeric(p)
-  # est.Fdr[!pen.idx] <- emp.Fdr[!pen.idx] <- NA
-  # for(j in (1:p)[pen.idx]){
-  #   if(z[j] < 0) {
-  #     emp.Fdr[j] <- pnorm(z[j])/(sum(z <= z[j])/p)
-  #   } else {
-  #     emp.Fdr[j] <- (1-pnorm(z[j]))/(sum(z >= z[j])/p)
-  #   }
-  # }
-  
-  ### setup results
+  # setup results
   Estimate <- if (class(fit)[1] == "ncvreg") beta[-1][pen.idx] else beta[pen.idx]
   results <- data.frame(Estimate = Estimate, z = z[pen.idx], mfdr = est.gam)
   rownames(results) <- names(Estimate)
 
-  ### Results for unpenalized vars
-  ### This uses the effect of the high dim selections as an offset
+  # Results for unpenalized vars
+  # This uses the effect of the high dim selections as an offset
   unpen.res <- NULL
   if(sum(pen.idx) < length(pen.idx)){
     if(class(fit)[1] == "ncvreg"){
@@ -140,14 +123,14 @@ local_mfdr <- function(fit, lambda, X = NULL, y = NULL, number=NULL, cutoff=NULL
     }
   }
   
-  ### If number and cutoff are both unspecified return results for selected vars
+  # If number and cutoff are both unspecified return results for selected vars
   results <- results[order(results$mfdr),]
   if(is.null(number) & is.null(cutoff)){
     results <- results[results$Estimate != 0,]
     return(list(pen.vars = results[!is.na(results$mfdr),],unpen.vars = unpen.res ))
   }
   
-  ### If cutoff is null return 1:number, else return the minimum
+  # If cutoff is null return 1:number, else return the minimum
   if(is.null(cutoff)) {
     nShow <- min(number, p)
   } else {
