@@ -28,8 +28,6 @@ This guide is intended to briefly demonstrate the basic usage of {\tt ncvreg}.  
 
 {\tt ncvreg} comes with a few example data sets; we'll look at {\tt prostate}, which has 8 features and one continuous response, \verb|prostate$lpsa|, the PSA levels (on the log scale) from men about to undergo radical prostatectomy.  The data is available as a data frame; we will turn it into a design matrix {\tt X} and response vector {\tt y} for the purpose of analysis
 
-\end{document}
-
 <<>>=
 # Linear regression
 data(Prostate)

@@ -61,7 +61,7 @@ plot(pmfit, type="EF")
 plot(pmfit$fit)
 lam <- pmfit$fit$lambda
 
-prfit.r <- perm.ncvreg(Prostate$X, Prostate$y, permute='residuals')
+pmfit.r <- perm.ncvreg(Prostate$X, Prostate$y, permute='residuals')
 plot(pmfit.r, col="red")              # Permuting residuals is
 lines(lam, pmfit$mFDR, col="gray60")  # less conservative
 
