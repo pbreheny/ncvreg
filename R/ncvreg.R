@@ -1,7 +1,7 @@
 ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("MCP", "SCAD", "lasso"),
                    gamma=switch(penalty, SCAD=3.7, 3), alpha=1, lambda.min=ifelse(n>p,.001,.05), nlambda=100,
                    lambda, eps=1e-4, max.iter=10000, convex=TRUE, dfmax=p+1, penalty.factor=rep(1, ncol(X)),
-                   warn=TRUE, returnX=FALSE, ...) {
+                   warn=TRUE, returnX, ...) {
   # Coersion
   family <- match.arg(family)
   penalty <- match.arg(penalty)
@@ -69,7 +69,7 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
     loss <- res[[3]]
     Eta <- matrix(res[[4]], n, nlambda)
     iter <- res[[5]]
-  } 
+  }
 
   ## Eliminate saturated lambda values, if any
   ind <- !is.na(iter)
@@ -110,6 +110,15 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
                    class = "ncvreg")
   if (family=="poisson") val$y <- y
   if (family=="binomial") val$Eta <- Eta
+  browser()
+  if (missing(returnX)) {
+    if (utils::object.size(XX) > 1e7) {
+      warning("Due to the large size of X (>10 Mb), returnX has been turned off.\nTo turn this message off, explicitly specify returnX=TRUE or returnX=FALSE).")
+      returnX <- FALSE
+    } else {
+      returnX <- TRUE
+    }
+  }
   if (returnX) {
     val$X <- XX
     val$y <- yy

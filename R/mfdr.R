@@ -7,8 +7,7 @@ mfdr <- function(fit, X) {
   if ((class(fit)[1] == "ncvsurv") || (class(fit)[1] == "ncvreg" & fit$family == "binomial")) {
     if (!("X" %in% names(fit))) {
       if (missing(X)) {
-        stop("For Cox/GLM models, you must either supply X or run ncvsurv with
-returnX=TRUE to calculate an mFDR")
+        stop("For Cox/GLM models, you must either supply X or run ncvsurv with returnX=TRUE to calculate an mFDR")
       } else {
         if (class(fit)[1] == "ncvsurv") {
           fit$X <- std(X)[fit$order,]
