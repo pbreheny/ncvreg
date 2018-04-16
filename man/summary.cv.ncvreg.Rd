@@ -44,19 +44,13 @@
 \seealso{\code{\link{ncvreg}}, \code{\link{cv.ncvreg}},
   \code{\link{plot.cv.ncvreg}}} 
 \examples{
-## Linear regression
-data(prostate)
-X <- as.matrix(prostate[,1:8])
-y <- prostate$lpsa
-cvfit <- cv.ncvreg(X, y)
+# Linear regression --------------------------------------------------
+data(Prostate)
+cvfit <- cv.ncvreg(Prostate$X, Prostate$y)
 summary(cvfit)
 
-## Logistic regression
-data(heart)
-X <- as.matrix(heart[,1:9])
-y <- heart$chd
-cvfit <- cv.ncvreg(X, y, family="binomial")
+# Logistic regression ------------------------------------------------
+data(Heart)
+cvfit <- cv.ncvreg(Heart$X, Heart$y, family="binomial")
 summary(cvfit)
 }
-\keyword{models}
-\keyword{regression}

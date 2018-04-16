@@ -48,9 +48,7 @@ permres(fit, \dots)
 \author{Patrick Breheny <patrick-breheny@uiowa.edu>}
 \seealso{\code{\link{ncvreg}}, \code{\link{fir}}, \code{\link{perm.ncvreg}}}
 \examples{
-data(prostate)
-X <- as.matrix(prostate[,1:8])
-y <- prostate$lpsa
-fit <- ncvreg(X, y, returnX = TRUE, N=50)
+data(Prostate)
+fit <- ncvreg(Prostate$X, Prostate$y, N=50)
 permres(fit, lambda=0.15)
 }

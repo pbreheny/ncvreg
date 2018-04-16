@@ -36,11 +36,9 @@ mfdr(fit, X)
   \code{\link{perm.ncvreg}}}
 \examples{
 
-#### Linear regression -----------------------------
-data(prostate)
-X <- as.matrix(prostate[,1:8])
-y <- prostate$lpsa
-fit <- ncvreg(X, y)
+# Linear regression --------------------------------
+data(Prostate)
+fit <- ncvreg(Prostate$X, Prostate$y)
 
 obj <- mfdr(fit)
 obj[1:10,]
@@ -49,27 +47,22 @@ obj[1:10,]
 par(mfrow=c(2,2))
 plot(obj)
 plot(obj, type="EF")
-pmfit <- perm.ncvreg(X, y)
+pmfit <- perm.ncvreg(Prostate$X, Prostate$y)
 plot(pmfit)
-plot(pmfit, type="EF")
-# Note that mfdr() is more conservative
+plot(pmfit, type="EF") # Note that mfdr() is more conservative
 
-#### Logistic regression ---------------------------
-data(heart)
-X <- as.matrix(heart[,1:9])
-y <- heart$chd
-fit <- ncvreg(X, y, family="binomial")
-obj <- mfdr(fit, X)
+# Logistic regression ------------------------------
+data(Heart)
+fit <- ncvreg(Heart$X, Heart$y, family="binomial")
+obj <- mfdr(fit)
 head(obj)
 plot(obj)
 plot(obj, type="EF")
 
-#### Cox regression --------------------------------
+# Cox regression -----------------------------------
 data(Lung)
-X <- Lung$X
-y <- Lung$y
-fit <- ncvsurv(X, y)
-obj <- mfdr(fit, X)
+fit <- ncvsurv(Lung$X, Lung$y)
+obj <- mfdr(fit)
 head(obj)
 plot(obj)
 plot(obj, type="EF")

@@ -51,26 +51,23 @@
 \author{Patrick Breheny <patrick-breheny@uiowa.edu>}
 \seealso{\code{\link{ncvreg}}, \code{\link{plot.mfdr}}, \code{\link{mfdr}}}
 \examples{
-## Linear regression
-data(prostate)
-X <- as.matrix(prostate[,1:8])
-y <- prostate$lpsa
-pmfit <- perm.ncvreg(X, y)
+# Linear regression --------------------------------------------------
+data(Prostate)
+pmfit <- perm.ncvreg(Prostate$X, Prostate$y)
 
 par(mfcol=c(2,2))
 plot(pmfit)
 plot(pmfit, type="EF")
 plot(pmfit$fit)
+lam <- pmfit$fit$lambda
 
-pmfit.r <- perm.ncvreg(X, y, permute='residuals')
-plot(pmfit.r, col="red")                           # Permuting residuals is
-lines(pmfit$fit$lambda, pmfit$mFDR, col="gray60")  # less conservative
+prfit.r <- perm.ncvreg(Prostate$X, Prostate$y, permute='residuals')
+plot(pmfit.r, col="red")              # Permuting residuals is
+lines(lam, pmfit$mFDR, col="gray60")  # less conservative
 
-## Logistic regression
-data(heart)
-X <- as.matrix(heart[,1:9])
-y <- heart$chd
-pmfit <- perm.ncvreg(X, y, family="binomial")
+# Logistic regression ------------------------------------------------
+data(Heart)
+pmfit <- perm.ncvreg(Heart$X, Heart$y, family="binomial")
 
 par(mfrow=c(2,2))
 plot(pmfit)

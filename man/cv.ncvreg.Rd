@@ -41,7 +41,8 @@ trace=FALSE) }
   For \code{family="binomial"} models, the cross-validation fold
   assignments are balanced across the 0/1 outcomes, so that each fold
   has the same proportion of 0/1 outcomes (or as close to the same
-  proportion as it is possible to achieve if cases do not divide evenly).
+  proportion as it is possible to achieve if cases do not divide
+  evenly).
 }
 \value{
   An object with S3 class \code{"cv.ncvreg"} containing:
@@ -71,13 +72,12 @@ trace=FALSE) }
   biological feature selection. Ann. Appl. Statist., 5: 232-253.}
 \author{Patrick Breheny <patrick-breheny@uiowa.edu>\cr
         Grant Brown helped with the parallelization support}
-\seealso{\code{\link{ncvreg}}, \code{\link{plot.cv.ncvreg}}, \code{\link{summary.cv.ncvreg}}}
+\seealso{\code{\link{ncvreg}}, \code{\link{plot.cv.ncvreg}},
+  \code{\link{summary.cv.ncvreg}}}
 \examples{
-data(prostate)
-X <- as.matrix(prostate[,1:8])
-y <- prostate$lpsa
+data(Prostate)
 
-cvfit <- cv.ncvreg(X, y)
+cvfit <- cv.ncvreg(Prostate$X, Prostate$y)
 plot(cvfit)
 summary(cvfit)
 
@@ -88,6 +88,8 @@ beta <- fit$beta[,cvfit$min]
 ## requires loading the parallel package
 \dontrun{
 library(parallel)
+X <- Prostate$X
+y <- Prostate$y
 cl <- makeCluster(4)
 cvfit <- cv.ncvreg(X, y, cluster=cl, nfolds=length(y))}
 }
