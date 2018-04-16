@@ -105,7 +105,7 @@ local_mfdr <- function(fit, lambda, X = NULL, y = NULL, number=NULL, cutoff=NULL
     ff <- approxfun(f$x, f$y)
     est.gam <- pmin(dnorm(z[pen.idx], 0, 1)/ff(z[pen.idx]), 1)
   }
-  
+
   #### Calculate Fdr (using both est cdf and empirical cdf)
   #### Remove this section if only care about locfdr
   # est.Fdr <- emp.Fdr <- numeric(p)

@@ -30,7 +30,8 @@ print.summary.ncvreg <- function(x, digits, ...) {
   x$table$mfdr <- format.pval(x$table$mfdr, eps=1e-4)
   print(x$table, digits=digits)
   if (!is.null(x$unpenTable)) {
-    x$unpenTable$mfdr <- format.pval(x$unpenTable$mfdr, eps=1e-4)
+    x$unpenTable$p.value <- format.pval(x$unpenTable$p.value, eps=1e-4)
+    cat("\nUnpenalized variables:\n")
     print(x$unpenTable, digits=digits)
   }
 }
