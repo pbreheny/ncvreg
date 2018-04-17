@@ -50,6 +50,7 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
     nlambda <- length(lambda)
     user.lambda <- TRUE
   }
+  if (sys.nframe() > 1 && sys.call(-1)[[1]]=="local_mfdr") return(list(X=XX, y=yy))
 
   ## Fit
   if (family=="gaussian") {

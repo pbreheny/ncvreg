@@ -1,66 +1,51 @@
 # 'number': if you want a summary for more than S variables
-local_mfdr <- function(fit, lambda, X = NULL, y = NULL, number=NULL, cutoff=NULL){
+local_mfdr <- function(fit, lambda, number=NULL, cutoff=NULL, X=NULL, y=NULL) {
 
   # Check for valid args
-  if(!is.null(number)){
-    if(number < 1) stop("'number' should be a positive integer")
-  }
-  if(!is.null(cutoff)){
-    if(cutoff > 1 | cutoff <= 0) stop("'cutoff' should be in the interval (0,1]")
-  }
+  if(!is.null(number) && (number < 1)) stop("'number' should be a positive integer")
+  if(!is.null(cutoff) && (cutoff > 1 | cutoff <= 0)) stop("'cutoff' should be in the interval (0,1]")
 
-  # Standardize X
-  if(is.null(X)) {
-    if(is.null(fit$X)) {
+  # Extract standardized X, y
+  if (is.null(X) & is.null(fit$X)) {
       stop("This procedure requires X and y, either supply X and y, or fit the model using the option 'returnX = TRUE'")
-    } else {
-      XX <- fit$X
-      y <- fit$y
-    }
+  }
+  if(class(fit)[1] == "ncvsurv") {
+    tmp <- if (is.null(fit$X)) ncvsurv(X, y) else fit
+    XX <- tmp$X
+    y <- tmp$time
+    d <- tmp$fail
   } else {
-    if(class(fit)[1] == "ncvsurv") {
-      XX <- std(X[fit$order,])
-    } else {
-      XX <- std(X)
-    }
+    tmp <- if (is.null(fit$X)) ncvreg(X, y, family=fit$family) else fit
+    XX <- tmp$X
+    yy <- tmp$y
   }
 
-  ### Setup general
+  # Setup general
   ns <- attr(XX, "nonsingular")
-  sc <- attr(XX, "scale")
-  cen <- attr(XX, "center")
+  sc <- attr(XX, "scale")[ns]
+  cn <- attr(XX, "center")[ns]
   n <- nrow(XX)
   p <- ncol(XX)
   S <- predict(fit, type = "nvars", lambda = lambda)
   beta <- coef(fit, lambda=lambda)
   pen.idx <- fit$penalty.factor > 0
 
-  # Linear Regression
-  if(class(fit)[1] == "ncvreg"){
-    if(fit$family == "gaussian"){
-      # Setup standardized beta and centered y
-      yy <- y - mean(y)
-      bb <- c(mean(y), beta[ns+1]*sc)
-
-      # Calculate standardized z_j's
-      R <- yy - cbind(1, XX) %*% bb
-      z <- (1/n)*t(XX) %*% R + bb[-1]
+  if(class(fit)[1] == "ncvreg") {
+    if(fit$family == "gaussian") {
+      # Linear Regression
+      bb <- beta[-1][ns]*sc
+      r <- yy - XX %*% bb
+      z <- crossprod(XX, r)/n + bb
       rss <- approxfun(fit$lambda, fit$loss)
       sig.est <- sqrt(rss(lambda)/(n - S + 1))
       z <- z/(sig.est/sqrt(n))
-    }
-
-    # Logistic regression
-    else if (fit$family == "binomial"){
-      # Setup standardized beta
-      yy <- y
-      if(is.factor(y)){
-        yy <- as.numeric(y)-1
-      }
-      bb <- c(beta[1] + sum(beta[ns+1]*cen), beta[ns+1]*sc)
+    } else if (fit$family == "binomial") {
+      # Logistic regression
+      bb <- beta[-1][ns]*sc
+      a <- sum(cn*beta[-1][ns]) + beta[1]
 
       # Setup the score vector and W matrix
-      P <- 1/(1 + exp(-cbind(1,XX) %*% bb))
+      P <- 1/(1 + exp(-a-(XX %*% bb)))
       U <- yy - P
       W <- diag(as.vector(P*(1 - P)))
 
@@ -68,7 +53,7 @@ local_mfdr <- function(fit, lambda, X = NULL, y = NULL, number=NULL, cutoff=NULL
       z <- numeric(p)
       for (j in 1:p){
         vj <- t(XX[,j]) %*% W %*% XX[,j]
-        z[j] <- (XX[,j] %*% U + vj * bb[j+1])/(sqrt(vj))  ### j+1 bc intercept
+        z[j] <- (XX[,j] %*% U + vj * bb[j])/(sqrt(vj))  ### j+1 bc intercept
       }
     }
   }
@@ -79,12 +64,11 @@ local_mfdr <- function(fit, lambda, X = NULL, y = NULL, number=NULL, cutoff=NULL
     bb <- beta[ns]*sc
 
     # Calculate score vector and W (maybe diagonalize it for speed?)
-    d <- fit$fail
     ind <- approx(fit$lambda, seq(fit$lambda), lambda)$y
     l <- floor(ind)
     r <- ceiling(ind)
     x <- ind %% 1
-    Eta <- (1-x)*fit$Eta[,l] + x*fit$beta[,r]
+    Eta <- (1-x)*fit$Eta[,l] + x*fit$Eta[,r]
     rsk <- rev(cumsum(rev(exp(Eta))))
     P <- outer(exp(Eta), rsk, '/')
     P[upper.tri(P)] <- 0
@@ -106,7 +90,7 @@ local_mfdr <- function(fit, lambda, X = NULL, y = NULL, number=NULL, cutoff=NULL
   est.gam <- pmin(dnorm(z[pen.idx], 0, 1)/ff(z[pen.idx]), 1)
 
   # setup results
-  Estimate <- if (class(fit)[1] == "ncvreg") beta[-1][pen.idx] else beta[pen.idx]
+  Estimate <- if (class(fit)[1] == "ncvreg") beta[-1][ns][pen.idx] else beta[ns][pen.idx]
   results <- data.frame(Estimate = Estimate, z = z[pen.idx], mfdr = est.gam)
   rownames(results) <- names(Estimate)
 
@@ -115,15 +99,15 @@ local_mfdr <- function(fit, lambda, X = NULL, y = NULL, number=NULL, cutoff=NULL
   unpen.res <- NULL
   if(sum(pen.idx) < length(pen.idx)){
     if(class(fit)[1] == "ncvreg"){
-      off <- XX[,pen.idx] %*% bb[c(FALSE, pen.idx)]
+      off <- XX[,pen.idx] %*% bb[pen.idx]
       unpen.res <- summary(glm(yy ~ XX[,!pen.idx], offset = off, family = fit$family))$coef
-      unpen.res <- data.frame(Estimate = unpen.res[-1,1]/sc[!pen.idx], std.error = unpen.res[-1,2]/sc[!pen.idx], statistic = unpen.res[-1,3], p.value = unpen.res[-1,4])
-      rownames(unpen.res) <- names(beta)[c(FALSE, !pen.idx)]
+      unpen.res <- data.frame(Estimate = beta[-1][ns][!pen.idx], std.error = unpen.res[-1,2]/sc[ns][!pen.idx], statistic = unpen.res[-1,3], p.value = unpen.res[-1,4])
+      rownames(unpen.res) <- names(bb)[!pen.idx]
     } else {
       off <- XX[,pen.idx] %*% bb[pen.idx]
       unpen.res <- summary(survival::coxph(survival::Surv(y,d) ~ XX[,!pen.idx] + offset(off)))$coefficients
-      unpen.res <- data.frame(Estimate = unpen.res[,1]/sc[!pen.idx], std.error = unpen.res[,3]/sc[!pen.idx], statistic = unpen.res[,4], p.value = unpen.res[,5])
-      rownames(unpen.res) <- names(beta)[!pen.idx]
+      unpen.res <- data.frame(Estimate = unpen.res[,1]/sc[ns][!pen.idx], std.error = unpen.res[,3]/sc[ns][!pen.idx], statistic = unpen.res[,4], p.value = unpen.res[,5])
+      rownames(unpen.res) <- names(bb)[!pen.idx]
     }
   }
 

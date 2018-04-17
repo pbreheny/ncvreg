@@ -28,6 +28,9 @@ predict.ncvreg <- function(object, X, type=c("link", "response", "class", "coeff
 }
 coef.ncvreg <- function(object, lambda, which=1:length(object$lambda), drop=TRUE, ...) {
   if (!missing(lambda)) {
+    if (max(lambda) > max(object$lambda) | min(lambda) < min(object$lambda)) {
+      stop('Supplied lambda value(s) are outside the range of the model fit.')
+    }
     ind <- approx(object$lambda,seq(object$lambda),lambda)$y
     l <- floor(ind)
     r <- ceiling(ind)

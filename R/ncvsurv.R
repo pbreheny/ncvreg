@@ -31,6 +31,7 @@ ncvsurv <- function(X, y, penalty=c("MCP", "SCAD", "lasso"), gamma=switch(penalt
   Delta <- y[tOrder,2]
   n <- length(yy)
   XX <- std(X[tOrder,,drop=FALSE])
+  if (sys.nframe() > 1 && sys.call(-1)[[1]]=="local_mfdr") return(list(X=XX, time=yy, fail=Delta))
   ns <- attr(XX, "nonsingular")
   penalty.factor <- penalty.factor[ns]
   p <- ncol(XX)
@@ -98,7 +99,6 @@ ncvsurv <- function(X, y, penalty=c("MCP", "SCAD", "lasso"), gamma=switch(penalt
   }
   if (returnX) {
     val$X <- XX
-    val$y <- yy
   }
   val
 }
