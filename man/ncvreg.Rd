@@ -10,7 +10,7 @@ ncvreg(X, y, family=c("gaussian", "binomial", "poisson"),
 penalty=c("MCP", "SCAD", "lasso"), gamma=switch(penalty, SCAD=3.7, 3),
 alpha=1, lambda.min=ifelse(n>p,.001,.05), nlambda=100, lambda, eps=1e-4,
 max.iter=10000, convex=TRUE, dfmax=p+1, penalty.factor=rep(1, ncol(X)),
-warn=TRUE, returnX=FALSE, ...)
+warn=TRUE, returnX, ...)
 }
 \arguments{
   \item{X}{The design matrix, without an intercept.  \code{ncvreg}
@@ -56,8 +56,12 @@ warn=TRUE, returnX=FALSE, ...)
     always in the model without shrinkage.}
   \item{warn}{Return warning messages for failures to converge and model
     saturation?  Default is TRUE.}
-  \item{returnX}{Return the standardized design matrix?  Default is
-    FALSE.}
+  \item{returnX}{Return the standardized design matrix along with the
+    fit?  By default, this option is turned on if X is under 10 MB, but
+    turned off for larger matrices to preserve memory.  Note that
+    certain methods, such as \code{\link{summary.ncvreg}} require access
+    to the design matrix and may not be able to run if
+    \code{returnX=FALSE}.}
   \item{...}{Not used.}
 }
 \details{
@@ -103,6 +107,12 @@ warn=TRUE, returnX=FALSE, ...)
     and \code{"poisson"}) of the fitted model at each value of
     \code{lambda}.}
   \item{penalty.factor}{Same as above.}
+  \item{n}{Sample size.}
+  
+Additionally, if \code{returnX=TRUE}, the object will also contain
+  
+  \item{X}{The standardized design matrix.}
+  \item{y}{The response, centered if \code{family='gaussian'}.}
 }
 \references{Breheny, P. and Huang, J. (2011) Coordinate descent
   algorithms for nonconvex penalized regression, with applications to
