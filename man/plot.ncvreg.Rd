@@ -21,14 +21,10 @@
 \author{Patrick Breheny <patrick-breheny@uiowa.edu>}
 \seealso{\code{\link{ncvreg}}}
 \examples{
-data(prostate)
-X <- as.matrix(prostate[,1:8])
-y <- prostate$lpsa
+data(Prostate)
 
-fit <- ncvreg(X,y)
+fit <- ncvreg(Prostate$X, Prostate$y)
 plot(fit)
-plot(fit,col="black")
-plot(fit,log=TRUE)
+plot(fit, col="black")
+plot(fit, log=TRUE)
 }
-\keyword{models}
-\keyword{regression}

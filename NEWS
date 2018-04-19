@@ -1,3 +1,15 @@
+# 3.10-0 (2018-04-17)
+  * New: summary.ncvreg and summary.ncvsurv now report tables of inference for
+    each feature based on local mFDRs
+  * New: Option to specify fold assignments in cv.ncvsurv
+  * New: CVSE now calculated for Cox models, with option of quick or bootstrap
+  * Change: returnX now turned on by default if X < 10 Mb
+  * Change: cv.ncvsurv now balances censoring across fold assignments
+  * Change: All data sets now follow Data$X, Data$y convention
+  * Deprecated: cv.ind argument to cv.ncvreg is now called fold
+  * Portability: Fixed C99 flag
+  * Internal: Fixed & v && C issue
+
 # 3.9-1 (2017-04-26)
   * Change: Poission now returns linear predictors, like other families
   * Internal: Changing PROTECT/UNPROTECT to conform to new coding standards

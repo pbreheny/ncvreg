@@ -10,7 +10,7 @@ ncvreg(X, y, family=c("gaussian", "binomial", "poisson"),
 penalty=c("MCP", "SCAD", "lasso"), gamma=switch(penalty, SCAD=3.7, 3),
 alpha=1, lambda.min=ifelse(n>p,.001,.05), nlambda=100, lambda, eps=1e-4,
 max.iter=10000, convex=TRUE, dfmax=p+1, penalty.factor=rep(1, ncol(X)),
-warn=TRUE, returnX=FALSE, ...)
+warn=TRUE, returnX, ...)
 }
 \arguments{
   \item{X}{The design matrix, without an intercept.  \code{ncvreg}
@@ -56,8 +56,12 @@ warn=TRUE, returnX=FALSE, ...)
     always in the model without shrinkage.}
   \item{warn}{Return warning messages for failures to converge and model
     saturation?  Default is TRUE.}
-  \item{returnX}{Return the standardized design matrix?  Default is
-    FALSE.}
+  \item{returnX}{Return the standardized design matrix along with the
+    fit?  By default, this option is turned on if X is under 10 MB, but
+    turned off for larger matrices to preserve memory.  Note that
+    certain methods, such as \code{\link{summary.ncvreg}} require access
+    to the design matrix and may not be able to run if
+    \code{returnX=FALSE}.}
   \item{...}{Not used.}
 }
 \details{
@@ -103,6 +107,12 @@ warn=TRUE, returnX=FALSE, ...)
     and \code{"poisson"}) of the fitted model at each value of
     \code{lambda}.}
   \item{penalty.factor}{Same as above.}
+  \item{n}{Sample size.}
+  
+Additionally, if \code{returnX=TRUE}, the object will also contain
+  
+  \item{X}{The standardized design matrix.}
+  \item{y}{The response, centered if \code{family='gaussian'}.}
 }
 \references{Breheny, P. and Huang, J. (2011) Coordinate descent
   algorithms for nonconvex penalized regression, with applications to
@@ -110,61 +120,57 @@ warn=TRUE, returnX=FALSE, ...)
 \author{Patrick Breheny <patrick-breheny@uiow.edu>}
 \seealso{\code{\link{plot.ncvreg}}, \code{\link{cv.ncvreg}}}
 \examples{
-## Linear regression
-data(prostate)
-X <- as.matrix(prostate[,1:8])
-y <- prostate$lpsa
+# Linear regression --------------------------------------------------
+data(Prostate)
 
 par(mfrow=c(2,2))
-fit <- ncvreg(X,y)
-plot(fit,main=expression(paste(gamma,"=",3)))
-fit <- ncvreg(X,y,gamma=10)
-plot(fit,main=expression(paste(gamma,"=",10)))
-fit <- ncvreg(X,y,gamma=1.5)
-plot(fit,main=expression(paste(gamma,"=",1.5)))
-fit <- ncvreg(X,y,penalty="SCAD")
-plot(fit,main=expression(paste("SCAD, ",gamma,"=",3)))
+fit <- ncvreg(Prostate$X, Prostate$y)
+plot(fit, main=expression(paste(gamma,"=",3)))
+fit <- ncvreg(Prostate$X, Prostate$y, gamma=10)
+plot(fit, main=expression(paste(gamma,"=",10)))
+fit <- ncvreg(Prostate$X, Prostate$y, gamma=1.5)
+plot(fit, main=expression(paste(gamma,"=",1.5)))
+fit <- ncvreg(Prostate$X, Prostate$y, penalty="SCAD")
+plot(fit, main=expression(paste("SCAD, ",gamma,"=",3)))
 
 par(mfrow=c(2,2))
-fit <- ncvreg(X,y)
-plot(fit,main=expression(paste(alpha,"=",1)))
-fit <- ncvreg(X,y,alpha=0.9)
-plot(fit,main=expression(paste(alpha,"=",0.9)))
-fit <- ncvreg(X,y,alpha=0.5)
-plot(fit,main=expression(paste(alpha,"=",0.5)))
-fit <- ncvreg(X,y,alpha=0.1)
-plot(fit,main=expression(paste(alpha,"=",0.1)))
+fit <- ncvreg(Prostate$X, Prostate$y)
+plot(fit, main=expression(paste(alpha,"=",1)))
+fit <- ncvreg(Prostate$X, Prostate$y, alpha=0.9)
+plot(fit, main=expression(paste(alpha,"=",0.9)))
+fit <- ncvreg(Prostate$X, Prostate$y, alpha=0.5)
+plot(fit, main=expression(paste(alpha,"=",0.5)))
+fit <- ncvreg(Prostate$X, Prostate$y, alpha=0.1)
+plot(fit, main=expression(paste(alpha,"=",0.1)))
 
 par(mfrow=c(2,2))
-fit <- ncvreg(X,y)
+fit <- ncvreg(Prostate$X, Prostate$y)
 plot(mfdr(fit))            ## Independence approximation
 plot(mfdr(fit), type="EF") ## Independence approximation
-perm.fit <- perm.ncvreg(X,y)
+perm.fit <- perm.ncvreg(Prostate$X, Prostate$y)
 plot(perm.fit)
 plot(perm.fit, type="EF")
 
-## Logistic regression
-data(heart)
-X <- as.matrix(heart[,1:9])
-y <- heart$chd
+# Logistic regression ------------------------------------------------
+data(Heart)
 
 par(mfrow=c(2,2))
-fit <- ncvreg(X,y,family="binomial")
-plot(fit,main=expression(paste(gamma,"=",3)))
-fit <- ncvreg(X,y,family="binomial",gamma=10)
-plot(fit,main=expression(paste(gamma,"=",10)))
-fit <- ncvreg(X,y,family="binomial",gamma=1.5)
-plot(fit,main=expression(paste(gamma,"=",1.5)))
-fit <- ncvreg(X,y,family="binomial",penalty="SCAD")
-plot(fit,main=expression(paste("SCAD, ",gamma,"=",3)))
+fit <- ncvreg(Heart$X, Heart$y, family="binomial")
+plot(fit, main=expression(paste(gamma,"=",3)))
+fit <- ncvreg(Heart$X, Heart$y, family="binomial", gamma=10)
+plot(fit, main=expression(paste(gamma,"=",10)))
+fit <- ncvreg(Heart$X, Heart$y, family="binomial", gamma=1.5)
+plot(fit, main=expression(paste(gamma,"=",1.5)))
+fit <- ncvreg(Heart$X, Heart$y, family="binomial", penalty="SCAD")
+plot(fit, main=expression(paste("SCAD, ",gamma,"=",3)))
 
 par(mfrow=c(2,2))
-fit <- ncvreg(X,y,family="binomial")
-plot(fit,main=expression(paste(alpha,"=",1)))
-fit <- ncvreg(X,y,family="binomial",alpha=0.9)
-plot(fit,main=expression(paste(alpha,"=",0.9)))
-fit <- ncvreg(X,y,family="binomial",alpha=0.5)
-plot(fit,main=expression(paste(alpha,"=",0.5)))
-fit <- ncvreg(X,y,family="binomial",alpha=0.1)
-plot(fit,main=expression(paste(alpha,"=",0.1)))
+fit <- ncvreg(Heart$X, Heart$y, family="binomial")
+plot(fit, main=expression(paste(alpha,"=",1)))
+fit <- ncvreg(Heart$X, Heart$y, family="binomial", alpha=0.9)
+plot(fit, main=expression(paste(alpha,"=",0.9)))
+fit <- ncvreg(Heart$X, Heart$y, family="binomial", alpha=0.5)
+plot(fit, main=expression(paste(alpha,"=",0.5)))
+fit <- ncvreg(Heart$X, Heart$y, family="binomial", alpha=0.1)
+plot(fit, main=expression(paste(alpha,"=",0.1)))
 }

@@ -29,18 +29,16 @@ This guide is intended to briefly demonstrate the basic usage of {\tt ncvreg}.  
 {\tt ncvreg} comes with a few example data sets; we'll look at {\tt prostate}, which has 8 features and one continuous response, \verb|prostate$lpsa|, the PSA levels (on the log scale) from men about to undergo radical prostatectomy.  The data is available as a data frame; we will turn it into a design matrix {\tt X} and response vector {\tt y} for the purpose of analysis
 
 <<>>=
-## Linear regression
-data(prostate)
-X <- as.matrix(prostate[,1:8])
-y <- prostate$lpsa
-head(X)
-head(y)
+# Linear regression
+data(Prostate)
+head(Prostate$X)
+head(Prostate$y)
 @
 
 To fit a penalized regression model to this data:
 
 <<>>=
-fit <- ncvreg(X, y)
+fit <- ncvreg(Prostate$X, Prostate$y)
 @
 
 The default penalty here is the minimax concave penalty (MCP), but SCAD and lasso penalties are also available.  This produces a path of coefficients, which we can plot with
@@ -58,7 +56,7 @@ coef(fit, lambda=0.1)
 Typically, one would carry out cross-validation for the purposes of assessing the predictive accuracy of the model at various values of $\lambda$:
 
 <<opts.label='fig'>>=
-cvfit <- cv.ncvreg(X, y)
+cvfit <- cv.ncvreg(Prostate$X, Prostate$y)
 plot(cvfit)
 @
 
@@ -71,7 +69,7 @@ coef(cvfit)
 Predicted values can be obtained via {\tt predict}, which has a number of options:
 
 <<>>=
-predict(cvfit, X=head(X))
+predict(cvfit, X=head(Prostate$X))
 predict(cvfit, type="nvars")
 @
 

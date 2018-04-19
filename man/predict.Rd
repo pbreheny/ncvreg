@@ -43,17 +43,13 @@ drop=TRUE, ...)
 \author{Patrick Breheny <patrick-breheny@uiowa.edu>}
 \seealso{\code{\link{ncvreg}}}
 \examples{
-data(heart)
-X <- as.matrix(heart[,1:9])
-y <- heart$chd
+data(Heart)
 
-fit <- ncvreg(X,y,family="binomial")
+fit <- ncvreg(Heart$X, Heart$y, family="binomial")
 coef(fit, lambda=0.05)
-head(predict(fit, X, type="link", lambda=0.05))
-head(predict(fit, X, type="response", lambda=0.05))
-head(predict(fit, X, type="class", lambda=0.05))
+head(predict(fit, Heart$X, type="link", lambda=0.05))
+head(predict(fit, Heart$X, type="response", lambda=0.05))
+head(predict(fit, Heart$X, type="class", lambda=0.05))
 predict(fit, type="vars", lambda=c(0.05, 0.01))
 predict(fit, type="nvars", lambda=c(0.05, 0.01))
 }
-\keyword{models}
-\keyword{regression}

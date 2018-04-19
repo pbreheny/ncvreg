@@ -29,10 +29,8 @@ legend=TRUE, ...)
 \author{Patrick Breheny <patrick-breheny@uiowa.edu>}
 \seealso{\code{\link{mfdr}}, \code{\link{perm.ncvreg}}}
 \examples{
-data(prostate)
-X <- as.matrix(prostate[,1:8])
-y <- prostate$lpsa
-fit <- ncvreg(X, y)
+data(Prostate)
+fit <- ncvreg(Prostate$X, Prostate$y)
 
 obj <- mfdr(fit)
 obj[1:10,]
@@ -47,8 +45,7 @@ plot(obj, log=TRUE)
 par(mfrow=c(2,2))
 plot(obj)
 plot(obj, type="EF")
-pmfit <- perm.ncvreg(X, y)
+pmfit <- perm.ncvreg(Prostate$X, Prostate$y)
 plot(pmfit)
-plot(pmfit, type="EF")
-## Note that mfdr() is more conservative
+plot(pmfit, type="EF") # Note that mfdr() is more conservative
 }

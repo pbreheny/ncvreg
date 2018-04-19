@@ -1,6 +1,11 @@
 cv.ncvreg <- function(X, y, ..., cluster, nfolds=10, seed, fold, returnY=FALSE, trace=FALSE, raw=FALSE) {
 
   # Coercion
+  if ('cv.ind' %in% names(list(...))) {
+    seed <- list(...)$cv.ind
+    warning("cv.ind has been deprecated and renamed fold; please use fold= in the future,\n
+as support for cv.ind() is likely to be discontinued at some point.")
+  }
   if (class(X) != "matrix") {
     tmp <- try(X <- model.matrix(~0+., data=X), silent=TRUE)
     if (class(tmp)[1] == "try-error") stop("X must be a matrix or able to be coerced to a matrix")

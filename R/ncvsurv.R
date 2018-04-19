@@ -1,6 +1,6 @@
 ncvsurv <- function(X, y, penalty=c("MCP", "SCAD", "lasso"), gamma=switch(penalty, SCAD=3.7, 3),
                     alpha=1, lambda.min=ifelse(n>p,.001,.05), nlambda=100, lambda, eps=1e-4, max.iter=10000,
-                    convex=TRUE, dfmax=p, penalty.factor=rep(1, ncol(X)), warn=TRUE, returnX=FALSE, ...) {
+                    convex=TRUE, dfmax=p, penalty.factor=rep(1, ncol(X)), warn=TRUE, returnX, ...) {
 
   # Coersion
   penalty <- match.arg(penalty)
@@ -31,6 +31,7 @@ ncvsurv <- function(X, y, penalty=c("MCP", "SCAD", "lasso"), gamma=switch(penalt
   Delta <- y[tOrder,2]
   n <- length(yy)
   XX <- std(X[tOrder,,drop=FALSE])
+  if (sys.nframe() > 1 && sys.call(-1)[[1]]=="local_mfdr") return(list(X=XX, time=yy, fail=Delta))
   ns <- attr(XX, "nonsingular")
   penalty.factor <- penalty.factor[ns]
   p <- ncol(XX)
@@ -88,9 +89,16 @@ ncvsurv <- function(X, y, penalty=c("MCP", "SCAD", "lasso"), gamma=switch(penalt
                         order = tOrder),
                    class = c("ncvsurv", "ncvreg"))
   val$Eta <- sweep(Eta, 2, offset, "-")
+  if (missing(returnX)) {
+    if (utils::object.size(XX) > 1e7) {
+      warning("Due to the large size of X (>10 Mb), returnX has been turned off.\nTo turn this message off, explicitly specify returnX=TRUE or returnX=FALSE).")
+      returnX <- FALSE
+    } else {
+      returnX <- TRUE
+    }
+  }
   if (returnX) {
     val$X <- XX
-    val$y <- yy
   }
   val
 }
