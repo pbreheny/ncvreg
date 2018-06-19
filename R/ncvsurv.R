@@ -90,8 +90,8 @@ ncvsurv <- function(X, y, penalty=c("MCP", "SCAD", "lasso"), gamma=switch(penalt
                    class = c("ncvsurv", "ncvreg"))
   val$Eta <- sweep(Eta, 2, offset, "-")
   if (missing(returnX)) {
-    if (utils::object.size(XX) > 1e7) {
-      warning("Due to the large size of X (>10 Mb), returnX has been turned off.\nTo turn this message off, explicitly specify returnX=TRUE or returnX=FALSE).")
+    if (utils::object.size(XX) > 1e8) {
+      warning("Due to the large size of X (>100 Mb), returnX has been turned off.\nTo turn this message off, explicitly specify returnX=TRUE or returnX=FALSE).")
       returnX <- FALSE
     } else {
       returnX <- TRUE

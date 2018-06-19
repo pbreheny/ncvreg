@@ -112,8 +112,8 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
   if (family=="poisson") val$y <- y
   if (family=="binomial") val$Eta <- Eta
   if (missing(returnX)) {
-    if (utils::object.size(XX) > 1e7) {
-      warning("Due to the large size of X (>10 Mb), returnX has been turned off.\nTo turn this message off, explicitly specify returnX=TRUE or returnX=FALSE).")
+    if (utils::object.size(XX) > 1e8) {
+      warning("Due to the large size of X (>100 Mb), returnX has been turned off.\nTo turn this message off, explicitly specify returnX=TRUE or returnX=FALSE).")
       returnX <- FALSE
     } else {
       returnX <- TRUE

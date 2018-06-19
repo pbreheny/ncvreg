@@ -58,7 +58,7 @@ warn=TRUE, returnX, ...)
   \item{warn}{Return warning messages for failures to converge and model
     saturation?  Default is TRUE.}
   \item{returnX}{Return the standardized design matrix along with the
-    fit?  By default, this option is turned on if X is under 10 MB, but
+    fit?  By default, this option is turned on if X is under 100 MB, but
     turned off for larger matrices to preserve memory.  Note that
     certain methods, such as \code{\link{summary.ncvsurv}} require
     access to the design matrix and may not be able to run if
