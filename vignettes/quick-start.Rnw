@@ -49,9 +49,17 @@ plot(fit)
 
 Notice that variables enter the model one at a time, and that at any given value of $\lambda$, several coefficients are zero.  To see what the coefficients are, we could use the {\tt coef} function:
 
-<<opts.label='fig'>>=
-coef(fit, lambda=0.1)
+<<>>=
+coef(fit, lambda=0.05)
 @
+
+The `summary` method can be used for post-selection inference:
+
+<<>>=
+summary(fit, lambda=0.05)
+@
+
+In this case, it would appear that `lcavol`, `svi`, and `lweight` are clearly associated with the response, even after adjusting for the other variables in the model, while `lbph`, `age`, and `pgg45` may be false positives included simply by chance.
 
 Typically, one would carry out cross-validation for the purposes of assessing the predictive accuracy of the model at various values of $\lambda$:
 
