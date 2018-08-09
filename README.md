@@ -48,7 +48,7 @@ summary(fit, lambda=0.05)
 
 In this case, it would appear that `lcavol`, `svi`, and `lweight` are clearly associated with the response, even after adjusting for the other variables in the model, while `lbph`, `age`, and `pgg45` may be false positives included simply by chance.
 
-Typically, one would carry out cross-validation for the purposes of assessing the predictive accuracy of the model at various values of $\lambda$:
+Typically, one would carry out cross-validation for the purposes of assessing the predictive accuracy of the model at various values of `lambda`:
 
 ```{r cvplot, h=4, w=6, cache=TRUE}
 cvfit <- cv.ncvreg(X, y)
@@ -59,7 +59,7 @@ plot(cvfit)
 <img alt="img" src="http://pbreheny.github.io/ncvreg/img/index-cvplot-1.png">
 </p>
 
-At this point, `coef(cvfit)` will return the coefficients at the value of $\lambda$ minimizing the cross-validation error.  Likewise,
+At this point, `coef(cvfit)` will return the coefficients at the value of `lambda` minimizing the cross-validation error.  Likewise,
 
 ```r
 predict(cvfit, X=head(X))
