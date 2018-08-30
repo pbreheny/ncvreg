@@ -2,3 +2,6 @@ img {
   margin: auto;
   display: block;
 }
+img.orcid {
+    display: inline-block;
+}

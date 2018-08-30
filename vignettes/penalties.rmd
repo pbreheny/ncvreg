@@ -19,8 +19,18 @@ knitr::knit_hooks$set(small.mar = function(before, options, envir) {
 })
 ```
 
-MCP
+<div style='text-align: center; font-size: 200%; font-weight: 700; margin: 20pt;'><i class="fa fa-wrench"></i> Under construction <i class="fa fa-wrench"></div>
 
-SCAD
+`ncvreg` fits models that fall into the penalized likelihood framework.  Rather than estimating $\bb$ by maximizing the likelihood, in this framework we estimate $\bb$ by minimizing the objective function
 
-Lasso
+$$
+Q(\bb|\X, \y) = L(\bb|\X,\y) + P_\lam(\bb),
+$$
+
+where $L(\bb|\X,\y)$ is the loss (typically, the negative log-likelihood) and $P_\lam(\bb)$ is the penalty.  This article describes the different penalties available in `ncvreg`; see [models](models.html) for more information on the different loss functions available.
+
+# MCP
+
+# SCAD
+
+# Lasso
