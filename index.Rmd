@@ -1,0 +1,89 @@
+<!-- DO NOT EDIT BY HAND; build from vignette/getting-started -->
+
+```{r setup, include=FALSE}
+library(ncvreg)
+knitr::opts_knit$set(aliases=c(h = 'fig.height', w = 'fig.width'))
+knitr::opts_knit$set(global.par=TRUE)
+knitr::opts_chunk$set(comment="#", collapse=TRUE, cache=FALSE, tidy=FALSE)
+knitr::knit_hooks$set(small.mar = function(before, options, envir) {
+  if (before) par(mar = c(4, 4, .1, .1))
+})
+```
+
+# Regularization Paths for SCAD and MCP Penalized Regression Models
+
+`ncvreg` is an R package for fitting regularization paths for linear regression, GLM, and Cox regression models using lasso or nonconvex penalties, in particular the minimax concave penalty (MCP) and smoothly clipped absolute deviation (SCAD) penalty, with options for additional L<sub>2</sub> penalties (the "elastic net" idea).  Utilities for carrying out cross-validation as well as post-fitting visualization, summarization, inference, and prediction are also provided.
+
+This site focuses mainly on illustrating the usage and syntax of `visreg` as a way of providing online documentation.  For more on the algorithms used by `ncvreg`, see the original article:
+
+* [Breheny P and Huang J (2011).  Coordinate descent algorithms for nonconvex penalized regression, with applications to biological feature selection.  *Annals of Applied Statistics*, 5: 232--253](http://myweb.uiowa.edu/pbreheny/pdf/Breheny2011.pdf)
+
+For more about the marginal false discovery rate idea used for post-selection inference, see
+
+* [Breheny P (to appear).  Marginal false discovery rates for penalized regression models.  *Biostatistics*](https://arxiv.org/pdf/1607.05636)
+
+## Installation
+
+`ncvreg` is on CRAN, so it can be installed via:
+
+```{r eval=FALSE}
+install.packages("ncvreg")
+```
+
+## Brief introduction
+
+`ncvreg` comes with a few example data sets; we'll look at `Prostate`, which has 8 features and one continuous response, the PSA levels (on the log scale) from men about to undergo radical prostatectomy:
+
+```{r prostate}
+data(Prostate)
+X <- Prostate$X
+y <- Prostate$y
+```
+
+To fit a penalized regression model to this data:
+
+```{r fit}
+fit <- ncvreg(X, y)
+```
+
+The default penalty here is the minimax concave penalty (MCP), but SCAD and lasso penalties are also available.  This produces a path of coefficients, which we can plot with
+
+```{r plot, h=4, w=6, small.mar=TRUE}
+plot(fit)
+```
+
+Notice that variables enter the model one at a time, and that at any given value of $\lambda$, several coefficients are zero.  To see what the coefficients are, we could use the `coef` function:
+
+```{r coef}
+coef(fit, lambda=0.05)
+```
+
+The `summary` method can be used for post-selection inference:
+
+```{r summary, output.lines=1:5}
+summary(fit, lambda=0.05)
+```
+
+In this case, it would appear that `lcavol`, `svi`, and `lweight` are clearly associated with the response, even after adjusting for the other variables in the model, while `lbph`, `age`, and `pgg45` may be false positives included simply by chance.
+
+Typically, one would carry out cross-validation for the purposes of assessing the predictive accuracy of the model at various values of $\lambda$:
+
+```{r cvplot, h=5, w=6}
+cvfit <- cv.ncvreg(X, y)
+plot(cvfit)
+```
+
+The value of $\lambda$ that minimizes the cross-validation error is given by `cvfit$lambda.min`, which in this case is `r round(cvfit$lambda.min,3)`.  Applying `coef` to the output of `cv.ncvreg` returns the coefficients at that value of $\lambda$:
+
+```{r cvcoef}
+coef(cvfit)
+```
+
+Predicted values can be obtained via `predict`, which has a number of options:
+
+```{r predict}
+predict(cvfit, X=head(X))
+predict(cvfit, type="nvars")  # Number of nonzero coefficients
+```
+
+Note that the original fit (to the full data set) is returned as `cvfit$fit`; it is not necessary to call both `ncvreg` and `cv.ncvreg` to analyze a data set.  For example, `plot(cvfit$fit)` will produce the same coefficient path plot as `plot(fit)` above.
