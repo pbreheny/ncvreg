@@ -8,25 +8,25 @@ figures:
   fig.retina: 2
 
 navbar:
-  structure:
-    left:
-    - home
-    - intro
-    - reference
-    - articles
-    - tutorials
-    - news
-    right: github
-  components:
-    home:
-      icon: fa-home fa-lg
+  left:
+    - icon: fa-home fa-lg
       href: index.html
-    reference:
-      text: Reference
+    - text: Learn more
+      menu:
+      - text: Models
+        href: articles/models.html
+      - text: Penalties
+        href: articles/penalties.html
+      - text: 'Inference: Local mfdr'
+        href: articles/inference-local.html
+      - text: 'Inference: Marginal false discovery rates'
+        href: articles/inference-mfdr.html
+    - text: Functions
       href: reference/index.html
+  right:
     github:
       icon: fa-github fa-lg
-      href: https://github.com/pbreheny/actor
+      href: https://github.com/pbreheny/ncvreg
 
 template:
   params:
