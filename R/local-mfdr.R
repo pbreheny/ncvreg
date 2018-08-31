@@ -7,7 +7,7 @@ local_mfdr <- function(fit, lambda, number=NULL, cutoff=NULL, X=NULL, y=NULL) {
 
   # Extract standardized X, y
   if (is.null(X) & is.null(fit$X)) {
-      stop("This procedure requires X and y, either supply X and y, or fit the model using the option 'returnX = TRUE'")
+      stop("This procedure requires X and y.  Either supply X and y, or fit the model using the option 'returnX = TRUE'")
   }
   if(class(fit)[1] == "ncvsurv") {
     tmp <- if (is.null(fit$X)) ncvsurv(X, y) else fit
@@ -125,5 +125,5 @@ local_mfdr <- function(fit, lambda, number=NULL, cutoff=NULL, X=NULL, y=NULL) {
     nShow <- min(sum(results$mfdr <= cutoff, na.rm = TRUE), number, p)
   }
   results$Selected <- ifelse(results$Estimate != 0, "*"," ")
-  return(list(pen.vars = results[1:nShow,], unpen.vars = unpen.res))
+  return(list(pen.vars=results[1:nShow,], unpen.vars=unpen.res))
 }
