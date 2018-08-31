@@ -1,0 +1,91 @@
+---
+title: "Models"
+author: "Patrick Breheny"
+---
+
+```{r setup, include=FALSE}
+library(ncvreg)
+knitr::opts_knit$set(aliases=c(h = 'fig.height', w = 'fig.width'))
+knitr::opts_chunk$set(comment="#", collapse=TRUE, cache=FALSE, tidy=FALSE)
+knitr::knit_hooks$set(small.mar = function(before, options, envir) {
+  if (before) par(mar = c(4, 4, .1, .1))
+})
+```
+
+<div style='text-align: center; font-size: 200%; font-weight: 700; margin: 20pt;'><i class="fa fa-wrench"></i> Under construction <i class="fa fa-wrench"></div>
+
+`ncvreg` fits models that fall into the penalized likelihood framework.  Rather than estimating $\bb$ by maximizing the likelihood, in this framework we estimate $\bb$ by minimizing the objective function
+$$
+Q(\bb|\X, \y) = L(\bb|\X,\y) + P_\lam(\bb),
+$$
+where $L(\bb|\X,\y)$ is the loss (typically, the negative log-likelihood), $P_\lam(\bb)$ is the penalty, and $\lam$ is a regularization parameter that controls the tradeoff between the two components.  This article describes the different loss models available in `ncvreg`; see [penalties](penalties.html) for more information on the different penalties available.
+
+# Gaussian (linear regression)
+
+Here the loss function is simply the squared error loss:
+$$
+L(\bb|\X,\y) = \norm{\y-\X\bb}_2^2
+$$
+this loss is the negative log-likelihood if the outcome $\y$ follows a normal distribution with constant variance and mean given by $\X\bb$.
+
+In the `Prostate` data packaged with `ncvreg`, the response is the prostate specific antigen (PSA), measured on the log scale, and follows an approximate normal distribution; see `?Prostate` for more information on the data set.  Loading this data set into R,
+
+```{r}
+data(Prostate)
+X <- Prostate$X
+y <- Prostate$y
+```
+
+By default, `ncvreg` fits a linear regression model with a minimax concave penalty (MCP):
+
+```{r}
+fit <- ncvreg(X, y)
+```
+
+This produces a path of coefficient estimates, which we can plot with
+
+```{r fit-linear, h=4, w=6, small.mar=TRUE}
+plot(fit)
+```
+
+Although the least squares loss function is convex, the MCP penalty is not.  The resulting objective function, therefore, may or may not be convex.  `ncvreg`uses a local convexity diagnostic, as described in [Breheny and Huang (2011)](http://myweb.uiowa.edu/pbreheny/pdf/Breheny2011.pdf), to identify the regions of the coefficient path where the objective function is not convex; this is the gray shaded region in the plot.  Users should be aware that solutions in this region may only be local optima of the objective function, not global ones.
+
+Post-selection inference is available using the `summary` method:
+
+```{r}
+summary(fit, lambda=0.05)
+```
+
+The local marginal false discovery rate (mfdr) is given for each of the selected features.  Roughly, this corresponds to the probability that the given feature is marginally independent of the residuals at that value of $\lam$.  In this case, it would appear that `lcavol`, `svi`, and `lweight` are clearly associated with the response, even after adjusting for the other variables in the model, while `lbph`, `age`, and `pgg45` may be false positives selected simply by chance.  For more information on `summary()` and its various options, see [here](inference-local.html).
+
+Typically, one would carry out cross-validation for the purposes of assessing the predictive accuracy of the model at various values of $\lambda$:
+
+```{r}
+cvfit <- cv.ncvreg(X, y, h=5, w=6)
+plot(cvfit)
+```
+
+There are some options here:
+
+```{r, h=6, w=6}
+par(mfrow=c(2,2))
+plot(cvfit, type='cve')
+plot(cvfit, type='snr')
+plot(cvfit, type='scale')
+plot(cvfit, type='rsq')
+```
+
+What to plot on the vertical axis. cve plots the cross-validation error (deviance); rsq plots an estimate of the fraction of the deviance explained by the model (R-squared); snr plots an estimate of the signal-to-noise ratio; scale plots, for family="gaussian", an estimate of the scale parameter (standard deviation); pred plots, for family="binomial", the estimated prediction error; all produces all of the above.
+
+
+And a summary:
+
+```{r}
+summary(cvfit)
+```
+
+# Binomial (logistic regression)
+
+# Poisson
+
+# Cox proportional hazards

@@ -1,13 +1,6 @@
 ---
 title: "Penalties"
 author: "Patrick Breheny"
-output:
-  rmarkdown::html_vignette:
-    css: vignette.css
-vignette: >
-  %\VignetteIndexEntry{Penalties}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include=FALSE}

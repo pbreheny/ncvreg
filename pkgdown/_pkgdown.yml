@@ -14,13 +14,13 @@ navbar:
     - text: Learn more
       menu:
       - text: Models
-        href: articles/models.html
+        href: articles/web/models.html
       - text: Penalties
-        href: articles/penalties.html
+        href: articles/web/penalties.html
       - text: 'Inference: Local mfdr'
-        href: articles/inference-local.html
+        href: articles/web/inference-local.html
       - text: 'Inference: Marginal false discovery rates'
-        href: articles/inference-mfdr.html
+        href: articles/web/inference-mfdr.html
     - text: Functions
       href: reference/index.html
   right:

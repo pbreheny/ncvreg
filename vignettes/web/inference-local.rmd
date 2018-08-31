@@ -1,13 +1,6 @@
 ---
 title: "Inference: Local mfdr"
 author: "Patrick Breheny"
-output:
-  rmarkdown::html_vignette:
-    css: vignette.css
-vignette: >
-  %\VignetteIndexEntry{Inference: Local mfdr}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include=FALSE}

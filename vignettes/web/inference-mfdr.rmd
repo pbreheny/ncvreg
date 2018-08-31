@@ -1,13 +1,6 @@
 ---
 title: "Inference: Marginal false discovery rates"
 author: "Patrick Breheny"
-output:
-  rmarkdown::html_vignette:
-    css: vignette.css
-vignette: >
-  %\VignetteIndexEntry{Inference: Marginal false discovery rates}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include=FALSE}

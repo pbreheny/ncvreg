@@ -1,7 +1,6 @@
-<!-- DO NOT EDIT BY HAND; build from vignette/getting-started -->
-
 ```{r setup, include=FALSE}
 library(ncvreg)
+set.seed(4)
 knitr::opts_knit$set(aliases=c(h = 'fig.height', w = 'fig.width'))
 knitr::opts_knit$set(global.par=TRUE)
 knitr::opts_chunk$set(comment="#", collapse=TRUE, cache=FALSE, tidy=FALSE)
@@ -14,7 +13,7 @@ knitr::knit_hooks$set(small.mar = function(before, options, envir) {
 
 `ncvreg` is an R package for fitting regularization paths for linear regression, GLM, and Cox regression models using lasso or nonconvex penalties, in particular the minimax concave penalty (MCP) and smoothly clipped absolute deviation (SCAD) penalty, with options for additional L<sub>2</sub> penalties (the "elastic net" idea).  Utilities for carrying out cross-validation as well as post-fitting visualization, summarization, inference, and prediction are also provided.
 
-This site focuses mainly on illustrating the usage and syntax of `visreg` as a way of providing online documentation.  For more on the algorithms used by `ncvreg`, see the original article:
+This site focuses mainly on illustrating the usage and syntax of `ncvreg`.  For more on the algorithms used by `ncvreg`, see the original article:
 
 * [Breheny P and Huang J (2011).  Coordinate descent algorithms for nonconvex penalized regression, with applications to biological feature selection.  *Annals of Applied Statistics*, 5: 232--253](http://myweb.uiowa.edu/pbreheny/pdf/Breheny2011.pdf)
 
@@ -32,21 +31,21 @@ install.packages("ncvreg")
 
 ## Brief introduction
 
-`ncvreg` comes with a few example data sets; we'll look at `Prostate`, which has 8 features and one continuous response, the PSA levels (on the log scale) from men about to undergo radical prostatectomy:
-
-```{r prostate}
+```{r, echo=FALSE}
 data(Prostate)
 X <- Prostate$X
 y <- Prostate$y
 ```
 
-To fit a penalized regression model to this data:
+Given a design matrix `X` and response vector `y`, we can fit a penalized regression model via:
 
 ```{r fit}
 fit <- ncvreg(X, y)
 ```
 
-The default penalty here is the minimax concave penalty (MCP), but SCAD and lasso penalties are also available.  This produces a path of coefficients, which we can plot with
+By default, `ncvreg` fits a linear regression model with a minimax concave penalty (MCP).  For more detail on other types of models available, see [here](articles/web/models.html).  For more detail on other types of penalties available, see [here](articles/web/penalties.html).
+
+Fitting a penalized regression model produces a path of coefficients, which we can plot with
 
 ```{r plot, h=4, w=6, small.mar=TRUE}
 plot(fit)
@@ -64,7 +63,7 @@ The `summary` method can be used for post-selection inference:
 summary(fit, lambda=0.05)
 ```
 
-In this case, it would appear that `lcavol`, `svi`, and `lweight` are clearly associated with the response, even after adjusting for the other variables in the model, while `lbph`, `age`, and `pgg45` may be false positives included simply by chance.
+In this case, it would appear that `lcavol`, `svi`, and `lweight` are clearly associated with the response, even after adjusting for the other variables in the model, while `lbph`, `age`, and `pgg45` may be false positives selected simply by chance.
 
 Typically, one would carry out cross-validation for the purposes of assessing the predictive accuracy of the model at various values of $\lambda$:
 
@@ -82,8 +81,9 @@ coef(cvfit)
 Predicted values can be obtained via `predict`, which has a number of options:
 
 ```{r predict}
-predict(cvfit, X=head(X))
+predict(cvfit, X=head(X))     # Prediction of response for new observations
 predict(cvfit, type="nvars")  # Number of nonzero coefficients
+predict(cvfit, type="vars")   # Identity of the nonzero coefficients
 ```
 
 Note that the original fit (to the full data set) is returned as `cvfit$fit`; it is not necessary to call both `ncvreg` and `cv.ncvreg` to analyze a data set.  For example, `plot(cvfit$fit)` will produce the same coefficient path plot as `plot(fit)` above.
