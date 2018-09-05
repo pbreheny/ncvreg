@@ -8,7 +8,7 @@
 \method{print}{summary.cv.ncvreg}(x, digits, ...)
 }
 \arguments{
-  \item{object}{A \code{"cv.ncvreg"} object.}
+  \item{object}{A \code{"cv.ncvreg"} or \code{"cv.ncvsurv"} object.}
   \item{x}{A \code{"summary.cv.ncvreg"} object.}
   \item{digits}{Number of digits past the decimal point to print out.
     Can be a vector specifying different display digits for each of the

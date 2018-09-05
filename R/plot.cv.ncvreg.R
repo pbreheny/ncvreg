@@ -6,7 +6,7 @@ plot.cv.ncvreg <- function(x, log.l=TRUE, type=c("cve", "rsq", "scale", "snr", "
     plot(x, log.l=log.l, type="snr", selected=selected, ...)
     if (length(x$fit$family)) {
       if (x$fit$family == "binomial") plot(x, log.l=log.l, type="pred", selected=selected, ...)
-      if (x$fit$family == "gaussian") plot(x, log.l=log.l, type="scale", selected=selected, ...)      
+      if (x$fit$family == "gaussian") plot(x, log.l=log.l, type="scale", selected=selected, ...)
     }
     return(invisible(NULL))
   }
@@ -15,7 +15,7 @@ plot.cv.ncvreg <- function(x, log.l=TRUE, type=c("cve", "rsq", "scale", "snr", "
     l <- log(l)
     xlab <- expression(log(lambda))
   } else xlab <- expression(lambda)
-  
+
   ## Calculate y
   L.cve <- x$cve - x$cvse
   U.cve <- x$cve + x$cvse
@@ -25,10 +25,15 @@ plot.cv.ncvreg <- function(x, log.l=TRUE, type=c("cve", "rsq", "scale", "snr", "
     U <- U.cve
     ylab <- "Cross-validation error"
   } else if (type=="rsq") {
-    S <- pmax(x$null.dev - x$cve, 0)
-    y <- S/x$null.dev
-    L <- S/(S+U.cve)
-    U <- S/(S+L.cve)
+    if (length(x$fit$family) && x$fit$family=='gaussian') {
+      y <- pmin(pmax(1 - x$cve/x$null.dev, 0), 1)
+      L <- pmin(pmax(1 - U.cve/x$null.dev, 0), 1)
+      U <- pmin(pmax(1 - L.cve/x$null.dev, 0), 1)
+    } else {
+      y <- pmin(pmax(1 - exp(x$cve-x$null.dev), 0), 1)
+      L <- pmin(pmax(1 - exp(U.cve-x$null.dev), 0), 1)
+      U <- pmin(pmax(1 - exp(L.cve-x$null.dev), 0), 1)
+    }
     ylab <- ~R^2
   } else if (type=="snr") {
     S <- pmax(x$null.dev - x$cve, 0)
@@ -50,7 +55,7 @@ plot.cv.ncvreg <- function(x, log.l=TRUE, type=c("cve", "rsq", "scale", "snr", "
     U <- CI[2,]
     ylab <- "Prediction error"
   }
-  
+
   ind <- if (type=="pred") which(is.finite(l[1:length(x$pe)])) else which(is.finite(l[1:length(x$cve)]))
   ylim <- if (is.null(x$cvse)) range(y[ind]) else range(c(L[ind], U[ind]))
   aind <- intersect(ind, which((U-L)/diff(ylim) > 1e-3))

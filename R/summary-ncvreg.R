@@ -5,7 +5,11 @@ summary.ncvreg <- function(object, lambda, which, number, cutoff, ...) {
   if (missing(number)) number <- NULL
   if (missing(cutoff)) cutoff <- NULL
   custom <- !(is.null(number) & is.null(cutoff))
-  model <- switch(object$family, gaussian="linear", binomial="logistic", poisson="Poisson")
+  if ('ncvsurv' %in% class(object)) {
+    model <- 'Cox'
+  } else {
+    model <- switch(object$family, gaussian="linear", binomial="logistic", poisson="Poisson")
+  }
   local <- local_mfdr(object, lambda, number, cutoff, ...)
   structure(
     list(penalty=object$penalty, model=model, n=object$n, p=nrow(object$beta)-1, lambda=lambda, nvars=nvars, table=local$pen.vars, unpenTable = local$unpen.vars, custom=custom),

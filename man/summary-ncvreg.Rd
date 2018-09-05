@@ -7,7 +7,6 @@
   objects based on local marginal false discovery rates.}
 \usage{
 \method{summary}{ncvreg}(object, lambda, which, number, cutoff, ...) 
-\method{summary}{ncvsurv}(object, lambda, which, number, cutoff, ...) 
 \method{print}{summary.ncvreg}(x, digits, ...)
 }
 \arguments{

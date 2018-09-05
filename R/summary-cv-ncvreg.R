@@ -1,12 +1,20 @@
 summary.cv.ncvreg <- function(object, ...) {
   S <- pmax(object$null.dev - object$cve, 0)
-  rsq <- S/object$null.dev
+  if (!('cv.ncvsurv' %in% class(object)) && object$fit$family=="gaussian") {
+    rsq <- pmin(pmax(1 - object$cve/object$null.dev, 0), 1)
+  } else {
+    rsq <- pmin(pmax(1 - exp(object$cve-object$null.dev), 0), 1)
+  }
   snr <- S/object$cve
   nvars <- predict(object$fit, type="nvars")
-  model <- switch(object$fit$family, gaussian="linear", binomial="logistic", poisson="Poisson")
+  if ('cv.ncvsurv' %in% class(object)) {
+    model <- 'Cox'
+  } else {
+    model <- switch(object$fit$family, gaussian="linear", binomial="logistic", poisson="Poisson")
+  }
   val <- list(penalty=object$fit$penalty, model=model, n=object$fit$n, p=nrow(object$fit$beta)-1, min=object$min, lambda=object$lambda, cve=object$cve, r.squared=rsq, snr=snr, nvars=nvars)
-  if (object$fit$family=="gaussian") val$sigma <- sqrt(object$cve)
-  if (object$fit$family=="binomial") val$pe <- object$pe
+  if (!('cv.ncvsurv' %in% class(object)) && object$fit$family=="gaussian") val$sigma <- sqrt(object$cve)
+  if (!('cv.ncvsurv' %in% class(object)) && object$fit$family=="binomial") val$pe <- object$pe
   structure(val, class="summary.cv.ncvreg")
 }
 print.summary.cv.ncvreg <- function(x, digits, ...) {

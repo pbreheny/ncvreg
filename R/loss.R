@@ -32,8 +32,8 @@ loss.ncvsurv <- function(y, eta, total=TRUE) {
     r <- rev(cumsum(rev(exp(eta))))
   }
   if (total) {
-    return(-1*(crossprod(d, eta) - crossprod(d, log(r))))
+    return(-2*(crossprod(d, eta) - crossprod(d, log(r))))
   } else {
-    return(-1*(eta[d==1,] - log(r)[d==1,]))
+    return(-2*(eta[d==1,] - log(r)[d==1,]))
   }
 }
