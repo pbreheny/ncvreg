@@ -12,17 +12,15 @@ knitr::knit_hooks$set(small.mar = function(before, options, envir) {
 })
 ```
 
-<div style='text-align: center; font-size: 200%; font-weight: 700; margin: 20pt;'><i class="fa fa-wrench"></i> Under construction <i class="fa fa-wrench"></div>
-
 `ncvreg` fits models that fall into the penalized likelihood framework.  Rather than estimating $\bb$ by maximizing the likelihood, in this framework we estimate $\bb$ by minimizing the objective function
 $$
-Q(\bb|\X, \y) = L(\bb|\X,\y) + P_\lam(\bb),
+Q(\bb|\X, \y) = \frac{1}{n}L(\bb|\X,\y) + P_\lam(\bb),
 $$
 where $L(\bb|\X,\y)$ is the loss (typically, the negative log-likelihood), $P_\lam(\bb)$ is the penalty, and $\lam$ is a regularization parameter that controls the tradeoff between the two components.  This article describes the different loss models available in `ncvreg`; see [penalties](penalties.html) for more information on the different penalties available.
 
 # Gaussian (linear regression)
 
-Here the loss function is simply the squared error loss:
+In linear regression, the loss function is simply the squared error loss:
 $$
 L(\bb|\X,\y) = \norm{\y-\X\bb}_2^2
 $$
@@ -60,32 +58,145 @@ The local marginal false discovery rate (mfdr) is given for each of the selected
 
 Typically, one would carry out cross-validation for the purposes of assessing the predictive accuracy of the model at various values of $\lambda$:
 
-```{r}
-cvfit <- cv.ncvreg(X, y, h=5, w=6)
+```{r, h=5, w=6}
+cvfit <- cv.ncvreg(X, y)
 plot(cvfit)
 ```
 
-There are some options here:
+By default, the cross-validation error (CVE) is plotted; for all models in `ncvreg`, the cross-validation error is defined as
+$$
+\begin{align*}
+\CVE(\lam) &= \frac{1}{n} \sum_i L\{y_i, \eta_{-i}(\lam)\}\\
+\eta_{-i}(\lam) &= \sum_j x_{ij}\bh_j(-i,\lam),
+\end{align*}
+$$
+where $\bbh(-i,\lam)$ denotes the estimated regression coefficients at $\lam$ for the fold in which observation $i$ has been left out.  The loss function is determined by the type of model; for least squares loss, therefore,
+$$
+\CVE(\lam) = \frac{1}{n} \sum_i\{y_i-\eta_{-i}(\lam)\}^2\\
+$$
 
+Alternatively, one can plot $\hat{\sigma}(\lam)$, the signal-to-noise ration (SNR), or $R^2$:
 ```{r, h=6, w=6}
 par(mfrow=c(2,2))
 plot(cvfit, type='cve')
+plot(cvfit, type='scale')  # sigma hat
 plot(cvfit, type='snr')
-plot(cvfit, type='scale')
 plot(cvfit, type='rsq')
 ```
 
-What to plot on the vertical axis. cve plots the cross-validation error (deviance); rsq plots an estimate of the fraction of the deviance explained by the model (R-squared); snr plots an estimate of the signal-to-noise ratio; scale plots, for family="gaussian", an estimate of the scale parameter (standard deviation); pred plots, for family="binomial", the estimated prediction error; all produces all of the above.
-
-
-And a summary:
+Calling `summary` on a `cv.ncvreg` object will provide a summary of these quantities at the value which minimizes $\CVE$:
 
 ```{r}
 summary(cvfit)
 ```
 
+To access the elements of the fit, `coef` and `predict` methods are provided.  For example, `coef(fit, lambda=0.02)` returns the estimated coefficients at $\lambda$=0.02, while `coef(cvfit)` returns the estimated coefficients at the value of $\lam$ minimizing CVE.
+
 # Binomial (logistic regression)
+
+In logistic regression, the loss function is:
+$$
+L(\bb|\X,\y) = \sum_{i:y_i=1}\log\ph_i + \sum_{i:y_i=0}\log(1-\ph_i);
+$$
+this loss is the negative log-likelihood if the outcome $\y$ follows a binomial distribution with probabilities given by:
+$$
+\ph_i = \frac{\exp(\eta_i)}{1+\eta_i},
+$$
+where $\be = \X\bb$ denotes the linear predictors.  The `Heart` data provides an example of data that can be used with logistic regression.  Loading this data set into R,
+
+```{r}
+data(Heart)
+X <- Heart$X
+y <- Heart$y
+```
+
+One can change the loss function by specifying `family`; to fit a penalized logistic regression model,
+
+```{r}
+fit <- ncvreg(X, y, family='binomial')
+```
+
+As before, you can call `plot`, `coef`, `predict`, `summary`, etc. on `fit`:
+
+```{r}
+summary(fit, lambda=0.02)
+```
+
+Cross-validation is similar, although (a) there is a new option, `type='pred'` for cross-validated prediction error (misclassification error) and (b) `type='scale'` is no longer an option:
+
+```{r, h=6, w=6}
+cvfit <- cv.ncvreg(X, y, family='binomial')
+par(mfrow=c(2,2))
+plot(cvfit, type='all')
+```
+
+Note that, as defined above, cross-validation error is the cross-validated deviance.  At its optmium, the penalized logistic regression model can predict about 73\% of coronary heart disease cases correctly (27\% misclassification).
 
 # Poisson
 
+In Poisson regression, the loss function is:
+$$
+L(\bb|\X,\y) = \sum_i \{y_i\log\mh_i - \mh_i\};
+$$
+this loss is the negative log-likelihood if the outcome $\y$ follows a Poisson distribution with rate parameter given by:
+$$
+\mh_i = \exp(\eta_i).
+$$
+To fit a penalized Poisson regression model with `ncvreg`:
+```{r, eval=FALSE}
+fit <- ncvreg(X, y, family='poisson')
+```
+
 # Cox proportional hazards
+
+The above models all fall into the category of distributions known as exponential families (hence the `family`) argument.  `ncvreg` also allows users to fit Cox proportional hazards models, although these models fall outside this framework and are therefore fit using a different function, `ncvsurv`.  In Cox regression, the loss function is
+$$
+L(\bb|\X,\y) = \sum_{j=1}^{m} d_j \eta_j - \sum_{j=1}^{m} d_j \log\left\{\sum_{i \in R_j} \exp(\eta_i)\right\},
+$$
+where $t_1 < t_2 < \ldots < t_m$ denotes an increasing list of unique failure times indexed by $j$ and $R_j$ denotes the set of observations still at risk at time $t_j$, known as the risk set.
+
+The `Lung` data (see `?Lung` for more details) provides an example of time-to-event data that can be used with Cox regression.  Loading this data set into R,
+
+```{r}
+data(Lung)
+X <- Lung$X
+y <- Lung$y
+```
+
+To fit a penalized Cox regression model,
+
+```{r}
+fit <- ncvsurv(X, y)
+```
+
+As before, you can call `plot`, `coef`, `predict`, `summary`, etc. on `fit`:
+
+```{r}
+summary(fit, lambda=0.02)
+```
+
+Cross-validation is similar:
+
+```{r models-cox-cv, h=3.5, w=6}
+cvfit <- cv.ncvsurv(X, y)
+par(mfrow=c(1,2))
+plot(cvfit, type='cve')
+plot(cvfit, type='rsq')
+```
+
+In addition to the quantities like coefficients and number of nonzero coefficients that `predict` returns for other types of models, `predict()` for an `ncvsurv` object can also estimate the baseline hazard (using the Kalbfleish-Prentice method) and therefore, the survival function.  A method to plot the resulting function is also available:
+
+```{r models-cox-surv-single, h=4, w=4}
+S <- predict(fit, X[1,], type='survival', lambda=0.02)
+S(365)   # Estiamted survival at 1 year
+plot(S, xlim=c(0,200))
+```
+
+When multiple subjects are involved in the prediction:
+
+```{r models-cox-surv-multiple, h=4, w=4}
+S <- predict(fit, X, type='survival', lambda=0.02)
+S[[1]](365)  # Estimated survival at 1 year for subject 1
+S[[2]](365)  # Estimated survival at 1 year for subject 2
+plot(S, xlim=c(0,200))
+```
