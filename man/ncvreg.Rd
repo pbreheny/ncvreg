@@ -70,54 +70,55 @@ warn=TRUE, returnX, ...)
   logistic regression models, some care is taken to avoid model
   saturation; the algorithm may exit early in this setting.  The
   objective function is defined to be
-  \deqn{\frac{1}{2n}\textrm{RSS} + \textrm{penalty}}{RSS/(2*n) +
-    penalty}
-  for \code{"gaussian"} and
-  \deqn{-\frac{1}{n}\ell + \textrm{penalty}}{-(1/n) loglik + penalty}
-  for \code{"binomial"} or \code{"poisson"}, where the likelihood is
-  from a traditional generalized linear model assuming the canonical
-  link (logit for \code{"binomial"}; log for \code{"poisson"}).\cr
-  \cr
+  \deqn{Q(\beta|X, y) = \frac{1}{n} L(\beta|X, y) +
+    P_\lambda(\beta)}{Q(\beta|X, y) = (1/n)*L(\beta|X, y) +
+    P(\beta, \lambda),}
+  where the loss function L is -2 times the log likelihood for the
+  specified outcome distribution (gaussian/binomial/poisson).
+  \href{http://pbreheny.github.io/ncvreg/articles/web/models.html}{More
+  details are available on the ncvreg website}.
+  
   This algorithm is stable, very efficient, and generally converges
-  quite rapidly to the solution.  For GLMs, adaptive rescaling (see
-  reference) is used.\cr
-  \cr
-  The convexity diagnostics rely on a fine covering of
-  (lambda.min,lambda.max); choosing a low value of \code{nlambda} may
-  produce unreliable results.}
+  quite rapidly to the solution.  For GLMs,
+  \href{http://myweb.uiowa.edu/pbreheny/pdf/Breheny2011.pdf}{adaptive
+    rescaling} is used.}
 \value{
   An object with S3 class \code{"ncvreg"} containing:
-  \item{beta}{The fitted matrix of coefficients.  The number of rows is
-    equal to the number of coefficients, and the number of columns is
-    equal to \code{nlambda}.}
-  \item{iter}{A vector of length \code{nlambda} containing the number
-    of iterations until convergence at each value of \code{lambda}.}
-  \item{lambda}{The sequence of regularization parameter values in the
-    path.}
-  \item{penalty}{Same as above.}
-  \item{family}{Same as above.}
-  \item{gamma}{Same as above.}
-  \item{alpha}{Same as above.}
-  \item{convex.min}{The last index for which the objective function is
-    locally convex.  The smallest value of lambda for which the
-    objective function is convex is therefore \code{lambda[convex.min]},
-    with corresponding coefficients \code{beta[,convex.min]}.}
-  \item{loss}{A vector containing either the residual sum of squares
-    (\code{"gaussian"}) or negative log-likelihood (\code{"binomial"}
-    and \code{"poisson"}) of the fitted model at each value of
-    \code{lambda}.}
-  \item{penalty.factor}{Same as above.}
-  \item{n}{Sample size.}
-  
-Additionally, if \code{returnX=TRUE}, the object will also contain
-  
-  \item{X}{The standardized design matrix.}
-  \item{y}{The response, centered if \code{family='gaussian'}.}
+  \describe{
+    \item{beta}{The fitted matrix of coefficients.  The number of rows
+      is equal to the number of coefficients, and the number of columns
+      is equal to \code{nlambda}.}
+    \item{iter}{A vector of length \code{nlambda} containing the number
+      of iterations until convergence at each value of \code{lambda}.}
+    \item{lambda}{The sequence of regularization parameter values in the
+      path.}
+    \item{penalty}{Same as above.}
+    \item{family}{Same as above.}
+    \item{gamma}{Same as above.}
+    \item{alpha}{Same as above.}
+    \item{convex.min}{The last index for which the objective function is
+      locally convex.  The smallest value of lambda for which the
+      objective function is convex is therefore \code{lambda[convex.min]},
+      with corresponding coefficients \code{beta[,convex.min]}.}
+    \item{loss}{A vector containing either the residual sum of squares
+      (\code{"gaussian"}) or negative log-likelihood (\code{"binomial"}
+      and \code{"poisson"}) of the fitted model at each value of
+      \code{lambda}.}
+    \item{penalty.factor}{Same as above.}
+    \item{n}{Sample size.}
+  }
+
+  Additionally, if \code{returnX=TRUE}, the object will also contain
+
+  \describe{
+    \item{X}{The standardized design matrix.}
+    \item{y}{The response, centered if \code{family='gaussian'}.}
+  }
 }
 \references{Breheny, P. and Huang, J. (2011) Coordinate descent
   algorithms for nonconvex penalized regression, with applications to
   biological feature selection. Ann. Appl. Statist., 5: 232-253.}
-\author{Patrick Breheny <patrick-breheny@uiow.edu>}
+\author{Patrick Breheny}
 \seealso{\code{\link{plot.ncvreg}}, \code{\link{cv.ncvreg}}}
 \examples{
 # Linear regression --------------------------------------------------

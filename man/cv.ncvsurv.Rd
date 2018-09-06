@@ -39,45 +39,48 @@ cv.ncvsurv(X, y, ..., cluster, nfolds=10, seed, fold, se=c('quick',
   \item{trace}{If set to TRUE, cv.ncvsurv will inform the user of its
     progress by announcing the beginning of each CV fold.  Default is
     FALSE.}
-  }
+}
 \details{
   The function calls \code{ncvsurv} \code{nfolds} times, each time
   leaving out 1/\code{nfolds} of the data.  Because of the
   semiparametric nature of Cox regression, cross-validation is not
   clearly defined.  \code{cv.ncvsurv} uses the approach of calculating
   the full Cox partial likelihood using the cross-validated set of
-  linear predictors.  Unfortunately, using this approach there is no
-  clear way (yet) of determining standard errors, so \code{cv.ncvsurv},
-  unlike \code{cv.ncvreg}, does not provide any.
+  linear predictors.  A simple approximation to the standard error is
+  provided, although an option to bootstrap the standard error
+  (\code{se='bootstrap'}) is also available.
+  \href{http://pbreheny.github.io/ncvreg/articles/web/models.html}{More
+  details are available on the ncvreg website}.
 
   Other approaches to cross-validation for the Cox regression model have
-  been proposed; the strenghts and weaknesses of the various methods for
-  penalized regression in the Cox model are not well understood.
-  Because of this, the approach used by \code{cv.ncvsurv} may change in
-  the future as additional research is carried out.
-  }
+  been proposed; the strengths and weaknesses of the various methods for
+  penalized regression in the Cox model are the subject of current
+  research.
+}
 \value{
   An object with S3 class \code{"cv.ncvsurv"} inheriting from
   \code{"cv.ncvreg"} and containing:
-  \item{cve}{The error for each value of \code{lambda}, averaged
-    across the cross-validation folds.}
-  \item{cvse}{NULL; see Details.}
-  \item{lambda}{The sequence of regularization parameter values along
-    which the cross-validation error was calculated.}
-  \item{fit}{The fitted \code{ncvsurv} object for the whole data.}
-  \item{min}{The index of \code{lambda} corresponding to
-    \code{lambda.min}.}
-  \item{lambda.min}{The value of \code{lambda} with the minimum
-    cross-validation error.}
-  \item{null.dev}{The cross-validated deviance for the first model along
-    the grid of \code{lambda} (i.e., the cross-validated deviance for
-    max(lambda), unless you have supplied your own \code{lambda}
-    sequence, in which case this quantity is probably not meaningful).
-    Although the actual null deviance can be calculated, it cannot be
-    compared with the cross-validated deviance due to the manner in
-    which deviance must be calculated for Cox regression models (see
-    details).}
+  \describe{
+    \item{cve}{The error for each value of \code{lambda}, averaged
+      across the cross-validation folds.}
+    \item{cvse}{NULL; see Details.}
+    \item{lambda}{The sequence of regularization parameter values along
+      which the cross-validation error was calculated.}
+    \item{fit}{The fitted \code{ncvsurv} object for the whole data.}
+    \item{min}{The index of \code{lambda} corresponding to
+      \code{lambda.min}.}
+    \item{lambda.min}{The value of \code{lambda} with the minimum
+      cross-validation error.}
+    \item{null.dev}{The cross-validated deviance for the first model along
+      the grid of \code{lambda} (i.e., the cross-validated deviance for
+      max(lambda), unless you have supplied your own \code{lambda}
+      sequence, in which case this quantity is probably not meaningful).
+      Although the actual null deviance can be calculated, it cannot be
+      compared with the cross-validated deviance due to the manner in
+      which deviance must be calculated for Cox regression models (see
+      details).}
   }
+}
 \references{
   \itemize{
     \item Breheny P and Huang J. (2011) Coordinate descentalgorithms
@@ -91,7 +94,7 @@ cv.ncvsurv(X, y, ..., cluster, nfolds=10, seed, fold, se=c('quick',
     2305-2314.
   }
 }
-\author{Patrick Breheny <patrick-breheny@uiowa.edu>}
+\author{Patrick Breheny}
 \seealso{\code{\link{ncvsurv}}, \code{\link{plot.cv.ncvreg}}, \code{\link{summary.cv.ncvreg}}}
 \examples{
 data(Lung)

@@ -71,55 +71,60 @@ warn=TRUE, returnX, ...)
   to accomplish this, the second derivative (Hessian) of the Cox partial
   log-likelihood is diagonalized (see references for details).  The
   objective function is defined to be
-  \deqn{-\frac{1}{n}L(\beta|X,y) + \textrm{penalty},}{-(1/n) L(beta|X,y)
-    + penalty(beta),}
-  where L is the partial log-likelihood from the Cox regression
-  model.
+  \deqn{Q(\beta|X, y) = \frac{1}{n} L(\beta|X, y) +
+    P_\lambda(\beta)}{Q(\beta|X, y) = (1/n)*L(\beta|X, y) +
+    P(\beta, \lambda),}
+  where the loss function L is the -2 times the partial log-likelihood
+  from the Cox regression model.
+  \href{http://pbreheny.github.io/ncvreg/articles/web/models.html}{More
+  details are available on the ncvreg website}.
 
   Presently, ties are not handled by \code{ncvsurv} in a particularly
   sophisticated manner.  This will be improved upon in a future release
   of \code{ncvreg}.
 
-  Adaptive rescaling (see references) is used for MCP and SCAD models.
-  The convexity diagnostics rely on a fine covering of (lambda.min,
-  lambda.max); choosing a low value of \code{nlambda} may produce
-  unreliable results.}
 \value{
   An object with S3 class \code{"ncvsurv"} containing:
-  \item{beta}{The fitted matrix of coefficients.  The number of rows is
-    equal to the number of coefficients, and the number of columns is
-    equal to \code{nlambda}.}
-  \item{iter}{A vector of length \code{nlambda} containing the number
-    of iterations until convergence at each value of \code{lambda}.}
-  \item{lambda}{The sequence of regularization parameter values in the
-    path.}
-  \item{penalty}{Same as above.}
-  \item{model}{Same as above.}
-  \item{gamma}{Same as above.}
-  \item{alpha}{Same as above.}
-  \item{convex.min}{The last index for which the objective function is
-    locally convex.  The smallest value of lambda for which the
-    objective function is convex is therefore \code{lambda[convex.min]},
-    with corresponding coefficients \code{beta[,convex.min]}.}
-  \item{loss}{The negative partial log-likelihood of the fitted model at
-    each value of \code{lambda}.}
-  \item{penalty.factor}{Same as above.}
-  \item{n}{The number of observations.}
+  \describe{
+    \item{beta}{The fitted matrix of coefficients.  The number of rows is
+      equal to the number of coefficients, and the number of columns is
+      equal to \code{nlambda}.}
+    \item{iter}{A vector of length \code{nlambda} containing the number
+      of iterations until convergence at each value of \code{lambda}.}
+    \item{lambda}{The sequence of regularization parameter values in the
+      path.}
+    \item{penalty}{Same as above.}
+    \item{model}{Same as above.}
+    \item{gamma}{Same as above.}
+    \item{alpha}{Same as above.}
+    \item{convex.min}{The last index for which the objective function is
+      locally convex.  The smallest value of lambda for which the
+      objective function is convex is therefore \code{lambda[convex.min]},
+      with corresponding coefficients \code{beta[,convex.min]}.}
+    \item{loss}{The negative partial log-likelihood of the fitted model at
+      each value of \code{lambda}.}
+    \item{penalty.factor}{Same as above.}
+    \item{n}{The number of observations.}
+  }
 
-For Cox models, the following objects are also returned (and are necessary to
-estimate baseline survival conditonal on the estimated regression coefficients),
-all of which are ordered by time on study.  I.e., the ith row of \code{W} does
-not correspond to the ith row of \code{X}):
+  For Cox models, the following objects are also returned (and are
+  necessary to estimate baseline survival conditonal on the estimated
+  regression coefficients), all of which are ordered by time on study.
+  I.e., the ith row of \code{W} does not correspond to the ith row of
+  \code{X}):
 
-  \item{W}{Matrix of \code{exp(beta)} values for each subject over all
-    \code{lambda} values.}
-  \item{time}{Times on study.}
-  \item{fail}{Failure event indicator.}
+  \describe{
+    \item{W}{Matrix of \code{exp(beta)} values for each subject over all
+      \code{lambda} values.}
+    \item{time}{Times on study.}
+    \item{fail}{Failure event indicator.}
+  }
 
-Additionally, if \code{returnX=TRUE}, the object will also contain
-  
-  \item{X}{The standardized design matrix.}
+  Additionally, if \code{returnX=TRUE}, the object will also contain
 
+  \describe{
+    \item{X}{The standardized design matrix.}
+  }
 }
 \references{
   \itemize{
@@ -136,7 +141,7 @@ Additionally, if \code{returnX=TRUE}, the object will also contain
     \url{http://www.jstatsoft.org/v39/i05}
   }
 }
-\author{Patrick Breheny <patrick-breheny@uiowa.edu>}
+\author{Patrick Breheny}
 \seealso{\code{\link{plot.ncvreg}}, \code{\link{cv.ncvsurv}}}
 \examples{
 data(Lung)

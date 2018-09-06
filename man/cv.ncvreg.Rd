@@ -35,9 +35,11 @@ trace=FALSE) }
   The function calls \code{ncvreg} \code{nfolds} times, each time
   leaving out 1/\code{nfolds} of the data.  The cross-validation
   error is based on the residual sum of squares when
-  \code{family="gaussian"} and the binomial deviance when
-  \code{family="binomial"} or \code{family="poisson"}.\cr
-  \cr
+  \code{family="gaussian"} and the deviance when
+  \code{family="binomial"} or \code{family="poisson"}.
+  \href{http://pbreheny.github.io/ncvreg/articles/web/models.html}{More
+  details are available on the ncvreg website}.
+  
   For \code{family="binomial"} models, the cross-validation fold
   assignments are balanced across the 0/1 outcomes, so that each fold
   has the same proportion of 0/1 outcomes (or as close to the same
@@ -46,32 +48,34 @@ trace=FALSE) }
 }
 \value{
   An object with S3 class \code{"cv.ncvreg"} containing:
-  \item{cve}{The error for each value of \code{lambda}, averaged
-    across the cross-validation folds.}
-  \item{cvse}{The estimated standard error associated with each value of
-    for \code{cve}.}
-  \item{lambda}{The sequence of regularization parameter values along
-    which the cross-validation error was calculated.}
-  \item{fit}{The fitted \code{ncvreg} object for the whole data.}
-  \item{min}{The index of \code{lambda} corresponding to
-    \code{lambda.min}.}
-  \item{lambda.min}{The value of \code{lambda} with the minimum
-    cross-validation error.}
-  \item{null.dev}{The deviance for the intercept-only model.}
-  \item{Bias}{The estimated bias of the minimum cross-validation error,
-    as in Tibshirani RJ and Tibshirani R (2009),
-    "A Bias Correction for the Minimum Error Rate in Cross-Validation",
-    Ann. Appl. Stat. 3:822-829.}
-  \item{pe}{If \code{family="binomial"}, the cross-validation prediction
-    error for each value of \code{lambda}.}
-  \item{Y}{If \code{returnY=TRUE}, the matrix of cross-validated fitted
-    values (see above).}
+  \describe{
+    \item{cve}{The error for each value of \code{lambda}, averaged
+      across the cross-validation folds.}
+    \item{cvse}{The estimated standard error associated with each value of
+      for \code{cve}.}
+    \item{lambda}{The sequence of regularization parameter values along
+      which the cross-validation error was calculated.}
+    \item{fit}{The fitted \code{ncvreg} object for the whole data.}
+    \item{min}{The index of \code{lambda} corresponding to
+      \code{lambda.min}.}
+    \item{lambda.min}{The value of \code{lambda} with the minimum
+      cross-validation error.}
+    \item{null.dev}{The deviance for the intercept-only model.}
+    \item{Bias}{The estimated bias of the minimum cross-validation error,
+      as in Tibshirani RJ and Tibshirani R (2009),
+      "A Bias Correction for the Minimum Error Rate in Cross-Validation",
+      Ann. Appl. Stat. 3:822-829.}
+    \item{pe}{If \code{family="binomial"}, the cross-validation prediction
+      error for each value of \code{lambda}.}
+    \item{Y}{If \code{returnY=TRUE}, the matrix of cross-validated fitted
+      values (see above).}
   }
+}
 \references{Breheny, P. and Huang, J. (2011) Coordinate descent
   algorithms for nonconvex penalized regression, with applications to
   biological feature selection. Ann. Appl. Statist., 5: 232-253.}
-\author{Patrick Breheny <patrick-breheny@uiowa.edu>\cr
-        Grant Brown helped with the parallelization support}
+\author{Patrick Breheny; Grant Brown helped with the parallelization
+  support}
 \seealso{\code{\link{ncvreg}}, \code{\link{plot.cv.ncvreg}},
   \code{\link{summary.cv.ncvreg}}}
 \examples{
