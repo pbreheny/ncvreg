@@ -5,7 +5,7 @@ summary.cv.ncvreg <- function(object, ...) {
   } else {
     rsq <- pmin(pmax(1 - exp(object$cve-object$null.dev), 0), 1)
   }
-  snr <- S/object$cve
+  snr <- rsq/(1-rsq)
   nvars <- predict(object$fit, type="nvars")
   if ('cv.ncvsurv' %in% class(object)) {
     model <- 'Cox'

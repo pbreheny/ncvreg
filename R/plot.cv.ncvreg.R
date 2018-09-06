@@ -24,23 +24,33 @@ plot.cv.ncvreg <- function(x, log.l=TRUE, type=c("cve", "rsq", "scale", "snr", "
     L <- L.cve
     U <- U.cve
     ylab <- "Cross-validation error"
-  } else if (type=="rsq") {
+  } else if (type=="rsq" | type == "snr") {
     if (length(x$fit$family) && x$fit$family=='gaussian') {
-      y <- pmin(pmax(1 - x$cve/x$null.dev, 0), 1)
-      L <- pmin(pmax(1 - U.cve/x$null.dev, 0), 1)
-      U <- pmin(pmax(1 - L.cve/x$null.dev, 0), 1)
+      rsq <- pmin(pmax(1 - x$cve/x$null.dev, 0), 1)
+      rsql <- pmin(pmax(1 - U.cve/x$null.dev, 0), 1)
+      rsqu <- pmin(pmax(1 - L.cve/x$null.dev, 0), 1)
     } else {
-      y <- pmin(pmax(1 - exp(x$cve-x$null.dev), 0), 1)
-      L <- pmin(pmax(1 - exp(U.cve-x$null.dev), 0), 1)
-      U <- pmin(pmax(1 - exp(L.cve-x$null.dev), 0), 1)
+      rsq <- pmin(pmax(1 - exp(x$cve-x$null.dev), 0), 1)
+      rsql <- pmin(pmax(1 - exp(U.cve-x$null.dev), 0), 1)
+      rsqu <- pmin(pmax(1 - exp(L.cve-x$null.dev), 0), 1)
     }
-    ylab <- ~R^2
+    if (type == "rsq") {
+      y <- rsq
+      L <- rsql
+      U <- rsqu
+      ylab <- ~R^2
+    } else if(type=="snr") {
+      y <- rsq/(1-rsq)
+      L <- rsql/(1-rsql)
+      U <- rsqu/(1-rsqu)
+      ylab <- "Signal-to-noise ratio"
+    }
   } else if (type=="snr") {
     S <- pmax(x$null.dev - x$cve, 0)
     y <- S/(x$cve)
     L <- S/U.cve
     U <- S/L.cve
-    ylab <- "Signal-to-noise ratio"
+
   } else if (type=="scale") {
     if (x$fit$family == "binomial") stop("Scale parameter for binomial family fixed at 1")
     y <- sqrt(x$cve)
