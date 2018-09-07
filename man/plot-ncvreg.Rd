@@ -1,8 +1,8 @@
 \name{plot.ncvreg}
 \alias{plot.ncvreg}
-\title{Plot coefficients from a "ncvreg" object}
+\title{Plot coefficients from a ncvreg object}
 \description{Produces a plot of the coefficient paths for a fitted
-  \code{"ncvreg"} object.}
+  \code{ncvreg} object.}
 \usage{
 \method{plot}{ncvreg}(x, alpha=1, log.l=FALSE, shade=TRUE, ...)
 }
@@ -18,7 +18,7 @@
 \references{Breheny, P. and Huang, J. (2011) Coordinate descent
   algorithms for nonconvex penalized regression, with applications to
   biological feature selection. Ann. Appl. Statist., 5: 232-253.}
-\author{Patrick Breheny <patrick-breheny@uiowa.edu>}
+\author{Patrick Breheny}
 \seealso{\code{\link{ncvreg}}}
 \examples{
 data(Prostate)

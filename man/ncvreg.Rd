@@ -75,8 +75,8 @@ warn=TRUE, returnX, ...)
     P(\beta, \lambda),}
   where the loss function L is -2 times the log likelihood for the
   specified outcome distribution (gaussian/binomial/poisson).
-  \href{http://pbreheny.github.io/ncvreg/articles/web/models.html}{More
-  details are available on the ncvreg website}.
+  \href{http://pbreheny.github.io/ncvreg/articles/web/models.html}{See
+    here for more details}.
   
   This algorithm is stable, very efficient, and generally converges
   quite rapidly to the solution.  For GLMs,
@@ -123,55 +123,64 @@ warn=TRUE, returnX, ...)
 \examples{
 # Linear regression --------------------------------------------------
 data(Prostate)
+X <- Prostate$X
+y <- Prostate$y
 
-par(mfrow=c(2,2))
-fit <- ncvreg(Prostate$X, Prostate$y)
+op <- par(mfrow=c(2,2))
+fit <- ncvreg(X, y)
 plot(fit, main=expression(paste(gamma,"=",3)))
-fit <- ncvreg(Prostate$X, Prostate$y, gamma=10)
+fit <- ncvreg(X, y, gamma=10)
 plot(fit, main=expression(paste(gamma,"=",10)))
-fit <- ncvreg(Prostate$X, Prostate$y, gamma=1.5)
+fit <- ncvreg(X, y, gamma=1.5)
 plot(fit, main=expression(paste(gamma,"=",1.5)))
-fit <- ncvreg(Prostate$X, Prostate$y, penalty="SCAD")
+fit <- ncvreg(X, y, penalty="SCAD")
 plot(fit, main=expression(paste("SCAD, ",gamma,"=",3)))
+par(op)
 
-par(mfrow=c(2,2))
-fit <- ncvreg(Prostate$X, Prostate$y)
+op <- par(mfrow=c(2,2))
+fit <- ncvreg(X, y)
 plot(fit, main=expression(paste(alpha,"=",1)))
-fit <- ncvreg(Prostate$X, Prostate$y, alpha=0.9)
+fit <- ncvreg(X, y, alpha=0.9)
 plot(fit, main=expression(paste(alpha,"=",0.9)))
-fit <- ncvreg(Prostate$X, Prostate$y, alpha=0.5)
+fit <- ncvreg(X, y, alpha=0.5)
 plot(fit, main=expression(paste(alpha,"=",0.5)))
-fit <- ncvreg(Prostate$X, Prostate$y, alpha=0.1)
+fit <- ncvreg(X, y, alpha=0.1)
 plot(fit, main=expression(paste(alpha,"=",0.1)))
+par(op)
 
-par(mfrow=c(2,2))
-fit <- ncvreg(Prostate$X, Prostate$y)
-plot(mfdr(fit))            ## Independence approximation
-plot(mfdr(fit), type="EF") ## Independence approximation
-perm.fit <- perm.ncvreg(Prostate$X, Prostate$y)
+op <- par(mfrow=c(2,2))
+fit <- ncvreg(X, y)
+plot(mfdr(fit))             # Independence approximation
+plot(mfdr(fit), type="EF")  # Independence approximation
+perm.fit <- perm.ncvreg(X, y)
 plot(perm.fit)
 plot(perm.fit, type="EF")
+par(op)
 
 # Logistic regression ------------------------------------------------
 data(Heart)
+X <- Heart$X
+y <- Heart$y
 
-par(mfrow=c(2,2))
-fit <- ncvreg(Heart$X, Heart$y, family="binomial")
+op <- par(mfrow=c(2,2))
+fit <- ncvreg(X, y, family="binomial")
 plot(fit, main=expression(paste(gamma,"=",3)))
-fit <- ncvreg(Heart$X, Heart$y, family="binomial", gamma=10)
+fit <- ncvreg(X, y, family="binomial", gamma=10)
 plot(fit, main=expression(paste(gamma,"=",10)))
-fit <- ncvreg(Heart$X, Heart$y, family="binomial", gamma=1.5)
+fit <- ncvreg(X, y, family="binomial", gamma=1.5)
 plot(fit, main=expression(paste(gamma,"=",1.5)))
-fit <- ncvreg(Heart$X, Heart$y, family="binomial", penalty="SCAD")
+fit <- ncvreg(X, y, family="binomial", penalty="SCAD")
 plot(fit, main=expression(paste("SCAD, ",gamma,"=",3)))
+par(op)
 
-par(mfrow=c(2,2))
-fit <- ncvreg(Heart$X, Heart$y, family="binomial")
+op <- par(mfrow=c(2,2))
+fit <- ncvreg(X, y, family="binomial")
 plot(fit, main=expression(paste(alpha,"=",1)))
-fit <- ncvreg(Heart$X, Heart$y, family="binomial", alpha=0.9)
+fit <- ncvreg(X, y, family="binomial", alpha=0.9)
 plot(fit, main=expression(paste(alpha,"=",0.9)))
-fit <- ncvreg(Heart$X, Heart$y, family="binomial", alpha=0.5)
+fit <- ncvreg(X, y, family="binomial", alpha=0.5)
 plot(fit, main=expression(paste(alpha,"=",0.5)))
-fit <- ncvreg(Heart$X, Heart$y, family="binomial", alpha=0.1)
+fit <- ncvreg(X, y, family="binomial", alpha=0.1)
 plot(fit, main=expression(paste(alpha,"=",0.1)))
+par(op)
 }

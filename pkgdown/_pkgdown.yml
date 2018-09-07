@@ -31,3 +31,35 @@ navbar:
 template:
   params:
     bootswatch: cerulean
+
+reference:
+- title: Model fitting
+  contents:
+  - ncvreg
+  - ncvsurv
+  - std
+- title: Cross-validation
+  contents:
+  - cv.ncvreg
+  - cv.ncvsurv
+  - plot.cv.ncvreg
+  - summary.cv.ncvreg
+  - AUC.cv.ncvsurv
+- title: Plotting and extracting model features
+  contents:
+  - predict.ncvreg
+  - predict.ncvsurv
+  - plot.ncvreg
+  - plot.ncvsurv.func
+- title: Inference
+  contents:
+  - summary.ncvreg
+  - mfdr
+  - plot.mfdr
+  - perm.ncvreg
+  - permres
+- title: Data sets
+  contents:
+  - Heart
+  - Lung
+  - Prostate

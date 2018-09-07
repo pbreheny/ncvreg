@@ -16,7 +16,7 @@ knitr::knit_hooks$set(small.mar = function(before, options, envir) {
 $$
 Q(\bb|\X, \y) = \frac{1}{n}L(\bb|\X,\y) + P_\lam(\bb),
 $$
-where $L(\bb|\X,\y)$ is the loss (typically, the negative log-likelihood), $P_\lam(\bb)$ is the penalty, and $\lam$ is a regularization parameter that controls the tradeoff between the two components.  This article describes the different loss models available in `ncvreg`; see [penalties](penalties.html) for more information on the different penalties available.
+where $L(\bb|\X,\y)$ is the loss (typically, $-2$ times the log-likelihood), $P_\lam(\bb)$ is the penalty, and $\lam$ is a regularization parameter that controls the tradeoff between the two components.  This article describes the different loss models available in `ncvreg`; see [penalties](penalties.html) for more information on the different penalties available.
 
 # Gaussian (linear regression)
 
@@ -24,7 +24,7 @@ In linear regression, the loss function is simply the squared error loss:
 $$
 L(\bb|\X,\y) = \norm{\y-\X\bb}_2^2
 $$
-this loss is the negative log-likelihood if the outcome $\y$ follows a normal distribution with constant variance and mean given by $\X\bb$.
+this loss is proportional to $-2 \times$ log-likelihood if the outcome $\y$ follows a normal distribution with constant variance and mean given by $\X\bb$.
 
 In the `Prostate` data packaged with `ncvreg`, the response is the prostate specific antigen (PSA), measured on the log scale, and follows an approximate normal distribution; see `?Prostate` for more information on the data set.  Loading this data set into R,
 
@@ -96,9 +96,9 @@ To access the elements of the fit, `coef` and `predict` methods are provided.  F
 
 In logistic regression, the loss function is:
 $$
-L(\bb|\X,\y) = \sum_{i:y_i=1}\log\ph_i + \sum_{i:y_i=0}\log(1-\ph_i);
+L(\bb|\X,\y) = -2\sum_{i:y_i=1}\log\ph_i - 2\sum_{i:y_i=0}\log(1-\ph_i);
 $$
-this loss is the negative log-likelihood if the outcome $\y$ follows a binomial distribution with probabilities given by:
+this loss is $-2 \times$ log-likelihood if the outcome $\y$ follows a binomial distribution with probabilities given by:
 $$
 \ph_i = \frac{\exp(\eta_i)}{1+\eta_i},
 $$
@@ -136,9 +136,9 @@ Note that, as defined above, cross-validation error is the cross-validated devia
 
 In Poisson regression, the loss function is:
 $$
-L(\bb|\X,\y) = \sum_i \{y_i\log\mh_i - \mh_i\};
+L(\bb|\X,\y) = 2\sum_i \left\{\mh_i - y_i\log\mh_i\right\};
 $$
-this loss is the negative log-likelihood if the outcome $\y$ follows a Poisson distribution with rate parameter given by:
+this loss is $-2 \times$ log-likelihood if the outcome $\y$ follows a Poisson distribution with rate parameter given by:
 $$
 \mh_i = \exp(\eta_i).
 $$
@@ -149,9 +149,9 @@ fit <- ncvreg(X, y, family='poisson')
 
 # Cox proportional hazards
 
-The above models all fall into the category of distributions known as exponential families (hence the `family`) argument.  `ncvreg` also allows users to fit Cox proportional hazards models, although these models fall outside this framework and are therefore fit using a different function, `ncvsurv`.  In Cox regression, the loss function is
+The above models all fall into the category of distributions known as exponential families (hence the `family`) argument.  `ncvreg` also allows users to fit Cox proportional hazards models, although these models fall outside this framework and are therefore fit using a different function, `ncvsurv`.  In Cox regression, the loss function ($-2 \times$ the partial log-likelihood) is
 $$
-L(\bb|\X,\y) = \sum_{j=1}^{m} d_j \eta_j - \sum_{j=1}^{m} d_j \log\left\{\sum_{i \in R_j} \exp(\eta_i)\right\},
+L(\bb|\X,\y) = -2\sum_{j=1}^{m} d_j \eta_j + 2\sum_{j=1}^{m} d_j \log\left\{\sum_{i \in R_j} \exp(\eta_i)\right\},
 $$
 where $t_1 < t_2 < \ldots < t_m$ denotes an increasing list of unique failure times indexed by $j$ and $R_j$ denotes the set of observations still at risk at time $t_j$, known as the risk set.
 

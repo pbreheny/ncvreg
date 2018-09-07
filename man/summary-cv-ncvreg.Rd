@@ -1,7 +1,7 @@
 \name{summary.cv.ncvreg}
 \alias{summary.cv.ncvreg}
 \alias{print.summary.cv.ncvreg}
-\title{Summarizing inferences based on cross-validation}
+\title{Summarizing cross-validation-based inference}
 \description{Summary method for \code{cv.ncvreg} objects}
 \usage{
 \method{summary}{cv.ncvreg}(object, ...)
@@ -56,5 +56,10 @@ summary(cvfit)
 # Logistic regression ------------------------------------------------
 data(Heart)
 cvfit <- cv.ncvreg(Heart$X, Heart$y, family="binomial")
+summary(cvfit)
+
+# Cox regression -----------------------------------------------------
+data(Lung)
+cvfit <- cv.ncvsurv(Lung$X, Lung$y)
 summary(cvfit)
 }

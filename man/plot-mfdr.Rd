@@ -25,8 +25,11 @@ legend=TRUE, ...)
   \item{\dots}{Other graphical parameters to pass to \code{plot}}
 }
 %\details{}
-%\references{None yet}
-\author{Patrick Breheny <patrick-breheny@uiowa.edu>}
+\references{
+    Breheny P (to appear). Marginal false discovery rates for penalized
+    regression models. Biostatistics.
+}
+\author{Patrick Breheny}
 \seealso{\code{\link{mfdr}}, \code{\link{perm.ncvreg}}}
 \examples{
 data(Prostate)
@@ -42,10 +45,11 @@ plot(obj, log=TRUE)
 
 
 # Comparison with perm.ncvreg
-par(mfrow=c(2,2))
+op <- par(mfrow=c(2,2))
 plot(obj)
 plot(obj, type="EF")
 pmfit <- perm.ncvreg(Prostate$X, Prostate$y)
 plot(pmfit)
-plot(pmfit, type="EF") # Note that mfdr() is more conservative
+plot(pmfit, type="EF")
+par(op)
 }

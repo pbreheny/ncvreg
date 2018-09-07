@@ -1,8 +1,11 @@
-# ncvreg 3.10-1 (2018-08-30)
+# ncvreg 3.11-0 (2018-08-30)
   * Change: returnX now turned on by default if X < 100 Mb (used to be 10 Mb)
-  * Documentation: vignette now illustrates use of summary(fit) and local mfdr
+  * Change: summary.ncvreg now based solely on local mfdr
+  * Documentation: Lots of updates
   * Documentation: vignette now html (used to be pdf)
   * Documentation: pkgdown website
+  * Fixed: R^2 for models other than linear regression now uses Cox-Snell
+    definition consistently throughout package
 
 # ncvreg 3.10-0 (2018-04-17)
   * New: summary.ncvreg and summary.ncvsurv now report tables of inference for

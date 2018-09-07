@@ -1,10 +1,10 @@
 \name{predict.ncvreg}
 \alias{predict.ncvreg}
 \alias{coef.ncvreg}
-\title{Model predictions based on a fitted "ncvreg" object.}
+\title{Model predictions based on a fitted ncvreg object.}
 \description{
 Similar to other predict methods, this function returns predictions from
-a fitted \code{"ncvreg"} object.
+a fitted \code{ncvreg} object.
 }
 \usage{
 \method{predict}{ncvreg}(object, X, type=c("link", "response", "class",
@@ -14,7 +14,7 @@ a fitted \code{"ncvreg"} object.
 drop=TRUE, ...)
 }
 \arguments{
-  \item{object}{Fitted \code{"ncvreg"} model object.}
+  \item{object}{Fitted \code{ncvreg} model object.}
   \item{X}{Matrix of values at which predictions are to be made.  Not
     used for \code{type="coefficients"} or for some of the \code{type}
     settings in \code{predict}.}
@@ -40,7 +40,7 @@ drop=TRUE, ...)
 \references{Breheny, P. and Huang, J. (2011) Coordinate descent
   algorithms for nonconvex penalized regression, with applications to
   biological feature selection. Ann. Appl. Statist., 5: 232-253.}
-\author{Patrick Breheny <patrick-breheny@uiowa.edu>}
+\author{Patrick Breheny}
 \seealso{\code{\link{ncvreg}}}
 \examples{
 data(Heart)

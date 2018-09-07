@@ -15,13 +15,16 @@
   cross-validation-based inference, and for determining locally convex
   regions of the coefficients paths.
 
-  See the "Quick start guide" for a brief overview of how the package
+  See the "Getting started" vignette for a brief overview of how the package
   works.
+
+  \href{http://pbreheny.github.io/ncvreg}{Visit the ncvreg website for
+    more details}.
 }
 \references{Breheny, P. and Huang, J. (2011) Coordinate descent
   algorithms for nonconvex penalized regression, with applications to
   biological feature selection. Ann. Appl. Statist., 5: 232-253.}
 \author{Patrick Breheny <patrick-breheny@uiowa.edu>}
 \examples{
-vignette("quick-start", package="ncvreg")
+vignette("getting-started", package="ncvreg")
 }

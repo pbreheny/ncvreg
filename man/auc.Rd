@@ -24,7 +24,9 @@
 \references{van Houwelingen H, Putter H (2011). Dynamic Prediction in
   Clinical Survival Analysis.  CRC Press.}
 \author{Patrick Breheny, Brandon Butcher, and Lawrence Hunsicker}
-\seealso{\code{\link{cv.ncvsurv}}, \code{survConcordance}}
+\seealso{\code{\link{cv.ncvsurv}},
+  \code{\link[survival]{survConcordance}}
+}
 \examples{
 data(Lung)
 X <- Lung$X

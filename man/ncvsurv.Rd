@@ -76,13 +76,13 @@ warn=TRUE, returnX, ...)
     P(\beta, \lambda),}
   where the loss function L is the -2 times the partial log-likelihood
   from the Cox regression model.
-  \href{http://pbreheny.github.io/ncvreg/articles/web/models.html}{More
-  details are available on the ncvreg website}.
+  \href{http://pbreheny.github.io/ncvreg/articles/web/models.html}{See
+    here for more details}.
 
   Presently, ties are not handled by \code{ncvsurv} in a particularly
   sophisticated manner.  This will be improved upon in a future release
   of \code{ncvreg}.
-
+}
 \value{
   An object with S3 class \code{"ncvsurv"} containing:
   \describe{
@@ -148,7 +148,7 @@ data(Lung)
 X <- Lung$X
 y <- Lung$y
 
-par(mfrow=c(2,2))
+op <- par(mfrow=c(2,2))
 fit <- ncvsurv(X, y)
 plot(fit, main=expression(paste(gamma,"=",3)))
 fit <- ncvsurv(X, y, gamma=10)
@@ -157,18 +157,19 @@ fit <- ncvsurv(X, y, gamma=1.5)
 plot(fit, main=expression(paste(gamma,"=",1.5)))
 fit <- ncvsurv(X, y, penalty="SCAD")
 plot(fit, main=expression(paste("SCAD, ",gamma,"=",3)))
+par(op)
 
 fit <- ncvsurv(X,y)
 ll <- log(fit$lambda)
-par(mfrow=c(2,1))
+op <- par(mfrow=c(2,1))
 plot(ll, BIC(fit), type="l", xlim=rev(range(ll)))
 lam <- fit$lambda[which.min(BIC(fit))]
 b <- coef(fit, lambda=lam)
 b[b!=0]
 plot(fit)
 abline(v=lam)
+par(op)
 
 S <- predict(fit, X, type='survival', lambda=lam)
-par(mfrow=c(1,1))
 plot(S, xlim=c(0,200))
 }

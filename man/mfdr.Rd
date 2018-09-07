@@ -30,8 +30,7 @@ mfdr(fit, X)
   \item{mFDR}{The estimated marginal false discovery rate (\code{EF/S}).}
   }
 %\references{None yet}
-\author{Patrick Breheny <patrick-breheny@uiowa.edu>, with contributions from
-  Ryan Miller <ryan-e-miller@uiowa.edu>}
+\author{Patrick Breheny and Ryan Miller}
 \seealso{\code{\link{ncvreg}}, \code{\link{ncvsurv}}, \code{\link{plot.mfdr}},
   \code{\link{perm.ncvreg}}}
 \examples{
@@ -44,26 +43,31 @@ obj <- mfdr(fit)
 obj[1:10,]
 
 # Comparison with perm.ncvreg
-par(mfrow=c(2,2))
+op <- par(mfrow=c(2,2))
 plot(obj)
 plot(obj, type="EF")
 pmfit <- perm.ncvreg(Prostate$X, Prostate$y)
 plot(pmfit)
-plot(pmfit, type="EF") # Note that mfdr() is more conservative
+plot(pmfit, type="EF")
+par(op)
 
 # Logistic regression ------------------------------
 data(Heart)
 fit <- ncvreg(Heart$X, Heart$y, family="binomial")
 obj <- mfdr(fit)
 head(obj)
+op <- par(mfrow=c(1,2))
 plot(obj)
 plot(obj, type="EF")
+par(op)
 
 # Cox regression -----------------------------------
 data(Lung)
 fit <- ncvsurv(Lung$X, Lung$y)
 obj <- mfdr(fit)
 head(obj)
+op <- par(mfrow=c(1,2))
 plot(obj)
 plot(obj, type="EF")
+par(op)
 }

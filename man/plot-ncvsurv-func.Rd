@@ -17,7 +17,7 @@
 }
 %\details{}
 %\references{None yet}
-\author{Patrick Breheny <patrick-breheny@uiowa.edu>}
+\author{Patrick Breheny}
 \seealso{\code{\link{ncvsurv}}, \code{\link{predict.ncvsurv}}}
 \examples{
 data(Lung)
@@ -31,6 +31,6 @@ S <- predict(fit, X[1,], type='survival', lambda=.15)
 plot(S, xlim=c(0,200))
 
 # Lots of survival curves
-S <- predict(fit, X, type='survival', lambda=.15)
-plot(S, xlim=c(0,200))
+S <- predict(fit, X, type='survival', lambda=.08)
+plot(S, xlim=c(0,200), alpha=0.3)
 }

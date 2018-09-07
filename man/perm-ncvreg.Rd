@@ -1,8 +1,9 @@
 \name{perm.ncvreg}
 \alias{perm.ncvreg}
 \title{Permutation fitting for ncvreg}
-\description{Fits multiple penalized regression models in which the outcome is
-  randomly permuted, thereby allowing estimation of the false inclusion rate.}
+\description{Fits multiple penalized regression models in which the
+  outcome is randomly permuted, thereby allowing estimation of the
+  marginal false discovery rate.}
 \usage{
   perm.ncvreg(X, y, ..., permute=c("outcome", "residuals"), N=10, seed,
   trace=FALSE)
@@ -55,7 +56,7 @@
 data(Prostate)
 pmfit <- perm.ncvreg(Prostate$X, Prostate$y)
 
-par(mfcol=c(2,2))
+op <- par(mfcol=c(2,2))
 plot(pmfit)
 plot(pmfit, type="EF")
 plot(pmfit$fit)
@@ -64,13 +65,15 @@ lam <- pmfit$fit$lambda
 pmfit.r <- perm.ncvreg(Prostate$X, Prostate$y, permute='residuals')
 plot(pmfit.r, col="red")              # Permuting residuals is
 lines(lam, pmfit$mFDR, col="gray60")  # less conservative
+par(op)
 
 # Logistic regression ------------------------------------------------
 data(Heart)
 pmfit <- perm.ncvreg(Heart$X, Heart$y, family="binomial")
 
-par(mfrow=c(2,2))
+op <- par(mfcol=c(2,2))
 plot(pmfit)
 plot(pmfit, type="EF")
 plot(pmfit$fit)
+par(op)
 }
