@@ -15,10 +15,10 @@ warn=TRUE, returnX, ...)
   \item{X}{The design matrix of predictor values.  \code{ncvsurv}
     standardizes the data prior to fitting.}
   \item{y}{The time-to-event outcome, as a two-column matrix or
-    \code{Surv} object.  The first column should be time on study (follow
-    up time); the second column should be a binary variable with 1
-    indicating that the event has occurred and 0 indicating (right)
-    censoring.}
+    \code{\link[survival]{Surv}} object.  The first column should be time
+      on study (follow up time); the second column should be a binary
+      variable with 1 indicating that the event has occurred and 0
+      indicating (right) censoring.}
   \item{penalty}{The penalty to be applied to the model.  Either "MCP"
     (the default), "SCAD", or "lasso".}
   \item{gamma}{The tuning parameter of the MCP/SCAD penalty (see
@@ -39,8 +39,8 @@ warn=TRUE, returnX, ...)
   \item{eps}{Convergence threshhold.  The algorithm iterates until the
     RMSD for the change in linear predictors for any coefficient is less
     than \code{eps}.  Default is \code{1e-4}.}
-  \item{max.iter}{Maximum number of iterations (total across entire path).
-    Default is 1000.}
+  \item{max.iter}{Maximum number of iterations (total across entire
+    path). Default is 1000.}
   \item{convex}{Calculate index for which objective function ceases to
     be locally convex?  Default is TRUE.}
   \item{dfmax}{Upper bound for the number of nonzero coefficients.
@@ -74,8 +74,8 @@ warn=TRUE, returnX, ...)
   \deqn{Q(\beta|X, y) = \frac{1}{n} L(\beta|X, y) +
     P_\lambda(\beta)}{Q(\beta|X, y) = (1/n)*L(\beta|X, y) +
     P(\beta, \lambda),}
-  where the loss function L is the -2 times the partial log-likelihood
-  from the Cox regression model.
+  where the loss function L is the deviance (-2 times the partial
+  log-likelihood) from the Cox regression mode.
   \href{http://pbreheny.github.io/ncvreg/articles/web/models.html}{See
     here for more details}.
 
@@ -86,9 +86,9 @@ warn=TRUE, returnX, ...)
 \value{
   An object with S3 class \code{"ncvsurv"} containing:
   \describe{
-    \item{beta}{The fitted matrix of coefficients.  The number of rows is
-      equal to the number of coefficients, and the number of columns is
-      equal to \code{nlambda}.}
+    \item{beta}{The fitted matrix of coefficients.  The number of rows
+      is equal to the number of coefficients, and the number of columns
+      is equal to \code{nlambda}.}
     \item{iter}{A vector of length \code{nlambda} containing the number
       of iterations until convergence at each value of \code{lambda}.}
     \item{lambda}{The sequence of regularization parameter values in the
@@ -99,10 +99,11 @@ warn=TRUE, returnX, ...)
     \item{alpha}{Same as above.}
     \item{convex.min}{The last index for which the objective function is
       locally convex.  The smallest value of lambda for which the
-      objective function is convex is therefore \code{lambda[convex.min]},
-      with corresponding coefficients \code{beta[,convex.min]}.}
-    \item{loss}{The negative partial log-likelihood of the fitted model at
-      each value of \code{lambda}.}
+      objective function is convex is therefore
+      \code{lambda[convex.min]}, with corresponding coefficients
+      \code{beta[,convex.min]}.}
+    \item{loss}{The deviance of the fitted model at each value of
+      \code{lambda}.}
     \item{penalty.factor}{Same as above.}
     \item{n}{The number of observations.}
   }

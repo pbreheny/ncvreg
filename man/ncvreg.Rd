@@ -38,8 +38,8 @@ warn=TRUE, returnX, ...)
   \item{eps}{Convergence threshhold.  The algorithm iterates until the
     RMSD for the change in linear predictors for each coefficient is
     less than \code{eps}.  Default is \code{1e-4}.}
-  \item{max.iter}{Maximum number of iterations (total across entire path).
-    Default is 10000.}
+  \item{max.iter}{Maximum number of iterations (total across entire
+    path). Default is 10000.}
   \item{convex}{Calculate index for which objective function ceases to
     be locally convex?  Default is TRUE.}
   \item{dfmax}{Upper bound for the number of nonzero coefficients.
@@ -73,8 +73,9 @@ warn=TRUE, returnX, ...)
   \deqn{Q(\beta|X, y) = \frac{1}{n} L(\beta|X, y) +
     P_\lambda(\beta)}{Q(\beta|X, y) = (1/n)*L(\beta|X, y) +
     P(\beta, \lambda),}
-  where the loss function L is -2 times the log likelihood for the
-  specified outcome distribution (gaussian/binomial/poisson).
+  where the loss function L is the deviance (-2 times the log
+  likelihood) for the specified outcome distribution
+  (gaussian/binomial/poisson).
   \href{http://pbreheny.github.io/ncvreg/articles/web/models.html}{See
     here for more details}.
   
@@ -98,12 +99,12 @@ warn=TRUE, returnX, ...)
     \item{alpha}{Same as above.}
     \item{convex.min}{The last index for which the objective function is
       locally convex.  The smallest value of lambda for which the
-      objective function is convex is therefore \code{lambda[convex.min]},
-      with corresponding coefficients \code{beta[,convex.min]}.}
-    \item{loss}{A vector containing either the residual sum of squares
-      (\code{"gaussian"}) or negative log-likelihood (\code{"binomial"}
-      and \code{"poisson"}) of the fitted model at each value of
-      \code{lambda}.}
+      objective function is convex is therefore
+      \code{lambda[convex.min]}, with corresponding coefficients
+      \code{beta[,convex.min]}.} 
+    \item{loss}{A vector containing the deviance (i.e., the loss) at
+      each value of \code{lambda}.  Note that for \code{gaussian}
+      models, the loss is simply the residual sum of squares.}
     \item{penalty.factor}{Same as above.}
     \item{n}{Sample size.}
   }
