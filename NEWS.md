@@ -5,6 +5,8 @@
     of models
   * Change: R^2 now consistently uses the Cox-Snell definition for all types
     of models
+  * Change: cv.ncvreg and cv.ncvsurv now return fold assignments
+  * Fixed: Can now pass fold assignments to cv.ncvsurv
   * Documentation: Lots of updates
   * Documentation: vignette now html (used to be pdf)
   * Documentation: pkgdown website

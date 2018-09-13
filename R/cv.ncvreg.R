@@ -80,7 +80,7 @@ as support for cv.ind() is likely to be discontinued at some point.")
   e <- sapply(1:nfolds, function(i) apply(E[fold==i,,drop=FALSE], 2, mean))
   Bias <- mean(e[min,] - apply(e, 2, min))
 
-  val <- list(cve=cve, cvse=cvse, lambda=lambda, fit=fit, min=min, lambda.min=lambda[min],
+  val <- list(cve=cve, cvse=cvse, fold=fold, lambda=lambda, fit=fit, min=min, lambda.min=lambda[min],
               null.dev=mean(loss.ncvreg(y, rep(mean(y), n), fit$family)), Bias=Bias)
   if (fit$family=="binomial") {
     pe <- apply(PE, 2, mean)

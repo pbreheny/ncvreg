@@ -71,6 +71,9 @@ cv.ncvsurv(X, y, ..., cluster, nfolds=10, seed, fold, se=c('quick',
       across the cross-validation folds.}
     \item{cvse}{The estimated standard error associated with each value
       of for \code{cve}.}
+    \item{fold}{The fold assignments for cross-validation for each
+      observation; note that for \code{cv.ncvsurv}, these are in terms
+      of the ordered observations, not the original observations.}
     \item{lambda}{The sequence of regularization parameter values along
       which the cross-validation error was calculated.}
     \item{fit}{The fitted \code{ncvreg}/\code{ncvsurv} object for the
