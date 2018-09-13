@@ -21,7 +21,7 @@ plot(fit)
 ```
 
 <p align="center">
-<img alt="img" src="http://pbreheny.github.io/ncvreg/index_files/figure-html/plot-1.png">
+<img alt="img" width=480 src="http://pbreheny.github.io/ncvreg/index_files/figure-html/plot-1.png">
 </p>
 
 Notice that variables enter the model one at a time, and that at any given value of `lambda`, several coefficients are zero.  The `summary` method can be used for post-selection summarization and inference:
@@ -36,6 +36,8 @@ summary(fit, lambda=0.05)
 #   Expected nonzero coefficients: 2.51
 #   Average mfdr (6 features)    : 0.418
 ```
+
+`summary(fit)` also returns the following table:
 
 |        |   Estimate|         z|      mfdr|
 |:-------|----------:|---------:|---------:|
@@ -56,7 +58,7 @@ plot(cvfit)
 ```
 
 <p align="center">
-<img alt="img" src="http://pbreheny.github.io/ncvreg/index_files/figure-html/cvplot-1.png">
+<img alt="img" width=480 src="http://pbreheny.github.io/ncvreg/index_files/figure-html/cvplot-1.png">
 </p>
 
 At this point, `coef(cvfit)` will return the coefficients at the value of `lambda` minimizing the cross-validation error.  Likewise,
