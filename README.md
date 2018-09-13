@@ -21,7 +21,7 @@ plot(fit)
 ```
 
 <p align="center">
-<img alt="img" src="http://pbreheny.github.io/ncvreg/img/index-plot-1.png">
+<img alt="img" src="http://pbreheny.github.io/ncvreg/index_files/figure-html/plot-1.png">
 </p>
 
 Notice that variables enter the model one at a time, and that at any given value of `lambda`, several coefficients are zero.  The `summary` method can be used for post-selection summarization and inference:
@@ -56,7 +56,7 @@ plot(cvfit)
 ```
 
 <p align="center">
-<img alt="img" src="http://pbreheny.github.io/ncvreg/img/index-cvplot-1.png">
+<img alt="img" src="http://pbreheny.github.io/ncvreg/index_files/figure-html/cvplot-1.png">
 </p>
 
 At this point, `coef(cvfit)` will return the coefficients at the value of `lambda` minimizing the cross-validation error.  Likewise,
