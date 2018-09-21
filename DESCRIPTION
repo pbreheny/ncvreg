@@ -2,10 +2,16 @@ Package: ncvreg
 Title: Regularization Paths for SCAD and MCP Penalized Regression Models
 Version: 3.11-0
 Date: 2018-09-13
-Authors@R: person("Patrick", "Breheny", role=c("aut","cre"), email="patrick-breheny@uiowa.edu", comment=c(ORCID="000-0002-0650-1119"))
+Authors@R: person("Patrick", "Breheny", role=c("aut","cre"),
+  email="patrick-breheny@uiowa.edu", comment=c(ORCID="000-0002-0650-1119"))
 Suggests: survival, parallel, knitr
 VignetteBuilder: knitr
-Description: Fits regularization paths for linear regression, GLM, and Cox regression models using lasso or nonconvex penalties, in particular the minimax concave penalty (MCP) and smoothly clipped absolute deviation (SCAD) penalty, with options for additional L2 penalties (the "elastic net" idea).  Utilities for carrying out cross-validation as well as post-fitting visualization, summarization, inference, and prediction are also provided.
+Description: Fits regularization paths for linear regression, GLM, and Cox
+  regression models using lasso or nonconvex penalties, in particular the
+  minimax concave penalty (MCP) and smoothly clipped absolute deviation (SCAD)
+  penalty, with options for additional L2 penalties (the "elastic net" idea).
+  Utilities for carrying out cross-validation as well as post-fitting
+  visualization, summarization, inference, and prediction are also provided.
 BugReports: http://github.com/pbreheny/ncvreg/issues
 License: GPL-3
 URL: http://pbreheny.github.io/ncvreg, https://github.com/pbreheny/ncvreg

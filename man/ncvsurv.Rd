@@ -133,7 +133,7 @@ warn=TRUE, returnX, ...)
     for nonconvex penalized regression, with applications to biological
     feature selection.  \emph{Annals of Applied Statistics}, \strong{5}:
     232-253.
-    \url{myweb.uiowa.edu/pbreheny/publications/Breheny2011.pdf}
+    \url{myweb.uiowa.edu/pbreheny/pdf/Breheny2011.pdf}
 
     \item Simon N, Friedman JH, Hastie T, and Tibshirani R. (2011)
     Regularization Paths for Cox's Proportional Hazards Model via
