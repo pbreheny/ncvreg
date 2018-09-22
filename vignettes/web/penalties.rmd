@@ -20,7 +20,7 @@ $$
 Q(\bb|\X, \y) = L(\bb|\X,\y) + P_\lam(\bb),
 $$
 
-where $L(\bb|\X,\y)$ is the loss (typically, the negative log-likelihood) and $P_\lam(\bb)$ is the penalty.  This article describes the different penalties available in `ncvreg`; see [models](models.html) for more information on the different loss functions available.  Throughout, linear regression and the `Prostate` data set is used
+where $L(\bb|\X,\y)$ is the loss (deviance) and $P_\lam(\bb)$ is the penalty.  This article describes the different penalties available in `ncvreg`; see [models](models.html) for more information on the different loss functions available.  Throughout, linear regression and the `Prostate` data set is used
 
 ```{r}
 data(Prostate)
