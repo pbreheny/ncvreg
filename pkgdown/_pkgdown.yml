@@ -17,10 +17,10 @@ navbar:
         href: articles/web/models.html
       - text: Penalties
         href: articles/web/penalties.html
-      - text: 'Inference: Local mfdr'
-        href: articles/web/inference-local.html
       - text: 'Inference: Marginal false discovery rates'
         href: articles/web/inference-mfdr.html
+      - text: 'Inference: Local mfdr'
+        href: articles/web/inference-local.html
     - text: Functions
       href: reference/index.html
   right:

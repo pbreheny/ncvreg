@@ -5,6 +5,7 @@ author: "Patrick Breheny"
 
 ```{r setup, include=FALSE}
 library(ncvreg)
+set.seed(1)
 knitr::opts_knit$set(aliases=c(h = 'fig.height', w = 'fig.width'))
 knitr::opts_chunk$set(comment="#", collapse=TRUE, cache=FALSE, tidy=FALSE)
 knitr::knit_hooks$set(small.mar = function(before, options, envir) {
@@ -46,7 +47,7 @@ This produces a path of coefficient estimates, which we can plot with
 plot(fit)
 ```
 
-Although the least squares loss function is convex, the MCP penalty is not.  The resulting objective function, therefore, may or may not be convex.  `ncvreg`uses a local convexity diagnostic, as described in [Breheny and Huang (2011)](http://myweb.uiowa.edu/pbreheny/pdf/Breheny2011.pdf), to identify the regions of the coefficient path where the objective function is not convex; this is the gray shaded region in the plot.  Users should be aware that solutions in this region may only be local optima of the objective function, not global ones.
+Although the least squares loss function is convex, the MCP penalty is not.  The resulting objective function, therefore, may or may not be convex.  `ncvreg` uses a local convexity diagnostic, as described in [Breheny and Huang (2011)](http://myweb.uiowa.edu/pbreheny/pdf/Breheny2011.pdf), to identify the regions of the coefficient path where the objective function is not convex; this is the gray shaded region in the plot.  Users should be aware that solutions in this region may only be local optima of the objective function, not global ones.
 
 Post-selection inference is available using the `summary` method:
 
@@ -136,9 +137,9 @@ Note that, as defined above, cross-validation error is the cross-validated devia
 
 In Poisson regression, the loss function is:
 $$
-L(\bb|\X,\y) = 2\sum_i \left\{\mh_i - y_i\log\mh_i\right\};
+L(\bb|\X,\y) = 2\sum_i \left\{y_i\log y_i - y_i\log \mu_i + mu_i - y_i\right\};
 $$
-this loss is the deviance for a Poisson distribution $Y_i \sim \text{Pois}(\mh_i)$ with rate parameter given by:
+note that some of these terms are constant with respect to $\mu_i$ and can therefore be ignored during optimization.  This loss is the deviance for a Poisson distribution $Y_i \sim \text{Pois}(\mh_i)$ with rate parameter given by:
 $$
 \mh_i = \exp(\eta_i).
 $$
