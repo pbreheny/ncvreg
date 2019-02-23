@@ -23,12 +23,17 @@ cv.ncvsurv <- function(X, y, ..., cluster, nfolds=10, seed, fold, se=c('quick', 
     ind0 <- which(fit$fail==0)
     n1 <- length(ind1)
     n0 <- length(ind0)
-    fold1 <- ceiling(sample(1:n1)/(n1+sde)*nfolds)
-    fold0 <- ceiling(sample(1:n0)/(n0+sde)*nfolds)
+    fold1 <- 1:n1 %% nfolds
+    fold0 <- (n1 + 1:n0) %% nfolds
+    fold1[fold1==0] <- nfolds
+    fold0[fold0==0] <- nfolds
     fold <- numeric(n)
-    fold[fit$fail==1] <- fold1
-    fold[fit$fail==0] <- fold0
+    fold[fit$fail==1] <- sample(fold1)
+    fold[fit$fail==0] <- sample(fold0)
+  } else {
+    nfolds <- max(fold)
   }
+  
 
   Y <- matrix(NA, nrow=n, ncol=length(fit$lambda))
   cv.args <- list(...)

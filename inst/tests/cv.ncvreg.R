@@ -30,6 +30,7 @@ X <- matrix(rnorm(25*4), 25, 4)
 y <- rnorm(25)
 cvfit <- cv.ncvreg(X, y, nfolds=25)
 print(summary(cvfit))
+cvfit <- cv.ncvreg(X, y, fold=1:25)
 
 #### Logistic regression ####
 
@@ -53,6 +54,7 @@ X <- matrix(rnorm(30*2), 30, 2)
 y <- rbinom(30, 1, 0.5)
 cvfit <- cv.ncvreg(X, y, nfolds=30, family='binomial')
 print(summary(cvfit))
+cvfit <- cv.ncvreg(X, y, fold=1:30, family='binomial')
 
 #### Poisson regression ####
 
@@ -71,6 +73,7 @@ p <- predict(cvfit, X, type='nvars')
 # LOOCV
 cvfit <- cv.ncvreg(X, y, nfolds=30, family='poisson')
 print(summary(cvfit))
+cvfit <- cv.ncvreg(X, y, fold=1:30, family='poisson')
 
 ######################################
 .test = "cv.ncvreg() seems to work" ##
@@ -113,5 +116,5 @@ check(cve, cvfit$cve, check.attributes=FALSE, tol= .001)
 
 y <- rnorm(n, mean=X%*%b) > 0
 cvfit <- cv.ncvreg(X, y, family='binomial', returnY=TRUE)
-pe <- apply((cvfit$Y>0.5)!=y, 2, mean)
+pe <- apply((cvfit$Y>=0.5)!=y, 2, mean)
 check(pe, cvfit$pe, check.attributes=FALSE, tol= .001)

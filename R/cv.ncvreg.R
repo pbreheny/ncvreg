@@ -32,14 +32,18 @@ as support for cv.ind() is likely to be discontinued at some point.")
       ind0 <- which(y==0)
       n1 <- length(ind1)
       n0 <- length(ind0)
-      fold1 <- ceiling(sample(1:n1)/(n1+sde)*nfolds)
-      fold0 <- ceiling(sample(1:n0)/(n0+sde)*nfolds)
+      fold1 <- 1:n1 %% nfolds
+      fold0 <- (n1 + 1:n0) %% nfolds
+      fold1[fold1==0] <- nfolds
+      fold0[fold0==0] <- nfolds
       fold <- numeric(n)
-      fold[y==1] <- fold1
-      fold[y==0] <- fold0
+      fold[y==1] <- sample(fold1)
+      fold[y==0] <- sample(fold0)
     } else {
       fold <- ceiling(sample(1:n)/(n+sqrt(.Machine$double.eps))*nfolds)
     }
+  } else {
+    nfolds <- max(fold)
   }
 
   cv.args <- list(...)
@@ -64,7 +68,7 @@ as support for cv.ind() is likely to be discontinued at some point.")
     if (fit$family=="binomial") PE[fold==i, 1:res$nl] <- res$pe
     Y[fold==i, 1:res$nl] <- res$yhat
   }
-
+  
   ## Eliminate saturated lambda values, if any
   ind <- which(apply(is.finite(E), 2, all))
   E <- E[, ind, drop=FALSE]
