@@ -40,7 +40,8 @@ as support for cv.ind() is likely to be discontinued at some point.")
       fold[y==1] <- sample(fold1)
       fold[y==0] <- sample(fold0)
     } else {
-      fold <- ceiling(sample(1:n)/(n+sqrt(.Machine$double.eps))*nfolds)
+      fold <- sample(1:n %% nfolds)
+      fold[fold==0] <- nfolds
     }
   } else {
     nfolds <- max(fold)
