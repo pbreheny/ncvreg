@@ -4,7 +4,7 @@
 \description{Produces a plot of the coefficient paths for a fitted
   \code{ncvreg} object.}
 \usage{
-\method{plot}{ncvreg}(x, alpha=1, log.l=FALSE, shade=TRUE, ...)
+\method{plot}{ncvreg}(x, alpha=1, log.l=FALSE, shade=TRUE, col, ...)
 }
 \arguments{
   \item{x}{Fitted \code{"ncvreg"} model.}
@@ -13,6 +13,8 @@
   \item{log.l}{Should horizontal axis be on the log scale?  Default is
     FALSE.} 
   \item{shade}{Should nonconvex region be shaded?  Default is TRUE.}
+  \item{col}{Vector of colors for coefficient lines.  By default, evenly
+    spaced colors are selected automatically.}
   \item{\dots}{Other graphical parameters to \code{plot}}
 }
 \references{Breheny, P. and Huang, J. (2011) Coordinate descent

@@ -1,4 +1,4 @@
-plot.ncvreg <- function(x, alpha=1, log.l=FALSE, shade=TRUE, ...) {
+plot.ncvreg <- function(x, alpha=1, log.l=FALSE, shade=TRUE, col, ...) {
   if (length(x$lambda) == 1) stop("Object was fit with only a single lambda value; there is no path to plot")
   YY <- if (length(x$penalty.factor)==nrow(x$beta)) coef(x) else coef(x)[-1,,drop=FALSE]
   penalized <- which(x$penalty.factor!=0)
@@ -24,9 +24,13 @@ plot.ncvreg <- function(x, alpha=1, log.l=FALSE, shade=TRUE, ...) {
     polygon(x=c(l1,l2,l2,l1),y=c(plot.args$ylim[1],plot.args$ylim[1],plot.args$ylim[2],plot.args$ylim[2]),col="gray85",border=FALSE)
   }
 
-  cols <- hcl(h=seq(15, 375, len=max(4, p+1)), l=60, c=150, alpha=alpha)
-  cols <- if (p==2) cols[c(1,3)] else cols[1:p]
-  line.args <- list(col=cols, lwd=1+2*exp(-p/20), lty=1)
+  if (missing(col)) {
+    col <- hcl(h=seq(15, 375, len=max(4, p+1)), l=60, c=150, alpha=alpha)
+    col <- if (p==2) col[c(1,3)] else col[1:p]
+  } else {
+    col <- col[ind]
+  }
+  line.args <- list(col=col, lwd=1+2*exp(-p/20), lty=1)
   if (length(new.args)) line.args[names(new.args)] <- new.args
   line.args$x <- l
   line.args$y <- t(Y)
