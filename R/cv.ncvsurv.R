@@ -31,9 +31,9 @@ cv.ncvsurv <- function(X, y, ..., cluster, nfolds=10, seed, fold, se=c('quick', 
     fold[fit$fail==1] <- sample(fold1)
     fold[fit$fail==0] <- sample(fold0)
   } else {
+    fold <- fold[fit$order]
     nfolds <- max(fold)
   }
-  
 
   Y <- matrix(NA, nrow=n, ncol=length(fit$lambda))
   cv.args <- list(...)
