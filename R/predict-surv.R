@@ -38,7 +38,7 @@ predict.ncvsurv <- function(object, X, type=c("link", "response", "survival",
     x <- c(0, object$time)
     for (i in 1:nrow(eta)) {
       S <- S0^exp(eta[i,j])
-      if (type == 'survival') val[[i]] <- approxfun(x, S, method='constant')
+      if (type == 'survival') val[[i]] <- approxfun(x, S, method='constant', ties=function(x) tail(x, 1))
       if (type == 'median') {
         if (any(S < 0.5)) {
           val[i,j] <- x[min(which(S < .5))]

@@ -46,7 +46,7 @@ check(mcp, beta, tolerance=.01, check.attributes=FALSE)
 #######################################
 .test = "ncvsurv agrees with coxnet" ##
 #######################################
-require(glmnet)
+library(glmnet)
 n <- 100
 p <- 25
 y <- Surv(rexp(n), rbinom(n, 1, 0.5))

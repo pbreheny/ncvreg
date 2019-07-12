@@ -5,7 +5,7 @@
 \title{Estimate local mFDR for all features}
 \usage{
 local_mfdr(fit, lambda, X = NULL, y = NULL, method = c("ashr",
-  "kernel"))
+  "kernel"), ...)
 }
 \arguments{
 \item{fit}{A fitted \code{ncvreg} or \code{ncvsurv} object.}
@@ -18,6 +18,8 @@ local_mfdr(fit, lambda, X = NULL, y = NULL, method = c("ashr",
 \item{method}{What method should be used to calculate the local fdr?  Options are \code{ashr} (which tends to be more
 accurate) and \code{kernel} (which requires no additional packages).  The default is to use \code{ashr} if the package is
 installed.}
+
+\item{...}{Additional arguments to \code{ash()} if using \code{method='ashr'}.}
 }
 \value{
 If all features are penalized, then the object returns a data frame with one row per feature and four columns:

@@ -106,3 +106,14 @@ op <- par(mfrow=2:1)
 plot(mfdr(fit))
 plot(mfdr(fit), type="EF")
 par(op)
+
+# Local -------------------------------------------------------------------
+
+# High dimensional
+n <- 50
+p <- 100
+X <- matrix(rnorm(n*p), n, p)
+y <- rnorm(n)
+fit <- ncvreg(X, y)
+local_mfdr(fit, 0.1, method="ashr")
+local_mfdr(fit, 0.1, method="kernel")

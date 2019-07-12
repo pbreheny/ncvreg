@@ -1,0 +1,6 @@
+language: r
+r_packages:
+  - ashr
+  - glmnet
+cache: packages
+r_check_args: --test-dir=tests/run
