@@ -11,6 +11,7 @@
 #' @param method   What method should be used to calculate the local fdr?  Options are `ashr` (which tends to be more
 #'   accurate) and `kernel` (which requires no additional packages).  The default is to use `ashr` if the package is
 #'   installed.
+#' @param ...      Additional arguments to `ash()` if using `method='ashr'`.
 #'   
 #' @return If all features are penalized, then the object returns a data frame with one row per feature and four columns:
 #' * `Estimate`: The coefficient estimate from the penalized regression fit
@@ -49,7 +50,7 @@
 #' fit <- ncvsurv(X, y)
 #' local_mfdr(fit, 0.1)
 
-local_mfdr <- function(fit, lambda, X=NULL, y=NULL, method=c('ashr', 'kernel')) {
+local_mfdr <- function(fit, lambda, X=NULL, y=NULL, method=c('ashr', 'kernel'), ...) {
   
   # Determine method, if missing
   if (missing(method)) {
@@ -145,7 +146,7 @@ local_mfdr <- function(fit, lambda, X=NULL, y=NULL, method=c('ashr', 'kernel')) 
 
   # Calculate locfdr
   if (method=='ashr') {
-    ash_fit <- ashr::ash(z[pen.idx], rep(1, sum(pen.idx)), optmethod='mixEM')
+    ash_fit <- ashr::ash(z[pen.idx], rep(1, sum(pen.idx)), optmethod='mixEM', ...)
     est.gam <- ashr::get_lfdr(ash_fit)
   } else {
     f <- density(z[pen.idx])
