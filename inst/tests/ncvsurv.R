@@ -154,7 +154,7 @@ S <- predict(fit, X[1,], which=1, type='survival')
 km <- survfit(y~1)
 plot(km, conf.int=FALSE, mark.time=FALSE, xlim=c(0,10), lwd=10, col="gray")
 lines(fit$time, S(fit$time), type="s", col="slateblue", lwd=2)
-breheny:::median.survfit(km)
+median.survfit(km)
 predict(fit, X[1,], which=1, type='median')
 
 ######################################################
