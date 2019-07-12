@@ -1,6 +1,7 @@
 [![version](http://www.r-pkg.org/badges/version/ncvreg)](https://cran.r-project.org/package=ncvreg)
 [![downloads](http://cranlogs.r-pkg.org/badges/ncvreg)](https://cran.r-project.org/package=ncvreg)
 [![codecov.io](https://codecov.io/github/pbreheny/ncvreg/coverage.svg?branch=master)](https://codecov.io/github/pbreheny/ncvreg?branch=master)
+[![Travis build status](https://travis-ci.org/pbreheny/breheny.svg?branch=master)](https://travis-ci.org/pbreheny/breheny)
 
 # Regularization Paths for SCAD and MCP Penalized Regression Models
 
