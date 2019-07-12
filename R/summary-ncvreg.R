@@ -2,20 +2,38 @@ summary.ncvreg <- function(object, lambda, which, number, cutoff, ...) {
   nvars <- predict(object, type="nvars", lambda=lambda, which=which)
   if (length(nvars) > 1) stop("You must specify a single model (i.e., a single value of lambda)")
   if (missing(lambda)) lambda <- object$lambda[which]
-  if (missing(number)) number <- NULL
-  if (missing(cutoff)) cutoff <- NULL
-  custom <- !(is.null(number) & is.null(cutoff))
+  custom <- !(missing(number) & missing(cutoff))
   if ('ncvsurv' %in% class(object)) {
     model <- 'Cox'
   } else {
     model <- switch(object$family, gaussian="linear", binomial="logistic", poisson="Poisson")
   }
-  local <- local_mfdr(object, lambda, number, cutoff, ...)
-  structure(
-    list(penalty=object$penalty, model=model, n=object$n, p=nrow(object$beta)-1, lambda=lambda, nvars=nvars, table=local$pen.vars, unpenTable = local$unpen.vars, custom=custom),
-    class='summary.ncvreg'
-  )
+  local <- local_mfdr(object, lambda, ...)
+  out <- structure(list(penalty=object$penalty, model=model, n=object$n, p=nrow(object$beta)-1, lambda=lambda,
+                        custom=custom, nvars=nvars),
+                   class='summary.ncvreg')
+  if (is.null(local$unpen)) {
+    Tab <- local
+  } else {
+    Tab <- local$pen.vars
+    out$unpenTable <- local$unpen.vars
+  }
+  
+  # Sort/subset table
+  Tab <- Tab[order(Tab$mfdr),]
+  if (missing(number) & missing(cutoff)) {
+    Tab <- Tab[Tab$Estimate != 0,]
+  } else if (missing(cutoff)) {
+    Tab <- Tab[1:min(number, nrow(Tab)),]
+  } else if (missing(number)) {
+    Tab <- Tab[1:min(sum(Tab$mfdr <= cutoff), nrow(Tab)),]
+  } else {
+    Tab <- Tab[1:min(sum(Tab$mfdr <= cutoff), number, nrow(Tab)),]
+  }
+  out$table <- Tab
+  out
 }
+
 print.summary.ncvreg <- function(x, digits, ...) {
   digits <- if (missing(digits)) digits <- c(4, 2, 2, 3) else rep(digits, length.out=5)
   cat(x$penalty, "-penalized ", x$model, " regression with n=", x$n, ", p=", x$p, "\n", sep="")
@@ -25,11 +43,11 @@ print.summary.ncvreg <- function(x, digits, ...) {
     cat("  Features satisfying criteria       : ", nrow(x$table), "\n", sep="")
     cat("  Average mfdr among chosen features : ", formatC(mean(x$table$mfdr), digits=3), "\n", sep="")
   } else {
-    cat("  Nonzero coefficients         : ", x$nvars, "\n", sep="")
+    cat("  Nonzero coefficients         : ", formatC(x$nvars, width=3), "\n", sep="")
     if (x$nvars > 0) {
-      cat("  Expected nonzero coefficients: ", formatC(sum(x$table$mfdr), digits=3), '\n', sep="")
+      cat("  Expected nonzero coefficients: ", formatC(sum(x$table$mfdr), digits=2, format='f', width=6), '\n', sep="")
       space <- substr('                                              ', 1, 5-nchar(nrow(x$table)))
-      cat("  Average mfdr (", nrow(x$table), " features)", space, ": ", formatC(mean(x$table$mfdr), digits=3), '\n', sep="")
+      cat("  Average mfdr (", nrow(x$table), " features)", space, ": ", formatC(mean(x$table$mfdr), digits=3, format='f', width=7), '\n', sep="")
     }
   }
   cat("\n")

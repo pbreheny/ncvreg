@@ -1,9 +1,68 @@
-# 'number': if you want a summary for more than S variables
-local_mfdr <- function(fit, lambda, number=NULL, cutoff=NULL, X=NULL, y=NULL) {
+#' Estimate local mFDR for all features
+#' 
+#' `local_mfdr()` is called by `summary.ncvreg()`, which typically offers a more convenient interface to users.
+#' If, however, you are working with local mfdrs programmatically rather than interactively, you probably want to
+#' use `local_mfdr()`, which skips the sorting, filtering, and print formatting of `summary.ncvreg()`.
+#' 
+#' @param fit      A fitted `ncvreg` or `ncvsurv` object.
+#' @param lambda   The value of lambda at which inference should be carried out.
+#' @param X,y      The design matrix and response used to fit the model; in most cases, it is not necessary to provide
+#'   `X` and `y` as they are returned by `ncvreg`, but see the `returnX` argument in [ncvreg()].
+#' @param method   What method should be used to calculate the local fdr?  Options are `ashr` (which tends to be more
+#'   accurate) and `kernel` (which requires no additional packages).  The default is to use `ashr` if the package is
+#'   installed.
+#'   
+#' @return If all features are penalized, then the object returns a data frame with one row per feature and four columns:
+#' * `Estimate`: The coefficient estimate from the penalized regression fit
+#' * `z`: A test statistic that approximately follows a standard normal distribution under the null hypothesis that the
+#'        feature is marginally independent of the outcome
+#' * `mfdr`: The estimated marginal local false discovery rate
+#' * `Selected`: Features with nonzero coefficient estimates are given an asterisk
+#' 
+#' If some features are penalized and others are not, then a list is returned with two elements: `pen.vars`, which consists
+#' of the data frame described above, and `unpen.vars`, a data frame with four columns: `Estimate`, `SE`, `Statistic`, and
+#' `p.value`.  The standard errors and p-values are based on a classical `lm`/`glm`/`coxph` model using the effect of the
+#' penalized features as an offset.
+#' 
+#' @seealso [summary.ncvreg()]
+#'
+#' @examples
+#' # Linear regression
+#' data(Prostate)
+#' fit <- ncvreg(Prostate$X, Prostate$y)
+#' local_mfdr(fit, 0.1)
+#' 
+#' fit <- ncvreg(Prostate$X, Prostate$y, penalty.factor=rep(0:1, each=4))
+#' local_mfdr(fit, 0.1)
+#' 
+#' # Logistic regression
+#' data(Heart)
+#' X <- Heart$X
+#' y <- Heart$y
+#' fit <- ncvreg(X, y, family='binomial')
+#' local_mfdr(fit, 0.1)
+#' 
+#' # Cox regression
+#' data(Lung)
+#' X <- Lung$X
+#' y <- Lung$y
+#' fit <- ncvsurv(X, y)
+#' local_mfdr(fit, 0.1)
 
-  # Check for valid args
-  if(!is.null(number) && (number < 1)) stop("'number' should be a positive integer")
-  if(!is.null(cutoff) && (cutoff > 1 | cutoff <= 0)) stop("'cutoff' should be in the interval (0,1]")
+local_mfdr <- function(fit, lambda, X=NULL, y=NULL, method=c('ashr', 'kernel')) {
+  
+  # Determine method, if missing
+  if (missing(method)) {
+    if (requireNamespace('ashr', quietly=TRUE)) {
+      method <- 'ashr'
+    } else {
+      method <- 'kernel'
+      if (is.null(getOption('ncvreg.ashr.warn'))) {
+        message('Using a basic kernel estimate for local fdr; consider installing the ashr package for more accurate estimation.  See ?local_mfdr')
+        options(ncvreg.ashr.warn = FALSE)
+      }
+    }
+  }
 
   # Extract standardized X, y
   if (is.null(X) & is.null(fit$X)) {
@@ -85,45 +144,33 @@ local_mfdr <- function(fit, lambda, number=NULL, cutoff=NULL, X=NULL, y=NULL) {
   }
 
   # Calculate locfdr
-  f <- density(z[pen.idx])
-  ff <- approxfun(f$x, f$y)
-  est.gam <- pmin(dnorm(z[pen.idx], 0, 1)/ff(z[pen.idx]), 1)
+  if (method=='ashr') {
+    ash_fit <- ashr::ash(z[pen.idx], rep(1, sum(pen.idx)), optmethod='mixEM')
+    est.gam <- ashr::get_lfdr(ash_fit)
+  } else {
+    f <- density(z[pen.idx])
+    ff <- approxfun(f$x, f$y)
+    est.gam <- pmin(dnorm(z[pen.idx], 0, 1)/ff(z[pen.idx]), 1)
+  }    
 
-  # setup results
+  # Setup results and return, if no unpenalized variables
   Estimate <- if (class(fit)[1] == "ncvreg") beta[-1][ns][pen.idx] else beta[ns][pen.idx]
   results <- data.frame(Estimate = Estimate, z = z[pen.idx], mfdr = est.gam)
   rownames(results) <- names(Estimate)
-
-  # Results for unpenalized vars
-  # This uses the effect of the high dim selections as an offset
-  unpen.res <- NULL
-  if(sum(pen.idx) < length(pen.idx)){
-    if(class(fit)[1] == "ncvreg"){
-      off <- XX[,pen.idx] %*% bb[pen.idx]
-      unpen.res <- summary(glm(yy ~ XX[,!pen.idx], offset = off, family = fit$family))$coef
-      unpen.res <- data.frame(Estimate = beta[-1][ns][!pen.idx], std.error = unpen.res[-1,2]/sc[ns][!pen.idx], statistic = unpen.res[-1,3], p.value = unpen.res[-1,4])
-      rownames(unpen.res) <- names(bb)[!pen.idx]
-    } else {
-      off <- XX[,pen.idx] %*% bb[pen.idx]
-      unpen.res <- summary(survival::coxph(survival::Surv(y,d) ~ XX[,!pen.idx] + offset(off)))$coefficients
-      unpen.res <- data.frame(Estimate = unpen.res[,1]/sc[ns][!pen.idx], std.error = unpen.res[,3]/sc[ns][!pen.idx], statistic = unpen.res[,4], p.value = unpen.res[,5])
-      rownames(unpen.res) <- names(bb)[!pen.idx]
-    }
-  }
-
-  # If number and cutoff are both unspecified return results for selected vars
-  results <- results[order(results$mfdr),]
-  if(is.null(number) & is.null(cutoff)){
-    results <- results[results$Estimate != 0,]
-    return(list(pen.vars = results[!is.na(results$mfdr),],unpen.vars = unpen.res ))
-  }
-
-  # If cutoff is null return 1:number, else return the minimum
-  if(is.null(cutoff)) {
-    nShow <- min(number, p)
-  } else {
-    nShow <- min(sum(results$mfdr <= cutoff, na.rm = TRUE), number, p)
-  }
   results$Selected <- ifelse(results$Estimate != 0, "*"," ")
-  return(list(pen.vars=results[1:nShow,], unpen.vars=unpen.res))
+  if (sum(pen.idx) == length(pen.idx)) return(results)
+
+  # Results for unpenalized vars, using the effect of the high dim selections as an offset
+  if (class(fit)[1] == "ncvreg") {
+    off <- XX[,pen.idx] %*% bb[pen.idx]
+    unpen.res <- summary(glm(yy ~ XX[,!pen.idx], offset = off, family = fit$family))$coef
+    unpen.res <- data.frame(Estimate = beta[-1][ns][!pen.idx], std.error = unpen.res[-1,2]/sc[ns][!pen.idx], statistic = unpen.res[-1,3], p.value = unpen.res[-1,4])
+    rownames(unpen.res) <- names(bb)[!pen.idx]
+  } else {
+    off <- XX[,pen.idx] %*% bb[pen.idx]
+    unpen.res <- summary(survival::coxph(survival::Surv(y,d) ~ XX[,!pen.idx] + offset(off)))$coefficients
+    unpen.res <- data.frame(Estimate = unpen.res[,1]/sc[ns][!pen.idx], std.error = unpen.res[,3]/sc[ns][!pen.idx], statistic = unpen.res[,4], p.value = unpen.res[,5])
+    rownames(unpen.res) <- names(bb)[!pen.idx]
+  }
+  list(pen.vars=results, unpen.vars=unpen.res)
 }

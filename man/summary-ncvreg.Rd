@@ -62,7 +62,7 @@
 %\references{COMING SOON}
 \author{Patrick Breheny <patrick-breheny@uiowa.edu>}
 \seealso{\code{\link{ncvreg}}, \code{\link{cv.ncvreg}},
-  \code{\link{plot.cv.ncvreg}}} 
+  \code{\link{plot.cv.ncvreg}}, \code{\link{local_mfdr}}} 
 \examples{
 # Linear regression --------------------------------------------------
 data(Prostate)
@@ -84,6 +84,7 @@ fit <- ncvreg(Heart$X, Heart$y, family="binomial")
 summary(fit, lambda=0.08, number=3)
 summary(fit, lambda=0.08, number=Inf)
 summary(fit, lambda=0.08, cutoff=0.5)
+summary(fit, lambda=0.08, number=3, cutoff=0.5)
 
 # If X and y are not returned with the fit, they must be supplied
 fit <- ncvreg(Heart$X, Heart$y, family="binomial", returnX=FALSE)
