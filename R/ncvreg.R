@@ -15,7 +15,7 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
     if (class(tmp)[1] == "try-error") stop("y must numeric or able to be coerced to numeric")
   }
   if (storage.mode(penalty.factor) != "double") storage.mode(penalty.factor) <- "double"
-
+  
   # Error checking
   if (gamma <= 1 & penalty=="MCP") stop("gamma must be greater than 1 for the MC penalty")
   if (gamma <= 2 & penalty=="SCAD") stop("gamma must be greater than 2 for the SCAD penalty")
@@ -26,7 +26,7 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
   if (family=="binomial" & length(table(y)) > 2) stop("Attemping to use family='binomial' with non-binary data")
   if (family=="binomial" & !identical(sort(unique(y)), 0:1)) y <- as.numeric(y==max(y))
   if (length(y) != nrow(X)) stop("X and y do not have the same number of observations")
-
+  
   ## Deprication support
   dots <- list(...)
   if ("n.lambda" %in% names(dots)) nlambda <- dots$n.lambda
@@ -50,7 +50,14 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
     nlambda <- length(lambda)
     user.lambda <- TRUE
   }
-  if (sys.nframe() > 1 && sys.call(-1)[[1]]=="local_mfdr") return(list(X=XX, y=yy))
+  
+  # Allow local_mfdr shortcut; probably not the ideal way to handle this
+  if (sys.nframe() > 1) {
+    cl <- sys.call(-1)[[1]]
+    if (is.name(cl)) {
+      if (cl == 'local_mfdr') return(list(X=XX, y=yy))
+    }
+  }
 
   ## Fit
   if (family=="gaussian") {
