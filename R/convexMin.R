@@ -34,7 +34,7 @@ convexMin <- function(b, X, penalty, gamma, l2, family, penalty.factor, a, Delta
       if (i==l) eta <- a[i] + X%*%b[,i]
       else eta <- a[i+1] + X%*%b[,i+1]
       pi. <- exp(eta)/(1+exp(eta))
-      w <- as.numeric(pi.*(1-pi.))
+      w <- as.double(pi.*(1-pi.))
       w[eta > log(.9999/.0001)] <- .0001
       w[eta < log(.0001/.9999)] <- .0001
       Xu <- sqrt(w) * cbind(1,Xu)
@@ -44,7 +44,7 @@ convexMin <- function(b, X, penalty, gamma, l2, family, penalty.factor, a, Delta
       if (i==l) eta <- a[i] + X%*%b[,i]
       else eta <- a[i+1] + X%*%b[,i+1]
       mu <- exp(eta)
-      w <- as.numeric(mu)
+      w <- as.double(mu)
       Xu <- sqrt(w) * cbind(1,Xu)
       xwxn <- crossprod(Xu)/n
       eigen.min <- min(eigen(xwxn-diag(c(0,diag(xwxn)[-1]*p..)))$values)

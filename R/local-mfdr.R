@@ -53,6 +53,7 @@
 local_mfdr <- function(fit, lambda, X=NULL, y=NULL, method=c('ashr', 'kernel'), ...) {
   
   # Determine method, if missing
+  if (!inherits(fit, 'ncvreg')) stop('"fit" must be an ncvreg or ncvsurv object', call.=FALSE)
   if (missing(method)) {
     if (requireNamespace('ashr', quietly=TRUE)) {
       method <- 'ashr'
@@ -69,7 +70,7 @@ local_mfdr <- function(fit, lambda, X=NULL, y=NULL, method=c('ashr', 'kernel'), 
   if (is.null(X) & is.null(fit$X)) {
       stop("This procedure requires X and y.  Either supply X and y, or fit the model using the option 'returnX = TRUE'")
   }
-  if(class(fit)[1] == "ncvsurv") {
+  if (inherits(fit, "ncvsurv")) {
     tmp <- if (is.null(fit$X)) ncvsurv(X, y) else fit
     XX <- tmp$X
     y <- tmp$time
@@ -90,8 +91,8 @@ local_mfdr <- function(fit, lambda, X=NULL, y=NULL, method=c('ashr', 'kernel'), 
   beta <- coef(fit, lambda=lambda)
   pen.idx <- fit$penalty.factor > 0
 
-  if(class(fit)[1] == "ncvreg") {
-    if(fit$family == "gaussian") {
+  if (!inherits(fit, "ncvsurv")) {
+    if (fit$family == "gaussian") {
       # Linear Regression
       bb <- beta[-1][ns]*sc
       r <- yy - XX %*% bb
@@ -110,7 +111,7 @@ local_mfdr <- function(fit, lambda, X=NULL, y=NULL, method=c('ashr', 'kernel'), 
       W <- diag(as.vector(P*(1 - P)))
 
       # Calculate v_j and z_j
-      z <- numeric(p)
+      z <- double(p)
       for (j in 1:p){
         vj <- t(XX[,j]) %*% W %*% XX[,j]
         z[j] <- (XX[,j] %*% U + vj * bb[j])/(sqrt(vj))  ### j+1 bc intercept
@@ -119,7 +120,7 @@ local_mfdr <- function(fit, lambda, X=NULL, y=NULL, method=c('ashr', 'kernel'), 
   }
 
   # Cox regression
-  if(class(fit)[1] == "ncvsurv"){
+  if (inherits(fit, "ncvsurv")) {
     # Setup standardized beta
     bb <- beta[ns]*sc
 
@@ -137,7 +138,7 @@ local_mfdr <- function(fit, lambda, X=NULL, y=NULL, method=c('ashr', 'kernel'), 
     diag(W) <- diag(P %*% diag(d) %*% t(1-P))
 
     # Calculate v_j and z_j
-    z <- numeric(p)
+    z <- double(p)
     for (j in 1:p){
       vj <- t(XX[,j]) %*% W %*% XX[,j]
       z[j] <- (XX[,j] %*% U + vj * bb[j])/(sqrt(vj))
@@ -155,14 +156,14 @@ local_mfdr <- function(fit, lambda, X=NULL, y=NULL, method=c('ashr', 'kernel'), 
   }    
 
   # Setup results and return, if no unpenalized variables
-  Estimate <- if (class(fit)[1] == "ncvreg") beta[-1][ns][pen.idx] else beta[ns][pen.idx]
+  Estimate <- if (inherits(fit, "ncvsurv")) beta[ns][pen.idx] else beta[-1][ns][pen.idx]
   results <- data.frame(Estimate = Estimate, z = z[pen.idx], mfdr = est.gam)
   rownames(results) <- names(Estimate)
   results$Selected <- ifelse(results$Estimate != 0, "*"," ")
   if (sum(pen.idx) == length(pen.idx)) return(results)
 
   # Results for unpenalized vars, using the effect of the high dim selections as an offset
-  if (class(fit)[1] == "ncvreg") {
+  if (!inherits(fit, "ncvsurv")) {
     off <- XX[,pen.idx] %*% bb[pen.idx]
     unpen.res <- summary(glm(yy ~ XX[,!pen.idx], offset = off, family = fit$family))$coef
     unpen.res <- data.frame(Estimate = beta[-1][ns][!pen.idx], std.error = unpen.res[-1,2]/sc[ns][!pen.idx], statistic = unpen.res[-1,3], p.value = unpen.res[-1,4])

@@ -15,7 +15,7 @@ perm.ncvreg <- function(X, y, ..., permute=c("outcome", "residuals"), N=10, seed
     loss <- apply(L.perm, 2, mean)
   } else {
     n.l <- length(fit$lambda)
-    EF <- mFDR <- loss <- numeric(n.l)
+    EF <- mFDR <- loss <- double(n.l)
     for (i in 1:n.l) {
       pres <- permres(fit, fit$lambda[i], N=N, seed=seed, trace=trace)
       EF[i] <- pres$EF

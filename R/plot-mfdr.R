@@ -3,7 +3,7 @@ plot.mfdr <- function(x, type=c("mFDR", "EF"), log.l=FALSE, selected=TRUE, legen
     l <- x$fit$lambda
     x <- data.frame(EF=x$EF, S=x$S, mFDR=x$mFDR)
   } else {
-    l <- as.numeric(rownames(x))
+    l <- as.double(rownames(x))
   }
   type <- match.arg(type)
   if (log.l) {

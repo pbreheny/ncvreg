@@ -7,10 +7,10 @@ X <- matrix(rnorm(n*p), n, p)
 b <- rnorm(p)
 y <- rnorm(n, X%*%b)
 beta <- lm(y~X)$coef
-scad <- coef(ncvreg(X,y,lambda=0,penalty="SCAD",eps=.0001))
-mcp <- coef(ncvreg(X,y,lambda=0,penalty="MCP",eps=.0001))
-check(scad, beta,tolerance=.01,check.attributes=FALSE)
-check(mcp, beta,tolerance=.01,check.attributes=FALSE)
+scad <- coef(ncvreg(X, y, lambda=0, penalty="SCAD", eps=.0001))
+mcp <- coef(ncvreg(X, y, lambda=0, penalty="MCP", eps=.0001))
+check(scad, beta, tolerance=.01, check.attributes=FALSE)
+check(mcp, beta, tolerance=.01, check.attributes=FALSE)
 
 ##########################################
 .test = "logLik() is correct: gaussian" ##
@@ -18,12 +18,11 @@ check(mcp, beta,tolerance=.01,check.attributes=FALSE)
 n <- 50
 p <- 10
 X <- matrix(rnorm(n*p), ncol=p)
-
 y <- rnorm(n)
 fit.mle <- lm(y~X)
 fit <- ncvreg(X, y, lambda.min=0)
-check(logLik(fit)[100],  logLik(fit.mle)[1], check.attributes=FALSE, tol= .001)
-check(AIC(fit)[100],  AIC(fit.mle), check.attributes=FALSE, tol= .001)
+check(logLik(fit)[100], logLik(fit.mle)[1], check.attributes=FALSE, tol= .001)
+check(AIC(fit)[100], AIC(fit.mle), check.attributes=FALSE, tol= .001)
 
 ##############################################
 .test = "ncvreg reproduces lasso: gaussian" ##
@@ -32,8 +31,8 @@ require(glmnet)
 n <- 50
 p <- 10
 X <- matrix(rnorm(n*p), ncol=p)
-par(mfrow=c(3,2))
 
+par(mfrow=c(3,2))
 y <- rnorm(n)
 nlasso <- coef(fit <- ncvreg(X, y, penalty="lasso"))
 plot(fit, log=TRUE)

@@ -9,12 +9,12 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
     tmp <- try(X <- model.matrix(~0+., data=X), silent=TRUE)
     if (class(tmp)[1] == "try-error") stop("X must be a matrix or able to be coerced to a matrix")
   }
-  if (storage.mode(X)=="integer") storage.mode(X) <- "double"
-  if (class(y) != "numeric") {
+  if (typeof(X)=="integer") storage.mode(X) <- "double"
+  if (!is.double(y)) {
     tmp <- try(y <- as.numeric(y), silent=TRUE)
-    if (class(tmp)[1] == "try-error") stop("y must numeric or able to be coerced to numeric")
+    if (class(tmp)[1] == "try-error") stop("y must be numeric or able to be coerced to numeric")
   }
-  if (storage.mode(penalty.factor) != "double") storage.mode(penalty.factor) <- "double"
+  if (!is.double(penalty.factor)) penalty.factor <- as.double(penalty.factor)
   
   # Error checking
   if (gamma <= 1 & penalty=="MCP") stop("gamma must be greater than 1 for the MC penalty")
@@ -24,7 +24,7 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
   if (any(is.na(y)) | any(is.na(X))) stop("Missing data (NA's) detected.  Take actions (e.g., removing cases, removing features, imputation) to eliminate missing data before passing X and y to ncvreg")
   if (length(penalty.factor)!=ncol(X)) stop("penalty.factor does not match up with X")
   if (family=="binomial" & length(table(y)) > 2) stop("Attemping to use family='binomial' with non-binary data")
-  if (family=="binomial" & !identical(sort(unique(y)), 0:1)) y <- as.numeric(y==max(y))
+  if (family=="binomial" & !identical(sort(unique(y)), 0:1)) y <- as.double(y==max(y))
   if (length(y) != nrow(X)) stop("X and y do not have the same number of observations")
   
   ## Deprication support

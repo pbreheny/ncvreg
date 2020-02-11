@@ -1,5 +1,5 @@
 logLik.ncvreg <- function(object, REML=FALSE, ...) {
-  n <- as.numeric(object$n)
+  n <- as.double(object$n)
   df <- predict(object, type="nvars") + 1
   if (object$family=="gaussian") {
     if (REML) rdf <- n-df
@@ -22,7 +22,7 @@ logLik.ncvreg <- function(object, REML=FALSE, ...) {
   val
 }
 logLik.ncvsurv <- function(object, ...) {
-  n <- as.numeric(object$n)
+  n <- as.double(object$n)
   df <- predict(object, type="nvars")
   val <- -1*object$loss
   attr(val,"df") <- df

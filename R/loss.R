@@ -10,7 +10,7 @@ loss.ncvreg <- function(y, yhat, family) {
       if (sum(y==1)) val[y==1,] <- -2*log(yhat[y==1, , drop=FALSE])
       if (sum(y==0)) val[y==0,] <- -2*log(1-yhat[y==0, , drop=FALSE])
     } else {
-      val <- numeric(length(y))
+      val <- double(length(y))
       if (sum(y==1)) val[y==1] <- -2*log(yhat[y==1])
       if (sum(y==0)) val[y==0] <- -2*log(1-yhat[y==0])
     }
@@ -23,7 +23,7 @@ loss.ncvreg <- function(y, yhat, family) {
 }
 loss.ncvsurv <- function(y, eta, total=TRUE) {
   ind <- order(y[,1])
-  d <- as.numeric(y[ind,2])
+  d <- as.double(y[ind,2])
   if (is.matrix(eta)) {
     eta <- eta[ind, , drop=FALSE]
     r <- apply(eta, 2, function(x) rev(cumsum(rev(exp(x)))))

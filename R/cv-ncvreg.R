@@ -6,13 +6,13 @@ cv.ncvreg <- function(X, y, ..., cluster, nfolds=10, seed, fold, returnY=FALSE, 
     warning("cv.ind has been deprecated and renamed fold; please use fold= in the future,\n
 as support for cv.ind() is likely to be discontinued at some point.")
   }
-  if (class(X) != "matrix") {
+  if (!is.matrix(X)) {
     tmp <- try(X <- model.matrix(~0+., data=X), silent=TRUE)
     if (class(tmp)[1] == "try-error") stop("X must be a matrix or able to be coerced to a matrix")
   }
   if (storage.mode(X)=="integer") storage.mode(X) <- "double"
-  if (class(y) != "numeric") {
-    tmp <- try(y <- as.numeric(y), silent=TRUE)
+  if (!is.double(y)) {
+    tmp <- try(y <- as.double(y), silent=TRUE)
     if (class(tmp)[1] == "try-error") stop("y must numeric or able to be coerced to numeric")
   }
 
@@ -21,7 +21,7 @@ as support for cv.ind() is likely to be discontinued at some point.")
   E <- Y <- matrix(NA, nrow=n, ncol=length(fit$lambda))
   if (fit$family=="binomial") {
     PE <- E
-    if (!identical(sort(unique(y)), 0:1)) y <- as.numeric(y==max(y))
+    if (!identical(sort(unique(y)), 0:1)) y <- as.double(y==max(y))
   }
 
   if (!missing(seed)) set.seed(seed)
@@ -36,7 +36,7 @@ as support for cv.ind() is likely to be discontinued at some point.")
       fold0 <- (n1 + 1:n0) %% nfolds
       fold1[fold1==0] <- nfolds
       fold0[fold0==0] <- nfolds
-      fold <- numeric(n)
+      fold <- double(n)
       fold[y==1] <- sample(fold1)
       fold[y==0] <- sample(fold0)
     } else {
@@ -52,9 +52,9 @@ as support for cv.ind() is likely to be discontinued at some point.")
   cv.args$warn <- FALSE
   cv.args$convex <- FALSE
   if (!missing(cluster)) {
-    if (!("cluster" %in% class(cluster))) stop("cluster is not of class 'cluster'; see ?makeCluster")
+    if (!inherits(cluster, "cluster")) stop("cluster is not of class 'cluster'; see ?makeCluster", call.=FALSE)
     parallel::clusterExport(cluster, c("fold","fit","X", "y", "cv.args"), envir=environment())
-    parallel::clusterCall(cluster, function() require(ncvreg))
+    parallel::clusterCall(cluster, function() library(ncvreg))
     fold.results <- parallel::parLapply(cl=cluster, X=1:nfolds, fun=cvf, XX=X, y=y, fold=fold, cv.args=cv.args)
   }
 
