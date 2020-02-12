@@ -17,15 +17,15 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
   if (!is.double(penalty.factor)) penalty.factor <- as.double(penalty.factor)
   
   # Error checking
-  if (gamma <= 1 & penalty=="MCP") stop("gamma must be greater than 1 for the MC penalty")
-  if (gamma <= 2 & penalty=="SCAD") stop("gamma must be greater than 2 for the SCAD penalty")
-  if (nlambda < 2) stop("nlambda must be at least 2")
-  if (alpha <= 0) stop("alpha must be greater than 0; choose a small positive number instead")
-  if (any(is.na(y)) | any(is.na(X))) stop("Missing data (NA's) detected.  Take actions (e.g., removing cases, removing features, imputation) to eliminate missing data before passing X and y to ncvreg")
-  if (length(penalty.factor)!=ncol(X)) stop("penalty.factor does not match up with X")
-  if (family=="binomial" & length(table(y)) > 2) stop("Attemping to use family='binomial' with non-binary data")
+  if (gamma <= 1 & penalty=="MCP") stop("gamma must be greater than 1 for the MC penalty", call.=FALSE)
+  if (gamma <= 2 & penalty=="SCAD") stop("gamma must be greater than 2 for the SCAD penalty", call.=FALSE)
+  if (nlambda < 2) stop("nlambda must be at least 2", call.=FALSE)
+  if (alpha <= 0) stop("alpha must be greater than 0; choose a small positive number instead", call.=FALSE)
+  if (any(is.na(y)) | any(is.na(X))) stop("Missing data (NA's) detected.  Take actions (e.g., removing cases, removing features, imputation) to eliminate missing data before passing X and y to ncvreg", call.=FALSE)
+  if (length(penalty.factor)!=ncol(X)) stop("penalty.factor does not match up with X", call.=FALSE)
+  if (family=="binomial" & length(table(y)) > 2) stop("Attemping to use family='binomial' with non-binary data", call.=FALSE)
   if (family=="binomial" & !identical(sort(unique(y)), 0:1)) y <- as.double(y==max(y))
-  if (length(y) != nrow(X)) stop("X and y do not have the same number of observations")
+  if (length(y) != nrow(X)) stop("X and y do not have the same number of observations", call.=FALSE)
   
   ## Deprication support
   dots <- list(...)

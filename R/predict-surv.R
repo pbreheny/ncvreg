@@ -26,7 +26,7 @@ predict.ncvsurv <- function(object, X, type=c("link", "response", "survival",
   } else {
     W <- exp(object$Eta)[,which,drop=FALSE]
   }
-  if (type == 'survival' & ncol(W) > 1) stop('Can only return type="survival" for a single lambda value')
+  if (type == 'survival' & ncol(W) > 1) stop('Can only return type="survival" for a single lambda value', call.=FALSE)
   if (type == 'survival') val <- vector('list', length(eta))
   if (type == 'median') val <- matrix(NA, nrow(eta), ncol(eta))
   for (j in 1:ncol(eta)) {

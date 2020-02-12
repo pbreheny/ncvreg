@@ -2,7 +2,7 @@ perm.ncvreg <- function(X, y, ..., permute=c("outcome", "residuals"), N=10, seed
   permute <- match.arg(permute)
   if (!missing(seed)) set.seed(seed)
   fit <- ncvreg(X=X, y=y, returnX=TRUE, ...)
-  if (fit$family != 'gaussian' & permute=='residuals') stop("Cannot permute residuals with family = ", fit$family)
+  if (fit$family != 'gaussian' & permute=='residuals') stop(paste0("Cannot permute residuals with family = ", fit$family), call.=FALSE)
   S <- predict(fit, type="nvars")
 
   if (permute=="outcome") {

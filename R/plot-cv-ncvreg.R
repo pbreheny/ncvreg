@@ -46,7 +46,7 @@ plot.cv.ncvreg <- function(x, log.l=TRUE, type=c("cve", "rsq", "scale", "snr", "
       ylab <- "Signal-to-noise ratio"
     }
   } else if (type=="scale") {
-    if (x$fit$family == "binomial") stop("Scale parameter for binomial family fixed at 1")
+    if (x$fit$family == "binomial") stop("Scale parameter for binomial family fixed at 1", call.=FALSE)
     y <- sqrt(x$cve)
     L <- sqrt(L.cve)
     U <- sqrt(U.cve)

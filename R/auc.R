@@ -1,5 +1,5 @@
 AUC.cv.ncvsurv <- function(obj, ...) {
-  if (!("Y" %in% names(obj))) stop("Must run cv.ncvsurv with 'returnY=TRUE' in order to calculate AUC")
+  if (!("Y" %in% names(obj))) stop("Must run cv.ncvsurv with 'returnY=TRUE' in order to calculate AUC", call.=FALSE)
   SURV <- get("Surv", asNamespace("survival"))
   S <- SURV(obj$fit$time, obj$fit$fail)
   CONC <- get("survConcordance.fit", asNamespace("survival"))

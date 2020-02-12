@@ -22,14 +22,14 @@ predict.ncvreg <- function(object, X, type=c("link", "response", "class", "coeff
     if (object$family=="binomial") {
       return(drop(1*(eta>0)))
     } else {
-      stop("type='class' can only be used with family='binomial'")
+      stop("type='class' can only be used with family='binomial'", call.=FALSE)
     }
   }
 }
 coef.ncvreg <- function(object, lambda, which=1:length(object$lambda), drop=TRUE, ...) {
   if (!missing(lambda)) {
     if (max(lambda) > max(object$lambda) | min(lambda) < min(object$lambda)) {
-      stop('Supplied lambda value(s) are outside the range of the model fit.')
+      stop('Supplied lambda value(s) are outside the range of the model fit.', call.=FALSE)
     }
     ind <- approx(object$lambda,seq(object$lambda),lambda)$y
     l <- floor(ind)

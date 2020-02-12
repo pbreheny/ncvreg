@@ -18,12 +18,12 @@ ncvsurv <- function(X, y, penalty=c("MCP", "SCAD", "lasso"), gamma=switch(penalt
   if (typeof(penalty.factor) != "double") storage.mode(penalty.factor) <- "double"
 
   ## Error checking
-  if (gamma <= 1 & penalty=="MCP") stop("gamma must be greater than 1 for the MC penalty")
-  if (gamma <= 2 & penalty=="SCAD") stop("gamma must be greater than 2 for the SCAD penalty")
-  if (nlambda < 2) stop("nlambda must be at least 2")
-  if (alpha <= 0) stop("alpha must be greater than 0; choose a small positive number instead")
-  if (length(penalty.factor)!=ncol(X)) stop("penalty.factor does not match up with X")
-  if (any(is.na(y)) | any(is.na(X))) stop("Missing data (NA's) detected.  Take actions (e.g., removing cases, removing features, imputation) to eliminate missing data before passing X and y to ncvreg")
+  if (gamma <= 1 & penalty=="MCP") stop("gamma must be greater than 1 for the MC penalty", call.=FALSE)
+  if (gamma <= 2 & penalty=="SCAD") stop("gamma must be greater than 2 for the SCAD penalty", call.=FALSE)
+  if (nlambda < 2) stop("nlambda must be at least 2", call.=FALSE)
+  if (alpha <= 0) stop("alpha must be greater than 0; choose a small positive number instead", call.=FALSE)
+  if (length(penalty.factor)!=ncol(X)) stop("penalty.factor does not match up with X", call.=FALSE)
+  if (any(is.na(y)) | any(is.na(X))) stop("Missing data (NA's) detected.  Take actions (e.g., removing cases, removing features, imputation) to eliminate missing data before passing X and y to ncvreg", call.=FALSE)
 
   ## Set up XX, yy, lambda
   tOrder <- order(y[,1])

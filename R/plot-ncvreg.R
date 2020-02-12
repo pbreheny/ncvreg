@@ -1,5 +1,5 @@
 plot.ncvreg <- function(x, alpha=1, log.l=FALSE, shade=TRUE, col, ...) {
-  if (length(x$lambda) == 1) stop("Object was fit with only a single lambda value; there is no path to plot")
+  if (length(x$lambda) == 1) stop("Object was fit with only a single lambda value; there is no path to plot", call.=FALSE)
   YY <- if (length(x$penalty.factor)==nrow(x$beta)) coef(x) else coef(x)[-1,,drop=FALSE]
   penalized <- which(x$penalty.factor!=0)
   nonzero <- which(apply(abs(YY), 1, sum)!=0)

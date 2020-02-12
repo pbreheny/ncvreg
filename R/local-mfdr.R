@@ -68,7 +68,7 @@ local_mfdr <- function(fit, lambda, X=NULL, y=NULL, method=c('ashr', 'kernel'), 
 
   # Extract standardized X, y
   if (is.null(X) & is.null(fit$X)) {
-      stop("This procedure requires X and y.  Either supply X and y, or fit the model using the option 'returnX = TRUE'")
+      stop("This procedure requires X and y.  Either supply X and y, or fit the model using the option 'returnX = TRUE'", call.=FALSE)
   }
   if (inherits(fit, "ncvsurv")) {
     tmp <- if (is.null(fit$X)) ncvsurv(X, y) else fit

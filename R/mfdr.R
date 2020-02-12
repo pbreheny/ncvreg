@@ -7,7 +7,7 @@ mfdr <- function(fit, X) {
   if (inherits(fit, "ncvsurv") || fit$family == "binomial") {
     if (!("X" %in% names(fit))) {
       if (missing(X)) {
-        stop("For Cox/GLM models, you must either supply X or run ncvsurv with returnX=TRUE to calculate an mFDR")
+        stop("For Cox/GLM models, you must either supply X or run ncvsurv with returnX=TRUE to calculate an mFDR", call.=FALSE)
       } else {
         if (inherits(fit, "ncvsurv")) {
           fit$X <- std(X)[fit$order,]
