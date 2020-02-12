@@ -8,12 +8,12 @@ as support for cv.ind() is likely to be discontinued at some point.")
   }
   if (!is.matrix(X)) {
     tmp <- try(X <- model.matrix(~0+., data=X), silent=TRUE)
-    if (class(tmp)[1] == "try-error") stop("X must be a matrix or able to be coerced to a matrix")
+    if (inherits(tmp, "try-error")) stop("X must be a matrix or able to be coerced to a matrix", call.=FALSE)
   }
   if (storage.mode(X)=="integer") storage.mode(X) <- "double"
   if (!is.double(y)) {
     tmp <- try(y <- as.double(y), silent=TRUE)
-    if (class(tmp)[1] == "try-error") stop("y must numeric or able to be coerced to numeric")
+    if (inherits(tmp, "try-error")) stop("y must be numeric or able to be coerced to numeric", call.=FALSE)
   }
 
   fit <- ncvreg(X=X, y=y, ...)

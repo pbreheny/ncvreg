@@ -14,19 +14,11 @@ logLik.ncvreg <- function(object, REML=FALSE, ...) {
     ind <- y != 0
     l <- -object$loss + sum(y[ind]*log(y[ind])) - sum(y) - sum(lfactorial(y))
   }
-  
-  val <- l
-  attr(val,"df") <- df
-  attr(val,"nobs") <- n
-  class(val) <- "logLik"
-  val
+  structure(l, df=df, nobs=n, class="logLik")
 }
+
 logLik.ncvsurv <- function(object, ...) {
   n <- as.double(object$n)
   df <- predict(object, type="nvars")
-  val <- -1*object$loss
-  attr(val,"df") <- df
-  attr(val,"nobs") <- n
-  class(val) <- "logLik"
-  val
+  structure(-1*object$loss, df=df, nobs=n, class="logLik")
 }

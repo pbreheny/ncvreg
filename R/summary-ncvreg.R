@@ -3,7 +3,7 @@ summary.ncvreg <- function(object, lambda, which, number, cutoff, ...) {
   if (length(nvars) > 1) stop("You must specify a single model (i.e., a single value of lambda)")
   if (missing(lambda)) lambda <- object$lambda[which]
   custom <- !(missing(number) & missing(cutoff))
-  if ('ncvsurv' %in% class(object)) {
+  if (inherits(object, 'ncvsurv')) {
     model <- 'Cox'
   } else {
     model <- switch(object$family, gaussian="linear", binomial="logistic", poisson="Poisson")

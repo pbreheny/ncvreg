@@ -1,15 +1,15 @@
 mfdr <- function(fit, X) {
   # Setup
-  stopifnot(class(fit)[1] %in% c("ncvreg", "ncvsurv"))
-  linear <- class(fit)[1] == "ncvreg" & fit$family == "gaussian"
+  if (!inherits(fit, 'ncvreg')) stop('"fit" must be an ncvreg object', call.=FALSE)
+  linear <- !inherits(fit, "ncvsurv") && fit$family == "gaussian"
   S0 <- sum(fit$penalty.factor==0)
   S <- predict(fit, type="nvars") - S0
-  if ((class(fit)[1] == "ncvsurv") || (class(fit)[1] == "ncvreg" & fit$family == "binomial")) {
+  if (inherits(fit, "ncvsurv") || fit$family == "binomial") {
     if (!("X" %in% names(fit))) {
       if (missing(X)) {
         stop("For Cox/GLM models, you must either supply X or run ncvsurv with returnX=TRUE to calculate an mFDR")
       } else {
-        if (class(fit)[1] == "ncvsurv") {
+        if (inherits(fit, "ncvsurv")) {
           fit$X <- std(X)[fit$order,]
         } else {
           fit$X <- std(X)
@@ -19,7 +19,7 @@ mfdr <- function(fit, X) {
   }
 
   # Call C functions
-  if (class(fit)[1] == "ncvsurv") {
+  if (inherits(fit, "ncvsurv")) {
     EF <- .Call("mfdr_cox", fit)
   } else {
     if (fit$family == "binomial") {

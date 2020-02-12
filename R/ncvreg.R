@@ -5,14 +5,14 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
   # Coersion
   family <- match.arg(family)
   penalty <- match.arg(penalty)
-  if (class(X) != "matrix") {
+  if (!inherits(X, "matrix")) {
     tmp <- try(X <- model.matrix(~0+., data=X), silent=TRUE)
-    if (class(tmp)[1] == "try-error") stop("X must be a matrix or able to be coerced to a matrix")
+    if (inherits(tmp, "try-error")) stop("X must be a matrix or able to be coerced to a matrix", call.=FALSE)
   }
   if (typeof(X)=="integer") storage.mode(X) <- "double"
   if (!is.double(y)) {
-    tmp <- try(y <- as.numeric(y), silent=TRUE)
-    if (class(tmp)[1] == "try-error") stop("y must be numeric or able to be coerced to numeric")
+    tmp <- try(y <- as.double(y), silent=TRUE)
+    if (inherits(tmp, "try-error")) stop("y must be numeric or able to be coerced to numeric", call.=FALSE)
   }
   if (!is.double(penalty.factor)) penalty.factor <- as.double(penalty.factor)
   

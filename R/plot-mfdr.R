@@ -1,5 +1,5 @@
 plot.mfdr <- function(x, type=c("mFDR", "EF"), log.l=FALSE, selected=TRUE, legend=TRUE, ...) {
-  if (class(x)[1]=="perm.ncvreg") {
+  if (inherits(x, "perm.ncvreg")) {
     l <- x$fit$lambda
     x <- data.frame(EF=x$EF, S=x$S, mFDR=x$mFDR)
   } else {

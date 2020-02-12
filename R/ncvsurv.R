@@ -4,18 +4,18 @@ ncvsurv <- function(X, y, penalty=c("MCP", "SCAD", "lasso"), gamma=switch(penalt
 
   # Coersion
   penalty <- match.arg(penalty)
-  if (class(X) != "matrix") {
+  if (!inherits(X, "matrix")) {
     tmp <- try(X <- model.matrix(~0+., data=X), silent=TRUE)
-    if (class(tmp)[1] == "try-error") stop("X must be a matrix or able to be coerced to a matrix")
+    if (inherits(tmp, "try-error")) stop("X must be a matrix or able to be coerced to a matrix", call.=FALSE)
   }
   if (storage.mode(X)=="integer") storage.mode(X) <- "double"
-  if (class(y) != "matrix") {
+  if (!inherits(y, "matrix")) {
     tmp <- try(y <- as.matrix(y), silent=TRUE)
-    if (class(tmp)[1] == "try-error") stop("y must be a matrix or able to be coerced to a matrix")
-    if (ncol(y)!=2) stop("y must have two columns for survival data: time-on-study and a censoring indicator")
+    if (inherits(tmp, "try-error")) stop("y must be a matrix or able to be coerced to a matrix", call.=FALSE)
+    if (ncol(y) != 2) stop("y must have two columns for survival data: time-on-study and a censoring indicator", call.=FALSE)
   }
-  if (storage.mode(y)=="integer") storage.mode(y) <- "double"
-  if (storage.mode(penalty.factor) != "double") storage.mode(penalty.factor) <- "double"
+  if (typeof(y) == "integer") storage.mode(y) <- "double"
+  if (typeof(penalty.factor) != "double") storage.mode(penalty.factor) <- "double"
 
   ## Error checking
   if (gamma <= 1 & penalty=="MCP") stop("gamma must be greater than 1 for the MC penalty")

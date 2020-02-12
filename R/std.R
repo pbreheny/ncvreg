@@ -1,7 +1,7 @@
 std <- function(X) {
-  if (class(X) != "matrix") {
+  if (!inherits(X, "matrix")) {
     tmp <- try(X <- model.matrix(~0+., data=X), silent=TRUE)
-    if (class(tmp)[1] == "try-error") stop("X must be a matrix or able to be coerced to a matrix")
+    if (inherits(tmp, "try-error")) stop("X must be a matrix or able to be coerced to a matrix", call.=FALSE)
   }
   STD <- .Call("standardize", X)
   dimnames(STD[[1]]) <- dimnames(X)
