@@ -4,8 +4,7 @@
 \alias{local_mfdr}
 \title{Estimate local mFDR for all features}
 \usage{
-local_mfdr(fit, lambda, X = NULL, y = NULL, method = c("ashr",
-  "kernel"), ...)
+local_mfdr(fit, lambda, X = NULL, y = NULL, method = c("ashr", "kernel"), ...)
 }
 \arguments{
 \item{fit}{A fitted \code{ncvreg} or \code{ncvsurv} object.}
