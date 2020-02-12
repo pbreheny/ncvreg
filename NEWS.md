@@ -1,3 +1,8 @@
+# ncvreg 3.11.2 (2020-02-12)
+  * New: std() now works on integer matrices and numeric vectors
+  * Internal: Lots of internal changes for cleaner, more reliable code
+  * New version numbering system
+
 # ncvreg 3.11-1 (2019-02-26)
   * Fixed: Leave-one-out cross-validation now works correctly for logistic
     regression
