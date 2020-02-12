@@ -92,10 +92,10 @@ SEXP cdfit_gaussian(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEX
       // Check dfmax
       int nv = 0;
       for (int j=0; j<p; j++) {
-	if (a[j] != 0) nv++;
+        if (a[j] != 0) nv++;
       }
       if ((nv > dfmax) | (tot_iter == max_iter)) {
-	for (int ll=l; ll<L; ll++) INTEGER(iter)[ll] = NA_INTEGER;
+        for (int ll=l; ll<L; ll++) INTEGER(iter)[ll] = NA_INTEGER;
         break;
       }
 
@@ -116,88 +116,88 @@ SEXP cdfit_gaussian(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEX
 
     while (tot_iter < max_iter) {
       while (tot_iter < max_iter) {
-	while (tot_iter < max_iter) {
-	  // Solve over the active set
-	  INTEGER(iter)[l]++;
+        while (tot_iter < max_iter) {
+          // Solve over the active set
+          INTEGER(iter)[l]++;
           tot_iter++;
           double maxChange = 0;
-	  for (int j=0; j<p; j++) {
-	    if (e1[j]) {
-	      z[j] = crossprod(X, r, n, j)/n + a[j];
+          for (int j=0; j<p; j++) {
+            if (e1[j]) {
+              z[j] = crossprod(X, r, n, j)/n + a[j];
 
-	      // Update beta_j
-	      l1 = lam[l] * m[j] * alpha;
-	      l2 = lam[l] * m[j] * (1-alpha);
-	      if (strcmp(penalty,"MCP")==0) b[l*p+j] = MCP(z[j], l1, l2, gamma, 1);
-	      if (strcmp(penalty,"SCAD")==0) b[l*p+j] = SCAD(z[j], l1, l2, gamma, 1);
-	      if (strcmp(penalty,"lasso")==0) b[l*p+j] = lasso(z[j], l1, l2, 1);
+              // Update beta_j
+              l1 = lam[l] * m[j] * alpha;
+              l2 = lam[l] * m[j] * (1-alpha);
+              if (strcmp(penalty,"MCP")==0) b[l*p+j] = MCP(z[j], l1, l2, gamma, 1);
+              if (strcmp(penalty,"SCAD")==0) b[l*p+j] = SCAD(z[j], l1, l2, gamma, 1);
+              if (strcmp(penalty,"lasso")==0) b[l*p+j] = lasso(z[j], l1, l2, 1);
 
-	      // Update r
-	      double shift = b[l*p+j] - a[j];
-	      if (shift !=0) {
+              // Update r
+              double shift = b[l*p+j] - a[j];
+              if (shift !=0) {
                 for (int i=0;i<n;i++) r[i] -= shift*X[j*n+i];
                 if (fabs(shift) > maxChange) maxChange = fabs(shift);
               }
-	    }
-	  }
+            }
+          }
 
-	  // Check for convergence
-	  for (int j=0; j<p; j++) a[j] = b[l*p+j];
-	  if (maxChange < eps*sdy) break;
-	}
+          // Check for convergence
+          for (int j=0; j<p; j++) a[j] = b[l*p+j];
+          if (maxChange < eps*sdy) break;
+        }
 
-	// Scan for violations in strong set
-	int violations = 0;
-	for (int j=0; j<p; j++) {
-	  if (e1[j]==0 && e2[j]==1) {
+        // Scan for violations in strong set
+        int violations = 0;
+        for (int j=0; j<p; j++) {
+          if (e1[j]==0 && e2[j]==1) {
 
-	    z[j] = crossprod(X, r, n, j)/n;
+            z[j] = crossprod(X, r, n, j)/n;
 
-	    // Update beta_j
-	    l1 = lam[l] * m[j] * alpha;
-	    l2 = lam[l] * m[j] * (1-alpha);
-	    if (strcmp(penalty,"MCP")==0) b[l*p+j] = MCP(z[j], l1, l2, gamma, 1);
-	    if (strcmp(penalty,"SCAD")==0) b[l*p+j] = SCAD(z[j], l1, l2, gamma, 1);
-	    if (strcmp(penalty,"lasso")==0) b[l*p+j] = lasso(z[j], l1, l2, 1);
+            // Update beta_j
+            l1 = lam[l] * m[j] * alpha;
+            l2 = lam[l] * m[j] * (1-alpha);
+            if (strcmp(penalty,"MCP")==0) b[l*p+j] = MCP(z[j], l1, l2, gamma, 1);
+            if (strcmp(penalty,"SCAD")==0) b[l*p+j] = SCAD(z[j], l1, l2, gamma, 1);
+            if (strcmp(penalty,"lasso")==0) b[l*p+j] = lasso(z[j], l1, l2, 1);
 
-	    // If something enters the eligible set, update eligible set & residuals
-	    if (b[l*p+j] !=0) {
-	      e1[j] = e2[j] = 1;
-	      for (int i=0; i<n; i++) r[i] -= b[l*p+j]*X[j*n+i];
-	      a[j] = b[l*p+j];
-	      violations++;
-	    }
-	  }
-	}
-	if (violations==0) break;
+            // If something enters the eligible set, update eligible set & residuals
+            if (b[l*p+j] !=0) {
+              e1[j] = e2[j] = 1;
+              for (int i=0; i<n; i++) r[i] -= b[l*p+j]*X[j*n+i];
+              a[j] = b[l*p+j];
+              violations++;
+            }
+          }
+        }
+        if (violations==0) break;
       }
 
       // Scan for violations in rest
       int violations = 0;
       for (int j=0; j<p; j++) {
-	if (e2[j]==0) {
+        if (e2[j]==0) {
 
-	  z[j] = crossprod(X, r, n, j)/n;
+          z[j] = crossprod(X, r, n, j)/n;
 
-	  // Update beta_j
-	  l1 = lam[l] * m[j] * alpha;
-	  l2 = lam[l] * m[j] * (1-alpha);
-	  if (strcmp(penalty,"MCP")==0) b[l*p+j] = MCP(z[j], l1, l2, gamma, 1);
-	  if (strcmp(penalty,"SCAD")==0) b[l*p+j] = SCAD(z[j], l1, l2, gamma, 1);
-	  if (strcmp(penalty,"lasso")==0) b[l*p+j] = lasso(z[j], l1, l2, 1);
+          // Update beta_j
+          l1 = lam[l] * m[j] * alpha;
+          l2 = lam[l] * m[j] * (1-alpha);
+          if (strcmp(penalty,"MCP")==0) b[l*p+j] = MCP(z[j], l1, l2, gamma, 1);
+          if (strcmp(penalty,"SCAD")==0) b[l*p+j] = SCAD(z[j], l1, l2, gamma, 1);
+          if (strcmp(penalty,"lasso")==0) b[l*p+j] = lasso(z[j], l1, l2, 1);
 
-	  // If something enters the eligible set, update eligible set & residuals
-	  if (b[l*p+j] !=0) {
-	    e1[j] = e2[j] = 1;
-	    for (int i=0; i<n; i++) r[i] -= b[l*p+j]*X[j*n+i];
-	    a[j] = b[l*p+j];
-	    violations++;
-	  }
-	}
+          // If something enters the eligible set, update eligible set & residuals
+          if (b[l*p+j] !=0) {
+            e1[j] = e2[j] = 1;
+            for (int i=0; i<n; i++) r[i] -= b[l*p+j]*X[j*n+i];
+            a[j] = b[l*p+j];
+            violations++;
+          }
+        }
       }
 
       if (violations==0) {
-	break;
+        break;
       }
     }
     REAL(loss)[l] = gLoss(r, n);

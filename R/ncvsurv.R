@@ -26,11 +26,11 @@ ncvsurv <- function(X, y, penalty=c("MCP", "SCAD", "lasso"), gamma=switch(penalt
   if (any(is.na(y)) | any(is.na(X))) stop("Missing data (NA's) detected.  Take actions (e.g., removing cases, removing features, imputation) to eliminate missing data before passing X and y to ncvreg", call.=FALSE)
 
   ## Set up XX, yy, lambda
-  tOrder <- order(y[,1])
-  yy <- as.double(y[tOrder,1])
-  Delta <- y[tOrder,2]
+  tOrder <- order(y[, 1])
+  yy <- as.double(y[tOrder, 1])
+  Delta <- y[tOrder, 2]
   n <- length(yy)
-  XX <- std(X[tOrder,,drop=FALSE])
+  XX <- std(X[tOrder, , drop=FALSE])
   if (sys.nframe() > 1 && sys.call(-1)[[1]]=="local_mfdr") return(list(X=XX, time=yy, fail=Delta))
   ns <- attr(XX, "nonsingular")
   penalty.factor <- penalty.factor[ns]
@@ -57,7 +57,7 @@ ncvsurv <- function(X, y, penalty=c("MCP", "SCAD", "lasso"), gamma=switch(penalt
   iter <- iter[ind]
   lambda <- lambda[ind]
   loss <- loss[ind]
-  Eta <- Eta[,ind,drop=FALSE]
+  Eta <- Eta[, ind, drop=FALSE]
   if (warn & sum(iter)==max.iter) warning("Algorithm failed to converge for some values of lambda")
 
   ## Local convexity?
@@ -70,7 +70,7 @@ ncvsurv <- function(X, y, penalty=c("MCP", "SCAD", "lasso"), gamma=switch(penalt
   offset <- -crossprod(attr(XX, "center")[ns], bb)
 
   ## Names
-  varnames <- if (is.null(colnames(X))) paste("V",1:ncol(X),sep="") else colnames(X)
+  varnames <- if (is.null(colnames(X))) paste("V", 1:ncol(X), sep="") else colnames(X)
   dimnames(beta) <- list(varnames, lamNames(lambda))
 
   ## Output

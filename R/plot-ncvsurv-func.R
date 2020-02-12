@@ -19,5 +19,5 @@ plot.ncvsurv.func <- function(x, alpha=1, ...) {
   if (length(new.args)) line.args[names(new.args)] <- new.args
   line.args$x <- time
   line.args$y <- Y
-  do.call("matlines",line.args)
+  do.call("matlines", line.args)
 }

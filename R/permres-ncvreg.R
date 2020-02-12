@@ -10,8 +10,8 @@ permres.ncvreg <- function(fit, lambda, N=10, seed, trace=FALSE, ...) {
   y <- y - mean(y)
   lam <- c(fit$lambda[fit$lambda > lambda], lambda)
   pfit <- fit.perm.ncvreg(fit, y, lam, N, S, trace)
-  S.perm <- pfit$S.perm[,ncol(pfit$S.perm)]
-  L.perm <- pfit$L.perm[,ncol(pfit$S.perm)]
+  S.perm <- pfit$S.perm[, ncol(pfit$S.perm)]
+  L.perm <- pfit$L.perm[, ncol(pfit$S.perm)]
 
   EF <- mean(S.perm, na.rm=TRUE)
   mFDR <- EF/S

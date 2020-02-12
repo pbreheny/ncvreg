@@ -39,7 +39,7 @@ fit.perm.ncvreg <- function(fit, y, lam, N, maxdf, trace) {
       b <- matrix(res[[1]], p, n.l)
       ind <- is.na(res[[3]])
       L.perm[i,] <- res[[2]]
-      L.perm[i,ind] <- NA
+      L.perm[i, ind] <- NA
     } else {
       if (fit$family=="binomial") {
         res <- .Call("cdfit_binomial", fit$X, sample(y), fit$penalty, lam, 0.001, as.integer(1000), as.double(fit$gamma), fit$penalty.factor, fit$alpha, as.integer(maxdf), as.integer(TRUE), as.integer(FALSE))
@@ -49,10 +49,10 @@ fit.perm.ncvreg <- function(fit, y, lam, N, maxdf, trace) {
       b <- matrix(res[[2]], p, n.l)
       ind <- is.na(res[[5]])
       L.perm[i,] <- res[[3]]
-      L.perm[i,ind] <- NA
+      L.perm[i, ind] <- NA
     }
-    S.perm[i,] <- apply(b[,drop=FALSE]!=0, 2, sum)
-    S.perm[i,ind] <- NA
+    S.perm[i,] <- apply(b[, drop=FALSE]!=0, 2, sum)
+    S.perm[i, ind] <- NA
   }
   list(S.perm=S.perm, L.perm=L.perm)
 }

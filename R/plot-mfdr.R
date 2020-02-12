@@ -36,9 +36,9 @@ plot.mfdr <- function(x, type=c("mFDR", "EF"), log.l=FALSE, selected=TRUE, legen
     }
   }
 }
-transform.coord <- function(x,p) {
+transform.coord <- function(x, p) {
   ba <- (x[2]-x[1])/(p[2]-p[1])
   a <- x[1]-p[1]*ba
   b <- a + ba
-  c(a,b)
+  c(a, b)
 }

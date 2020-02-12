@@ -62,7 +62,7 @@ as support for cv.ind() is likely to be discontinued at some point.")
     if (!missing(cluster)) {
       res <- fold.results[[i]]
     } else {
-      if (trace) cat("Starting CV fold #",i,sep="","\n")
+      if (trace) cat("Starting CV fold #", i, sep="","\n")
       res <- cvf(i, X, y, fold, cv.args)
     }
     E[fold==i, 1:res$nl] <- res$loss
@@ -73,7 +73,7 @@ as support for cv.ind() is likely to be discontinued at some point.")
   ## Eliminate saturated lambda values, if any
   ind <- which(apply(is.finite(E), 2, all))
   E <- E[, ind, drop=FALSE]
-  Y <- Y[,ind]
+  Y <- Y[, ind]
   lambda <- fit$lambda[ind]
 
   ## Return
@@ -82,7 +82,7 @@ as support for cv.ind() is likely to be discontinued at some point.")
   min <- which.min(cve)
 
   # Bias correction
-  e <- sapply(1:nfolds, function(i) apply(E[fold==i,,drop=FALSE], 2, mean))
+  e <- sapply(1:nfolds, function(i) apply(E[fold==i, , drop=FALSE], 2, mean))
   Bias <- mean(e[min,] - apply(e, 2, min))
 
   val <- list(cve=cve, cvse=cvse, fold=fold, lambda=lambda, fit=fit, min=min, lambda.min=lambda[min],

@@ -52,7 +52,7 @@ cv.ncvsurv <- function(X, y, ..., cluster, nfolds=10, seed, fold, se=c('quick', 
     if (!missing(cluster)) {
       res <- fold.results[[i]]
     } else {
-      if (trace) cat("Starting CV fold #",i,sep="","\n")
+      if (trace) cat("Starting CV fold #", i, sep="","\n")
       res <- cvf.surv(i, X, y, fold, cv.args)
     }
     Y[fold==i, 1:res$nl] <- res$yhat
@@ -60,7 +60,7 @@ cv.ncvsurv <- function(X, y, ..., cluster, nfolds=10, seed, fold, se=c('quick', 
 
   # Eliminate saturated lambda values, if any
   ind <- which(apply(is.finite(Y), 2, all))
-  Y <- Y[,ind]
+  Y <- Y[, ind]
   lambda <- fit$lambda[ind]
 
   # Return

@@ -62,7 +62,7 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
   ## Fit
   if (family=="gaussian") {
     res <- .Call("cdfit_gaussian", XX, yy, penalty, lambda, eps, as.integer(max.iter), as.double(gamma), penalty.factor, alpha, as.integer(dfmax), as.integer(user.lambda | any(penalty.factor==0)))
-    a <- rep(mean(y),nlambda)
+    a <- rep(mean(y), nlambda)
     b <- matrix(res[[1]], p, nlambda)
     loss <- res[[2]]
     iter <- res[[3]]
@@ -86,7 +86,7 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
   iter <- iter[ind]
   lambda <- lambda[ind]
   loss <- loss[ind]
-  if (family=="binomial") Eta <- Eta[,ind]
+  if (family=="binomial") Eta <- Eta[, ind]
   if (warn & sum(iter)==max.iter) warning("Maximum number of iterations reached")
 
   ## Local convexity?
@@ -99,7 +99,7 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
   beta[1,] <- a - crossprod(attr(XX, "center")[ns], bb)
 
   ## Names
-  varnames <- if (is.null(colnames(X))) paste("V",1:ncol(X),sep="") else colnames(X)
+  varnames <- if (is.null(colnames(X))) paste("V", 1:ncol(X), sep="") else colnames(X)
   varnames <- c("(Intercept)", varnames)
   dimnames(beta) <- list(varnames, lamNames(lambda))
 

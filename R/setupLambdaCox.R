@@ -18,7 +18,7 @@ setupLambdaCox <- function(X, y, Delta, alpha, lambda.min, nlambda, penalty.fact
   zmax <- .Call("maxprod", X, s, ind, penalty.factor) / n
   lambda.max <- zmax/alpha
 
-  if (lambda.min==0) lambda <- c(exp(seq(log(lambda.max),log(.001*lambda.max),len=nlambda-1)),0)
-  else lambda <- exp(seq(log(lambda.max),log(lambda.min*lambda.max),len=nlambda))
+  if (lambda.min==0) lambda <- c(exp(seq(log(lambda.max), log(.001*lambda.max), len=nlambda-1)), 0)
+  else lambda <- exp(seq(log(lambda.max), log(lambda.min*lambda.max), len=nlambda))
   lambda
 }

@@ -164,12 +164,12 @@ local_mfdr <- function(fit, lambda, X=NULL, y=NULL, method=c('ashr', 'kernel'), 
 
   # Results for unpenalized vars, using the effect of the high dim selections as an offset
   if (!inherits(fit, "ncvsurv")) {
-    off <- XX[,pen.idx] %*% bb[pen.idx]
+    off <- XX[, pen.idx] %*% bb[pen.idx]
     unpen.res <- summary(glm(yy ~ XX[,!pen.idx], offset = off, family = fit$family))$coef
     unpen.res <- data.frame(Estimate = beta[-1][ns][!pen.idx], std.error = unpen.res[-1,2]/sc[ns][!pen.idx], statistic = unpen.res[-1,3], p.value = unpen.res[-1,4])
     rownames(unpen.res) <- names(bb)[!pen.idx]
   } else {
-    off <- XX[,pen.idx] %*% bb[pen.idx]
+    off <- XX[, pen.idx] %*% bb[pen.idx]
     unpen.res <- summary(survival::coxph(survival::Surv(y,d) ~ XX[,!pen.idx] + offset(off)))$coefficients
     unpen.res <- data.frame(Estimate = unpen.res[,1]/sc[ns][!pen.idx], std.error = unpen.res[,3]/sc[ns][!pen.idx], statistic = unpen.res[,4], p.value = unpen.res[,5])
     rownames(unpen.res) <- names(bb)[!pen.idx]

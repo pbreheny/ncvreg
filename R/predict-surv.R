@@ -7,14 +7,14 @@ predict.ncvsurv <- function(object, X, type=c("link", "response", "survival",
     return(predict.ncvreg(object=object, X=X, type=type, lambda=lambda, which=which, ...))
   }
   if (!missing(lambda)) {
-    ind <- approx(object$lambda,seq(object$lambda),lambda)$y
+    ind <- approx(object$lambda, seq(object$lambda), lambda)$y
     l <- floor(ind)
     r <- ceiling(ind)
     x <- ind %% 1
-    beta <- (1-x)*object$beta[,l,drop=FALSE] + x*object$beta[,r,drop=FALSE]
+    beta <- (1-x)*object$beta[, l, drop=FALSE] + x*object$beta[, r, drop=FALSE]
     colnames(beta) <- lamNames(lambda)
   } else {
-    beta <- object$beta[,which,drop=FALSE]
+    beta <- object$beta[, which, drop=FALSE]
   }
 
   eta <- X %*% beta
@@ -22,9 +22,9 @@ predict.ncvsurv <- function(object, X, type=c("link", "response", "survival",
   if (type=='response') return(drop(exp(eta)))
 
   if (!missing(lambda)) {
-    W <- (1-x)*exp(object$Eta)[,l,drop=FALSE] + x*exp(object$Eta)[,r,drop=FALSE]
+    W <- (1-x)*exp(object$Eta)[, l, drop=FALSE] + x*exp(object$Eta)[, r, drop=FALSE]
   } else {
-    W <- exp(object$Eta)[,which,drop=FALSE]
+    W <- exp(object$Eta)[, which, drop=FALSE]
   }
   if (type == 'survival' & ncol(W) > 1) stop('Can only return type="survival" for a single lambda value', call.=FALSE)
   if (type == 'survival') val <- vector('list', length(eta))

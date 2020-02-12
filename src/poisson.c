@@ -109,10 +109,10 @@ SEXP cdfit_poisson(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP
       // Check dfmax
       int nv = 0;
       for (int j=0; j<p; j++) {
-	if (a[j] != 0) nv++;
+        if (a[j] != 0) nv++;
       }
       if ((nv > dfmax) | (tot_iter == max_iter)) {
-	for (int ll=l; ll<L; ll++) INTEGER(iter)[ll] = NA_INTEGER;
+        for (int ll=l; ll<L; ll++) INTEGER(iter)[ll] = NA_INTEGER;
         break;
       }
 
@@ -134,97 +134,97 @@ SEXP cdfit_poisson(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP
 
     while (tot_iter < max_iter) {
       while (tot_iter < max_iter) {
-	while (tot_iter < max_iter) {
-	  INTEGER(iter)[l]++;
+        while (tot_iter < max_iter) {
+          INTEGER(iter)[l]++;
           tot_iter++;
-	  REAL(Dev)[l] = 0;
+          REAL(Dev)[l] = 0;
           double maxChange = 0;
-	  for (int i=0;i<n;i++) {
-	    mu = exp(eta[i]);
-	    w[i] = mu;
-	    s[i] = y[i] - mu;
-	    r[i] = s[i]/w[i];
-	    if (y[i]!=0) REAL(Dev)[l] += y[i]*log(y[i]/mu);
-	  }
-	  if (REAL(Dev)[l]/nullDev < .01) {
-	    if (warn) warning("Model saturated; exiting...");
-	    for (int ll=l; ll<L; ll++) INTEGER(iter)[ll] = NA_INTEGER;
+          for (int i=0;i<n;i++) {
+            mu = exp(eta[i]);
+            w[i] = mu;
+            s[i] = y[i] - mu;
+            r[i] = s[i]/w[i];
+            if (y[i]!=0) REAL(Dev)[l] += y[i]*log(y[i]/mu);
+          }
+          if (REAL(Dev)[l]/nullDev < .01) {
+            if (warn) warning("Model saturated; exiting...");
+            for (int ll=l; ll<L; ll++) INTEGER(iter)[ll] = NA_INTEGER;
             tot_iter = max_iter;
             break;
-	  }
+          }
 
-	  // Intercept
-	  xwr = crossprod(w, r, n, 0);
-	  xwx = sum(w, n);
-	  b0[l] = xwr/xwx + a0;
-	  for (int i=0; i<n; i++) {
-	    si = b0[l] - a0;
-	    r[i] -= si;
-	    eta[i] += si;
-	  }
+          // Intercept
+          xwr = crossprod(w, r, n, 0);
+          xwx = sum(w, n);
+          b0[l] = xwr/xwx + a0;
+          for (int i=0; i<n; i++) {
+            si = b0[l] - a0;
+            r[i] -= si;
+            eta[i] += si;
+          }
 
-	  // Covariates
-	  for (int j=0; j<p; j++) {
-	    if (e1[j]) {
+          // Covariates
+          for (int j=0; j<p; j++) {
+            if (e1[j]) {
 
-	      // Calculate u, v
-	      xwr = wcrossprod(X, r, w, n, j);
-	      xwx = wsqsum(X, w, n, j);
-	      u = xwr/n + (xwx/n)*a[j];
-	      v = xwx/n;
+              // Calculate u, v
+              xwr = wcrossprod(X, r, w, n, j);
+              xwx = wsqsum(X, w, n, j);
+              u = xwr/n + (xwx/n)*a[j];
+              v = xwx/n;
 
-	      // Update b_j
-	      l1 = lam[l] * m[j] * alpha;
-	      l2 = lam[l] * m[j] * (1-alpha);
-	      if (strcmp(penalty,"MCP")==0) b[l*p+j] = MCP(u, l1, l2, gamma, v);
-	      if (strcmp(penalty,"SCAD")==0) b[l*p+j] = SCAD(u, l1, l2, gamma, v);
-	      if (strcmp(penalty,"lasso")==0) b[l*p+j] = lasso(u, l1, l2, v);
+              // Update b_j
+              l1 = lam[l] * m[j] * alpha;
+              l2 = lam[l] * m[j] * (1-alpha);
+              if (strcmp(penalty,"MCP")==0) b[l*p+j] = MCP(u, l1, l2, gamma, v);
+              if (strcmp(penalty,"SCAD")==0) b[l*p+j] = SCAD(u, l1, l2, gamma, v);
+              if (strcmp(penalty,"lasso")==0) b[l*p+j] = lasso(u, l1, l2, v);
 
-	      // Update r
-	      shift = b[l*p+j] - a[j];
-	      if (shift !=0) {
-		for (int i=0;i<n;i++) {
-		  si = shift*X[j*n+i];
-		  r[i] -= si;
-		  eta[i] += si;
-		}
+              // Update r
+              shift = b[l*p+j] - a[j];
+              if (shift !=0) {
+                for (int i=0;i<n;i++) {
+                  si = shift*X[j*n+i];
+                  r[i] -= si;
+                  eta[i] += si;
+                }
                 if (fabs(shift)*sqrt(v) > maxChange) maxChange = fabs(shift)*sqrt(v);
-	      }
-	    }
-	  }
+              }
+            }
+          }
 
-	  // Check for convergence
-	  a0 = b0[l];
-	  for (int j=0; j<p; j++) a[j] = b[l*p+j];
+          // Check for convergence
+          a0 = b0[l];
+          for (int j=0; j<p; j++) a[j] = b[l*p+j];
           if (maxChange < eps) break;
-	}
+        }
 
-	// Scan for violations in strong set
-	int violations = 0;
-	for (int j=0; j<p; j++) {
-	  if (e1[j]==0 && e2[j]==1) {
-	    z[j] = crossprod(X, s, n, j)/n;
-	    l1 = lam[l] * m[j] * alpha;
-	    if (fabs(z[j]) > l1) {
-	      e1[j] = e2[j] = 1;
-	      violations++;
-	    }
-	  }
-	}
-	if (violations==0) break;
+        // Scan for violations in strong set
+        int violations = 0;
+        for (int j=0; j<p; j++) {
+          if (e1[j]==0 && e2[j]==1) {
+            z[j] = crossprod(X, s, n, j)/n;
+            l1 = lam[l] * m[j] * alpha;
+            if (fabs(z[j]) > l1) {
+              e1[j] = e2[j] = 1;
+              violations++;
+            }
+          }
+        }
+        if (violations==0) break;
       }
 
       // Scan for violations in rest
       int violations = 0;
       for (int j=0; j<p; j++) {
-	if (e2[j]==0) {
-	  z[j] = crossprod(X, s, n, j)/n;
-	  l1 = lam[l] * m[j] * alpha;
-	  if (fabs(z[j]) > l1) {
-	    e1[j] = e2[j] = 1;
-	    violations++;
-	  }
-	}
+        if (e2[j]==0) {
+          z[j] = crossprod(X, s, n, j)/n;
+          l1 = lam[l] * m[j] * alpha;
+          if (fabs(z[j]) > l1) {
+            e1[j] = e2[j] = 1;
+            violations++;
+          }
+        }
       }
       if (violations==0) {
         for (int i=0; i<n; i++) REAL(Eta)[n*l+i] = eta[i];
