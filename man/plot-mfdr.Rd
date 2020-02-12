@@ -26,9 +26,7 @@ legend=TRUE, ...)
 }
 %\details{}
 \references{
-    Breheny P (to appear). Marginal false discovery rates for penalized
-    regression models. Biostatistics.
-}
+    Breheny P (2019). Marginal false discovery rates for penalized regression models. Biostatistics, 20: 299-314.}
 \author{Patrick Breheny}
 \seealso{\code{\link{mfdr}}, \code{\link{perm.ncvreg}}}
 \examples{

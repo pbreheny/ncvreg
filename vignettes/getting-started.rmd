@@ -28,7 +28,7 @@ This vignette offers a brief introduction to the basic use of `ncvreg`.  For mor
 
 For more about the marginal false discovery rate idea used for post-selection inference, see
 
-* [Breheny P (to appear).  Marginal false discovery rates for penalized regression models.  *Biostatistics*](https://arxiv.org/pdf/1607.05636)
+* [Breheny P (2019). Marginal false discovery rates for penalized regression models. *Biostatistics*, **20**: 299-314](https://dx.doi.org/10.1093/biostatistics/kxy004)
 
 `ncvreg` comes with a few example data sets; we'll look at `Prostate`, which has 8 features and one continuous response, the PSA levels (on the log scale) from men about to undergo radical prostatectomy:
 
