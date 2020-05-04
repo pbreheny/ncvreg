@@ -31,6 +31,6 @@ install.packages("ncvreg")
 To install the latest development version from GitHub:
 
 ```r
-devtools::install_github("pbreheny/ncvreg")
+remotes::install_github("pbreheny/ncvreg")
 ```
 
