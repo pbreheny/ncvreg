@@ -1,4 +1,5 @@
 language: r
+r_check_args:
 r_packages:
   - glmnet
 cache: packages
