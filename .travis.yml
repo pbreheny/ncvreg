@@ -4,4 +4,4 @@ r_packages:
 
 script:
   - R CMD build .
-  - R CMD check .
+  - R CMD check *.tar.gz
