@@ -4,4 +4,4 @@ r_packages:
 
 script:
   - R CMD build .
-  - R CMD check "${PKG_TARBALL}"; CHECK_RET=$?
+  - R CMD check .
