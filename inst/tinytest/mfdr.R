@@ -74,12 +74,12 @@ plot(mfdr(fit), type="EF")
 par(op)
 
 #############################################################
-.test = "mfdr works for Cox regression when X is supplied" ##
+# mfdr works for Cox regression when X is supplied
 #############################################################
 m1 <- mfdr(fit)
 fit <- ncvsurv(X, y, lambda.min=0)
 m2 <- mfdr(fit, X)
-check(m1$EF, m2$EF)
+expect_equivalent(m1$EF, m2$EF)
 
 
 # Cox: HD

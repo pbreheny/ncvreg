@@ -6,7 +6,7 @@ b <- c(2, -2, 1, -1, rep(0, p-4))
 y <- rnorm(n, mean=X%*%b, sd=2)
 
 ####################################################
-.test = "perm.ncvreg works for linear regression" ##
+# perm.ncvreg works for linear regression
 ####################################################
 pmfit <- perm.ncvreg(X, y)
 
@@ -16,7 +16,7 @@ plot(pmfit, type="EF")
 plot(pmfit$fit)
 
 ######################################################
-.test = "perm.ncvreg works for logistic regression" ##
+# perm.ncvreg works for logistic regression
 ######################################################
 pmfit <- perm.ncvreg(X, y > 0, family='binomial')
 
@@ -27,7 +27,7 @@ plot(pmfit$fit)
 plot(pmfit$fit, log=TRUE)
 
 #####################################################
-.test = "perm.ncvreg works for Poisson regression" ##
+# perm.ncvreg works for Poisson regression
 #####################################################
 pmfit <- perm.ncvreg(X, rank(y), family='poisson')
 
@@ -38,7 +38,7 @@ plot(pmfit$fit)
 plot(pmfit$fit, log=TRUE)
 
 #############################################################
-.test = "permute='residuals' option for perm.ncvreg works" ##
+# permute='residuals' option for perm.ncvreg works
 #############################################################
 pmfit <- perm.ncvreg(X, y, permute="residuals", N=25)
 par(mfrow=c(2,2))

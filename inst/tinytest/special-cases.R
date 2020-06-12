@@ -1,5 +1,5 @@
 ############################################
-.test = "ncvreg handles constant columns" ##
+# ncvreg handles constant columns
 ############################################
 n <- 50
 p <- 10
@@ -13,13 +13,13 @@ y <- rpois(n, 1)
 fit <- ncvreg(X, y, family="poisson")
 
 ############################################
-.test = "ncvsurv handles constant columns" ##
+# ncvsurv handles constant columns
 ############################################
 y <- cbind(rexp(n), rbinom(n, 1, prob=0.8))
 fit <- ncvsurv(X, y)
 
 #########################################
-.test = "ncvreg handles single lambda" ##
+# ncvreg handles single lambda
 #########################################
 
 n <- 100
@@ -39,7 +39,7 @@ fit <- ncvreg(X, y, lambda=0.05, family="poisson")
 coef(fit)
 
 ##########################################
-.test = "ncvsurv handles single lambda" ##
+# ncvsurv handles single lambda
 ##########################################
 
 y <- cbind(rexp(n, 1), 1)

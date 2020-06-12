@@ -1,7 +1,8 @@
 library(survival)
+source('_median-survfit.R')
 
 ##################################################################
-.test = "ncvsurv works for simple cox regression, no censoring" ##
+# ncvsurv works for simple cox regression, no censoring
 ##################################################################
 n <- 10
 X <- matrix(runif(n), n, 1)
@@ -13,11 +14,11 @@ w <- exp(eta)/cumsum(exp(eta))
 sum(X * (1-w))
 scad <- coef(ncvsurv(X, y, lambda=0, penalty="SCAD", eps=.0001))
 mcp <- coef(ncvsurv(X, y, lambda=0, penalty="MCP", eps=.0001))
-check(scad, beta, tolerance=.01, check.attributes=FALSE)
-check(mcp, beta, tolerance=.01,check.attributes=FALSE)
+expect_equivalent(scad, beta, tolerance=.01)
+expect_equivalent(mcp, beta, tolerance=.01)
 
 ####################################################
-.test = "ncvsurv works for simple cox regression" ##
+# ncvsurv works for simple cox regression
 ####################################################
 n <- 30
 y <- Surv(rexp(n), rbinom(n, 1, 0.5))
@@ -27,11 +28,11 @@ X <- matrix(rnorm(n), n, 1)
 beta <- coef(coxph(y ~ X))
 scad <- coef(ncvsurv(X, y, lambda=0, penalty="SCAD", eps=.0001))
 mcp <- coef(ncvsurv(X, y, lambda=0,penalty="MCP",eps=.0001))
-check(scad, beta, tolerance=.01, check.attributes=FALSE)
-check(mcp,beta, tolerance=.01, check.attributes=FALSE)
+expect_equivalent(scad, beta, tolerance=.01)
+expect_equivalent(mcp,beta, tolerance=.01)
 
 #############################################
-.test = "ncvsurv works for cox regression" ##
+# ncvsurv works for cox regression
 #############################################
 n <- 100
 p <- 10
@@ -40,11 +41,11 @@ X <- matrix(rnorm(n*p), n, p)
 beta <- coef(coxph(y ~ X))
 scad <- coef(ncvsurv(X, y, lambda=0, penalty="SCAD", eps=.0001))
 mcp <- coef(ncvsurv(X, y, lambda=0,penalty="MCP",eps=.0001))
-check(scad, beta, tolerance=.01, check.attributes=FALSE)
-check(mcp, beta, tolerance=.01, check.attributes=FALSE)
+expect_equivalent(scad, beta, tolerance=.01)
+expect_equivalent(mcp, beta, tolerance=.01)
 
 #######################################
-.test = "ncvsurv agrees with coxnet" ##
+# ncvsurv agrees with coxnet
 #######################################
 library(glmnet)
 n <- 100
@@ -57,13 +58,13 @@ nlasso <- coef(nfit <- ncvsurv(X, y, penalty="lasso", lambda.min=0.001))
 plot(nfit, log=TRUE)
 glasso <- as.matrix(coef(gfit <- glmnet(X, y, family="cox", lambda=nfit$lambda)))
 plot(gfit, "lambda")
-check(nlasso, glasso, tolerance=.02, check.attributes=FALSE)
+expect_equivalent(nlasso, glasso, tolerance=.02)
 
-check(predict(nfit, X, "link"), predict(gfit, X, type="link"), tolerance=.01, check.attributes=FALSE)
-check(predict(nfit, X, "response"), predict(gfit, X, type="response"), tolerance=.05, check.attributes=FALSE)
+expect_equivalent(predict(nfit, X, "link"), predict(gfit, X, type="link"), tolerance=.01)
+expect_equivalent(predict(nfit, X, "response"), predict(gfit, X, type="response"), tolerance=.05)
 
 #####################################################
-.test = "lasso/scad/mcp all seem to work: ncvsurv" ##
+# lasso/scad/mcp all seem to work: ncvsurv
 #####################################################
 n <- 100
 p <- 10
@@ -79,7 +80,7 @@ fit <- ncvsurv(X, y, penalty="MCP")
 plot(fit, main="mcp")
 
 ################################
-.test = "logLik() is correct" ##
+# logLik() is correct
 ################################
 n <- 50
 p <- 10
@@ -88,8 +89,8 @@ y <- Surv(rexp(n), rbinom(n, 1, 0.5))
 
 fit.mle <- coxph(y~X)
 fit <- ncvsurv(X, y, lambda.min=0)
-check(logLik(fit)[100], logLik(fit.mle)[1], check.attributes=FALSE, tol=.001)
-check(AIC(fit)[100], AIC(fit.mle), check.attributes=FALSE, tol=.001)
+expect_equivalent(logLik(fit)[100], logLik(fit.mle)[1], tol=.001)
+expect_equivalent(AIC(fit)[100], AIC(fit.mle), tol=.001)
 
 nfit <- ncvsurv(X, y, penalty="lasso")
 l <- nfit$lambda
@@ -98,7 +99,7 @@ gfit <- glmnet(X, y, family="cox", lambda=l)
 glmnet:::coxnet.deviance(predict(gfit, X, s=l[50]), y)
 
 ##################################################
-.test = "penalty.factor seems to work: ncvsurv" ##
+# penalty.factor seems to work: ncvsurv
 ##################################################
 n <- 50
 p <- 4
@@ -114,7 +115,7 @@ fit <- ncvsurv(X, y, penalty.factor=penalty.factor)
 plot(fit)
 
 ######################################
-.test = "ncvsurv dependencies work" ##
+# ncvsurv dependencies work
 ######################################
 
 # Predict
@@ -141,7 +142,7 @@ ncvreg:::loss.ncvsurv(y, eta)
 summary(fit, which=10)
 
 #############################################################
-.test = "cox survival predictions agree with Kaplan-Meier" ##
+# cox survival predictions agree with Kaplan-Meier
 #############################################################
 n <- 50
 p <- 5
@@ -158,7 +159,7 @@ median.survfit(km)
 predict(fit, X[1,], which=1, type='median')
 
 ######################################################
-.test = "cox survival predictions agree with coxph" ##
+# cox survival predictions agree with coxph
 ######################################################
 n <- 50
 p <- 5
@@ -178,7 +179,7 @@ for (i in 1:9) {
 }
 
 ##########################################
-.test = "cox survival predictions work" ##
+# cox survival predictions work
 ##########################################
 data(Lung, package='ncvreg')
 X <- Lung$X
