@@ -1,4 +1,7 @@
 language: r
-r_check_args:
 r_packages:
   - glmnet
+
+script:
+  - R CMD build .
+  - R CMD check *tar.gz
