@@ -4,4 +4,4 @@ r_packages:
 
 script:
   - R CMD build .
-  - R CMD check *tar.gz
+  - R CMD check "${PKG_TARBALL}"; CHECK_RET=$?
