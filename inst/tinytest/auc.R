@@ -1,7 +1,7 @@
-suppressPackageStartupMessages(library(survival))
+library(survival, quietly=TRUE)
 
-# The quantities here are not exactly the same thing (one is in-sample, the other is
-# out-of-sample), but they should be close
+# The quantities here are not exactly the same thing (one is in-sample, the
+# other is out-of-sample), but they should be close
 n <- 500
 X <- matrix(rnorm(n*10), n, 10)
 y <- Surv(rexp(n, rate=exp(X[,1])), rbinom(n, 1, prob=0.8))
