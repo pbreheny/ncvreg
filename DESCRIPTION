@@ -16,6 +16,6 @@ BugReports: http://github.com/pbreheny/ncvreg/issues
 License: GPL-3
 URL: http://pbreheny.github.io/ncvreg, https://github.com/pbreheny/ncvreg
 LazyData: TRUE
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.0
 Roxygen: list(markdown = TRUE)
 Encoding: UTF-8

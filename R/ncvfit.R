@@ -3,7 +3,9 @@
 #' This function is intended for users who know exactly what they're doing and want complete control over the fitting process:
 #' no standardization is applied, no intercept is included, no path is fit.
 #' All of these things are best practices for data analysis, so if you are choosing not to do them, you are on your own -- I cannot guarantee that your results will be meaningful.
-#' The The user is expected to provide an initial value; in nonconvex optimization, initial values are very important in determining which local solution an algorithm converges to.
+#' Some things in particular that you should pay attention to:
+#'   * If your model has an intercept, it is up to you to (un)penalize it properly, typically by settings its corresponding element of `penalty.factor` to zero.
+#'   * You should probably provide an initial value; in nonconvex optimization, initial values are very important in determining which local solution an algorithm converges to.
 #' 
 #' To-do: Add family
 
@@ -33,7 +35,7 @@ ncvfit <- function(X, y, init=rep(0, ncol(X)), penalty=c("MCP", "SCAD", "lasso")
   if (length(y) != nrow(X)) stop("X and y do not have the same number of observations", call.=FALSE)
   # if (family=="binomial" & length(table(y)) > 2) stop("Attemping to use family='binomial' with non-binary data", call.=FALSE)
   # if (family=="binomial" & !identical(sort(unique(y)), 0:1)) y <- as.double(y==max(y))
-  if (length(lambda) != 0) stop("lambda must be length 1")
+  if (length(lambda) != 1) stop("lambda must be length 1")
   
   # Fit
   n <- length(y)
