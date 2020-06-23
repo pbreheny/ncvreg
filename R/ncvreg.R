@@ -11,21 +11,25 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
   }
   if (typeof(X)=="integer") storage.mode(X) <- "double"
   if (!is.double(y)) {
-    tmp <- try(y <- as.double(y), silent=TRUE)
-    if (inherits(tmp, "try-error")) stop("y must be numeric or able to be coerced to numeric", call.=FALSE)
+    op <- options(warn=2)
+    on.exit(options(op))
+    y <- tryCatch(
+      error = function(cond) stop("y must be numeric or able to be coerced to numeric", call.=FALSE),
+      as.double(y))
+    options(op)
   }
   if (!is.double(penalty.factor)) penalty.factor <- as.double(penalty.factor)
-  
+
   # Error checking
   if (gamma <= 1 & penalty=="MCP") stop("gamma must be greater than 1 for the MC penalty", call.=FALSE)
   if (gamma <= 2 & penalty=="SCAD") stop("gamma must be greater than 2 for the SCAD penalty", call.=FALSE)
   if (nlambda < 2) stop("nlambda must be at least 2", call.=FALSE)
   if (alpha <= 0) stop("alpha must be greater than 0; choose a small positive number instead", call.=FALSE)
-  if (any(is.na(y)) | any(is.na(X))) stop("Missing data (NA's) detected.  Take actions (e.g., removing cases, removing features, imputation) to eliminate missing data before passing X and y to ncvreg", call.=FALSE)
-  if (length(penalty.factor)!=ncol(X)) stop("penalty.factor does not match up with X", call.=FALSE)
+  if (length(penalty.factor)!=ncol(X)) stop("Dimensions of penalty.factor and X do not match", call.=FALSE)
   if (family=="binomial" & length(table(y)) > 2) stop("Attemping to use family='binomial' with non-binary data", call.=FALSE)
   if (family=="binomial" & !identical(sort(unique(y)), 0:1)) y <- as.double(y==max(y))
   if (length(y) != nrow(X)) stop("X and y do not have the same number of observations", call.=FALSE)
+  if (any(is.na(y)) | any(is.na(X))) stop("Missing data (NA's) detected.  Take actions (e.g., removing cases, removing features, imputation) to eliminate missing data before passing X and y to ncvreg", call.=FALSE)
   
   ## Deprication support
   dots <- list(...)
@@ -36,7 +40,6 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
   ns <- attr(XX, "nonsingular")
   penalty.factor <- penalty.factor[ns]
   p <- ncol(XX)
-
   if (family=="gaussian") {
     yy <- y - mean(y)
   } else {
@@ -48,6 +51,8 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
     user.lambda <- FALSE
   } else {
     nlambda <- length(lambda)
+    if (nlambda == 1) warning(lambda.warning, call.=FALSE)
+    if (!is.double(lambda)) lambda <- as.double(lambda)
     user.lambda <- TRUE
   }
   
@@ -132,3 +137,8 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
   }
   val
 }
+
+lambda.warning <- 'ncvreg() is intended for pathwise optimization, not for single values of lambda.
+  1. You are strongly encouraged to fit a path and extract the solution at the lambda value of interest, rather than use ncvreg() in this way.
+  2. In particular, if you are using the MCP or SCAD penalties, be aware that you greatly increase your risk of converging to an inferior local maximum if you do not fit an entire path.
+  3. You may wish to look at the ncvfit() function, which is intended for non-path (i.e., single-lambda) optimization and allows the user to supply initial values.'

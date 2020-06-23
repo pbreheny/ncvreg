@@ -1,20 +1,18 @@
-###############################################
+library(glmnet, quietly=TRUE)
+
 # ncvreg works for linear regression
-###############################################
 n <- 50
 p <- 10
 X <- matrix(rnorm(n*p), n, p)
 b <- rnorm(p)
 y <- rnorm(n, X%*%b)
 beta <- lm(y~X)$coef
-scad <- coef(ncvreg(X, y, lambda=0, penalty="SCAD", eps=.0001))
-mcp <- coef(ncvreg(X, y, lambda=0, penalty="MCP", eps=.0001))
+scad <- coef(ncvreg(X, y, lambda=1:0, penalty="SCAD", eps=.0001), which=2)
+mcp <- coef(ncvreg(X, y, lambda=1:0, penalty="MCP", eps=.0001), which=2)
 expect_equivalent(scad, beta, tolerance=.01)
 expect_equivalent(mcp, beta, tolerance=.01)
 
-##########################################
 # logLik() is correct: gaussian
-##########################################
 n <- 50
 p <- 10
 X <- matrix(rnorm(n*p), ncol=p)
@@ -24,14 +22,10 @@ fit <- ncvreg(X, y, lambda.min=0)
 expect_equivalent(logLik(fit)[100], logLik(fit.mle)[1], tol= .001)
 expect_equivalent(AIC(fit)[100], AIC(fit.mle), tol= .001)
 
-##############################################
 # ncvreg reproduces lasso: gaussian
-##############################################
-require(glmnet)
 n <- 50
 p <- 10
 X <- matrix(rnorm(n*p), ncol=p)
-
 par(mfrow=c(3,2))
 y <- rnorm(n)
 nlasso <- coef(fit <- ncvreg(X, y, penalty="lasso"))
@@ -40,9 +34,7 @@ glasso <- as.matrix(coef(fit <- glmnet(X, y, lambda=fit$lambda)))
 plot(fit, "lambda")
 expect_equivalent(nlasso,  glasso, tolerance=.01)
 
-##################################################
 # cv.ncvreg() options work for gaussian
-##################################################
 n <- 50
 p <- 10
 X <- matrix(rnorm(n*p), ncol=p)

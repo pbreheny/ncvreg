@@ -5,9 +5,9 @@ X <- matrix(rnorm(500),ncol=10)
 b <- rnorm(10)
 y <- rnorm(X%*%b) > 0
 beta <- glm(y~X,family="binomial")$coef
-fit <- ncvreg(X,y,lambda=0,family="binomial",penalty="SCAD",eps=.0001)
-scad <- coef(ncvreg(X,y,lambda=0,family="binomial",penalty="SCAD",eps=.0001))
-mcp <- coef(ncvreg(X,y,lambda=0, family="binomial",penalty="MCP", eps=.0001))
+fit <- ncvreg(X, y, lambda=1:0, family="binomial", penalty="SCAD", eps=.0001)
+scad <- coef(ncvreg(X, y, lambda=1:0, family="binomial", penalty="SCAD", eps=.0001), which=2)
+mcp <- coef(ncvreg(X, y, lambda=1:0, family="binomial", penalty="MCP", eps=.0001), which=2)
 expect_equivalent(scad, beta,tolerance=.01)
 expect_equivalent(mcp, beta,tolerance=.01)
 

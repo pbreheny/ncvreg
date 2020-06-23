@@ -1,4 +1,4 @@
-library(survival)
+library(survival, quietly=TRUE)
 source('_median-survfit.R')
 
 ##################################################################

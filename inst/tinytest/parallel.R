@@ -1,5 +1,5 @@
-library(parallel)
-library(survival)
+library(parallel, quietly=TRUE)
+library(survival, quietly=TRUE)
 cl <- makeCluster(4)
 
 # parallel version of cv.ncvreg works

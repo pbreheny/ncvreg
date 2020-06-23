@@ -1,5 +1,3 @@
-set.seed(1)
-
 # Linear ------------------------------------------------------------------
 
 # Low dimensional
@@ -28,6 +26,12 @@ plot(mfdr(fit))
 plot(mfdr(fit), type="EF")
 par(op)
 
+# Works when X is supplied
+fit1 <- ncvreg(X, y)
+fit2 <- ncvreg(X, y, returnX=FALSE)
+m1 <- mfdr(fit1)
+m2 <- mfdr(fit2, X=X)
+expect_equal(m1, m2)
 
 # Logistic ----------------------------------------------------------------
 
@@ -50,7 +54,7 @@ n <- 50
 p <- 100
 X <- matrix(rnorm(n*p), n, p)
 y <- rbinom(n, 1, 0.5)
-fit <- ncvreg(X, y, family='binomial', returnX=TRUE)
+fit <- suppressWarnings(ncvreg(X, y, family='binomial', returnX=TRUE))
 head(mfdr(fit), n=10)
 
 op <- par(mfrow=2:1)
@@ -73,11 +77,9 @@ plot(mfdr(fit))
 plot(mfdr(fit), type="EF")
 par(op)
 
-#############################################################
 # mfdr works for Cox regression when X is supplied
-#############################################################
 m1 <- mfdr(fit)
-fit <- ncvsurv(X, y, lambda.min=0)
+fit <- ncvsurv(X, y, lambda.min=0, returnX=FALSE)
 m2 <- mfdr(fit, X)
 expect_equivalent(m1$EF, m2$EF)
 
@@ -117,3 +119,4 @@ y <- rnorm(n)
 fit <- ncvreg(X, y)
 local_mfdr(fit, 0.1, method="ashr")
 local_mfdr(fit, 0.1, method="kernel")
+

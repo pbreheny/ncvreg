@@ -1,3 +1,5 @@
+library(survival, quietly=TRUE)
+
 # Linear
 data(Prostate, package='ncvreg')
 X <- Prostate$X
@@ -25,5 +27,4 @@ y <- Lung$y
 cvfit <- cv.ncvsurv(X, y)
 summary(cvfit)
 plot(cvfit, type='rsq')
-library(survival)
 summary(coxph(y~X))

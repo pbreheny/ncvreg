@@ -1,5 +1,4 @@
-set.seed(1)
-equal <- function(x, y) {all.equal(x, y, tol=0.001)}
+library(survival, quietly=TRUE)
 
 # Works
 X <- matrix(rnorm(50*10), 50, 10)
@@ -36,7 +35,6 @@ AUC(cvfit)
 ############################################
 # cv.ncvsurv() agrees with glmnet
 ############################################
-require(survival)
 n <- 50
 p <- 100
 X <- matrix(rnorm(n*p), ncol=p)
