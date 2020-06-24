@@ -46,3 +46,7 @@ plot(pmfit)
 plot(pmfit, type="EF")
 plot(pmfit$fit)
 plot(pmfit$fit)
+
+# Setting seeds works
+pmfit <- perm.ncvreg(X, y, permute="residuals", N=5, seed=1)
+pmfit <- perm.ncvreg(X, y, seed=1)

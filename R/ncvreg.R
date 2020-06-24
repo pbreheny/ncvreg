@@ -10,6 +10,7 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
     if (inherits(tmp, "try-error")) stop("X must be a matrix or able to be coerced to a matrix", call.=FALSE)
   }
   if (typeof(X)=="integer") storage.mode(X) <- "double"
+  if (typeof(X)=="character") stop("X must be a numeric matrix", call.=FALSE)
   if (!is.double(y)) {
     op <- options(warn=2)
     on.exit(options(op))

@@ -54,9 +54,14 @@ ncvfit <- function(X, y, init=rep(0, ncol(X)), penalty=c("MCP", "SCAD", "lasso")
     if (inherits(tmp, "try-error")) stop("X must be a matrix or able to be coerced to a matrix", call.=FALSE)
   }
   if (typeof(X)=="integer") storage.mode(X) <- "double"
+  if (typeof(X)=="character") stop("X must be a numeric matrix", call.=FALSE)
   if (!is.double(y)) {
-    tmp <- try(y <- as.double(y), silent=TRUE)
-    if (inherits(tmp, "try-error")) stop("y must be numeric or able to be coerced to numeric", call.=FALSE)
+    op <- options(warn=2)
+    on.exit(options(op))
+    y <- tryCatch(
+      error = function(cond) stop("y must be numeric or able to be coerced to numeric", call.=FALSE),
+      as.double(y))
+    options(op)
   }
   if (!is.double(penalty.factor)) penalty.factor <- as.double(penalty.factor)
   
@@ -65,7 +70,7 @@ ncvfit <- function(X, y, init=rep(0, ncol(X)), penalty=c("MCP", "SCAD", "lasso")
   if (gamma <= 2 & penalty=="SCAD") stop("gamma must be greater than 2 for the SCAD penalty", call.=FALSE)
   if (alpha <= 0) stop("alpha must be greater than 0; choose a small positive number instead", call.=FALSE)
   if (any(is.na(y)) | any(is.na(X))) stop("Missing data (NA's) detected.  Take actions (e.g., removing cases, removing features, imputation) to eliminate missing data before passing X and y to ncvreg", call.=FALSE)
-  if (length(penalty.factor)!=ncol(X)) stop("penalty.factor does not match up with X", call.=FALSE)
+  if (length(penalty.factor)!=ncol(X)) stop("Dimensions of penalty.factor and X do not match", call.=FALSE)
   if (length(y) != nrow(X)) stop("X and y do not have the same number of observations", call.=FALSE)
   # if (family=="binomial" & length(table(y)) > 2) stop("Attemping to use family='binomial' with non-binary data", call.=FALSE)
   # if (family=="binomial" & !identical(sort(unique(y)), 0:1)) y <- as.double(y==max(y))
