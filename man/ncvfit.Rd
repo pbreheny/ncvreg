@@ -18,6 +18,29 @@ ncvfit(
   warn = TRUE
 )
 }
+\arguments{
+\item{X}{Design matrix; no intercept will be added, no standardization will occur}
+
+\item{y}{Response vector}
+
+\item{init}{Initial value for beta; default: zero}
+
+\item{penalty}{Penalty function to be applied, either "MCP" (default), "SCAD", or "lasso")}
+
+\item{gamma}{Tuning parameter of the MCP/SCAD penalty, as in \code{ncvreg()}; default is 3 for MCP and 3.7 for SCAD.}
+
+\item{alpha}{Tuning paramter controlling the ridge component of penalty, as in \code{ncvreg()}; default is 1 (meaning no ridge penalty)}
+
+\item{lambda}{Regularization parameter value at which to estimate beta; must be scalar -- for pathwise optimization, see \code{ncvreg()}}
+
+\item{eps}{Convergence threshhold. The algorithm iterates until the RMSD for the change in linear predictors for each coefficient is less than eps. Default is 1e-4.}
+
+\item{max.iter}{Maximum number of allowed iterations; if this number is reached, algorithm will terminate prior to convergence.  Default: 1000.}
+
+\item{penalty.factor}{Multiplicative factor for the penalty applied to each coefficient, as in \code{ncvreg()}.  In particular, note that if you include an intercept, you probably want to set its entry to zero here.}
+
+\item{warn}{Return warning messages for failures to converge and model saturation? Default is TRUE.}
+}
 \description{
 This function is intended for users who know exactly what they're doing and want complete control over the fitting process:
 no standardization is applied, no intercept is included, no path is fit.
@@ -30,4 +53,15 @@ Some things in particular that you should pay attention to:
 }
 \details{
 To-do: Add family
+}
+\examples{
+data(Prostate)
+X <- cbind(1, Prostate$X)
+y <- Prostate$y
+fit <- ncvfit(X, y, lambda=0.1, penalty.factor=c(0, rep(1, ncol(X)-1)))
+fit$beta
+# Compare with:
+coef(ncvreg(X, y), 0.1)
+# The unstandardized version makes little sense here, as it fails to account
+# for differences in the scales of the predictors.
 }

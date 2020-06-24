@@ -8,6 +8,40 @@
 #'   * You should probably provide an initial value; in nonconvex optimization, initial values are very important in determining which local solution an algorithm converges to.
 #' 
 #' To-do: Add family
+#' 
+#' @param X                Design matrix; no intercept will be added, no standardization will occur
+#' @param y                Response vector
+#' @param init             Initial value for beta; default: zero
+#' @param penalty          Penalty function to be applied, either "MCP" (default), "SCAD", or "lasso")
+#' @param gamma            Tuning parameter of the MCP/SCAD penalty, as in `ncvreg()`; default is 3 for MCP and 3.7 for SCAD.
+#' @param alpha            Tuning paramter controlling the ridge component of penalty, as in `ncvreg()`; default is 1 (meaning no ridge penalty)
+#' @param lambda           Regularization parameter value at which to estimate beta; must be scalar -- for pathwise optimization, see `ncvreg()`
+#' @param eps              Convergence threshhold. The algorithm iterates until the RMSD for the change in linear predictors for each coefficient is less than eps. Default is 1e-4.
+#' @param max.iter         Maximum number of allowed iterations; if this number is reached, algorithm will terminate prior to convergence.  Default: 1000.
+#' @param penalty.factor   Multiplicative factor for the penalty applied to each coefficient, as in `ncvreg()`.  In particular, note that if you include an intercept, you probably want to set its entry to zero here.
+#' @param warn             Return warning messages for failures to converge and model saturation? Default is TRUE.
+#' 
+#' @return A list containing:
+#' * `beta`: The estimated regression coefficients
+#' * `iter`: The number of iterations required to solve for `beta
+#' * `loss`: The loss (residual sum of squares) at convergence
+#' * `lambda`: See above
+#' * `penalty`: See above
+#' * `gamma`: See above
+#' * `alpha`: See above
+#' * `penalty.factor`: See above
+#' * `n`: Sample size
+#' 
+#' @examples 
+#' data(Prostate)
+#' X <- cbind(1, Prostate$X)
+#' y <- Prostate$y
+#' fit <- ncvfit(X, y, lambda=0.1, penalty.factor=c(0, rep(1, ncol(X)-1)))
+#' fit$beta
+#' # Compare with:
+#' coef(ncvreg(X, y), 0.1)
+#' # The unstandardized version makes little sense here, as it fails to account
+#' # for differences in the scales of the predictors.
 
 ncvfit <- function(X, y, init=rep(0, ncol(X)), penalty=c("MCP", "SCAD", "lasso"),
                     gamma=switch(penalty, SCAD=3.7, 3), alpha=1, lambda, eps=1e-4,
