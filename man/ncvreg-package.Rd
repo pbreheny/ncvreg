@@ -26,5 +26,7 @@
   biological feature selection. Ann. Appl. Statist., 5: 232-253.}
 \author{Patrick Breheny <patrick-breheny@uiowa.edu>}
 \examples{
+\dontrun{
 vignette("getting-started", package="ncvreg")
+}
 }
