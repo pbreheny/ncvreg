@@ -13,8 +13,10 @@ double SCAD(double z, double l1, double l2, double gamma, double v);
 double lasso(double z, double l1, double l2, double v);
 
 // Memory handling, output formatting (Cox)
-SEXP cleanupCox(double *a, int *e, double *eta, double *haz, double *rsk, SEXP beta, SEXP Loss, SEXP iter, SEXP Eta) {
+SEXP cleanupCox(double *a, double *r, double *h, int *e, double *eta, double *haz, double *rsk, SEXP beta, SEXP Loss, SEXP iter, SEXP Eta) {
   Free(a);
+  Free(r);
+  Free(h);
   Free(e);
   Free(eta);
   Free(haz);
@@ -199,7 +201,7 @@ SEXP cdfit_cox_dh(SEXP X_, SEXP d_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP 
       }
     }
   }
-  res = cleanupCox(a, e, eta, haz, rsk, beta, Loss, iter, Eta);
+  res = cleanupCox(a, r, h, e, eta, haz, rsk, beta, Loss, iter, Eta);
   UNPROTECT(4);
   return(res);
 }

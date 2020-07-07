@@ -12,11 +12,12 @@ double lasso(double z, double l1, double l2, double v);
 double gLoss(double *r, int n);
 
 // Memory handling, output formatting (Gaussian)
-SEXP cleanupRawG(double *a, double *r, int *active, double *z, SEXP beta, SEXP loss, SEXP iter) {
+SEXP cleanupRawG(double *a, double *r, double *v, double *z, int *active, SEXP beta, SEXP loss, SEXP iter) {
   Free(a);
   Free(r);
-  Free(active);
+  Free(v);
   Free(z);
+  Free(active);
   SEXP res;
   PROTECT(res = allocVector(VECSXP, 3));
   SET_VECTOR_ELT(res, 0, beta);
@@ -129,7 +130,7 @@ SEXP rawfit_gaussian(SEXP X_, SEXP y_, SEXP init_, SEXP penalty_, SEXP lambda, S
     if (violations==0) break;
   }
   REAL(loss)[0] = gLoss(r, n);
-  res = cleanupRawG(a, r, active, z, beta, loss, iter);
+  res = cleanupRawG(a, r, v, z, active, beta, loss, iter);
   UNPROTECT(3);
   return(res);
 }
