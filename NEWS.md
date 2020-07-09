@@ -1,3 +1,10 @@
+# ncvreg 3.12.0 (2020-07-09)
+  * New: ncvfit(), a raw API to the ncvreg solver with full control over
+    standardization, etc.
+  * Changed: ncvreg and ncvsurv now issue warning for non-pathwise usage
+  * Internal: Now using tinytest for unit testing
+  * Fixed: Memory leak in cox-dh; resolves #20
+
 # ncvreg 3.11.2 (2020-02-12)
   * New: std() now works on integer matrices and numeric vectors
   * Internal: Lots of internal changes for cleaner, more reliable code

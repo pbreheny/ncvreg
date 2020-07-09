@@ -1,10 +1,10 @@
 Package: ncvreg
 Title: Regularization Paths for SCAD and MCP Penalized Regression Models
-Version: 3.11.2.5
-Date: 2020-07-07
+Version: 3.12.0
+Date: 2020-07-09
 Authors@R: person("Patrick", "Breheny", role=c("aut","cre"),
   email="patrick-breheny@uiowa.edu", comment=c(ORCID="0000-0002-0650-1119"))
-Suggests: ashr, knitr, parallel, survival, tinytest
+Suggests: ashr, knitr, parallel, rmarkdown, survival, tinytest
 VignetteBuilder: knitr
 Description: Fits regularization paths for linear regression, GLM, and Cox
   regression models using lasso or nonconvex penalties, in particular the
@@ -16,6 +16,6 @@ BugReports: http://github.com/pbreheny/ncvreg/issues
 License: GPL-3
 URL: http://pbreheny.github.io/ncvreg, https://github.com/pbreheny/ncvreg
 LazyData: TRUE
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 Roxygen: list(markdown = TRUE)
 Encoding: UTF-8

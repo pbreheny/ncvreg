@@ -41,6 +41,20 @@ ncvfit(
 
 \item{warn}{Return warning messages for failures to converge and model saturation? Default is TRUE.}
 }
+\value{
+A list containing:
+\itemize{
+\item \code{beta}: The estimated regression coefficients
+\item \code{iter}: The number of iterations required to solve for `beta
+\item \code{loss}: The loss (residual sum of squares) at convergence
+\item \code{lambda}: See above
+\item \code{penalty}: See above
+\item \code{gamma}: See above
+\item \code{alpha}: See above
+\item \code{penalty.factor}: See above
+\item \code{n}: Sample size
+}
+}
 \description{
 This function is intended for users who know exactly what they're doing and want complete control over the fitting process:
 no standardization is applied, no intercept is included, no path is fit.
@@ -48,11 +62,11 @@ All of these things are best practices for data analysis, so if you are choosing
 Some things in particular that you should pay attention to:
 \itemize{
 \item If your model has an intercept, it is up to you to (un)penalize it properly, typically by settings its corresponding element of \code{penalty.factor} to zero.
-\item You should probably provide an initial value; in nonconvex optimization, initial values are very important in determining which local solution an algorithm converges to.
+\item You should provide initial values for the coefficients; in nonconvex optimization, initial values are very important in determining which local solution an algorithm converges to.
 }
 }
 \details{
-To-do: Add family
+At the moment, this function only works for least-squares loss functions.  Additional functionality for other loss functions (logistic, Cox) is in development.
 }
 \examples{
 data(Prostate)

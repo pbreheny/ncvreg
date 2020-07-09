@@ -25,7 +25,7 @@
   Clinical Survival Analysis.  CRC Press.}
 \author{Patrick Breheny, Brandon Butcher, and Lawrence Hunsicker}
 \seealso{\code{\link{cv.ncvsurv}},
-  \code{\link[survival]{survConcordance}}
+  \code{\link{survConcordance}}
 }
 \examples{
 data(Lung)
