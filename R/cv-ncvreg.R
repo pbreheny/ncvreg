@@ -49,6 +49,7 @@ as support for cv.ind() is likely to be discontinued at some point.")
 
   cv.args <- list(...)
   cv.args$lambda <- fit$lambda
+  cv.args$returnX <- FALSE
   cv.args$warn <- FALSE
   cv.args$convex <- FALSE
   if (!missing(cluster)) {
