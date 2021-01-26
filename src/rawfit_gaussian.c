@@ -56,7 +56,6 @@ SEXP rawfit_gaussian(SEXP X_, SEXP y_, SEXP init_, SEXP penalty_, SEXP lambda, S
   int *active = Calloc(p, int);
   for (int j=0; j<p; j++) active[j] = 1*(a[j] != 0);
   double l1, l2;
-  int violations;
 
   // Setup r, v, z  
   double *r = Calloc(n, double);
