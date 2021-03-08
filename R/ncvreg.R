@@ -11,6 +11,7 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
   }
   if (typeof(X)=="integer") storage.mode(X) <- "double"
   if (typeof(X)=="character") stop("X must be a numeric matrix", call.=FALSE)
+  if (!is.null(ncol(y)) && ncol(y) > 1) stop("y should be a vector of responses, not a matrix", call.=FALSE)
   if (!is.double(y)) {
     op <- options(warn=2)
     on.exit(options(op))
