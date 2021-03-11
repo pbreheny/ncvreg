@@ -8,38 +8,61 @@ ncvfit(
   X,
   y,
   init = rep(0, ncol(X)),
+  r,
+  xtx,
   penalty = c("MCP", "SCAD", "lasso"),
   gamma = switch(penalty, SCAD = 3.7, 3),
   alpha = 1,
   lambda,
-  eps = 1e-04,
+  eps = 1e-05,
   max.iter = 1000,
   penalty.factor = rep(1, ncol(X)),
   warn = TRUE
 )
 }
 \arguments{
-\item{X}{Design matrix; no intercept will be added, no standardization will occur}
+\item{X}{Design matrix; no intercept will be added, no standardization
+will occur (n x p matrix)}
 
-\item{y}{Response vector}
+\item{y}{Response vector (length n vector)}
 
-\item{init}{Initial value for beta; default: zero}
+\item{init}{Initial values for beta.  Default: zero (length p vector)}
 
-\item{penalty}{Penalty function to be applied, either "MCP" (default), "SCAD", or "lasso")}
+\item{r}{Residuals corresponding to \code{init}; these will be calculated if not
+supplied, but if they have already been calculated elsewhere, it is
+more efficient to pass them as an argument (length n vector)}
 
-\item{gamma}{Tuning parameter of the MCP/SCAD penalty, as in \code{ncvreg()}; default is 3 for MCP and 3.7 for SCAD.}
+\item{xtx}{X scales: the jth element should equal \code{crossprod(X[,j])/n}. These
+will be calculated if not supplied, but if they have already been
+calculated elsewhere, it is more efficient to pass them as an
+argument.  In particular, if X is standardized, one should pass
+\code{xtx = rep(1, p)}.  (length p vector)}
 
-\item{alpha}{Tuning paramter controlling the ridge component of penalty, as in \code{ncvreg()}; default is 1 (meaning no ridge penalty)}
+\item{penalty}{Penalty function to be applied, either "MCP" (default), "SCAD", or
+"lasso")}
 
-\item{lambda}{Regularization parameter value at which to estimate beta; must be scalar -- for pathwise optimization, see \code{ncvreg()}}
+\item{gamma}{Tuning parameter of the MCP/SCAD penalty, as in \code{ncvreg()}; default
+is 3 for MCP and 3.7 for SCAD.}
 
-\item{eps}{Convergence threshhold. The algorithm iterates until the RMSD for the change in linear predictors for each coefficient is less than eps. Default is 1e-4.}
+\item{alpha}{Tuning paramter controlling the ridge component of penalty, as in
+\code{ncvreg()}; default is 1 (meaning no ridge penalty)}
 
-\item{max.iter}{Maximum number of allowed iterations; if this number is reached, algorithm will terminate prior to convergence.  Default: 1000.}
+\item{lambda}{Regularization parameter value at which to estimate beta; must be
+scalar -- for pathwise optimization, see \code{ncvreg()}}
 
-\item{penalty.factor}{Multiplicative factor for the penalty applied to each coefficient, as in \code{ncvreg()}.  In particular, note that if you include an intercept, you probably want to set its entry to zero here.}
+\item{eps}{Convergence threshhold. The algorithm iterates until the RMSD for
+the change in linear predictors for each coefficient is less than
+eps. Default is 1e-4.}
 
-\item{warn}{Return warning messages for failures to converge and model saturation? Default is TRUE.}
+\item{max.iter}{Maximum number of allowed iterations; if this number is reached,
+algorithm will terminate prior to convergence.  Default: 1000.}
+
+\item{penalty.factor}{Multiplicative factor for the penalty applied to each coefficient,
+as in \code{ncvreg()}.  In particular, note that if you include an
+intercept, you probably want to set its entry to zero here.}
+
+\item{warn}{Return warning messages for failures to converge and model
+saturation? Default is TRUE.}
 }
 \value{
 A list containing:
@@ -47,6 +70,7 @@ A list containing:
 \item \code{beta}: The estimated regression coefficients
 \item \code{iter}: The number of iterations required to solve for `beta
 \item \code{loss}: The loss (residual sum of squares) at convergence
+\item \code{resid}: The residuals at convergence
 \item \code{lambda}: See above
 \item \code{penalty}: See above
 \item \code{gamma}: See above
@@ -56,17 +80,23 @@ A list containing:
 }
 }
 \description{
-This function is intended for users who know exactly what they're doing and want complete control over the fitting process:
+This function is intended for users who know exactly what they're doing and want complete
+control over the fitting process:
 no standardization is applied, no intercept is included, no path is fit.
-All of these things are best practices for data analysis, so if you are choosing not to do them, you are on your own -- I cannot guarantee that your results will be meaningful.
+All of these things are best practices for data analysis, so if you are choosing not to do
+them, you are on your own -- there is no guarantee that your results will be meaningful.
 Some things in particular that you should pay attention to:
 \itemize{
-\item If your model has an intercept, it is up to you to (un)penalize it properly, typically by settings its corresponding element of \code{penalty.factor} to zero.
-\item You should provide initial values for the coefficients; in nonconvex optimization, initial values are very important in determining which local solution an algorithm converges to.
+\item If your model has an intercept, it is up to you to (un)penalize it properly, typically
+by settings its corresponding element of \code{penalty.factor} to zero.
+\item You should provide initial values for the coefficients; in nonconvex optimization,
+initial values are very important in determining which local solution an algorithm
+converges to.
 }
 }
 \details{
-At the moment, this function only works for least-squares loss functions.  Additional functionality for other loss functions (logistic, Cox) is in development.
+At the moment, this function only works for least-squares loss functions.  Additional
+functionality for other loss functions (logistic, Cox) is in development.
 }
 \examples{
 data(Prostate)

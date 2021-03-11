@@ -12,33 +12,34 @@ double lasso(double z, double l1, double l2, double v);
 double gLoss(double *r, int n);
 
 // Memory handling, output formatting (Gaussian)
-SEXP cleanupRawG(double *a, double *r, double *v, double *z, int *active, SEXP beta, SEXP loss, SEXP iter) {
+SEXP cleanupRawG(double *a, double *v, double *z, int *active, SEXP beta, SEXP loss, SEXP iter, SEXP resid) {
   Free(a);
-  Free(r);
   Free(v);
   Free(z);
   Free(active);
   SEXP res;
-  PROTECT(res = allocVector(VECSXP, 3));
+  PROTECT(res = allocVector(VECSXP, 4));
   SET_VECTOR_ELT(res, 0, beta);
   SET_VECTOR_ELT(res, 1, loss);
   SET_VECTOR_ELT(res, 2, iter);
+  SET_VECTOR_ELT(res, 3, resid);
   UNPROTECT(1);
   return(res);
 }
 
 // Coordinate descent for gaussian models
-SEXP rawfit_gaussian(SEXP X_, SEXP y_, SEXP init_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max_iter_, SEXP gamma_, SEXP multiplier, SEXP alpha_) {
+SEXP rawfit_gaussian(SEXP X_, SEXP y_, SEXP init_, SEXP r_, SEXP xtx_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max_iter_, SEXP gamma_, SEXP multiplier, SEXP alpha_) {
 
   // Declarations: Outcome
   int n = length(y_);
   int p = length(X_)/n;
-  SEXP res, beta, loss, iter;
+  SEXP res, beta, loss, iter, resid;
   PROTECT(beta = allocVector(REALSXP, p));
   double *b = REAL(beta);
   for (int j=0; j<p; j++) b[j] = 0;
   PROTECT(loss = allocVector(REALSXP, 1));
   PROTECT(iter = allocVector(INTSXP, 1));
+  PROTECT(resid = allocVector(REALSXP, n));
   INTEGER(iter)[0] = 0;
   
   // Declarations
@@ -57,16 +58,24 @@ SEXP rawfit_gaussian(SEXP X_, SEXP y_, SEXP init_, SEXP penalty_, SEXP lambda, S
   for (int j=0; j<p; j++) active[j] = 1*(a[j] != 0);
   double l1, l2;
 
-  // Setup r, v, z  
-  double *r = Calloc(n, double);
-  for (int i=0; i<n; i++) r[i] = y[i];
-  for (int j=0; j<p; j++) {
-    for (int i=0; i<n; i++) {
-      r[i] -= X[j*n+i]*a[j];
+  // Setup r, v, z
+  double *r = REAL(resid);
+  if (ISNA(REAL(r_)[0])) {
+    for (int i=0; i<n; i++) r[i] = y[i];
+    for (int j=0; j<p; j++) {
+      for (int i=0; i<n; i++) {
+        r[i] -= X[j*n+i]*a[j];
+      }
     }
+  } else {
+    for (int i=0; i<n; i++) r[i] = REAL(r_)[i];
   }
   double *v = Calloc(p, double);
-  for (int j=0; j<p; j++) v[j] = sqsum(X, n, j)/n;
+  if (ISNA(REAL(xtx_)[0])) {
+    for (int j=0; j<p; j++) v[j] = sqsum(X, n, j)/n;
+  } else {
+    for (int j=0; j<p; j++) v[j] = REAL(xtx_)[j];
+  }
   double *z = Calloc(p, double);
   double sdy = sqrt(gLoss(y, n)/n);
 
@@ -74,7 +83,7 @@ SEXP rawfit_gaussian(SEXP X_, SEXP y_, SEXP init_, SEXP penalty_, SEXP lambda, S
   while (INTEGER(iter)[0] < max_iter) {
     R_CheckUserInterrupt();
     while (INTEGER(iter)[0] < max_iter) {
-      INTEGER(iter)[0]++;      
+      INTEGER(iter)[0]++;
 
       // Solve over the active set
       double maxChange = 0;
@@ -93,7 +102,7 @@ SEXP rawfit_gaussian(SEXP X_, SEXP y_, SEXP init_, SEXP penalty_, SEXP lambda, S
           double shift = b[j] - a[j];
           if (shift !=0) {
             for (int i=0;i<n;i++) r[i] -= shift*X[j*n+i];
-            if (fabs(shift) > maxChange) maxChange = fabs(shift);
+            if (fabs(shift)*sqrt(v[j]) > maxChange) maxChange = fabs(shift) * sqrt(v[j]);
           }
         }
       }
@@ -129,7 +138,7 @@ SEXP rawfit_gaussian(SEXP X_, SEXP y_, SEXP init_, SEXP penalty_, SEXP lambda, S
     if (violations==0) break;
   }
   REAL(loss)[0] = gLoss(r, n);
-  res = cleanupRawG(a, r, v, z, active, beta, loss, iter);
-  UNPROTECT(3);
+  res = cleanupRawG(a, v, z, active, beta, loss, iter, resid);
+  UNPROTECT(4);
   return(res);
 }
