@@ -21,12 +21,15 @@
 #' @param init             Initial values for beta.  Default: zero (length p vector)
 #' @param r                Residuals corresponding to `init`; these will be calculated if not
 #'                         supplied, but if they have already been calculated elsewhere, it is
-#'                         more efficient to pass them as an argument (length n vector)
+#'                         more efficient to pass them as an argument. WARNING: If you supply
+#'                         an incorrect value of `r`, the solution will be incorrect. (length
+#'                         n vector)
 #' @param xtx              X scales: the jth element should equal `crossprod(X[,j])/n`. These
 #'                         will be calculated if not supplied, but if they have already been
 #'                         calculated elsewhere, it is more efficient to pass them as an
 #'                         argument.  In particular, if X is standardized, one should pass
-#'                         `xtx = rep(1, p)`.  (length p vector)
+#'                         `xtx = rep(1, p)`.  WARNING: If you supply an incorrect value of
+#'                         `xtx`, the solution will be incorrect. (length p vector)
 #' @param penalty          Penalty function to be applied, either "MCP" (default), "SCAD", or
 #'                         "lasso")
 #' @param gamma            Tuning parameter of the MCP/SCAD penalty, as in `ncvreg()`; default

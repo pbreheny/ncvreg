@@ -25,6 +25,8 @@ navbar:
         href: articles/web/inference-local.html
     - text: Functions
       href: reference/index.html
+    - text: News
+      href: news/index.html
   right:
     github:
       icon: fa-github fa-lg

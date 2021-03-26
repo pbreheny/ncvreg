@@ -24,7 +24,7 @@
     }
     \item y: Log PSA}}
 \usage{data(Prostate)}
-\source{\url{https://web.stanford.edu/~hastie/ElemStatLearn}}
+\source{\url{https://web.stanford.edu/~hastie/ElemStatLearn/}}
 \references{
   \itemize{
     \item Hastie T, Tibshirani R, and Friedman J. (2001). \emph{The

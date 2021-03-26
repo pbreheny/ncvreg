@@ -76,7 +76,7 @@ warn=TRUE, returnX, ...)
     P(\beta, \lambda),}
   where the loss function L is the deviance (-2 times the partial
   log-likelihood) from the Cox regression mode.
-  \href{http://pbreheny.github.io/ncvreg/articles/web/models.html}{See
+  \href{https://pbreheny.github.io/ncvreg/articles/web/models.html}{See
     here for more details}.
 
   Presently, ties are not handled by \code{ncvsurv} in a particularly
@@ -133,13 +133,13 @@ warn=TRUE, returnX, ...)
     for nonconvex penalized regression, with applications to biological
     feature selection.  \emph{Annals of Applied Statistics}, \strong{5}:
     232-253.
-    \url{http://myweb.uiowa.edu/pbreheny/pdf/Breheny2011.pdf}
+    \url{https://myweb.uiowa.edu/pbreheny/pdf/Breheny2011.pdf}
 
     \item Simon N, Friedman JH, Hastie T, and Tibshirani R. (2011)
     Regularization Paths for Cox's Proportional Hazards Model via
     Coordinate Descent.  \emph{Journal of Statistical Software},
     \strong{39}: 1-13.
-    \url{http://www.jstatsoft.org/v39/i05}
+    \url{https://www.jstatsoft.org/v39/i05}
   }
 }
 \author{Patrick Breheny}

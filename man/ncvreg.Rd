@@ -76,12 +76,12 @@ warn=TRUE, returnX, ...)
   where the loss function L is the deviance (-2 times the log
   likelihood) for the specified outcome distribution
   (gaussian/binomial/poisson).
-  \href{http://pbreheny.github.io/ncvreg/articles/web/models.html}{See
+  \href{https://pbreheny.github.io/ncvreg/articles/web/models.html}{See
     here for more details}.
   
   This algorithm is stable, very efficient, and generally converges
   quite rapidly to the solution.  For GLMs,
-  \href{http://myweb.uiowa.edu/pbreheny/pdf/Breheny2011.pdf}{adaptive
+  \href{https://myweb.uiowa.edu/pbreheny/pdf/Breheny2011.pdf}{adaptive
     rescaling} is used.}
 \value{
   An object with S3 class \code{"ncvreg"} containing:

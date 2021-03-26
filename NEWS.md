@@ -1,3 +1,9 @@
+# ncvreg 3.13.0 (2021-03-26)
+  * New: Options 'xtx' and 'r' for ncvfit()
+  * Internal: cv.ncvreg() now uses less memory (returnX off)
+  * Internal: Better error handling if a matrix is supplied for y
+  * Fixed: AUC() now compatible with survival 3.2.10
+
 # ncvreg 3.12.0 (2020-07-09)
   * New: ncvfit(), a raw API to the ncvreg solver with full control over
     standardization, etc.

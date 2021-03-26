@@ -18,7 +18,7 @@
   See the "Getting started" vignette for a brief overview of how the package
   works.
 
-  \href{http://pbreheny.github.io/ncvreg}{Visit the ncvreg website for
+  \href{https://pbreheny.github.io/ncvreg/}{Visit the ncvreg website for
     more details}.
 }
 \references{Breheny, P. and Huang, J. (2011) Coordinate descent

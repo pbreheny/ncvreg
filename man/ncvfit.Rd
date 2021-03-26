@@ -30,13 +30,16 @@ will occur (n x p matrix)}
 
 \item{r}{Residuals corresponding to \code{init}; these will be calculated if not
 supplied, but if they have already been calculated elsewhere, it is
-more efficient to pass them as an argument (length n vector)}
+more efficient to pass them as an argument. WARNING: If you supply
+an incorrect value of \code{r}, the solution will be incorrect. (length
+n vector)}
 
 \item{xtx}{X scales: the jth element should equal \code{crossprod(X[,j])/n}. These
 will be calculated if not supplied, but if they have already been
 calculated elsewhere, it is more efficient to pass them as an
 argument.  In particular, if X is standardized, one should pass
-\code{xtx = rep(1, p)}.  (length p vector)}
+\code{xtx = rep(1, p)}.  WARNING: If you supply an incorrect value of
+\code{xtx}, the solution will be incorrect. (length p vector)}
 
 \item{penalty}{Penalty function to be applied, either "MCP" (default), "SCAD", or
 "lasso")}
