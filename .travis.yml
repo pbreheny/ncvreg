@@ -1,6 +1,7 @@
 language: r
 r_packages:
   - glmnet
+  - survival
 
 script:
   - R CMD build .
