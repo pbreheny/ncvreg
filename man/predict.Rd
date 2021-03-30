@@ -37,9 +37,13 @@ drop=TRUE, ...)
     \code{drop=FALSE} returns a 1-column matrix.}
   \item{\dots}{Not used.}}
 \value{The object returned depends on type.}
-\references{Breheny, P. and Huang, J. (2011) Coordinate descent
-  algorithms for nonconvex penalized regression, with applications to
-  biological feature selection. Ann. Appl. Statist., 5: 232-253.}
+\references{
+  Breheny P and Huang J. (2011) Coordinate descentalgorithms
+  for nonconvex penalized regression, with applications to biological
+  feature selection.  \emph{Annals of Applied Statistics}, \strong{5}:
+  232-253.
+  \doi{10.1214/10-AOAS388}
+}
 \author{Patrick Breheny}
 \seealso{\code{\link{ncvreg}}}
 \examples{

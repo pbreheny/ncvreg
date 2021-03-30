@@ -39,11 +39,14 @@ which=1:length(object$lambda), ...)
 \value{The object returned depends on type.}
 \references{
   \itemize{
-    \item Breheny P and Huang J (2011). Coordinate descent algorithms for
-      nonconvex penalized regression, with applications to biological feature
-      selection. Ann. Appl. Statist., 5: 232-253.
-    \item Kalbfleish JD and Prentice RL (2002). The Statistical Analysis of
-      Failure Time Data, 2nd edition. Wiley.
+    \item Breheny P and Huang J. (2011) Coordinate descentalgorithms
+    for nonconvex penalized regression, with applications to biological
+    feature selection.  \emph{Annals of Applied Statistics}, \strong{5}:
+    232-253.
+    \doi{10.1214/10-AOAS388}
+    
+    \item Kalbfleish JD and Prentice RL (2002). \emph{The Statistical
+      Analysis of Failure Time Data}, 2nd edition. Wiley.
   }
 }
 \author{Patrick Breheny <patrick-breheny@uiowa.edu>}

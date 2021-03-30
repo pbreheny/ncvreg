@@ -116,9 +116,13 @@ warn=TRUE, returnX, ...)
     \item{y}{The response, centered if \code{family='gaussian'}.}
   }
 }
-\references{Breheny, P. and Huang, J. (2011) Coordinate descent
-  algorithms for nonconvex penalized regression, with applications to
-  biological feature selection. Ann. Appl. Statist., 5: 232-253.}
+\references{
+  Breheny P and Huang J. (2011) Coordinate descentalgorithms
+  for nonconvex penalized regression, with applications to biological
+  feature selection.  \emph{Annals of Applied Statistics}, \strong{5}:
+  232-253.
+  \doi{10.1214/10-AOAS388}
+}
 \author{Patrick Breheny}
 \seealso{\code{\link{plot.ncvreg}}, \code{\link{cv.ncvreg}}}
 \examples{

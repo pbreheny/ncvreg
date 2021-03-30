@@ -34,9 +34,13 @@
   plotted along with the estimates at value of \code{lambda}.  For
   \code{rsq} and \code{snr} applied to models other than linear
   regression, the Cox-Snell R-squared is used.}
-\references{Breheny, P. and Huang, J. (2011) Coordinate descent
-  algorithms for nonconvex penalized regression, with applications to
-  biological feature selection. Ann. Appl. Statist., 5: 232-253.}
+\references{
+  Breheny P and Huang J. (2011) Coordinate descentalgorithms
+  for nonconvex penalized regression, with applications to biological
+  feature selection.  \emph{Annals of Applied Statistics}, \strong{5}:
+  232-253.
+  \doi{10.1214/10-AOAS388}
+}
 \author{Patrick Breheny}
 \seealso{\code{\link{ncvreg}}, \code{\link{cv.ncvreg}}}
 \examples{

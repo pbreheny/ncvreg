@@ -1,7 +1,7 @@
 Package: ncvreg
 Title: Regularization Paths for SCAD and MCP Penalized Regression Models
 Version: 3.13.0
-Date: 2021-03-29
+Date: 2021-03-30
 Authors@R: person("Patrick", "Breheny", role=c("aut","cre"),
   email="patrick-breheny@uiowa.edu", comment=c(ORCID="0000-0002-0650-1119"))
 Suggests: ashr, knitr, parallel, rmarkdown, survival, tinytest
@@ -12,6 +12,8 @@ Description: Fits regularization paths for linear regression, GLM, and Cox
   penalty, with options for additional L2 penalties (the "elastic net" idea).
   Utilities for carrying out cross-validation as well as post-fitting
   visualization, summarization, inference, and prediction are also provided.
+  For more information, see Breheny and Huang (2011) <doi:10.1214/10-AOAS388>
+  or visit the ncvreg homepage <https://pbreheny.github.io/ncvreg/>.
 BugReports: https://github.com/pbreheny/ncvreg/issues
 License: GPL-3
 URL: https://pbreheny.github.io/ncvreg/, https://github.com/pbreheny/ncvreg

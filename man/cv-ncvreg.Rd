@@ -46,7 +46,7 @@ cv.ncvsurv(X, y, ..., cluster, nfolds=10, seed, fold, se=c('quick',
   The function calls \code{ncvreg}/\code{ncvsurv} \code{nfolds} times,
   each time leaving out 1/\code{nfolds} of the data.  The
   cross-validation error is based on the deviance;
-  \href{http://pbreheny.github.io/ncvreg/articles/web/models.html}{see
+  \href{https://pbreheny.github.io/ncvreg/articles/web/models.html}{see
     here for more details}.
   
   For \code{family="binomial"} models, the cross-validation fold
@@ -89,15 +89,19 @@ cv.ncvsurv(X, y, ..., cluster, nfolds=10, seed, fold, se=c('quick',
       error, as in Tibshirani RJ and Tibshirani R (2009), "A Bias
       Correction for the Minimum Error Rate in Cross-Validation", 
       Ann. Appl. Stat. 3:822-829.}
-    \item{pe}{If \code{family="binomial"}, the cross-validation prediction
-      error for each value of \code{lambda}.}
-    \item{Y}{If \code{returnY=TRUE}, the matrix of cross-validated fitted
-      values (see above).}
+    \item{pe}{If \code{family="binomial"}, the cross-validation
+      prediction error for each value of \code{lambda}.}
+    \item{Y}{If \code{returnY=TRUE}, the matrix of cross-validated
+      fitted values (see above).}
   }
 }
-\references{Breheny, P. and Huang, J. (2011) Coordinate descent
-  algorithms for nonconvex penalized regression, with applications to
-  biological feature selection. Ann. Appl. Statist., 5: 232-253.}
+\references{
+  Breheny P and Huang J. (2011) Coordinate descentalgorithms
+  for nonconvex penalized regression, with applications to biological
+  feature selection.  \emph{Annals of Applied Statistics}, \strong{5}:
+  232-253.
+  \doi{10.1214/10-AOAS388}
+}
 \author{Patrick Breheny; Grant Brown helped with the parallelization
   support}
 \seealso{\code{\link{ncvreg}}, \code{\link{plot.cv.ncvreg}},
