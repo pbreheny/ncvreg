@@ -12,8 +12,15 @@ summary.cv.ncvreg <- function(object, ...) {
   } else {
     model <- switch(object$fit$family, gaussian="linear", binomial="logistic", poisson="Poisson")
   }
-  val <- list(penalty=object$fit$penalty, model=model, n=object$fit$n, p=nrow(object$fit$beta)-1, min=object$min, lambda=object$lambda, cve=object$cve, r.squared=rsq, snr=snr, nvars=nvars)
-  if (!inherits(object, 'cv.ncvsurv') && object$fit$family=="gaussian") val$sigma <- sqrt(object$cve)
+  val <- list(penalty=object$fit$penalty, model=model, n=object$fit$n, p=nrow(object$fit$beta)-1, 
+              min=object$min, lambda=object$lambda, cve=object$cve, r.squared=rsq, snr=snr, 
+              nvars=nvars)
+  if (!inherits(object, 'cv.ncvsurv') && object$fit$family=="gaussian") {
+    val$sigma <- sqrt(object$cve)
+    val$fit_summary <- summary(object$fit, object$lambda.min, sigma=val$sigma[object$min], ...)
+  } else {
+    val$fit_summary <- summary(object$fit, object$lambda.min, ...)
+  }
   if (!inherits(object, 'cv.ncvsurv') && object$fit$family=="binomial") val$pe <- object$pe
   structure(val, class="summary.cv.ncvreg")
 }
@@ -28,4 +35,5 @@ print.summary.cv.ncvreg <- function(x, digits, ...) {
   cat("  Signal-to-noise ratio: ", formatC(max(x$snr), digits[4], format="f"), "\n", sep="")
   if (x$model == "logistic") cat("  Prediction error: ", formatC(x$pe[x$min], digits[5], format="f"), "\n", sep="")
   if (x$model == "linear") cat("  Scale estimate (sigma): ", formatC(sqrt(x$cve[x$min]), digits[5], format="f"), "\n", sep="")
+  if (x$nvars[x$min] > 0) print.summary.ncvreg(x$fit_summary, ...)
 }

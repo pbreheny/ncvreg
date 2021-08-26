@@ -1,18 +1,21 @@
 cv.ncvsurv <- function(X, y, ..., cluster, nfolds=10, seed, fold, se=c('quick', 'bootstrap'), returnY=FALSE, trace=FALSE) {
   se <- match.arg(se)
 
-  # Complete data fit
-  fit.args <- list(...)
-  fit.args$X <- X
-  fit.args$y <- y
-  fit.args$returnX <- TRUE
-  fit <- do.call("ncvsurv", fit.args)
+  # Coersion
+  if (!inherits(X, "matrix")) {
+    tmp <- try(X <- model.matrix(~0+., data=X), silent=TRUE)
+    if (inherits(tmp, "try-error")) stop("X must be a matrix or able to be coerced to a matrix", call.=FALSE)
+  }
+  if (storage.mode(X)=="integer") storage.mode(X) <- "double"
+  if (!inherits(y, "matrix")) {
+    tmp <- try(y <- as.matrix(y), silent=TRUE)
+    if (inherits(tmp, "try-error")) stop("y must be a matrix or able to be coerced to a matrix", call.=FALSE)
+    if (ncol(y) != 2) stop("y must have two columns for survival data: time-on-study and a censoring indicator", call.=FALSE)
+  }
+  if (typeof(y) == "integer") storage.mode(y) <- "double"
 
-  # Get standardized X, y
-  X <- fit$X
-  y <- cbind(fit$time, fit$fail)
-  returnX <- list(...)$returnX
-  if (is.null(returnX) || !returnX) fit$X <- NULL
+  # Complete data fit
+  fit <- ncvsurv(X=X, y=y, ...)
 
   # Set up folds
   n <- nrow(X)

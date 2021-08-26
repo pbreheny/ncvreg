@@ -11,6 +11,8 @@
 #' @param method   What method should be used to calculate the local fdr?  Options are `ashr` (which tends to be more
 #'   accurate) and `kernel` (which requires no additional packages).  The default is to use `ashr` if the package is
 #'   installed.
+#' @param sigma    For linear regression models, users can supply an estimate of the residual standard deviation.
+#'   The default is to use RSS / DF, where degrees of freedom are approximated using the number of nonzero coefficients.
 #' @param ...      Additional arguments to `ash()` if using `method='ashr'`.
 #'   
 #' @return If all features are penalized, then the object returns a data frame with one row per feature and four columns:
@@ -50,7 +52,7 @@
 #' fit <- ncvsurv(X, y)
 #' local_mfdr(fit, 0.1)
 
-local_mfdr <- function(fit, lambda, X=NULL, y=NULL, method=c('ashr', 'kernel'), ...) {
+local_mfdr <- function(fit, lambda, X=NULL, y=NULL, method=c('ashr', 'kernel'), sigma, ...) {
   
   # Determine method, if missing
   if (!inherits(fit, 'ncvreg')) stop('"fit" must be an ncvreg or ncvsurv object', call.=FALSE)
@@ -97,9 +99,12 @@ local_mfdr <- function(fit, lambda, X=NULL, y=NULL, method=c('ashr', 'kernel'), 
       bb <- beta[-1][ns]*sc
       r <- yy - XX %*% bb
       z <- crossprod(XX, r)/n + bb
-      rss <- approxfun(fit$lambda, fit$loss)
-      sig.est <- sqrt(rss(lambda)/(n - S + 1))
-      z <- z/(sig.est/sqrt(n))
+      if (missing(sigma)) {
+        rss <- approxfun(fit$lambda, fit$loss)
+        sigma <- sqrt(rss(lambda)/(n - S + 1))
+        if (S > n) stop('Default estimate of sigma, sqrt(RSS/DF), is invalid because DF is negative. Supply an estimate or use cross-validation.', call.=FALSE)
+      }
+      z <- z/(sigma/sqrt(n))
     } else if (fit$family == "binomial") {
       # Logistic regression
       bb <- beta[-1][ns]*sc

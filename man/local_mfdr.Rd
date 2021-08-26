@@ -4,7 +4,15 @@
 \alias{local_mfdr}
 \title{Estimate local mFDR for all features}
 \usage{
-local_mfdr(fit, lambda, X = NULL, y = NULL, method = c("ashr", "kernel"), ...)
+local_mfdr(
+  fit,
+  lambda,
+  X = NULL,
+  y = NULL,
+  method = c("ashr", "kernel"),
+  sigma,
+  ...
+)
 }
 \arguments{
 \item{fit}{A fitted \code{ncvreg} or \code{ncvsurv} object.}
@@ -17,6 +25,9 @@ local_mfdr(fit, lambda, X = NULL, y = NULL, method = c("ashr", "kernel"), ...)
 \item{method}{What method should be used to calculate the local fdr?  Options are \code{ashr} (which tends to be more
 accurate) and \code{kernel} (which requires no additional packages).  The default is to use \code{ashr} if the package is
 installed.}
+
+\item{sigma}{For linear regression models, users can supply an estimate of the residual standard deviation.
+The default is to use RSS / DF, where degrees of freedom are approximated using the number of nonzero coefficients.}
 
 \item{...}{Additional arguments to \code{ash()} if using \code{method='ashr'}.}
 }

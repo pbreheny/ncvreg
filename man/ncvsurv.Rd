@@ -60,7 +60,7 @@ warn=TRUE, returnX, ...)
   \item{returnX}{Return the standardized design matrix along with the
     fit?  By default, this option is turned on if X is under 100 MB, but
     turned off for larger matrices to preserve memory.  Note that
-    certain methods, such as \code{\link{summary.ncvsurv}} require
+    certain methods, such as \code{\link{summary.ncvreg}} require
     access to the design matrix and may not be able to run if
     \code{returnX=FALSE}.}
   \item{...}{Not used.}
