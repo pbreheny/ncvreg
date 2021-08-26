@@ -8,6 +8,7 @@ fit <- ncvreg(X, y, returnX=TRUE)
 summary(fit, lambda=0.2)
 fit <- ncvreg(X, y, returnX=TRUE, penalty='lasso')
 summary(fit, lambda=0.2)
+summary(fit, lambda=0.2, sigma=10)
 
 # Binomial
 n <- 100

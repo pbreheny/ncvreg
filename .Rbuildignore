@@ -2,3 +2,5 @@
 ^docs$
 ^\.travis\.yml$
 ^\.version\.json$
+^.*\.Rproj$
+^\.Rproj\.user$

@@ -4,7 +4,7 @@ suppressPackageStartupMessages(library(glmnet))
 
 # Works
 X <- matrix(rnorm(500), 50, 10)
-y <- rnorm(50)
+y <- X[,1] + rnorm(50)
 cvfit <- cv.ncvreg(X, y)
 summary(cvfit)
 

@@ -1,4 +1,64 @@
-summary.ncvreg <- function(object, lambda, which, number, cutoff, ...) {
+#' Summary method for ncvreg objects
+#' 
+#' Inferential summaries for `ncvreg` and `ncvsurv` objects based on local marginal false discovery rates.
+#' 
+#' @param object   An `ncvreg` or `ncvsurv` object.
+#' @param lambda   The regularization parameter value at which inference should be reported.
+#' @param which    Alternatively, `lambda` may be specified by index; `which=10` means: report inference for the 10th value of
+#'   `lambda` along the regularization path.  If both `lambda` and `which` are specified, `lambda` takes precedence.
+#' @param number   By default, `summary` will provide an inferential summary for each variable that has been selected (i.e.,  each
+#'   variable with a nonzero coefficient).  Specifying `number=5`, for example, means that the summary table will include the 5
+#'   features with the lowest mfdr values, regardless of whether they were selected.  To see all features, `number=Inf`.
+#' @param cutoff   Alternatively, specifying for example `cutoff=0.3` will report inference for all features with mfdr under 30%.
+#'   If both `number` and `cutoff` are specified, the intersection between both sets of features is reported.
+#' @param sigma    For linear regression models, users can supply an estimate of the residual standard deviation.
+#'   The default is to use RSS / DF, where degrees of freedom are approximated using the number of nonzero coefficients.
+#' @param ...      Further arguments; in particular, if you have set `returnX=FALSE`, you will need to supply `X` and `y` in order to calculate local mFDRs.
+#' 
+#' @return Whether passed an `ncvreg` or `ncvsurv` object, the return value is an object with S3 class `summary.ncvreg`. The class has its own print method and contains the following list elements:
+#' * `penalty`: The penalty used by `ncvreg` or `ncvsurv`.
+#' * `model`: Either `"linear"`, `"logistic"`, or `"Cox"`.
+#' * `n`: Number of instances.
+#' * `p`: Number of regression coefficients (not including the intercept).
+#' * `lambda`: The `lambda` value at which inference is being reported.
+#' * `nvars`: The number of nonzero coefficients (again, not including the intercept) at that value of `lambda`.
+#' * `table`: A table containing estimates, normalized test statistics (z), and an estimate of the local mfdr for each coefficient.
+#'    The mfdr may be loosely interpreted, in an empirical Bayes sense, as the probability that the given feature is null.
+#' * `unpen.table`: If there are any unpenalized coefficients, a separate inferential summary is given for them.  Currently, this is
+#'    based on \code{lm}/\code{glm}/\code{coxph} using the penalized coefficients to provide an offset.  This is useful and more or less
+#'    accurate, but not ideal; we hope to improve the inferential methods for unpenalized variables in the future.
+#'    
+#' @author Patrick Breheny <patrick-breheny@@uiowa.edu>
+#' @seealso [ncvreg()], [cv.ncvreg()], [plot.cv.ncvreg()], [local_mfdr()]
+#' @examples
+#' 
+#' # Linear regression --------------------------------------------------
+#' data(Prostate)
+#' fit <- ncvreg(Prostate$X, Prostate$y)
+#' summary(fit, lambda=0.08)
+#' 
+#' # Logistic regression ------------------------------------------------
+#' data(Heart)
+#' fit <- ncvreg(Heart$X, Heart$y, family="binomial")
+#' summary(fit, lambda=0.05)
+#' 
+#' # Cox regression -----------------------------------------------------
+#' data(Lung)
+#' fit <- ncvsurv(Lung$X, Lung$y)
+#' summary(fit, lambda=0.1)
+#' 
+#' # Options ------------------------------------------------------------
+#' fit <- ncvreg(Heart$X, Heart$y, family="binomial")
+#' summary(fit, lambda=0.08, number=3)
+#' summary(fit, lambda=0.08, number=Inf)
+#' summary(fit, lambda=0.08, cutoff=0.5)
+#' summary(fit, lambda=0.08, number=3, cutoff=0.5)
+#' 
+#' # If X and y are not returned with the fit, they must be supplied
+#' fit <- ncvreg(Heart$X, Heart$y, family="binomial", returnX=FALSE)
+#' summary(fit, X=Heart$X, y=Heart$y, lambda=0.08)
+
+summary.ncvreg <- function(object, lambda, which, number, cutoff, sigma, ...) {
   nvars <- predict(object, type="nvars", lambda=lambda, which=which)
   if (length(nvars) > 1) stop("You must specify a single model (i.e., a single value of lambda)", call.=FALSE)
   if (missing(lambda)) lambda <- object$lambda[which]
@@ -8,7 +68,7 @@ summary.ncvreg <- function(object, lambda, which, number, cutoff, ...) {
   } else {
     model <- switch(object$family, gaussian="linear", binomial="logistic", poisson="Poisson")
   }
-  local <- local_mfdr(object, lambda, ...)
+  local <- local_mfdr(object, lambda, sigma=sigma, ...)
   out <- structure(list(penalty=object$penalty, model=model, n=object$n, p=nrow(object$beta)-1, lambda=lambda,
                         custom=custom, nvars=nvars),
                    class='summary.ncvreg')
@@ -34,16 +94,31 @@ summary.ncvreg <- function(object, lambda, which, number, cutoff, ...) {
   out
 }
 
+#' @rdname summary.ncvreg
+#' 
+#' @param x        A `summary.ncvreg` object.
+#' @param digits   Number of digits past the decimal point to print out. Can be a vector specifying different display digits for
+#'   each of the five non-integer printed values.
+
 print.summary.ncvreg <- function(x, digits, ...) {
   digits <- if (missing(digits)) digits <- c(4, 2, 2, 3) else rep(digits, length.out=5)
-  cat(x$penalty, "-penalized ", x$model, " regression with n=", x$n, ", p=", x$p, "\n", sep="")
-  cat("At lambda=", formatC(x$lambda, digits[1], format="f"), ":\n", sep="")
-  cat("-------------------------------------------------\n")
-  if (x$custom) {
-    cat("  Features satisfying criteria       : ", nrow(x$table), "\n", sep="")
-    cat("  Average mfdr among chosen features : ", formatC(mean(x$table$mfdr), digits=3), "\n", sep="")
+  if ((sys.nframe() >= 2) && (as.character(sys.call(2))[1] == "print.summary.cv.ncvreg")) {
+    skip_intro <- TRUE
   } else {
-    cat("  Nonzero coefficients         : ", formatC(x$nvars, width=3), "\n", sep="")
+    skip_intro <- FALSE
+  }
+  if (!skip_intro) {
+    cat(x$penalty, "-penalized ", x$model, " regression with n=", x$n, ", p=", x$p, "\n", sep="")
+    cat("At lambda=", formatC(x$lambda, digits[1], format="f"), ":\n", sep="")
+    cat("-------------------------------------------------\n")
+    if (x$custom) {
+      cat("  Features satisfying criteria       : ", nrow(x$table), "\n", sep="")
+      cat("  Average mfdr among chosen features : ", formatC(mean(x$table$mfdr), digits=3), "\n", sep="")
+    } else {
+      cat("  Nonzero coefficients         : ", formatC(x$nvars, width=3), "\n", sep="")
+    }
+  }
+  if (!x$custom) {
     if (x$nvars > 0) {
       cat("  Expected nonzero coefficients: ", formatC(sum(x$table$mfdr), digits=2, format='f', width=6), '\n', sep="")
       space <- substr('                                              ', 1, 5-nchar(nrow(x$table)))
