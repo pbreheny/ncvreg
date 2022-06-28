@@ -12,8 +12,8 @@ beta <- coef(coxph(y ~ X))
 eta <- X%*%beta
 w <- exp(eta)/cumsum(exp(eta))
 sum(X * (1-w))
-scad <- coef(ncvsurv(X, y, lambda=0, penalty="SCAD", eps=.0001))
-mcp <- coef(ncvsurv(X, y, lambda=0, penalty="MCP", eps=.0001))
+scad <- coef(ncvsurv(X, y, lambda.min=0, penalty="SCAD", eps=.0001), lambda=0)
+mcp <- coef(ncvsurv(X, y, lambda.min=0, penalty="MCP", eps=.0001), lambda=0)
 expect_equivalent(scad, beta, tolerance=.01)
 expect_equivalent(mcp, beta, tolerance=.01)
 
@@ -26,8 +26,8 @@ y[which.max(y[,1]), 2] <- 0
 y[which.min(y[,1]), 2] <- 0
 X <- matrix(rnorm(n), n, 1)
 beta <- coef(coxph(y ~ X))
-scad <- coef(ncvsurv(X, y, lambda=0, penalty="SCAD", eps=.0001))
-mcp <- coef(ncvsurv(X, y, lambda=0,penalty="MCP",eps=.0001))
+scad <- coef(ncvsurv(X, y, lambda.min=0, penalty="SCAD", eps=.0001), lambda=0)
+mcp <- coef(ncvsurv(X, y, lambda.min=0,penalty="MCP",eps=.0001), lambda=0)
 expect_equivalent(scad, beta, tolerance=.01)
 expect_equivalent(mcp,beta, tolerance=.01)
 
@@ -39,8 +39,8 @@ p <- 10
 y <- Surv(rexp(n), rbinom(n, 1, 0.5))
 X <- matrix(rnorm(n*p), n, p)
 beta <- coef(coxph(y ~ X))
-scad <- coef(ncvsurv(X, y, lambda=0, penalty="SCAD", eps=.0001))
-mcp <- coef(ncvsurv(X, y, lambda=0,penalty="MCP",eps=.0001))
+scad <- coef(ncvsurv(X, y, lambda.min=0, penalty="SCAD", eps=.0001), lambda=0)
+mcp <- coef(ncvsurv(X, y, lambda.min=0,penalty="MCP",eps=.0001), lambda=0)
 expect_equivalent(scad, beta, tolerance=.01)
 expect_equivalent(mcp, beta, tolerance=.01)
 
