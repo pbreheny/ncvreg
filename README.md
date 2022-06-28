@@ -1,8 +1,10 @@
+<!-- badges: start -->
 [![GitHub version](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/pbreheny/ncvreg/master/.version.json&style=flat&logo=github)](https://github.com/pbreheny/ncvreg)
 [![CRAN version](https://img.shields.io/cran/v/ncvreg?logo=R)](https://cran.r-project.org/package=ncvreg)
 [![downloads](https://cranlogs.r-pkg.org/badges/ncvreg)](https://cran.r-project.org/package=ncvreg)
-[![Travis build status](https://travis-ci.org/pbreheny/ncvreg.svg?branch=master)](https://travis-ci.org/pbreheny/ncvreg)
+[![R-CMD-check](https://github.com/pbreheny/ncvreg/workflows/R-CMD-check/badge.svg)](https://github.com/pbreheny/ncvreg/actions)
 [![codecov.io](https://codecov.io/github/pbreheny/ncvreg/coverage.svg?branch=master)](https://codecov.io/github/pbreheny/ncvreg?branch=master)
+<!-- badges: end -->
 
 # [Regularization paths for MCP and SCAD penalized regression models](https://pbreheny.github.io/ncvreg/)
 

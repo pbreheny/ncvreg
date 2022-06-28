@@ -1,6 +1,6 @@
 ^pkgdown$
 ^docs$
-^\.travis\.yml$
+^\.github$
 ^\.version\.json$
 ^.*\.Rproj$
 ^\.Rproj\.user$

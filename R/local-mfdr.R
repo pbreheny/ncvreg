@@ -121,9 +121,25 @@ local_mfdr <- function(fit, lambda, X=NULL, y=NULL, method=c('ashr', 'kernel'), 
         vj <- t(XX[,j]) %*% W %*% XX[,j]
         z[j] <- (XX[,j] %*% U + vj * bb[j])/(sqrt(vj))  ### j+1 bc intercept
       }
+    } else if (fit$family == "poisson") {
+      # Poisson regression
+      bb <- beta[-1][ns]*sc
+      a <- sum(cn*beta[-1][ns]) + beta[1]
+      
+      # Setup the score vector and W matrix
+      mu <- exp(a+(XX %*% bb))
+      U <- yy - mu
+      W <- diag(as.vector(mu))
+      
+      # Calculate v_j and z_j
+      z <- double(p)
+      for (j in 1:p){
+        vj <- t(XX[,j]) %*% W %*% XX[,j]
+        z[j] <- (XX[,j] %*% U + vj * bb[j])/(sqrt(vj))  ### j+1 bc intercept
+      }
     }
   }
-
+  
   # Cox regression
   if (inherits(fit, "ncvsurv")) {
     # Setup standardized beta
