@@ -12,7 +12,7 @@ navbar:
     - icon: fa-home fa-lg
       href: index.html
     - text: Getting started
-      href: articles/getting-started.html
+      href: articles/web/getting-started.html
     - text: Learn more
       menu:
       - text: Models
@@ -39,6 +39,7 @@ template:
 reference:
 - title: Model fitting
   contents:
+  - ncvfit
   - ncvreg
   - ncvsurv
   - std
@@ -57,13 +58,17 @@ reference:
   - plot.ncvsurv.func
 - title: Inference
   contents:
-  - summary.ncvreg
+  - local_mfdr
   - mfdr
   - plot.mfdr
   - perm.ncvreg
   - permres
+  - summary.ncvreg
 - title: Data sets
   contents:
   - Heart
   - Lung
   - Prostate
+- title: internal
+  contents:
+  - ncvreg-package
