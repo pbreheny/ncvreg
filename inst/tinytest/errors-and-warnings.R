@@ -16,7 +16,6 @@ fit <- lm(y~X)
 expect_error(mfdr(fit))
 fit <- ncvreg(X, y, family='binomial', returnX=FALSE)
 expect_error(mfdr(fit))
-expect_warning(fir(fit))
 
 # ncvreg
 n <- 100

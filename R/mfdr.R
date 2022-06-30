@@ -37,9 +37,3 @@ mfdr <- function(fit, X) {
   rownames(df) <- lamNames(fit$lambda)
   structure(df, class=c("mfdr", "data.frame"))
 }
-fir <- function(fit, ...) {
-  warning("
-fir has been deprecated and renamed mfdr; please use mfdr() in the future,\n
-as support for fir() is likely to be discontinued at some point.")
-  mfdr(fit, ...)
-}

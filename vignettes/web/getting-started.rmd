@@ -1,13 +1,6 @@
 ---
 title: "Getting started with ncvreg"
 author: "Patrick Breheny"
-output:
-  rmarkdown::html_vignette:
-    css: vignette.css
-vignette: >
-  %\VignetteIndexEntry{Getting started with ncvreg}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include=FALSE}
@@ -21,14 +14,6 @@ knitr::knit_hooks$set(small.mar = function(before, options, envir) {
 ```
 
 `ncvreg` is an R package for fitting regularization paths for linear regression, GLM, and Cox regression models using lasso or nonconvex penalties, in particular the minimax concave penalty (MCP) and smoothly clipped absolute deviation (SCAD) penalty, with options for additional L<sub>2</sub> penalties (the "elastic net" idea).  Utilities for carrying out cross-validation as well as post-fitting visualization, summarization, inference, and prediction are also provided.
-
-This vignette offers a brief introduction to the basic use of `ncvreg`.  For more details on the package, visit the `ncvreg` website at <https://pbreheny.github.io/ncvreg/> and follow the links under "Learn more".  For more on the algorithms used by `ncvreg`, see the original article:
-
-* [Breheny P and Huang J (2011).  Coordinate descent algorithms for nonconvex penalized regression, with applications to biological feature selection.  *Annals of Applied Statistics*, 5: 232--253](https://myweb.uiowa.edu/pbreheny/pdf/Breheny2011.pdf)
-
-For more about the marginal false discovery rate idea used for post-selection inference, see
-
-* [Breheny P (2019). Marginal false discovery rates for penalized regression models. *Biostatistics*, **20**: 299-314](https://dx.doi.org/10.1093/biostatistics/kxy004)
 
 `ncvreg` comes with a few example data sets; we'll look at `Prostate`, which has 8 features and one continuous response, the PSA levels (on the log scale) from men about to undergo radical prostatectomy:
 
