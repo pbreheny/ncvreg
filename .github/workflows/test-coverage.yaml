@@ -24,6 +24,7 @@ jobs:
           extra-packages: |
             covr
             glmnet
+            pROC
             survival
 
       - name: Test coverage
