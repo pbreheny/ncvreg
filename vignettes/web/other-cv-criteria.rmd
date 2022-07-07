@@ -1,0 +1,45 @@
+---
+title: "Other CV criteria"
+author: "Patrick Breheny"
+---
+
+```{r setup, include=FALSE}
+set.seed(1)
+library(ncvreg)
+knitr::opts_knit$set(aliases=c(h = 'fig.height', w = 'fig.width'))
+knitr::opts_chunk$set(comment="#", collapse=TRUE, cache=FALSE, tidy=FALSE)
+knitr::knit_hooks$set(small.mar = function(before, options, envir) {
+  if (before) par(mar = c(4, 4, .1, .1))
+})
+```
+
+By default, `cv.ncvreg()` returns the cross-validated deviance:
+
+```{r basic}
+data(Heart)
+X <- Heart$X
+y <- Heart$y
+cvfit <- cv.ncvreg(X, y, family='binomial')
+head(cvfit$cve)
+```
+
+In addition, `summary.cv.ncvreg()` returns an estimated $R^2$, signal-to-noise ratio (SNR), and for logistic regression, a misclassification error (PE, for prediction error):
+
+```{r summary}
+head(summary(cvfit)$r.squared)
+head(summary(cvfit)$snr)
+head(summary(cvfit)$pe)
+```
+
+It is very important to note here that these measures are based on out-of-sample CV predictions, and therefore not artificially inflated by overfitting, as would happen if we used the predictions from `ncvreg()` directly.
+
+In addition, `cv.ncvreg()` offers the option to return the cross-validated linear predictors (`returnY=TRUE`), which allows the user to calculate any prediction criteria they wish. For example, here is how one can calculate the cross-validated AUC using the `auc()` function from the [pROC](https://cran.r-project.org/package=pROC) package:
+
+```{r auc, h=3, w=4, small.mar=TRUE}
+cvfit <- cv.ncvreg(X, y, family='binomial', returnY=TRUE)
+auc <- apply(cvfit$Y, 2, pROC::auc, response=y, quiet=TRUE)
+head(auc)
+plot(cvfit$lambda, auc, log='x', las=1, bty='n', xlab=expression(lambda), 
+     xlim=rev(range(cvfit$lambda)), type='l')
+abline(v=cvfit$lambda[which.max(auc)], lty=2, col='gray')
+```

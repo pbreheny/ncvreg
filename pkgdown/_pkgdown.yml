@@ -23,6 +23,8 @@ navbar:
         href: articles/web/inference-mfdr.html
       - text: 'Inference: Local mfdr'
         href: articles/web/inference-local.html
+      - text: 'Other CV criteria'
+        href: articles/web/other-cv-criteria.html
     - text: Functions
       href: reference/index.html
     - text: News
