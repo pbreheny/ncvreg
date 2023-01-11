@@ -21,7 +21,7 @@ summarization, inference, and prediction are also provided.
 * For details on the algorithms used by `ncvreg`, see the original article: [Breheny P and Huang J (2011). Coordinate descent algorithms for nonconvex penalized regression, with applications to biological feature selection. *Annals of Applied Statistics*, 5: 232–253](https://myweb.uiowa.edu/pbreheny/pdf/Breheny2011.pdf)
 * For more about the marginal false discovery rate idea used for
 post-selection inference, see [Breheny P (2019). Marginal false discovery rates for penalized regression models. *Biostatistics*, **20**: 299-314](https://dx.doi.org/10.1093/biostatistics/kxy004)
-* I also teach a [course on high-dimensional data analysis](https://myweb.uiowa.edu/pbreheny/7240/s21/notes.html); the lecture notes are publicly available and may be helpful, in particular the lectures on [https://myweb.uiowa.edu/pbreheny/7240/s21/notes/3-03.pdf](MCP/SCAD) and [https://myweb.uiowa.edu/pbreheny/7240/s21/notes/3-29.pdf](marginal FDR).
+* I also teach a [course on high-dimensional data analysis](https://myweb.uiowa.edu/pbreheny/7240/s21/notes.html); the lecture notes are publicly available and may be helpful, in particular the lectures on [MCP/SCAD](https://myweb.uiowa.edu/pbreheny/7240/s21/notes/3-03.pdf) and [marginal FDR](https://myweb.uiowa.edu/pbreheny/7240/s21/notes/3-29.pdf).
 
 ## Installation
 
