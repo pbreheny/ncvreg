@@ -62,7 +62,7 @@
 #' fit <- ncvreg(Heart$X, Heart$y, family="binomial", returnX=FALSE)
 #' summary(fit, X=Heart$X, y=Heart$y, lambda=0.08)
 
-summary.ncvreg <- function(object, lambda, which, number, cutoff, sort, sigma, ...) {
+summary.ncvreg <- function(object, lambda, which, number, cutoff, sort=TRUE, sigma, ...) {
   nvars <- predict(object, type="nvars", lambda=lambda, which=which)
   if (length(nvars) > 1) stop("You must specify a single model (i.e., a single value of lambda)", call.=FALSE)
   if (missing(lambda)) lambda <- object$lambda[which]

@@ -15,6 +15,7 @@
   \item{shade}{Should nonconvex region be shaded?  Default is TRUE.}
   \item{col}{Vector of colors for coefficient lines.  By default, evenly
     spaced colors are selected automatically.}
+  \item{gg}{Use ggplot2 for plotting? (experimental).}
   \item{\dots}{Other graphical parameters to \code{plot}}
 }
 \references{
