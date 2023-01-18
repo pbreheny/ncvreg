@@ -11,6 +11,7 @@
 #'   features with the lowest mfdr values, regardless of whether they were selected.  To see all features, `number=Inf`.
 #' @param cutoff   Alternatively, specifying for example `cutoff=0.3` will report inference for all features with mfdr under 30%.
 #'   If both `number` and `cutoff` are specified, the intersection between both sets of features is reported.
+#' @param sort     Should the results be sorted by `mfdr`? (default: TRUE)
 #' @param sigma    For linear regression models, users can supply an estimate of the residual standard deviation.
 #'   The default is to use RSS / DF, where degrees of freedom are approximated using the number of nonzero coefficients.
 #' @param ...      Further arguments; in particular, if you have set `returnX=FALSE`, you will need to supply `X` and `y` in order to calculate local mFDRs.
@@ -53,12 +54,15 @@
 #' summary(fit, lambda=0.08, number=Inf)
 #' summary(fit, lambda=0.08, cutoff=0.5)
 #' summary(fit, lambda=0.08, number=3, cutoff=0.5)
+#' summary(fit, lambda=0.08, number=5, cutoff=0.1)
+#' summary(fit, lambda=0.08, number=Inf, sort=FALSE)
+#' summary(fit, lambda=0.08, number=3, cutoff=0.5, sort=FALSE)
 #' 
 #' # If X and y are not returned with the fit, they must be supplied
 #' fit <- ncvreg(Heart$X, Heart$y, family="binomial", returnX=FALSE)
 #' summary(fit, X=Heart$X, y=Heart$y, lambda=0.08)
 
-summary.ncvreg <- function(object, lambda, which, number, cutoff, sigma, ...) {
+summary.ncvreg <- function(object, lambda, which, number, cutoff, sort, sigma, ...) {
   nvars <- predict(object, type="nvars", lambda=lambda, which=which)
   if (length(nvars) > 1) stop("You must specify a single model (i.e., a single value of lambda)", call.=FALSE)
   if (missing(lambda)) lambda <- object$lambda[which]
@@ -80,16 +84,17 @@ summary.ncvreg <- function(object, lambda, which, number, cutoff, sigma, ...) {
   }
   
   # Sort/subset table
-  Tab <- Tab[order(Tab$mfdr),]
+  if (!missing(number) && number > nrow(Tab)) number <- nrow(Tab)
   if (missing(number) & missing(cutoff)) {
     Tab <- Tab[Tab$Estimate != 0,]
   } else if (missing(cutoff)) {
-    Tab <- Tab[1:min(number, nrow(Tab)),]
+    Tab <- Tab[Tab$mfdr <= sort(Tab$mfdr)[number],]
   } else if (missing(number)) {
-    Tab <- Tab[1:min(sum(Tab$mfdr <= cutoff), nrow(Tab)),]
+    Tab <- Tab[Tab$mfdr <= cutoff,]
   } else {
-    Tab <- Tab[1:min(sum(Tab$mfdr <= cutoff), number, nrow(Tab)),]
+    Tab <- Tab[Tab$mfdr <= min(sort(Tab$mfdr)[number], cutoff),]
   }
+  if (sort) Tab <- Tab[order(Tab$mfdr),]
   out$table <- Tab
   out
 }
