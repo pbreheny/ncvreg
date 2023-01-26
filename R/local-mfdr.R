@@ -51,6 +51,7 @@
 #' y <- Lung$y
 #' fit <- ncvsurv(X, y)
 #' local_mfdr(fit, 0.1)
+#' @export
 
 local_mfdr <- function(fit, lambda, X=NULL, y=NULL, method=c('ashr', 'kernel'), sigma, ...) {
   
@@ -100,7 +101,7 @@ local_mfdr <- function(fit, lambda, X=NULL, y=NULL, method=c('ashr', 'kernel'), 
       r <- yy - XX %*% bb
       z <- crossprod(XX, r)/n + bb
       if (missing(sigma)) {
-        rss <- approxfun(fit$lambda, fit$loss)
+        rss <- stats::approxfun(fit$lambda, fit$loss)
         sigma <- sqrt(rss(lambda)/(n - S + 1))
         if (S > n) stop('Default estimate of sigma, sqrt(RSS/DF), is invalid because DF is negative. Supply an estimate or use cross-validation.', call.=FALSE)
       }
@@ -146,7 +147,7 @@ local_mfdr <- function(fit, lambda, X=NULL, y=NULL, method=c('ashr', 'kernel'), 
     bb <- beta[ns]*sc
 
     # Calculate score vector and W (maybe diagonalize it for speed?)
-    ind <- approx(fit$lambda, seq(fit$lambda), lambda)$y
+    ind <- stats::approx(fit$lambda, seq(fit$lambda), lambda)$y
     l <- floor(ind)
     r <- ceiling(ind)
     x <- ind %% 1
@@ -172,7 +173,7 @@ local_mfdr <- function(fit, lambda, X=NULL, y=NULL, method=c('ashr', 'kernel'), 
     est.gam <- ashr::get_lfdr(ash_fit)
   } else {
     f <- density(z[pen.idx])
-    ff <- approxfun(f$x, f$y)
+    ff <- stats::approxfun(f$x, f$y)
     est.gam <- pmin(dnorm(z[pen.idx], 0, 1)/ff(z[pen.idx]), 1)
   }    
 

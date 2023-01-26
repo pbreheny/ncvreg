@@ -8,7 +8,8 @@
 \method{AUC}{cv.ncvsurv}(obj, ...)
 }
 \arguments{
-\item{obj}{A \code{cv.ncvsurv} object. You must run \code{cv.ncvsurv()} with the option \code{returnY=TRUE} in order for \code{AUC()} to work}
+\item{obj}{A \code{cv.ncvsurv} object. You must run \code{cv.ncvsurv()} with the
+option \code{returnY=TRUE} in order for \code{AUC()} to work}
 
 \item{...}{For S3 method compatibility; not used}
 }

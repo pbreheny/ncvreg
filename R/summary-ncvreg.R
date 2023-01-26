@@ -61,6 +61,7 @@
 #' # If X and y are not returned with the fit, they must be supplied
 #' fit <- ncvreg(Heart$X, Heart$y, family="binomial", returnX=FALSE)
 #' summary(fit, X=Heart$X, y=Heart$y, lambda=0.08)
+#' @export
 
 summary.ncvreg <- function(object, lambda, which, number, cutoff, sort=TRUE, sigma, ...) {
   nvars <- predict(object, type="nvars", lambda=lambda, which=which)
@@ -99,11 +100,12 @@ summary.ncvreg <- function(object, lambda, which, number, cutoff, sort=TRUE, sig
   out
 }
 
-#' @rdname summary.ncvreg
-#' 
 #' @param x        A `summary.ncvreg` object.
 #' @param digits   Number of digits past the decimal point to print out. Can be a vector specifying different display digits for
 #'   each of the five non-integer printed values.
+#' 
+#' @rdname summary.ncvreg
+#' @export
 
 print.summary.ncvreg <- function(x, digits, ...) {
   digits <- if (missing(digits)) digits <- c(4, 2, 2, 3) else rep(digits, length.out=5)

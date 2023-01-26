@@ -4,3 +4,4 @@
 ^\.version\.json$
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^codecov\.yml$
