@@ -1,7 +1,7 @@
 Package: ncvreg
 Title: Regularization Paths for SCAD and MCP Penalized Regression Models
-Version: 3.13.0.2
-Date: 2022-06-28
+Version: 3.13.0.3
+Date: 2023-01-26
 Authors@R: person("Patrick", "Breheny", role=c("aut","cre"),
   email="patrick-breheny@uiowa.edu", comment=c(ORCID="0000-0002-0650-1119"))
 Suggests: ashr, knitr, parallel, rmarkdown, survival, tinytest
@@ -18,6 +18,6 @@ BugReports: https://github.com/pbreheny/ncvreg/issues
 License: GPL-3
 URL: https://pbreheny.github.io/ncvreg/, https://github.com/pbreheny/ncvreg
 LazyData: TRUE
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.3
 Roxygen: list(markdown = TRUE)
 Encoding: UTF-8

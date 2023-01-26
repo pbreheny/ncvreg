@@ -1,3 +1,166 @@
+#' Fit an MCP- or SCAD-penalized regression path
+#' 
+#' Fit coefficients paths for MCP- or SCAD-penalized regression models over a
+#' grid of values for the regularization parameter lambda.  Fits linear and
+#' logistic regression models, with option for an additional L2 penalty.
+#' 
+#' The sequence of models indexed by the regularization parameter \code{lambda}
+#' is fit using a coordinate descent algorithm.  For logistic regression
+#' models, some care is taken to avoid model saturation; the algorithm may exit
+#' early in this setting.  The objective function is defined to be
+#' \deqn{Q(\beta|X, y) = \frac{1}{n} L(\beta|X, y) + }{Q(\beta|X, y) =
+#' (1/n)*L(\beta|X, y) + P(\beta, \lambda),}\deqn{ P_\lambda(\beta)}{Q(\beta|X,
+#' y) = (1/n)*L(\beta|X, y) + P(\beta, \lambda),} where the loss function L is
+#' the deviance (-2 times the log likelihood) for the specified outcome
+#' distribution (gaussian/binomial/poisson). See
+#' [here](https://pbreheny.github.io/ncvreg/articles/web/models.html) for more
+#' details.
+#' 
+#' This algorithm is stable, very efficient, and generally converges quite
+#' rapidly to the solution.  For GLMs,
+#' [adaptive rescaling](https://myweb.uiowa.edu/pbreheny/pdf/Breheny2011.pdf)
+#' is used.
+#' 
+#' @param X The design matrix, without an intercept.  \code{ncvreg}
+#' standardizes the data and includes an intercept by default.
+#' @param y The response vector.
+#' @param family Either "gaussian", "binomial", or "poisson", depending on the
+#' response.
+#' @param penalty The penalty to be applied to the model.  Either "MCP" (the
+#' default), "SCAD", or "lasso".
+#' @param gamma The tuning parameter of the MCP/SCAD penalty (see details).
+#' Default is 3 for MCP and 3.7 for SCAD.
+#' @param alpha Tuning parameter for the Mnet estimator which controls the
+#' relative contributions from the MCP/SCAD penalty and the ridge, or L2
+#' penalty.  \code{alpha=1} is equivalent to MCP/SCAD penalty, while
+#' \code{alpha=0} would be equivalent to ridge regression.  However,
+#' \code{alpha=0} is not supported; \code{alpha} may be arbitrarily small, but
+#' not exactly 0.
+#' @param lambda.min The smallest value for lambda, as a fraction of
+#' lambda.max.  Default is .001 if the number of observations is larger than
+#' the number of covariates and .05 otherwise.
+#' @param nlambda The number of lambda values.  Default is 100.
+#' @param lambda A user-specified sequence of lambda values.  By default, a
+#' sequence of values of length \code{nlambda} is computed, equally spaced on
+#' the log scale.
+#' @param eps Convergence threshhold.  The algorithm iterates until the RMSD
+#' for the change in linear predictors for each coefficient is less than
+#' \code{eps}.  Default is \code{1e-4}.
+#' @param max.iter Maximum number of iterations (total across entire path).
+#' Default is 10000.
+#' @param convex Calculate index for which objective function ceases to be
+#' locally convex?  Default is TRUE.
+#' @param dfmax Upper bound for the number of nonzero coefficients.  Default is
+#' no upper bound.  However, for large data sets, computational burden may be
+#' heavy for models with a large number of nonzero coefficients.
+#' @param penalty.factor A multiplicative factor for the penalty applied to
+#' each coefficient.  If supplied, \code{penalty.factor} must be a numeric
+#' vector of length equal to the number of columns of \code{X}.  The purpose of
+#' \code{penalty.factor} is to apply differential penalization if some
+#' coefficients are thought to be more likely than others to be in the model.
+#' In particular, \code{penalty.factor} can be 0, in which case the coefficient
+#' is always in the model without shrinkage.
+#' @param warn Return warning messages for failures to converge and model
+#' saturation?  Default is TRUE.
+#' @param returnX Return the standardized design matrix along with the fit?  By
+#' default, this option is turned on if X is under 100 MB, but turned off for
+#' larger matrices to preserve memory.  Note that certain methods, such as
+#' \code{\link{summary.ncvreg}} require access to the design matrix and may not
+#' be able to run if \code{returnX=FALSE}.
+#' @param ... Not used.
+#' @return An object with S3 class \code{"ncvreg"} containing: \describe{
+#' \item{beta}{The fitted matrix of coefficients.  The number of rows is equal
+#' to the number of coefficients, and the number of columns is equal to
+#' \code{nlambda}.} \item{iter}{A vector of length \code{nlambda} containing
+#' the number of iterations until convergence at each value of \code{lambda}.}
+#' \item{lambda}{The sequence of regularization parameter values in the path.}
+#' \item{penalty}{Same as above.} \item{family}{Same as above.}
+#' \item{gamma}{Same as above.} \item{alpha}{Same as above.}
+#' \item{convex.min}{The last index for which the objective function is locally
+#' convex.  The smallest value of lambda for which the objective function is
+#' convex is therefore \code{lambda[convex.min]}, with corresponding
+#' coefficients \code{beta[,convex.min]}.} \item{loss}{A vector containing the
+#' deviance (i.e., the loss) at each value of \code{lambda}.  Note that for
+#' \code{gaussian} models, the loss is simply the residual sum of squares.}
+#' \item{penalty.factor}{Same as above.} \item{n}{Sample size.} }
+#' 
+#' Additionally, if \code{returnX=TRUE}, the object will also contain
+#' 
+#' \describe{ \item{X}{The standardized design matrix.} \item{y}{The response,
+#' centered if \code{family='gaussian'}.} }
+#' @author Patrick Breheny
+#' @seealso \code{\link{plot.ncvreg}}, \code{\link{cv.ncvreg}}
+#' @references Breheny P and Huang J. (2011) Coordinate descentalgorithms for
+#' nonconvex penalized regression, with applications to biological feature
+#' selection.  \emph{Annals of Applied Statistics}, \strong{5}: 232-253.
+#' c("\\Sexpr[results=rd]{tools:::Rd_expr_doi(\"#1\")}",
+#' "10.1214/10-AOAS388")\Sexpr{tools:::Rd_expr_doi("10.1214/10-AOAS388")}
+#' @examples
+#' 
+#' # Linear regression --------------------------------------------------
+#' data(Prostate)
+#' X <- Prostate$X
+#' y <- Prostate$y
+#' 
+#' op <- par(mfrow=c(2,2))
+#' fit <- ncvreg(X, y)
+#' plot(fit, main=expression(paste(gamma,"=",3)))
+#' fit <- ncvreg(X, y, gamma=10)
+#' plot(fit, main=expression(paste(gamma,"=",10)))
+#' fit <- ncvreg(X, y, gamma=1.5)
+#' plot(fit, main=expression(paste(gamma,"=",1.5)))
+#' fit <- ncvreg(X, y, penalty="SCAD")
+#' plot(fit, main=expression(paste("SCAD, ",gamma,"=",3)))
+#' par(op)
+#' 
+#' op <- par(mfrow=c(2,2))
+#' fit <- ncvreg(X, y)
+#' plot(fit, main=expression(paste(alpha,"=",1)))
+#' fit <- ncvreg(X, y, alpha=0.9)
+#' plot(fit, main=expression(paste(alpha,"=",0.9)))
+#' fit <- ncvreg(X, y, alpha=0.5)
+#' plot(fit, main=expression(paste(alpha,"=",0.5)))
+#' fit <- ncvreg(X, y, alpha=0.1)
+#' plot(fit, main=expression(paste(alpha,"=",0.1)))
+#' par(op)
+#' 
+#' op <- par(mfrow=c(2,2))
+#' fit <- ncvreg(X, y)
+#' plot(mfdr(fit))             # Independence approximation
+#' plot(mfdr(fit), type="EF")  # Independence approximation
+#' perm.fit <- perm.ncvreg(X, y)
+#' plot(perm.fit)
+#' plot(perm.fit, type="EF")
+#' par(op)
+#' 
+#' # Logistic regression ------------------------------------------------
+#' data(Heart)
+#' X <- Heart$X
+#' y <- Heart$y
+#' 
+#' op <- par(mfrow=c(2,2))
+#' fit <- ncvreg(X, y, family="binomial")
+#' plot(fit, main=expression(paste(gamma,"=",3)))
+#' fit <- ncvreg(X, y, family="binomial", gamma=10)
+#' plot(fit, main=expression(paste(gamma,"=",10)))
+#' fit <- ncvreg(X, y, family="binomial", gamma=1.5)
+#' plot(fit, main=expression(paste(gamma,"=",1.5)))
+#' fit <- ncvreg(X, y, family="binomial", penalty="SCAD")
+#' plot(fit, main=expression(paste("SCAD, ",gamma,"=",3)))
+#' par(op)
+#' 
+#' op <- par(mfrow=c(2,2))
+#' fit <- ncvreg(X, y, family="binomial")
+#' plot(fit, main=expression(paste(alpha,"=",1)))
+#' fit <- ncvreg(X, y, family="binomial", alpha=0.9)
+#' plot(fit, main=expression(paste(alpha,"=",0.9)))
+#' fit <- ncvreg(X, y, family="binomial", alpha=0.5)
+#' plot(fit, main=expression(paste(alpha,"=",0.5)))
+#' fit <- ncvreg(X, y, family="binomial", alpha=0.1)
+#' plot(fit, main=expression(paste(alpha,"=",0.1)))
+#' par(op)
+#' 
+#' @export ncvreg
 ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("MCP", "SCAD", "lasso"),
                    gamma=switch(penalty, SCAD=3.7, 3), alpha=1, lambda.min=ifelse(n>p,.001,.05), nlambda=100,
                    lambda, eps=1e-4, max.iter=10000, convex=TRUE, dfmax=p+1, penalty.factor=rep(1, ncol(X)),
@@ -6,7 +169,7 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
   family <- match.arg(family)
   penalty <- match.arg(penalty)
   if (!inherits(X, "matrix")) {
-    tmp <- try(X <- model.matrix(~0+., data=X), silent=TRUE)
+    tmp <- try(X <- stats::model.matrix(~0+., data=X), silent=TRUE)
     if (inherits(tmp, "try-error")) stop("X must be a matrix or able to be coerced to a matrix", call.=FALSE)
   }
   if (typeof(X)=="integer") storage.mode(X) <- "double"

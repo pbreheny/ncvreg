@@ -5,7 +5,7 @@
 \alias{print.summary.ncvreg}
 \title{Summary method for ncvreg objects}
 \usage{
-\method{summary}{ncvreg}(object, lambda, which, number, cutoff, sigma, ...)
+\method{summary}{ncvreg}(object, lambda, which, number, cutoff, sort = TRUE, sigma, ...)
 
 \method{print}{summary.ncvreg}(x, digits, ...)
 }
@@ -23,6 +23,8 @@ features with the lowest mfdr values, regardless of whether they were selected. 
 
 \item{cutoff}{Alternatively, specifying for example \code{cutoff=0.3} will report inference for all features with mfdr under 30\%.
 If both \code{number} and \code{cutoff} are specified, the intersection between both sets of features is reported.}
+
+\item{sort}{Should the results be sorted by \code{mfdr}? (default: TRUE)}
 
 \item{sigma}{For linear regression models, users can supply an estimate of the residual standard deviation.
 The default is to use RSS / DF, where degrees of freedom are approximated using the number of nonzero coefficients.}
@@ -76,6 +78,9 @@ summary(fit, lambda=0.08, number=3)
 summary(fit, lambda=0.08, number=Inf)
 summary(fit, lambda=0.08, cutoff=0.5)
 summary(fit, lambda=0.08, number=3, cutoff=0.5)
+summary(fit, lambda=0.08, number=5, cutoff=0.1)
+summary(fit, lambda=0.08, number=Inf, sort=FALSE)
+summary(fit, lambda=0.08, number=3, cutoff=0.5, sort=FALSE)
 
 # If X and y are not returned with the fit, they must be supplied
 fit <- ncvreg(Heart$X, Heart$y, family="binomial", returnX=FALSE)

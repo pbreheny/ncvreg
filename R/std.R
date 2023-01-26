@@ -22,6 +22,7 @@
 #' S <- std(X)
 #' apply(S, 2, sum)
 #' apply(S, 2, function(x) mean(x^2))
+#' @export std
 
 std <- function(X) {
   if (typeof(X) == 'integer') storage.mode(X) <- 'double'
@@ -29,7 +30,7 @@ std <- function(X) {
     if (is.numeric(X)) {
       X <- matrix(as.double(X), ncol=1)
     } else {
-      tmp <- try(X <- model.matrix(~0+., data=X), silent=TRUE)
+      tmp <- try(X <- stats::model.matrix(~0+., data=X), silent=TRUE)
       if (inherits(tmp, "try-error")) stop("X must be a matrix or able to be coerced to a matrix", call.=FALSE)
     }
   }

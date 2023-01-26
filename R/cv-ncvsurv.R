@@ -1,9 +1,12 @@
+#' @rdname cv.ncvreg
+#' @export
+
 cv.ncvsurv <- function(X, y, ..., cluster, nfolds=10, seed, fold, se=c('quick', 'bootstrap'), returnY=FALSE, trace=FALSE) {
   se <- match.arg(se)
 
   # Coersion
   if (!inherits(X, "matrix")) {
-    tmp <- try(X <- model.matrix(~0+., data=X), silent=TRUE)
+    tmp <- try(X <- stats::model.matrix(~0+., data=X), silent=TRUE)
     if (inherits(tmp, "try-error")) stop("X must be a matrix or able to be coerced to a matrix", call.=FALSE)
   }
   if (storage.mode(X)=="integer") storage.mode(X) <- "double"
@@ -70,7 +73,7 @@ cv.ncvsurv <- function(X, y, ..., cluster, nfolds=10, seed, fold, se=c('quick', 
   if (se == "quick") {
     L <- loss.ncvsurv(y, Y, total=FALSE)
     cve <- apply(L, 2, sum)/sum(fit$fail)
-    cvse <- apply(L, 2, sd)*sqrt(nrow(L))/sum(fit$fail)
+    cvse <- apply(L, 2, stats::sd)*sqrt(nrow(L))/sum(fit$fail)
   } else {
     cve <- as.double(loss.ncvsurv(y, Y))/sum(fit$fail)
     cvse <- se.ncvsurv(y, Y)/sum(fit$fail)
