@@ -22,10 +22,10 @@ jobs:
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: |
-            covr
-            glmnet
-            pROC
-            survival
+            any::covr
+            any::glmnet
+            any::pROC
+            any::survival
           needs: coverage
 
       - name: Test coverage
