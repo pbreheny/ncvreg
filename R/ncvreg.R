@@ -235,6 +235,7 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
     a <- rep(mean(y), nlambda)
     b <- matrix(res[[1]], p, nlambda)
     loss <- res[[2]]
+    Eta <- matrix(fit[[3]], nrow=n) + mean(y)
     iter <- res[[3]]
   } else {
     if (family=="binomial") {
@@ -283,11 +284,11 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
                         alpha = alpha,
                         convex.min = convex.min,
                         loss = loss,
+                        linear.predictors = Eta,
                         penalty.factor = penalty.factor,
-                        n = n),
+                        n = n,
+                        y = y),
                    class = "ncvreg")
-  if (family=="poisson") val$y <- y
-  if (family=="binomial") val$Eta <- Eta
   if (missing(returnX)) {
     if (utils::object.size(XX) > 1e8) {
       warning("Due to the large size of X (>100 Mb), returnX has been turned off.\nTo turn this message off, explicitly specify returnX=TRUE or returnX=FALSE).")
@@ -298,7 +299,6 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
   }
   if (returnX) {
     val$X <- XX
-    val$y <- yy
   }
   val
 }
