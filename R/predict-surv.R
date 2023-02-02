@@ -91,9 +91,9 @@ predict.ncvsurv <- function(object, X, type=c("link", "response", "survival",
   if (type=='response') return(drop(exp(eta)))
 
   if (!missing(lambda)) {
-    W <- (1-x)*exp(object$Eta)[, l, drop=FALSE] + x*exp(object$Eta)[, r, drop=FALSE]
+    W <- (1-x)*exp(object$linear.predictors)[, l, drop=FALSE] + x*exp(object$linear.predictors)[, r, drop=FALSE]
   } else {
-    W <- exp(object$Eta)[, which, drop=FALSE]
+    W <- exp(object$linear.predictors)[, which, drop=FALSE]
   }
   if (type == 'survival' & ncol(W) > 1) stop('Can only return type="survival" for a single lambda value', call.=FALSE)
   if (type == 'survival') val <- vector('list', length(eta))

@@ -151,7 +151,7 @@ local_mfdr <- function(fit, lambda, X=NULL, y=NULL, method=c('ashr', 'kernel'), 
     l <- floor(ind)
     r <- ceiling(ind)
     x <- ind %% 1
-    Eta <- (1-x)*fit$Eta[,l] + x*fit$Eta[,r]
+    Eta <- (1-x)*fit$linear.predictors[,l] + x*fit$linear.predictors[,r]
     rsk <- rev(cumsum(rev(exp(Eta))))
     P <- outer(exp(Eta), rsk, '/')
     P[upper.tri(P)] <- 0
