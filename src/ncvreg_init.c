@@ -60,6 +60,17 @@ double sqsum(double *X, int n, int j) {
   return(val);
 }
 
+// Pr(y=1) for binomial
+double p_binomial(double eta) {
+  if (eta > 10) {
+    return(1);
+  } else if (eta < -10) {
+    return(0);
+  } else {
+    return(exp(eta)/(1+exp(eta)));
+  }
+}
+
 double sum(double *x, int n) {
   double val=0;
   for (int i=0;i<n;i++) val += x[i];
