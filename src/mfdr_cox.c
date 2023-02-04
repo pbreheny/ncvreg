@@ -18,7 +18,7 @@ SEXP mfdr_cox(SEXP fit) {
   int p = ncols(getListElement(fit, "X"));
   double *X = REAL(getListElement(fit, "X"));
   double *d = REAL(getListElement(fit, "fail"));
-  double *Eta = REAL(getListElement(fit, "Eta"));
+  double *Eta = REAL(getListElement(fit, "linear.predictors"));
   double *lambda = REAL(getListElement(fit, "lambda"));
   double alpha = REAL(getListElement(fit, "alpha"))[0];
   double *m = REAL(getListElement(fit, "penalty.factor"));

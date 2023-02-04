@@ -6,8 +6,8 @@ p <- 50
 X <- matrix(rnorm(n*p), ncol=p)
 y <- rpois(n, 1)
 beta <- glm(y~X, family="poisson")$coef
-scad <- coef(ncvreg(X,y,lambda=0,family="poisson",penalty="SCAD",eps=.0001))
-mcp <- coef(ncvreg(X,y,lambda=0, family="poisson",penalty="MCP", eps=.0001))
+scad <- coef(ncvreg(X, y, lambda.min=0, family="poisson", penalty="SCAD", eps=.0001), lambda=0)
+mcp <- coef(ncvreg(X, y, lambda.min=0, family="poisson", penalty="MCP", eps=.0001), lambda=0)
 expect_equivalent(scad, beta,tolerance=.01)
 expect_equivalent(mcp, beta,tolerance=.01)
 
