@@ -141,6 +141,14 @@ ncvreg:::loss.ncvsurv(y, eta)
 # Summary
 summary(fit, which=10)
 
+# Linear predictors + residuals
+fit <- ncvsurv(X, y, lambda.min=0, eps=1e-12)
+sfit <- coxph(y~X)
+expect_equivalent(fit$linear.predictors[, 100], sfit$linear.predictors[order(y)])
+r1 <- residuals(fit, lambda=0)
+r2 <- residuals(sfit, type='deviance')
+expect_equivalent(residuals(fit, lambda=0), residuals(sfit, type='deviance'), tolerance=0.1)
+
 #############################################################
 # cox survival predictions agree with Kaplan-Meier
 #############################################################

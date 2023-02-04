@@ -9,7 +9,8 @@ double sqsum(double *x, int n, int j);
 double MCP(double z, double l1, double l2, double gamma, double v);
 double SCAD(double z, double l1, double l2, double gamma, double v);
 double lasso(double z, double l1, double l2, double v);
-double gLoss(double *r, int n);
+double g_loss(double *r, int n);
+
 
 // Memory handling, output formatting (Gaussian)
 SEXP cleanupRawG(double *a, double *v, double *z, int *active, SEXP beta, SEXP loss, SEXP iter, SEXP resid) {
@@ -77,7 +78,7 @@ SEXP rawfit_gaussian(SEXP X_, SEXP y_, SEXP init_, SEXP r_, SEXP xtx_, SEXP pena
     for (int j=0; j<p; j++) v[j] = REAL(xtx_)[j];
   }
   double *z = Calloc(p, double);
-  double sdy = sqrt(gLoss(y, n)/n);
+  double sdy = sqrt(g_loss(y, n)/n);
 
   // Fit
   while (INTEGER(iter)[0] < max_iter) {
@@ -137,7 +138,7 @@ SEXP rawfit_gaussian(SEXP X_, SEXP y_, SEXP init_, SEXP r_, SEXP xtx_, SEXP pena
     }
     if (violations==0) break;
   }
-  REAL(loss)[0] = gLoss(r, n);
+  REAL(loss)[0] = g_loss(r, n);
   res = cleanupRawG(a, v, z, active, beta, loss, iter, resid);
   UNPROTECT(4);
   return(res);

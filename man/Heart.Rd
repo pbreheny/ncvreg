@@ -3,7 +3,6 @@
 \docType{data}
 \name{Heart}
 \alias{Heart}
-\alias{heart}
 \title{Risk factors associated with heart disease}
 \format{
 A list of two objects: \code{y} and \code{X}

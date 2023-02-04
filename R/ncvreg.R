@@ -235,14 +235,10 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
     a <- rep(mean(y), nlambda)
     b <- matrix(res[[1]], p, nlambda)
     loss <- res[[2]]
-    Eta <- matrix(fit[[3]], nrow=n) + mean(y)
-    iter <- res[[3]]
+    Eta <- matrix(res[[3]], nrow=n) + mean(y)
+    iter <- res[[4]]
   } else {
-    if (family=="binomial") {
-      res <- .Call("cdfit_binomial", XX, yy, penalty, lambda, eps, as.integer(max.iter), as.double(gamma), penalty.factor, alpha, as.integer(dfmax), as.integer(user.lambda | any(penalty.factor==0)), as.integer(warn))
-    } else if (family=="poisson") {
-      res <- .Call("cdfit_poisson", XX, yy, penalty, lambda, eps, as.integer(max.iter), as.double(gamma), penalty.factor, alpha, as.integer(dfmax), as.integer(user.lambda | any(penalty.factor==0)), as.integer(warn))
-    }
+    res <- .Call("cdfit_glm", XX, yy, family, penalty, lambda, eps, as.integer(max.iter), as.double(gamma), penalty.factor, alpha, as.integer(dfmax), as.integer(user.lambda | any(penalty.factor==0)), as.integer(warn))
     a <- res[[1]]
     b <- matrix(res[[2]], p, nlambda)
     loss <- res[[3]]
@@ -257,7 +253,7 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
   iter <- iter[ind]
   lambda <- lambda[ind]
   loss <- loss[ind]
-  if (family=="binomial") Eta <- Eta[, ind]
+  Eta <- Eta[, ind]
   if (warn & sum(iter)==max.iter) warning("Maximum number of iterations reached")
 
   ## Local convexity?
@@ -272,7 +268,9 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
   ## Names
   varnames <- if (is.null(colnames(X))) paste("V", 1:ncol(X), sep="") else colnames(X)
   varnames <- c("(Intercept)", varnames)
-  dimnames(beta) <- list(varnames, lamNames(lambda))
+  dimnames(beta) <- list(varnames, lam_names(lambda))
+  obsnames <- if (is.null(rownames(X))) 1:nrow(X) else rownames(X)
+  dimnames(Eta) <- list(obsnames, lam_names(lambda))
 
   ## Output
   val <- structure(list(beta = beta,

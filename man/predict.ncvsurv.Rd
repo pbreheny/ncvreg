@@ -8,7 +8,8 @@
 \method{predict}{ncvsurv}(
   object,
   X,
-  type = c("link", "response", "survival", "median", "coefficients", "vars", "nvars"),
+  type = c("link", "response", "survival", "hazard", "median", "coefficients", "vars",
+    "nvars"),
   lambda,
   which = 1:length(object$lambda),
   ...

@@ -20,7 +20,6 @@
 residuals.ncvreg <- function(object, lambda, which=1:length(object$lambda), drop=TRUE, ...) {
   
   # Calculate matrix of residuals
-  print('yo')
   if (inherits(object, 'ncvsurv')) {
     for (j in 1:length(object$lambda)) {
       h <- suppressWarnings(predict(object, which=j, type='hazard')(object$time))

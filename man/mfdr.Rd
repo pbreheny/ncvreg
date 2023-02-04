@@ -34,8 +34,6 @@ correlated.  For an alternative way of estimating the mFDR, typically more
 accurate in highly correlated cases, see \code{\link{perm.ncvreg}}.
 }
 \examples{
-
-
 # Linear regression --------------------------------
 data(Prostate)
 fit <- ncvreg(Prostate$X, Prostate$y)

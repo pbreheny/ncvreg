@@ -19,7 +19,6 @@
 #'   \item{age}{Age of subject}
 #' }
 #'
-#' @aliases heart
 #' @references
 #' \itemize{
 #'   \item Hastie T, Tibshirani R, and Friedman J. (2001). *The Elements of
