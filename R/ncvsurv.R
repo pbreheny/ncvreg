@@ -215,8 +215,10 @@ ncvsurv <- function(X, y, penalty=c("MCP", "SCAD", "lasso"), gamma=switch(penalt
 
   ## Names
   varnames <- if (is.null(colnames(X))) paste("V", 1:ncol(X), sep="") else colnames(X)
-  dimnames(beta) <- list(varnames, lamNames(lambda))
-
+  dimnames(beta) <- list(varnames, lam_names(lambda))
+  obsnames <- if (is.null(rownames(X))) 1:nrow(X) else rownames(X)
+  dimnames(Eta) <- list(obsnames, lam_names(lambda))
+  
   ## Output
   val <- structure(list(beta = beta,
                         iter = iter,
@@ -231,7 +233,7 @@ ncvsurv <- function(X, y, penalty=c("MCP", "SCAD", "lasso"), gamma=switch(penalt
                         time = yy,
                         fail = Delta,
                         order = tOrder,
-                        linear.predictors = sweep(Eta, 2, offset, "-")),
+                        linear.predictors = sweep(Eta, 2, colMeans(Eta), '-')),
                    class = c("ncvsurv", "ncvreg"))
   if (missing(returnX)) {
     if (utils::object.size(XX) > 1e8) {

@@ -1,7 +1,7 @@
 #include <math.h>
 #include <string.h>
-#include "Rinternals.h"
-#include "R_ext/Rdynload.h"
+#include <Rinternals.h>
+#include <R_ext/Rdynload.h>
 #include <R.h>
 #include <R_ext/Applic.h>
 double crossprod(double *X, double *y, int n, int j);
@@ -9,58 +9,62 @@ double sum(double *x, int n);
 double MCP(double z, double l1, double l2, double gamma, double v);
 double SCAD(double z, double l1, double l2, double gamma, double v);
 double lasso(double z, double l1, double l2, double v);
+double g_loss(double *r, int n);
 
 // Memory handling, output formatting (Gaussian)
-SEXP cleanupG(double *a, double *r, int *e1, int *e2, double *z, SEXP beta, SEXP loss, SEXP iter) {
+SEXP cleanup_gaussian(double *a, double *r, int *e1, int *e2, double *z, SEXP beta, SEXP loss, SEXP Eta, SEXP iter) {
   Free(a);
   Free(r);
   Free(e1);
   Free(e2);
   Free(z);
   SEXP res;
-  PROTECT(res = allocVector(VECSXP, 3));
+  PROTECT(res = allocVector(VECSXP, 4));
   SET_VECTOR_ELT(res, 0, beta);
   SET_VECTOR_ELT(res, 1, loss);
-  SET_VECTOR_ELT(res, 2, iter);
+  SET_VECTOR_ELT(res, 2, Eta);
+  SET_VECTOR_ELT(res, 3, iter);
   UNPROTECT(1);
   return(res);
-}
-
-// Gaussian loss
-double gLoss(double *r, int n) {
-  double l = 0;
-  for (int i=0;i<n;i++) l = l + pow(r[i],2);
-  return(l);
 }
 
 // Coordinate descent for gaussian models
 SEXP cdfit_gaussian(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP max_iter_, SEXP gamma_, SEXP multiplier, SEXP alpha_, SEXP dfmax_, SEXP user_) {
 
-  // Declarations
+  // Lengths/dimensions
   int n = length(y_);
   int p = length(X_)/n;
   int L = length(lambda);
-  SEXP res, beta, loss, iter;
-  PROTECT(beta = allocVector(REALSXP, L*p));
-  double *b = REAL(beta);
-  for (int j=0; j<(L*p); j++) b[j] = 0;
-  PROTECT(loss = allocVector(REALSXP, L));
-  PROTECT(iter = allocVector(INTSXP, L));
-  for (int i=0; i<L; i++) INTEGER(iter)[i] = 0;
-  double *a = Calloc(p, double); // Beta from previous iteration
-  for (int j=0; j<p; j++) a[j]=0;
+
+  // Pointers
   double *X = REAL(X_);
   double *y = REAL(y_);
   const char *penalty = CHAR(STRING_ELT(penalty_, 0));
   double *lam = REAL(lambda);
-  double eps = REAL(eps_)[0];
-  int max_iter = INTEGER(max_iter_)[0];
-  int tot_iter = 0;
+  double eps = REAL(eps_)[0];  
   double gamma = REAL(gamma_)[0];
   double *m = REAL(multiplier);
   double alpha = REAL(alpha_)[0];
+  int max_iter = INTEGER(max_iter_)[0];
+  int tot_iter = 0;
   int dfmax = INTEGER(dfmax_)[0];
   int user = INTEGER(user_)[0];
+
+  // Outcome
+  SEXP res, beta, loss, Eta, iter;
+  PROTECT(beta = allocVector(REALSXP, L*p));
+  for (int j=0; j<(L*p); j++) REAL(beta)[j] = 0;
+  double *b = REAL(beta);
+  PROTECT(loss = allocVector(REALSXP, L));
+  for (int i=0; i<L; i++) REAL(loss)[i] = 0;
+  PROTECT(Eta = allocVector(REALSXP, L*n));
+  for (int j=0; j<(L*n); j++) REAL(Eta)[j] = 0;
+  PROTECT(iter = allocVector(INTSXP, L));
+  for (int i=0; i<L; i++) INTEGER(iter)[i] = 0;
+
+  // Intermediate quantities
+  double *a = Calloc(p, double);
+  for (int j=0; j<p; j++) a[j]=0;
   double *r = Calloc(n, double);
   for (int i=0; i<n; i++) r[i] = y[i];
   double *z = Calloc(p, double);
@@ -73,7 +77,7 @@ SEXP cdfit_gaussian(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEX
   int lstart;
 
   // If lam[0]=lam_max, skip lam[0] -- closed form sol'n available
-  double rss = gLoss(r,n);
+  double rss = g_loss(r,n);
   if (user) {
     lstart = 0;
   } else {
@@ -200,9 +204,10 @@ SEXP cdfit_gaussian(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEX
         break;
       }
     }
-    REAL(loss)[l] = gLoss(r, n);
+    REAL(loss)[l] = g_loss(r, n);
+    for (int i=0; i<n; i++) REAL(Eta)[n*l+i] = y[i] - r[i];
   }
-  res = cleanupG(a, r, e1, e2, z, beta, loss, iter);
-  UNPROTECT(3);
+  res = cleanup_gaussian(a, r, e1, e2, z, beta, loss, Eta, iter);
+  UNPROTECT(4);
   return(res);
 }

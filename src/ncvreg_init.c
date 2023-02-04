@@ -6,10 +6,9 @@
 #include <R_ext/Rdynload.h>
 #include <R_ext/Applic.h>
 
-extern SEXP cdfit_binomial(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP cdfit_cox_dh(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP cdfit_gaussian(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP cdfit_poisson(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP cdfit_glm(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP cdfit_cox_dh(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP rawfit_gaussian(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP maxprod(SEXP, SEXP, SEXP, SEXP);
 extern SEXP mfdr_binomial(SEXP);
@@ -60,6 +59,13 @@ double sqsum(double *X, int n, int j) {
   return(val);
 }
 
+// Gaussian loss
+double g_loss(double *r, int n) {
+  double l = 0;
+  for (int i=0;i<n;i++) l = l + pow(r[i],2);
+  return(l);
+}
+
 // Pr(y=1) for binomial
 double p_binomial(double eta) {
   if (eta > 10) {
@@ -105,11 +111,10 @@ double lasso(double z, double l1, double l2, double v) {
 }
 
 static const R_CallMethodDef CallEntries[] = {
-  {"cdfit_binomial", (DL_FUNC) &cdfit_binomial, 12},
-  {"cdfit_cox_dh",   (DL_FUNC) &cdfit_cox_dh,   12},
   {"cdfit_gaussian", (DL_FUNC) &cdfit_gaussian, 11},
+  {"cdfit_glm", (DL_FUNC) &cdfit_glm, 13},
+  {"cdfit_cox_dh",   (DL_FUNC) &cdfit_cox_dh,   12},
   {"rawfit_gaussian", (DL_FUNC) &rawfit_gaussian, 12},
-  {"cdfit_poisson",  (DL_FUNC) &cdfit_poisson,  12},
   {"maxprod",        (DL_FUNC) &maxprod,         4},
   {"mfdr_binomial",  (DL_FUNC) &mfdr_binomial,   1},
   {"mfdr_cox",       (DL_FUNC) &mfdr_cox,        1},

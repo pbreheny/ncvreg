@@ -24,8 +24,6 @@
 #' @seealso \code{\link{ncvreg}}, \code{\link{ncvsurv}},
 #' \code{\link{plot.mfdr}}, \code{\link{perm.ncvreg}}
 #' @examples
-#' 
-#' 
 #' # Linear regression --------------------------------
 #' data(Prostate)
 #' fit <- ncvreg(Prostate$X, Prostate$y)
@@ -100,6 +98,6 @@ mfdr <- function(fit, X) {
   mFDR <- EF/S
   mFDR[S==0] <- 0
   df <- data.frame(EF=EF, S=S, mFDR=mFDR)
-  rownames(df) <- lamNames(fit$lambda)
+  rownames(df) <- lam_names(fit$lambda)
   structure(df, class=c("mfdr", "data.frame"))
 }

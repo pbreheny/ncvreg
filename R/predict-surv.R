@@ -67,7 +67,7 @@
 #' predict(fit, type="nvars", lambda=c(0.1, 0.01))
 #' @export
 
-predict.ncvsurv <- function(object, X, type=c("link", "response", "survival",
+predict.ncvsurv <- function(object, X, type=c("link", "response", "survival", "hazard",
                                               "median", "coefficients", "vars",
                                               "nvars"),
                             lambda, which=1:length(object$lambda), ...) {
@@ -81,12 +81,17 @@ predict.ncvsurv <- function(object, X, type=c("link", "response", "survival",
     r <- ceiling(ind)
     x <- ind %% 1
     beta <- (1-x)*object$beta[, l, drop=FALSE] + x*object$beta[, r, drop=FALSE]
-    colnames(beta) <- lamNames(lambda)
+    colnames(beta) <- lam_names(lambda)
   } else {
     beta <- object$beta[, which, drop=FALSE]
   }
 
-  eta <- X %*% beta
+  if (missing(X)) {
+    eta <- matrix(0, 1, 1)
+    warning('Returning "baseline" prediction; supply X for more interesting prediction')
+  } else {
+    eta <- X %*% beta
+  }
   if (type=='link') return(drop(eta))
   if (type=='response') return(drop(exp(eta)))
 
@@ -95,8 +100,9 @@ predict.ncvsurv <- function(object, X, type=c("link", "response", "survival",
   } else {
     W <- exp(object$linear.predictors)[, which, drop=FALSE]
   }
-  if (type == 'survival' & ncol(W) > 1) stop('Can only return type="survival" for a single lambda value', call.=FALSE)
-  if (type == 'survival') val <- vector('list', length(eta))
+
+  if (type %in% c('survival', 'hazard') & ncol(W) > 1) stop('Can only return type="survival" for a single lambda value', call.=FALSE)
+  if (type %in% c('survival', 'hazard')) val <- vector('list', length(eta))
   if (type == 'median') val <- matrix(NA, nrow(eta), ncol(eta))
   for (j in 1:ncol(eta)) {
     # Estimate baseline hazard
@@ -104,18 +110,21 @@ predict.ncvsurv <- function(object, X, type=c("link", "response", "survival",
     r <- rev(cumsum(rev(w)))
     a <- ifelse(object$fail, (1-w/r)^(1/w), 1)
     S0 <- c(1, cumprod(a))
+    H0 <- c(0, cumsum(1-a))
     x <- c(0, object$time)
     for (i in 1:nrow(eta)) {
       S <- S0^exp(eta[i,j])
-      if (type == 'survival') val[[i]] <- stats::approxfun(x, S, method='constant', ties=function(x) utils::tail(x, 1))
-      if (type == 'median') {
+      H <- H0*exp(eta[i,j])
+      if (type == 'survival') val[[i]] <- approxfun(x, S, method='constant', ties="ordered")
+      else if (type == 'hazard') val[[i]] <- approxfun(x, H, method='constant', ties="ordered")
+      else if (type == 'median') {
         if (any(S < 0.5)) {
           val[i,j] <- x[min(which(S < .5))]
         }
       }
     }
   }
-  if (type == 'survival') {
+  if (type %in% c('survival', 'hazard')) {
     if (nrow(eta)==1) val <- val[[1]]
     class(val) <- c('ncvsurv.func', class(val))
     attr(val, 'time') <- object$time

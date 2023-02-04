@@ -136,7 +136,6 @@ ncvfit <- function(X, y, init=rep(0, ncol(X)), r, xtx, penalty=c("MCP", "SCAD", 
                         gamma = gamma,
                         alpha = alpha,
                         loss = loss,
-                        linear.predictors = Eta,
                         penalty.factor = penalty.factor,
                         n = length(y)))
   val
