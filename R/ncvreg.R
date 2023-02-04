@@ -253,7 +253,7 @@ ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("M
   iter <- iter[ind]
   lambda <- lambda[ind]
   loss <- loss[ind]
-  Eta <- Eta[, ind]
+  Eta <- Eta[, ind, drop=FALSE]
   if (warn & sum(iter)==max.iter) warning("Maximum number of iterations reached")
 
   ## Local convexity?

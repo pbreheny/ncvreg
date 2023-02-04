@@ -18,7 +18,7 @@ SEXP mfdr_binomial(SEXP fit) {
   int n = INTEGER(getListElement(fit, "n"))[0];
   int p = ncols(getListElement(fit, "X"));
   double *X = REAL(getListElement(fit, "X"));
-  double *Eta = REAL(getListElement(fit, "Eta"));
+  double *Eta = REAL(getListElement(fit, "linear.predictors"));
   double *lambda = REAL(getListElement(fit, "lambda"));
   double alpha = REAL(getListElement(fit, "alpha"))[0];
   double *m = REAL(getListElement(fit, "penalty.factor"));
