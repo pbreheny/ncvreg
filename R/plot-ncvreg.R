@@ -61,7 +61,6 @@ plot.ncvreg <- function(x, alpha=1, log.l=FALSE, shade=TRUE, col, ...) {
       col <- col[ind]
     } else {
       col <- rep_len(col, p)
-      print(col)
     }
   }
   line.args <- list(col=col, lwd=1+2*exp(-p/20), lty=1)
