@@ -18,13 +18,13 @@
 #' c("\\Sexpr[results=rd]{tools:::Rd_expr_doi(\"#1\")}",
 #' "10.1214/10-AOAS388")\Sexpr{tools:::Rd_expr_doi("10.1214/10-AOAS388")}
 #' @examples
-#' 
 #' data(Prostate)
-#' 
 #' fit <- ncvreg(Prostate$X, Prostate$y)
 #' plot(fit)
 #' plot(fit, col="black")
 #' plot(fit, log=TRUE)
+#' fit <- ncvreg(Prostate$X, Prostate$y, penalty.factor=rep(c(1, 1, 1, Inf), 2))
+#' plot(fit, col=c('red', 'black', 'green'))  # Recycled among nonzero paths
 #' @export
 
 plot.ncvreg <- function(x, alpha=1, log.l=FALSE, shade=TRUE, col, ...) {
@@ -57,7 +57,12 @@ plot.ncvreg <- function(x, alpha=1, log.l=FALSE, shade=TRUE, col, ...) {
     col <- grDevices::hcl(h=seq(15, 375, len=max(4, p+1)), l=60, c=150, alpha=alpha)
     col <- if (p==2) col[c(1,3)] else col[1:p]
   } else {
-    col <- col[ind]
+    if (length(col) == length(x$penalty.factor)) {
+      col <- col[ind]
+    } else {
+      col <- rep_len(col, p)
+      print(col)
+    }
   }
   line.args <- list(col=col, lwd=1+2*exp(-p/20), lty=1)
   if (length(new.args)) line.args[names(new.args)] <- new.args
