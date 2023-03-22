@@ -4,10 +4,12 @@
 \alias{std}
 \title{Standardizes a design matrix}
 \usage{
-std(X)
+std(X, Xnew)
 }
 \arguments{
 \item{X}{A matrix (or object that can be coerced to a matrix, such as a data frame or numeric vector).}
+
+\item{Xnew}{Optional. If supplied, \code{X} must be the output of \code{std()} and \code{Xnew} is to be standardized in the same way. See examples for why this might be useful.}
 }
 \value{
 The standardized design matrix, with the following attribues:
@@ -31,8 +33,20 @@ for all j.  This is usually not necessary to call directly, as \code{ncvreg} int
 }
 }
 \examples{
-X <- matrix(rnorm(50), 10, 5)
-S <- std(X)
+data(Prostate)
+S <- std(Prostate$X)
 apply(S, 2, sum)
 apply(S, 2, function(x) mean(x^2))
+
+# Standardizing new observations
+X1 <- Prostate$X[1:90,]
+X2 <- Prostate$X[91:97,]
+S <- std(X1)
+head(std(S, X2))
+# Useful if you fit to a standardized X, but then get new obs:
+y <- Prostate$y[1:90]
+fit <- ncvreg(S, y)
+predict(fit, std(S, X2), lambda=0.1)
+# Same as
+predict(ncvreg(X1, y), X2, lambda=0.1)
 }
