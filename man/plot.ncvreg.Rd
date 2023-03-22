@@ -25,13 +25,13 @@ spaced colors are selected automatically.}
 Produces a plot of the coefficient paths for a fitted \code{ncvreg} object.
 }
 \examples{
-
 data(Prostate)
-
 fit <- ncvreg(Prostate$X, Prostate$y)
 plot(fit)
 plot(fit, col="black")
 plot(fit, log=TRUE)
+fit <- ncvreg(Prostate$X, Prostate$y, penalty.factor=rep(c(1, 1, 1, Inf), 2))
+plot(fit, col=c('red', 'black', 'green'))  # Recycled among nonzero paths
 }
 \references{
 Breheny P and Huang J. (2011) Coordinate descentalgorithms for
