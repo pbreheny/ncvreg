@@ -3,7 +3,7 @@
 [![CRAN version](https://img.shields.io/cran/v/ncvreg?logo=R)](https://cran.r-project.org/package=ncvreg)
 [![downloads](https://cranlogs.r-pkg.org/badges/ncvreg)](https://cran.r-project.org/package=ncvreg)
 [![R-CMD-check](https://github.com/pbreheny/ncvreg/workflows/R-CMD-check/badge.svg)](https://github.com/pbreheny/ncvreg/actions)
-[![codecov.io](https://codecov.io/github/pbreheny/ncvreg/coverage.svg?branch=master)](https://codecov.io/github/pbreheny/ncvreg?branch=master)
+[![codecov.io](https://codecov.io/github/pbreheny/ncvreg/coverage.svg?branch=master)](https://app.codecov.io/gh/pbreheny/ncvreg)
 <!-- badges: end -->
 
 # [Regularization paths for MCP and SCAD penalized regression models](https://pbreheny.github.io/ncvreg/)

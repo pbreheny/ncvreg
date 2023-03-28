@@ -1,94 +1,28 @@
 ---
-title: "Adaptive rescaling"
+title: "Standardization and adaptive rescaling"
 author: "Patrick Breheny"
 ---
 
-\section{Logistic regression with nonconvex penalties}
-\label{sec:logistic}
+When fitting penalized regression models, it is standard practice (adopted by **ncvreg**, [glmnet](https://glmnet.stanford.edu/), and many other software packages) to standardize the coefficients prior to model fitting. Specifically, this means centering and scaling each feature so that
 
-For logistic regression, it is not possible to eliminate the need for an intercept by centering the response variable.  For logistic regression, then, $\y$ will denote the original vector of 0-1 responses.  Correspondingly, although $\X$ is still standardized, it now contains an unpenalized column of 1's for the intercept, with corresponding coefficient $\beta_0$.  The expected value of $\y$ once again depends on the linear function $\be = \X\bb$, although the model is now
-\begin{align}
-\label{eq:log-model}
-P(y_i=1|x_{i1},\ldots,x_{ip}) = \pi_i = \frac{e^{\eta_i}}{1+e^{\eta_i}}.
-\end{align}
-Estimation of the coefficients is now accomplished via minimization of the objective function
-\begin{align}
-\label{eq:log-obj}
-Q_{\lambda,\gamma}(\bb) = -\frac{1}{n}\sum_{i=1}^n \left\{y_i \log{\pi_i} + (1-y_i)\log{(1-\pi_i)}\right\} + \sum_{j=1}^p p_{\lambda,\gamma}(\abs{\beta_j}).
-\end{align}
-
-Minimization can be approached by first obtaining a quadratic approximation to the loss function based on a Taylor series expansion about the value of the regression coefficients at the beginning of the current iteration, $\bb^{(m)}$.  Doing so results in the familiar form of the iteratively reweighted least squares algorithm commonly used to fit generalized linear models \citep{McCullagh1989}:
-\begin{align}
-\label{eq:log-obj-quad}
-Q_{\lambda,\gamma}(\bb) \approx \frac{1}{2n}(\yy - \X\bb)'\W(\yy-\X\bb) + \sum_{j=1}^p p_{\lambda,\gamma}(\abs{\beta_j}),
-\end{align}
-where $\yy$, the working response, is defined by
 \begin{align*}
-\yy = \X\bb^{(m)} + \W^{-1}(\y-\bp)
-\end{align*}
-and $\W$ is a diagonal matrix of weights, with elements
-\begin{align*}
-w_i = \pi_i(1-\pi_i),
-\end{align*}
-and $\bp$ is evaluated at $\bb^{(m)}$.  We focus on logistic regression here, but the same approach could be applied to fit penalized versions of any generalized linear model, provided that the quantities $\yy$ and $\W$ (as well as the residuals $\r \equiv \yy - \X\bb^{(m)}$, which depend on $\yy$ implicitly) are replaced with expressions specific to the particular response distribution and link function.
-
-With this representation, the local linear approximation (LLA) and coordinate descent (CD) algorithms can be extended to logistic regression in a rather straightforward manner.  At iteration $m$, the following two steps are taken:
-\begin{itemize}
-\item[(1)] Approximate the loss function based on $\bb^{(m)}$.
-\item[(2)] Execute one iteration of the LLA/CD algorithm, obtaining $\bb^{(m+1)}$.
-\end{itemize}
-These two steps are then iterated until convergence for each value of $\lambda$.  Note that for the coordinate descent algorithm, step (2) loops over all the covariates.  Note also that step 2 must now involve the updating of the intercept term, which may be accomplished without modification of the underlying framework by setting $\lambda=0$ for the intercept term.
-
-The local linear approximation is extended in a straightforward manner to reweighted least squares by distributing $\W$, obtaining the transformed covariates and response variable $\W^{1/2}\X$ and $\W^{1/2}\yy$, respectively.  The implications for coordinate descent algorithms are discussed in the next section.
-
-Briefly, we note that, as is the case for the traditional iteratively reweighted least squares algorithm applied to generalized linear models, neither algorithm (LLA/CD) is guaranteed to converge for logistic regression.  However, provided that adequate safeguards are in place to protect against model saturation, we have not observed failure to converge to be a problem for either algorithm.
-
-\subsection{Fixed scale solution}
-
-The presence of observation weights changes the form of the coordinate-wise updates.  Let $v_j = n^{-1}\x_j'\W\x_j$, and redefine $\r = \W^{-1}(\y-\bp)$ and 
-\begin{align}
-\label{eq:logistic-z}
-z_j &= \frac{1}{n} \x_j'\W(\yy - \Xj\bbj)\\
-  &= \frac{1}{n} \x_j'\W\r + v_j\beta_j^{(m)}.
-\end{align}
-Now, the coordinate-descent update for MCP is
-\begin{align}
-\label{mcp-log-sol}
-\beta_j \gets \begin{cases} \frac{S(z_j,\lambda)}{v_j-1/\gamma} & \text{if } \abs{z_j} \leq v_j\gamma\lambda \\
-\frac{z_j}{v_j} & \text{if } \abs{z_j} > v_j\gamma\lambda \end{cases}
-\end{align}
- for $\gamma > 1/v_j$ and for SCAD,
-\begin{align}
-\label{scad-log-sol}
-\beta_j \gets \begin{cases} \frac{S(z_j,\lambda)}{v_j} & \text{if } \abs{z_j} \leq \lambda(v_j+1) \\
-\frac{S(z_j,\gamma\lambda/(\gamma-1))}{v_j-1/(\gamma-1)} & \text{if } \lambda(v_j+1) < \abs{z_j} \leq v_j\gamma\lambda \\
-\frac{z_j}{v_j} & \text{if } \abs{z_j} > v_j\gamma\lambda \end{cases}
-\end{align}
-for $\gamma > 1+1/v_j$.  Updating of $\r$ proceeds as in the linear regression case.
-
-As is evident from comparing \eqref{eq:mcp-lin-sol}/\eqref{eq:scad-lin-sol} with \eqref{mcp-log-sol}/\eqref{scad-log-sol}, portions of both numerator and denominator are being reweighted in logistic regression.  In comparison, for linear regression, $v_j$ is always equal to 1 and this term drops out of the solution.
-
-This reweighting, however, introduces some difficulties with respect to the choice and interpretation of the $\gamma$ parameter.  In linear regression, the scaling factor by which solutions are adjusted toward their unpenalized solution is a constant ($1-1/\gamma$ for MCP, $1-1/(\gamma-1)$ for SCAD) for all values of $\lambda$ and for each covariate.  Furthermore, for standardized covariates, this constant has a universal interpretation for all linear regression problems, meaning that theoretical arguments and numerical simulations investigating $\gamma$ do not need to be rescaled and reinterpreted in the context of applied problems.
-
-In logistic regression, however, this scaling factor is constantly changing, and is different for each covariate.  This makes choosing an appropriate value for $\gamma$ difficult in applied settings and robs the parameter of a consistent interpretation.
-
-To illustrate the consequences of this issue, consider an attempt to perform logistic regression updates using $\gamma=3.7$, the value suggested for linear regression in \citet{Fan2001}.  Because $w_i$ cannot exceed 0.25, $\gamma$ cannot exceed $1/v_j$ and the solution is discontinuous and unstable.  Note that this problem does not arise from the use of any particular algorithm -- it is a direct consequence of the poorly behaved objective function with this value of $\gamma$.
-
-\subsection{Adaptive rescaling}
-
-To resolve these difficulties, we propose an adaptive rescaling of the penalty parameter $\gamma$ to match the continually changing scale of the covariates.  This can be accomplished by simply replacing $p_{\lambda,\gamma}(\abs{\beta_j})$ with $p_{\lambda,\gamma}(\abs{v_j\beta_j})$.  The algorithmic consequences for the LLA algorithm are straightforward.  For coordinate descent, the updating steps become simple extensions of the linear regression solutions:
-\begin{align*}
-\beta_j \gets \frac{f(z_j,\lambda,\gamma)}{v_j}.
+\frac{1}{n} \sum_{i=1}^n x_{ij} &= 0 \\
+\frac{1}{n} \sum_{i=1}^n x_{ij}^2 &= 1.
 \end{align*}
 
-Note that, for MCP,
+Fitting takes place on this standardized scale, but the inverse transformation is applied so that coefficients are returned on the original scale. This is appealing from a computational perspective, but also ensures equivariance with respect to the scale of the features (i.e., one obtains the same predicted values if features are measured in inches or meters, and so on).
+
+For logistic, Poisson, and Cox regression models, **ncvreg** adopts the approach of constructing quadratic approximations to the loss function before updating estimates of the regression coefficients:
+
+$$ Q_{\lambda,\gamma}(\bb) \approx \frac{1}{2n}(\yy - \X\bb)'\W(\yy-\X\bb) + \sum_{j=1}^p p_{\lambda,\gamma}(\abs{\beta_j}). $$
+
+The equivalent standardization conditions for this weighted least squares loss are
+
 \begin{align*}
-\frac{S(z_j,\lambda)}{v_j(1-1/\gamma)} = \frac{S(z_j,\lambda)}{v_j - 1/\gamma^*},
+\frac{1}{n} \sum_{i=1}^n w_i x_{ij} &= 0 \\
+\frac{1}{n} \sum_{i=1}^n w_i x_{ij}^2 &= 1.
 \end{align*}
-where $\gamma^* = \gamma / v_j$.  Thus, the adaptively rescaled solution is still minimizing the objective function \eqref{eq:log-obj-quad}, albeit with an alternate set of shape parameters $\{\gamma_j^*\}$ that are unknown until convergence is attained.
 
-Note that rescaling by $v_j$ does not affect the magnitude of the penalty ($\lambda$), only the range over which the penalty is applied ($\gamma$).  Is it logical to apply different scales to different variables?  Keep in mind that, since $\x_j'\x_j=n$ for all $j$, the rescaling factor $v_j$ will tend to be quite similar for all covariates.  However, consider the case where a covariate is predominantly associated with observations for which $\hat{\pi}_i$ is close to 0 or 1.  For such a covariate, adaptive rescaling will extend the range over which the penalization is applied.  This seems to be a reasonable course of action, as large changes in this coefficient produce only small changes in the model's fit, and provide less compelling evidence of a covariate's importance.
+However, because the approximation is iterative, the weights are continually changing and these conditions cannot simply be imposed at the outset. There are (at least) two reasonable courses of action here. One is to simply impose the original standardization conditions and work around the fact that features are no longer standardized during the coordinate descent fitting steps. The other is to continuously enforce the weighted standardization conditions; in **ncvreg**, we refer to this as "adaptive rescaling."
 
-SCAD does not have the property that its adaptively rescaled solution is equal to a solution of the regular SCAD objective function with different shape parameters.  This is due to the fact that the scale of the penalty is tied to the scale of the coefficient by the $\theta < \lambda$ clause.  One could make this clause more flexible by reparameterizing SCAD so that $p'(\theta)=\lambda$ in the region $\theta < \gamma_2\lambda$, where $\gamma_2$ would be an additional tuning parameter.  In this generalized case, adaptively rescaled SCAD would minimize a version of the original objective function in which the $\gamma$ parameters are rescaled by $v_j$, as in the MCP case.
-
-As we will see in Section 5, this adaptive rescaling increases interpretability and makes it easier to select $\gamma$.
+For lasso-penalized models, the distinction is not particularly important. However, for MCP and SCAD, adaptive rescaling changes the meaning of the [$\gamma$ parameter](penalties.html). For example, if $w_i=0.25$ for all $i$ (as might be the case in logistic regression), then we would need to set $\gamma=12$ in order to obtain a model that behaves like $\gamma=3$ would for linear regression. To ensure a consistent meaning for $\gamma$ across different models (i.e., that $\gamma=3$ remains a reasonable default in terms of balancing bias and variance), we use adaptive rescaling in the **ncvreg** package.

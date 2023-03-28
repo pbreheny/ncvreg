@@ -1,8 +1,7 @@
-citHeader("To cite ncvreg in publications use:")
-
-citEntry(
-  entry="Article",
-  author = personList(as.person("Patrick Breheny"),as.person("Jian Huang")),
+bibentry(
+  bibtype="Article",
+  author = c(person(given="Patrick", family="Breheny"),
+             person(given="Jian", family="Huang")),
   title = "Coordinate descent algorithms for nonconvex penalized regression,
 	with applications to biological feature selection",
   journal = "Annals of Applied Statistics",
@@ -10,6 +9,5 @@ citEntry(
   volume = "5",
   pages = "232--253",
   number = "1",
-  textVersion = "Breheny, P. and Huang, J. (2011) Coordinate descent algorithms
-for nonconvex penalized regression, with applications to biological
-feature selection. Ann. Appl. Statist., 5: 232-253.")
+  doi = "10.1214/10-AOAS388",
+  url = "https://doi.org/10.1214/10-AOAS388")
