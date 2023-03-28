@@ -1,3 +1,20 @@
+# ncvreg 3.14.0 (2023-03-28)
+  * New: residuals() method
+  * New: std() can now be applied to new data
+  * New: summary.ncvreg() now offers sort option; fixes #13
+  * Change: fir() deprecated
+  * Change: local_mfdr() allows user to specify sigma; also uses CV if
+    called with cv object
+  * Fixed: Manual color palettes now recycled correctly; fixes #40;
+    thank you to Logan Harris for pointing this out
+  * Fixed: mfdr now works for Poisson
+  * Documentation: Adding vignettes on other CV criteria, adaptive
+    rescaling
+  * Documentation: References reformatted, URLs updated, DOIs added
+  * Internal: C code for binomial, poisson now unified under glm
+    structure
+  * Internal: Now using roxygen2 for all documentation
+
 # ncvreg 3.13.0 (2021-03-26)
   * New: Options 'xtx' and 'r' for ncvfit()
   * Internal: cv.ncvreg() now uses less memory (returnX off)

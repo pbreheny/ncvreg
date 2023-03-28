@@ -19,6 +19,8 @@ navbar:
         href: articles/web/models.html
       - text: Penalties
         href: articles/web/penalties.html
+      - text: Standardization
+        href: articles/web/adaptive-rescaling.html
       - text: 'Inference: Marginal false discovery rates'
         href: articles/web/inference-mfdr.html
       - text: 'Inference: Local mfdr'
@@ -54,10 +56,12 @@ reference:
   - AUC.cv.ncvsurv
 - title: Plotting and extracting model features
   contents:
+  - logLik.ncvreg
   - predict.ncvreg
   - predict.ncvsurv
   - plot.ncvreg
   - plot.ncvsurv.func
+  - residuals.ncvreg
 - title: Inference
   contents:
   - local_mfdr
