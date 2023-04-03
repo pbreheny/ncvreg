@@ -114,11 +114,6 @@
 cv.ncvreg <- function(X, y, ..., cluster, nfolds=10, seed, fold, returnY=FALSE, trace=FALSE) {
 
   # Coercion
-  if ('cv.ind' %in% names(list(...))) {
-    seed <- list(...)$cv.ind
-    warning("cv.ind has been deprecated and renamed fold; please use fold= in the future,\n
-as support for cv.ind() is likely to be discontinued at some point.")
-  }
   if (!is.matrix(X)) {
     tmp <- try(X <- stats::model.matrix(~0+., data=X), silent=TRUE)
     if (inherits(tmp, "try-error")) stop("X must be a matrix or able to be coerced to a matrix", call.=FALSE)
@@ -137,7 +132,11 @@ as support for cv.ind() is likely to be discontinued at some point.")
     if (!identical(sort(unique(y)), 0:1)) y <- as.double(y==max(y))
   }
 
-  if (!missing(seed)) set.seed(seed)
+  if (!missing(seed)) {
+    original_seed <- .GlobalEnv$.Random.seed
+    on.exit(.GlobalEnv$.Random.seed <- original_seed)
+    set.seed(seed)
+  }
   sde <- sqrt(.Machine$double.eps)
   if (missing(fold)) {
     if (fit$family=="binomial") {

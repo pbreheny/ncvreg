@@ -23,7 +23,11 @@ cv.ncvsurv <- function(X, y, ..., cluster, nfolds=10, seed, fold, se=c('quick', 
   # Set up folds
   n <- nrow(X)
   sde <- sqrt(.Machine$double.eps)
-  if (!missing(seed)) set.seed(seed)
+  if (!missing(seed)) {
+    original_seed <- .GlobalEnv$.Random.seed
+    on.exit(.GlobalEnv$.Random.seed <- original_seed)
+    set.seed(seed)
+  }
   if (missing(fold)) {
     ind1 <- which(fit$fail==1)
     ind0 <- which(fit$fail==0)
