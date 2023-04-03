@@ -1,3 +1,7 @@
+# ncvreg 3.14.1 (2023-04-03)
+  * Fixed: cv.ncvreg(), cv.ncvsurv() no longer affect seed in global
+    environment if seed is specified
+
 # ncvreg 3.14.0 (2023-03-28)
   * New: residuals() method
   * New: std() can now be applied to new data
