@@ -1,9 +1,14 @@
 library(survival, quietly=TRUE)
-source('_median-survfit.R')
+if (interactive()) {
+  library(tinytest)
+  source('inst/tinytest/_median-survfit.R')
+} else {
+  source('_median-survfit.R')
+}
 
-##################################################################
-# ncvsurv works for simple cox regression, no censoring
-##################################################################
+
+# ncvsurv works for simple cox regression, no censoring -------------------
+
 n <- 10
 X <- matrix(runif(n), n, 1)
 y <- Surv(sort(rexp(n, X), decreasing=TRUE), rep(1,n))
@@ -17,9 +22,9 @@ mcp <- coef(ncvsurv(X, y, lambda.min=0, penalty="MCP", eps=.0001), lambda=0)
 expect_equivalent(scad, beta, tolerance=.01)
 expect_equivalent(mcp, beta, tolerance=.01)
 
-####################################################
-# ncvsurv works for simple cox regression
-####################################################
+
+# ncvsurv works for simple cox regression ---------------------------------
+
 n <- 30
 y <- Surv(rexp(n), rbinom(n, 1, 0.5))
 y[which.max(y[,1]), 2] <- 0
@@ -31,9 +36,9 @@ mcp <- coef(ncvsurv(X, y, lambda.min=0,penalty="MCP",eps=.0001), lambda=0)
 expect_equivalent(scad, beta, tolerance=.01)
 expect_equivalent(mcp,beta, tolerance=.01)
 
-#############################################
-# ncvsurv works for cox regression
-#############################################
+
+# ncvsurv works for cox regression ----------------------------------------
+
 n <- 100
 p <- 10
 y <- Surv(rexp(n), rbinom(n, 1, 0.5))
@@ -44,9 +49,9 @@ mcp <- coef(ncvsurv(X, y, lambda.min=0,penalty="MCP",eps=.0001), lambda=0)
 expect_equivalent(scad, beta, tolerance=.01)
 expect_equivalent(mcp, beta, tolerance=.01)
 
-#######################################
-# ncvsurv agrees with coxnet
-#######################################
+
+# ncvsurv agrees with coxnet ----------------------------------------------
+
 library(glmnet)
 n <- 100
 p <- 25
@@ -63,9 +68,9 @@ expect_equivalent(nlasso, glasso, tolerance=.02)
 expect_equivalent(predict(nfit, X, "link"), predict(gfit, X, type="link"), tolerance=.01)
 expect_equivalent(predict(nfit, X, "response"), predict(gfit, X, type="response"), tolerance=.05)
 
-#####################################################
-# lasso/scad/mcp all seem to work: ncvsurv
-#####################################################
+
+# lasso/scad/mcp all seem to work: ncvsurv --------------------------------
+
 n <- 100
 p <- 10
 y <- Surv(rexp(n), rbinom(n, 1, 0.5))
@@ -79,9 +84,9 @@ plot(fit, main="scad")
 fit <- ncvsurv(X, y, penalty="MCP")
 plot(fit, main="mcp")
 
-################################
-# logLik() is correct
-################################
+
+# logLik() is correct -----------------------------------------------------
+
 n <- 50
 p <- 10
 X <- matrix(rnorm(n*p), ncol=p)
@@ -98,9 +103,9 @@ gfit <- glmnet(X, y, family="cox", lambda=l)
 -2*logLik(nfit)[50]
 glmnet:::coxnet.deviance(predict(gfit, X, s=l[50]), y)
 
-##################################################
-# penalty.factor seems to work: ncvsurv
-##################################################
+
+# penalty.factor seems to work: ncvsurv -----------------------------------
+
 n <- 50
 p <- 4
 X <- matrix(rnorm(n*p), ncol=p)
@@ -114,9 +119,8 @@ plot(fit)
 fit <- ncvsurv(X, y, penalty.factor=penalty.factor)
 plot(fit)
 
-######################################
-# ncvsurv dependencies work
-######################################
+
+# ncvsurv dependencies work -----------------------------------------------
 
 # Predict
 fit <- ncvsurv(X, y)
@@ -149,9 +153,9 @@ r1 <- residuals(fit, lambda=0)
 r2 <- residuals(sfit, type='deviance')
 expect_equivalent(residuals(fit, lambda=0), residuals(sfit, type='deviance'), tolerance=0.1)
 
-#############################################################
-# cox survival predictions agree with Kaplan-Meier
-#############################################################
+
+# cox survival predictions agree with Kaplan-Meier ------------------------
+
 n <- 50
 p <- 5
 X <- matrix(rnorm(n*p), ncol=p)
@@ -166,9 +170,9 @@ lines(fit$time, S(fit$time), type="s", col="slateblue", lwd=2)
 median.survfit(km)
 predict(fit, X[1,], which=1, type='median')
 
-######################################################
-# cox survival predictions agree with coxph
-######################################################
+
+# cox survival predictions agree with coxph -------------------------------
+
 n <- 50
 p <- 5
 X <- matrix(rnorm(n*p), ncol=p)
@@ -186,9 +190,9 @@ for (i in 1:9) {
   lines(fit$time, S(fit$time), type="s", col="slateblue", lwd=2)
 }
 
-##########################################
-# cox survival predictions work
-##########################################
+
+# cox survival predictions work -------------------------------------------
+
 data(Lung, package='ncvreg')
 X <- Lung$X
 y <- Lung$y
@@ -204,3 +208,18 @@ plot(S, xlim=c(0,200))
 S <- predict(fit, X, lambda=0.44, type='survival')
 plot(S, xlim=c(0,200))
 
+
+# Error handling ----------------------------------------------------------
+
+data(Lung, package='ncvreg')
+X <- as.matrix(Lung$X)
+storage.mode(X) <- 'integer'
+y <- Lung$y
+expect_silent(ncvsurv(X, y, nlambda=2, lambda.max=0.99))
+expect_error(ncvsurv('a', rnorm(10)))
+expect_error(ncvsurv(X, y, gamma=0.5))
+expect_error(ncvsurv(X, y, gamma=1.5, penalty='SCAD'))
+expect_error(ncvsurv(X, y, nlambda=1))
+expect_error(ncvsurv(X, y, alpha=0))
+expect_error(ncvsurv(X, y, penalty.factor=c(1,2)))
+expect_error(ncvsurv(X, c(NA, y[-1])))

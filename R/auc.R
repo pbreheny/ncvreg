@@ -5,10 +5,9 @@
 #' The area under the curve (AUC), or equivalently, the concordance statistic
 #' (C), is calculated according to the procedure described in van Houwelingen
 #' and Putter (2011). The function calls `survival::concordancefit()`, except
-#' except cross-validated linear predictors are used to guard against
-#' overfitting.  Thus, the values returned by `AUC.cv.ncvsurv()` will be lower
-#' than those you would obtain with `concordancefit()` if you fit the full
-#' (unpenalized) model.
+#' cross-validated linear predictors are used to guard against overfitting.
+#' Thus, the values returned by `AUC.cv.ncvsurv()` will be lower than those you
+#' would obtain with `concordancefit()` if you fit the full (unpenalized) model.
 #' 
 #' @param obj   A `cv.ncvsurv` object. You must run `cv.ncvsurv()` with the
 #' option `returnY=TRUE` in order for `AUC()` to work
