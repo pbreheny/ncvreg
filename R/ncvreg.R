@@ -88,15 +88,15 @@
 #' 
 #' \describe{ \item{X}{The standardized design matrix.} \item{y}{The response,
 #' centered if \code{family='gaussian'}.} }
-#' @author Patrick Breheny
-#' @seealso \code{\link{plot.ncvreg}}, \code{\link{cv.ncvreg}}
+#' 
+#' @seealso [plot.ncvreg()], [cv.ncvreg()]
+#' 
 #' @references Breheny P and Huang J. (2011) Coordinate descentalgorithms for
 #' nonconvex penalized regression, with applications to biological feature
-#' selection.  \emph{Annals of Applied Statistics}, \strong{5}: 232-253.
-#' c("\\Sexpr[results=rd]{tools:::Rd_expr_doi(\"#1\")}",
-#' "10.1214/10-AOAS388")\Sexpr{tools:::Rd_expr_doi("10.1214/10-AOAS388")}
-#' @examples
-#' 
+#' selection.  *Annals of Applied Statistics*, **5**: 232-253.
+#' \doi{10.1214/10-AOAS388}
+#'
+#' @examples 
 #' # Linear regression --------------------------------------------------
 #' data(Prostate)
 #' X <- Prostate$X
@@ -161,6 +161,7 @@
 #' par(op)
 #' 
 #' @export ncvreg
+
 ncvreg <- function(X, y, family=c("gaussian","binomial","poisson"), penalty=c("MCP", "SCAD", "lasso"),
                    gamma=switch(penalty, SCAD=3.7, 3), alpha=1, lambda.min=ifelse(n>p,.001,.05), nlambda=100,
                    lambda, eps=1e-4, max.iter=10000, convex=TRUE, dfmax=p+1, penalty.factor=rep(1, ncol(X)),
