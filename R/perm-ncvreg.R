@@ -68,7 +68,11 @@
 #' @export perm.ncvreg
 perm.ncvreg <- function(X, y, ..., permute=c("outcome", "residuals"), N=10, seed, trace=FALSE) {
   permute <- match.arg(permute)
-  if (!missing(seed)) set.seed(seed)
+  if (!missing(seed)) {
+    original_seed <- .GlobalEnv$.Random.seed
+    on.exit(.GlobalEnv$.Random.seed <- original_seed)
+    set.seed(seed)
+  }
   fit <- ncvreg(X=X, y=y, returnX=TRUE, ...)
   if (fit$family != 'gaussian' & permute=='residuals') stop(paste0("Cannot permute residuals with family = ", fit$family), call.=FALSE)
   S <- predict(fit, type="nvars")

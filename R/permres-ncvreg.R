@@ -48,7 +48,11 @@ permres <- function(fit, ...) UseMethod("permres")
 #' @rdname permres
 #' @export
 permres.ncvreg <- function(fit, lambda, N=10, seed, trace=FALSE, ...) {
-  if (!missing(seed)) set.seed(seed)
+  if (!missing(seed)) {
+    original_seed <- .GlobalEnv$.Random.seed
+    on.exit(.GlobalEnv$.Random.seed <- original_seed)
+    set.seed(seed)
+  }
   if (!is.numeric(lambda)) stop("lambda must be numeric", call.=FALSE)
   if (length(lambda) != 1) stop("lambda must be a single number, not a vector", call.=FALSE)
   if (is.null(fit$X)) stop("must run ncvreg with returnX=TRUE", call.=FALSE)
