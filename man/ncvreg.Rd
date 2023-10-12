@@ -135,7 +135,6 @@ rapidly to the solution.  For GLMs,
 is used.
 }
 \examples{
-
 # Linear regression --------------------------------------------------
 data(Prostate)
 X <- Prostate$X
@@ -204,12 +203,8 @@ par(op)
 Breheny P and Huang J. (2011) Coordinate descentalgorithms for
 nonconvex penalized regression, with applications to biological feature
 selection.  \emph{Annals of Applied Statistics}, \strong{5}: 232-253.
-c("\\Sexpr[results=rd]{tools:::Rd_expr_doi(\"#1\")}",
-"10.1214/10-AOAS388")\Sexpr{tools:::Rd_expr_doi("10.1214/10-AOAS388")}
+\doi{10.1214/10-AOAS388}
 }
 \seealso{
-\code{\link{plot.ncvreg}}, \code{\link{cv.ncvreg}}
-}
-\author{
-Patrick Breheny
+\code{\link[=plot.ncvreg]{plot.ncvreg()}}, \code{\link[=cv.ncvreg]{cv.ncvreg()}}
 }
