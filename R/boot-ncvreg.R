@@ -151,6 +151,12 @@ boot.ncvreg <- function(X, y, cvncvreg, lambda, sigma2, significance_level = 0.8
     warning(paste0("Ignoring argument(s) ", paste0(names(args)[names(args) %in% c("gamma", "alpha")], collapse = " and "), ", not used for lasso penalty"))
   }
   
+  if (!missing(X)) {
+    rescale_original <- FALSE
+  } else {
+    rescale_original <- TRUE
+  }
+  
   original_coefs <- NULL
   ## Will select lambda, won't estimate sigma^2 without selecting lambda
   if (missing(cvncvreg)) {
@@ -215,14 +221,14 @@ boot.ncvreg <- function(X, y, cvncvreg, lambda, sigma2, significance_level = 0.8
     if (!inherits(cluster, "cluster")) stop("cluster is not of class 'cluster'; see ?makeCluster", call.=FALSE)
     parallel::clusterExport(cluster, c("X", "y", "lambda", "sigma2", "significance_level", "ncvreg.args"), envir=environment())
     parallel::clusterCall(cluster, function() library(ncvreg))
-    results <- parallel::parLapply(cl=cluster, X=1:nboot, fun=bootf, XX=X, y=y, lambda = lambda, sigma2 = sigma2, significance_level = significance_level, ncvreg.args=ncvreg.args)
+    results <- parallel::parLapply(cl=cluster, X=1:nboot, fun=bootf, XX=X, y=y, lambda = lambda, sigma2 = sigma2, significance_level = significance_level, ncvreg.args=ncvreg.args, rescale_original = rescale_original)
   }
   
   for (i in 1:nboot) {
     if (!missing(cluster)) {
       res <- results[[i]]
     } else {
-      res <- bootf(XX=X, y=y, lambda = lambda, sigma2 = sigma2, significance_level = significance_level, ncvreg.args=ncvreg.args)
+      res <- bootf(XX=X, y=y, lambda = lambda, sigma2 = sigma2, significance_level = significance_level, ncvreg.args=ncvreg.args, rescale_original = rescale_original)
     }
     lowers[i,] <- res$lowers
     uppers[i,] <- res$uppers
@@ -234,7 +240,7 @@ boot.ncvreg <- function(X, y, cvncvreg, lambda, sigma2, significance_level = 0.8
   if (returnCV) val$cv.ncvreg <- cvncvreg
   structure(val, class="boot.ncvreg")
 }
-bootf <- function(XX, y, lambda, sigma2, significance_level = .8, ncvreg.args) {
+bootf <- function(XX, y, lambda, sigma2, significance_level = .8, ncvreg.args, rescale_original = TRUE) {
   
   if (missing(ncvreg.args)) {
     ncvreg.args <- list()
@@ -304,7 +310,7 @@ bootf <- function(XX, y, lambda, sigma2, significance_level = .8, ncvreg.args) {
   )
   
   rescale <- (attr(xnew, "scale")[ns_index])^(-1)
-  if (!is.null(attr(XX, "scale"))) {
+  if (!is.null(attr(XX, "scale")) & rescale_original) {
     rescaleX <-  (attr(XX, "scale")[ns_index])^(-1)
   } else {
     rescaleX <- 1
