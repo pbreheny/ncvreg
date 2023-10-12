@@ -16,7 +16,8 @@ boot.ncvreg(
   cluster,
   seed,
   returnCV = FALSE,
-  trace = FALSE
+  trace = FALSE,
+  verbose = TRUE
 )
 }
 \arguments{
