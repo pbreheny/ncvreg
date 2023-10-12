@@ -59,7 +59,7 @@
 #' tmp <- boot.ncvreg(cvncvreg = cv.ncvreg(dat$X, dat$y, penalty = "lasso", returnX = TRUE))
 #' 
 #' @export boot.ncvreg
-boot.ncvreg <- function(X, y, cvncvreg, lambda, sigma2, significance_level = 0.8, nboot = 100, ..., cluster, seed, returnCV=FALSE, trace=FALSE) {
+boot.ncvreg <- function(X, y, cvncvreg, lambda, sigma2, significance_level = 0.8, nboot = 100, ..., cluster, seed, returnCV=FALSE, trace=FALSE, verbose = TRUE) {
   
   ## name conflict: lambda -> removed from being able to specify own sequence fo cv.ncvreg as temp solution
   ## Handle setting 2 seeds or resetting seeds? Don't really want to support this -> set seed one
@@ -156,10 +156,10 @@ boot.ncvreg <- function(X, y, cvncvreg, lambda, sigma2, significance_level = 0.8
   if (missing(cvncvreg)) {
     if (missing(lambda) | missing(sigma2)) {
       if (missing(lambda) & missing(sigma2)) {
-        message("Using cross validation to select lambda and estimate variance")
+        if (verbose) message("Using cross validation to select lambda and estimate variance")
       } else if (missing(lambda) & !missing(sigma2)) {
-        if (missing(lambda)) message("Using cross validation to select lambda")
-      } else if (!missing(lambda) & missing(sigma2)) {
+        if (missing(lambda) & verbose) message("Using cross validation to select lambda")
+      } else if (!missing(lambda) & missing(sigma2) & verbose) {
         message("Using cross validation to estimate variance at supplied value of lambda using linear interpolation")
       }
       
@@ -182,8 +182,8 @@ boot.ncvreg <- function(X, y, cvncvreg, lambda, sigma2, significance_level = 0.8
       original_coefs <- coef(cvncvreg$fit, lambda = lambda)[-1]
     } 
   } else {
-    if (!missing(sigma2)) message("Overriding variance estimate in cv.ncvreg object with user specified value for sigma2.")
-    if (!missing(lambda)) message("Overriding selected lambda in cv.ncvreg object with user specified value for lambda.")
+    if (!missing(sigma2) & verbose) message("Overriding variance estimate in cv.ncvreg object with user specified value for sigma2.")
+    if (!missing(lambda) & verbose) message("Overriding selected lambda in cv.ncvreg object with user specified value for lambda.")
     if (!missing(lambda) & missing(sigma2)) warning("Estimating variance using CV but using user specified value of lambda. Estimated variance corresponds to interpolated CVE for supplied value of lambda.")
     if (missing(lambda)) lambda <- cvncvreg$lambda.min
     if (missing(sigma2)) {
