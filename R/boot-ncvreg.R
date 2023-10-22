@@ -65,7 +65,7 @@ boot.ncvreg <- function(X, y, cvncvreg, lambda, sigma2, significance_level = 0.8
   ## Handle setting 2 seeds or resetting seeds? Don't really want to support this -> set seed one
   ## Both can be circumvented by using cv.ncvreg route if desired
   ## Best naming convention for cvncvreg?
-  ## Should warn / convex be saved by default?
+  ## Should warn / convex be saved by default? (no)
   ## Match arguments (so they don't need to be named??)
   ## NEED TO CHECK IF MISSING ONLY BEFORE I ACTIVELY ASSIGN SOMETHING
   
@@ -282,32 +282,87 @@ bootf <- function(XX, y, lambda, sigma2, significance_level = .8, ncvreg.args, r
   partial_residuals <-  ynew - (coefs[1] + as.numeric(xnew %*% modes) - (xnew * matrix(modes, nrow=nrow(xnew), ncol=ncol(xnew), byrow=TRUE)))
   
   z <- (1/n)*colSums(xnew * partial_residuals)
+  
+  # print(z)
+  
+  r <- (1/n)*colSums(partial_residuals * partial_residuals)
   se <- sqrt(sigma2 / n)
   
-  obs_lw <- pnorm(0, z + lambda, se)
-  obs_up <- pnorm(0, z - lambda, se, lower.tail = FALSE)
+  obs_lw <- pnorm(0, z + lambda, se, log.p = TRUE)
+  obs_up <- pnorm(0, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
   
-  # C <- exp(n*z*lambda / sigma2)^2
-  # lower_adj <- obs_lw + obs_up*(C^(-1))
+  
+  ## Find the zero density for each tail
+  dens0_lw <- dnorm(0, z + lambda, se, log = TRUE)
+  dens0_up <- dnorm(0, z - lambda, se, log = TRUE)
+  
+  dens_adjust_lw <- den0_lw - dens0_up
+  print(dens_adjust)
+  ## Can adjust this to avoid dividing by zero
+  dens_adjust_up <- ifelse(dens_adjust_lw < 0, 0, dens_adjust_lw)
+  dens_adjust_lw <- ifelse(dens_adjust_lw > 0, 0, -dens_adjust_lw) ## Make sure these are correct on log scale
+  
+  obs_p_lw <- obs_lw + dens_adjust_lw
+  obs_p_up <- obs_up + dens_adjust_up
+  
+  ## Can put a branch here that if the difference in logs is more than a value that relates to the significance
+  ## level set that we can avoid sme computions (which my throw errors but aren't needed)
+  
+  
+  frac_lw_log <- obs_p_lw - obs_p_up - log(1 + exp(obs_p_lw - obs_p_up))
+  frac_up_log <- obs_p_up - obs_p_lw - log(1 + exp(obs_p_up - obs_p_lw))
+    
+  
+  ## Need to use original obs for the adjustment I think
+  
+  # print(pnorm(0, z + lambda, se, log.p = TRUE))
+  # print(pnorm(0, z - lambda, se, lower.tail = FALSE, log.p = TRUE))
+  
+  # logC <- 2*n*z*lambda / sigma2
+  # C <- exp(2*n*z*lambda / sigma2)
+  
+  # print(exp(n*z*lambda / sigma2))
+  # print(exp(-n*z*lambda / sigma2))
+  
+  # lower_adj <- exp(obs_lw) + exp(obs_up - logC)
+  # upper_adj <- exp(obs_up) + exp(obs_lw + logC)
+
+  # lower_adj <- obs_lw + obs_up*C^(-1)
   # upper_adj <- obs_up + obs_lw*C
   
-  C <- exp(n*z*lambda / sigma2)
-  t <- obs_lw * C + obs_up * C^(-1)
-  lower_adj <- t / C 
-  upper_adj <- t / (C^-1)
   
-  prop_lw <- obs_lw  / lower_adj
+
+  
+  # lwr <- (sqrt(2*sigma2*pi / n))*(sqrt(sigma2*2*pi)^(-n))*(n*lambda / (2*sigma2))*exp(-(n/(2*sigma2))*(r - (z + lambda)^2))
+  # upr <- (sqrt(2*sigma2*pi / n))*(sqrt(sigma2*2*pi)^(-n))*(n*lambda / (2*sigma2))*exp(-(n/(2*sigma2))*(r - (z - lambda)^2))
+  
+  # C <- exp(n*z*lambda / sigma2)
+  # t <- obs_lw * C + obs_up * C^(-1)
+  # lower_adj <- t / C 
+  # upper_adj <- t / (C^-1)
   
   lower <- ifelse(
     prop_lw >= lower_p,
-    qnorm(lower_p * lower_adj, z + lambda, se),
-    qnorm(upper_p * upper_adj, z - lambda, se, lower.tail = FALSE)
+    qnorm(log(lower_p) + log(lower_adj), z + lambda, se, log.p = TRUE),
+    qnorm(log(upper_p) + log(upper_adj), z - lambda, se, lower.tail = FALSE, log.p = TRUE)
   )
   upper <- ifelse(
     prop_lw >= upper_p,
-    qnorm(upper_p * lower_adj, z + lambda, se),
-    qnorm(lower_p * upper_adj, z - lambda, se, lower.tail = FALSE)
+    qnorm(log(upper_p) + log(lower_adj), z + lambda, se, log.p = TRUE),
+    qnorm(log(lower_p) + log(upper_adj), z - lambda, se, lower.tail = FALSE, log.p = TRUE)
   )
+  
+  lower <- ifelse(
+    prop_lw >= lower_p,
+    qnorm(log(lower_p) + log(lower_adj), z + lambda, se, log.p = TRUE),
+    qnorm(log(upper_p) + log(upper_adj), z - lambda, se, lower.tail = FALSE, log.p = TRUE)
+  )
+  upper <- ifelse(
+    prop_lw >= upper_p,
+    qnorm(log(upper_p) + log(lower_adj), z + lambda, se, log.p = TRUE),
+    qnorm(log(lower_p) + log(upper_adj), z - lambda, se, lower.tail = FALSE, log.p = TRUE)
+  )
+
   
   rescale <- (attr(xnew, "scale")[ns_index])^(-1)
   if (!is.null(attr(XX, "scale")) & rescale_original) {
