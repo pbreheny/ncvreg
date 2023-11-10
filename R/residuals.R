@@ -1,13 +1,13 @@
 #' Extract residuals from a ncvreg or ncvsurv fit
-#' 
+#'
 #' Currently, only deviance residuals are supported.
-#' 
+#'
 #' @param object   Object of class `ncvreg` or `ncvsurv`.
 #' @param lambda   Values of the regularization parameter at which residuals are requested (numeric vector). For values of lambda not in the sequence of fitted models, linear interpolation is used.
 #' @param which    Index of the penalty parameter at which residuals are requested (default = all indices). If `lambda` is specified, this take precedence over `which`.
 #' @param drop     By default, if a single value of lambda is supplied, a vector of residuals is returned (logical; default=`TRUE`). Set `drop=FALSE` if you wish to have the function always return a matrix (see [drop()]).
 #' @param ...      Not used.
-#' 
+#'
 #' @examples
 #' data(Prostate)
 #' X <- Prostate$X
@@ -18,7 +18,7 @@
 #' @export
 
 residuals.ncvreg <- function(object, lambda, which=1:length(object$lambda), drop=TRUE, ...) {
-  
+
   # Calculate matrix of residuals
   if (inherits(object, 'ncvsurv')) {
     for (j in 1:length(object$lambda)) {

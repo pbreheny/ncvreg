@@ -1,9 +1,9 @@
 #' Plot marginal false discovery rate curves
-#' 
+#'
 #' Plot marginal false discovery rate curves from an \code{"mfdr"} or
 #' \code{"perm.ncvreg"} object.
-#' 
-#' 
+#'
+#'
 #' @param x A \code{"perm.ncvreg"} or \code{"mfdr"} object.
 #' @param type What to plot on the vertical axis.  \code{mFDR} plots the
 #' marginal false discovery rate; \code{EF} plots the expected number of false
@@ -21,19 +21,19 @@
 #' @references Breheny P (2019). Marginal false discovery rates for penalized
 #' regression models. Biostatistics, 20: 299-314.
 #' @examples
-#' 
+#'
 #' data(Prostate)
 #' fit <- ncvreg(Prostate$X, Prostate$y)
-#' 
+#'
 #' obj <- mfdr(fit)
 #' obj[1:10,]
-#' 
+#'
 #' # Some plotting options
 #' plot(obj)
 #' plot(obj, type="EF")
 #' plot(obj, log=TRUE)
-#' 
-#' 
+#'
+#'
 #' # Comparison with perm.ncvreg
 #' op <- par(mfrow=c(2,2))
 #' plot(obj)
