@@ -217,8 +217,12 @@ ncvreg <- function(X, y, family=c("gaussian", "binomial", "poisson"), penalty=c(
     user.lambda <- FALSE
   } else {
     nlambda <- length(lambda)
-    if (nlambda == 1) warning(lambda.warning, call.=FALSE)
     if (!is.double(lambda)) lambda <- as.double(lambda)
+    if (nlambda == 1) {
+      warning(lambda.warning, call.=FALSE)
+    } else if (any(diff(lambda) > 0)) {
+      lambda <- sort(lambda, decreasing=TRUE)
+    }
     user.lambda <- TRUE
   }
 

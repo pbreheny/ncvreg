@@ -191,7 +191,12 @@ ncvsurv <- function(X, y, penalty=c("MCP", "SCAD", "lasso"), gamma=switch(penalt
     user.lambda <- FALSE
   } else {
     nlambda <- length(lambda)
-    if (nlambda == 1) warning(gsub('ncvreg', 'ncvsurv', lambda.warning), call.=FALSE)
+    if (!is.double(lambda)) lambda <- as.double(lambda)
+    if (nlambda == 1) {
+      warning(gsub('ncvreg', 'ncvsurv', lambda.warning), call.=FALSE)
+    } else if (any(diff(lambda) > 0)) {
+      lambda <- sort(lambda, decreasing=TRUE)
+    }
     user.lambda <- TRUE
   }
 
