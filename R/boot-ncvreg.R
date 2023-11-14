@@ -167,16 +167,18 @@ boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, significance_level = 0.8, 
       cv.args$penalty <- "lasso"
       cv.args$X <- X
       cv.args$y <- y
-      lambda_max <- max(apply(ncvreg::std(X), 2, find_thresh, y))
-      lambda_min <- lambda - lambda / 100 ## set min to be slightly smaller
-      nlambda <- ifelse(!is.null(ncvreg.args$nlambda), ncvreg.args$nlambda, 100)
-      if (lambda_min > lambda_max | lambda > lambda_max) {
-        lambda_max <- lambda + lambda / 100
-        nlambda <- 2
+      if (!(missing(lambda))) {
+        lambda_max <- max(apply(ncvreg::std(X), 2, find_thresh, y))
+        lambda_min <- lambda - lambda / 100 ## set min to be slightly smaller
+        nlambda <- ifelse(!is.null(ncvreg.args$nlambda), ncvreg.args$nlambda, 100)
+        if (lambda_min > lambda_max | lambda > lambda_max) {
+          lambda_max <- lambda + lambda / 100
+          nlambda <- 2
+        }
+        lambda_seq <- 10^(seq(log(lambda_max, 10), log(lambda_min, 10), length.out = nlambda))
+        cv.args$lambda <- lambda_seq 
       }
-      lambda_seq <- 10^(seq(log(lambda_max, 10), log(lambda_min, 10), length.out = nlambda))
-      cv.args$lambda <- lambda_seq
-      if (!missing(cluster)) cv.args <- cluster ## NEED TO UPDATE
+      if (!missing(cluster)) cv.args$cluster <- cluster ## NEED TO UPDATE
       cv_fit <- do.call("cv.ncvreg", c(cv.args, ncvreg.args))
       if (missing(lambda)) lambda <- cv_fit$lambda.min
       if (missing(sigma2)) {
@@ -245,7 +247,7 @@ boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, significance_level = 0.8, 
   }
   if (time) toc()
   
-  val <- list(lowers = lowers, uppers = uppers, modes = modes, estimates = original_coefs)
+  val <- list(lowers = lowers, uppers = uppers, modes = modes, estimates = original_coefs, lamdba = lambda)
   
   if (returnCV) val$cv.ncvreg <- cv_fit
   
