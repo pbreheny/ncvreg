@@ -23,7 +23,6 @@ ci.boot.ncvreg <- function(eb_boot, quiet = FALSE) {
   }
   
   all_draws <- rbind(eb_boot[["lowers"]], eb_boot[["uppers"]])
-  print(all_draws)
   # lowers <- apply(eb_boot[["lowers"]], 2, mean, na.rm = TRUE)
   # uppers <- apply(eb_boot[["uppers"]], 2, mean, na.rm = TRUE)
   lowers <- apply(all_draws, 2, function(x) quantile(x, 0.1, na.rm = TRUE))
