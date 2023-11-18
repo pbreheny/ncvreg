@@ -182,6 +182,7 @@ boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, significance_level = 0.8, 
       cv_fit <- do.call("cv.ncvreg", c(cv.args, ncvreg.args))
       if (missing(lambda)) lambda <- cv_fit$lambda.min
       if (missing(sigma2)) {
+
         if (max(cv_fit$lambda) < lambda | min(cv_fit$lambda) > lambda) stop("Supplied lambda value is outside the range of the model fit.")
         ## Make note about linear interpolation (or in documentation)
         ind <- stats::approx(cv_fit$lambda, seq(cv_fit$lambda), lambda)$y
@@ -296,7 +297,8 @@ bootf <- function(XX, y, lambda, sigma2, significance_level = .8, ncvreg.args, r
   ncvreg.args$lambda <- lambda_seq
   
   ## Ignores user specified lambda.min and nlambda
-  fit <- do.call("ncvreg", ncvreg.args[!(names(ncvreg.args) %in% c("lambda.min", "nlambda"))])
+  # fit <- do.call("ncvreg", ncvreg.args[!(names(ncvreg.args) %in% c("lambda.min", "nlambda"))])
+  fit <- ncvreg(xnew, ynew, penalty = "lasso", lambda = lambda_seq)
   
   coefs <- coef(fit, lambda = lambda)
   if (time) toc()
