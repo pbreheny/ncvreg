@@ -22,8 +22,12 @@ ci.boot.ncvreg <- function(eb_boot, quiet = FALSE) {
     } 
   }
   
-  lowers <- apply(eb_boot[["lowers"]], 2, mean, na.rm = TRUE)
-  uppers <- apply(eb_boot[["uppers"]], 2, mean, na.rm = TRUE)
+  all_draws <- rbind(eb_boot[["lowers"]], eb_boot[["uppers"]])
+  print(all_draws)
+  # lowers <- apply(eb_boot[["lowers"]], 2, mean, na.rm = TRUE)
+  # uppers <- apply(eb_boot[["uppers"]], 2, mean, na.rm = TRUE)
+  lowers <- apply(all_draws, 2, function(x) quantile(x, 0.1, na.rm = TRUE))
+  uppers <- apply(all_draws, 2, function(x) quantile(x, 0.9, na.rm = TRUE))
   
   ci_info <- data.frame(estimate = eb_boot[["estimates"]], variable = names(eb_boot[["estimates"]]), lower = lowers, upper = uppers, method = "Lasso Boot")
   
