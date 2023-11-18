@@ -25,9 +25,6 @@ boot.ncvreg(
 
 \item{y}{The response vector, as in \code{ncvreg}}
 
-\item{cvncvreg}{Instead of \code{X} and \code{y}, an object of type
-\code{cv.ncvreg} with \code{returnX = TRUE} and \code{penalty = "lasso"}}
-
 \item{lambda}{A positive scalar value of type numeric, if left unspecified, selected using \code{cv.ncvreg}}
 
 \item{sigma2}{A known / estimated value for the variance used in the Laplace prior and Normal likelihood, if left unspecified, selected using \code{cv.ncvreg} only if \code{lambda} is also left as unspecified}
@@ -53,9 +50,8 @@ specify the call to \code{cv.ncvreg} in the arguments.}
 
 \item{returnCV}{Whether to return \code{cv.ncvreg} object, \code{FALSE} by default.}
 
-\item{trace}{If set to TRUE, inform the user of progress by displaying
-progress through bootstrapping and by announcing the beginning of each CV
-fold if \code{cv.ncvreg} is ran.  Default is FALSE.}
+\item{cv_fit}{Instead of \code{X} and \code{y}, an object of type
+\code{cv.ncvreg} with \code{returnX = TRUE} and \code{penalty = "lasso"}}
 }
 \value{
 An object with S3 class \code{boot.ncvreg} containing: \describe {
@@ -89,8 +85,8 @@ dat <- readData(whoari)
 
 tmp <- boot.ncvreg(dat$X, dat$y)
 
-## Specifying cvncvreg
-tmp <- boot.ncvreg(cvncvreg = cv.ncvreg(dat$X, dat$y, penalty = "lasso", returnX = TRUE))
+## Specifying cv_fit
+tmp <- boot.ncvreg(cv_fit = cv.ncvreg(dat$X, dat$y, penalty = "lasso", returnX = TRUE))
 
 }
 \seealso{

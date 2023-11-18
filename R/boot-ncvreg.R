@@ -180,9 +180,13 @@ boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, significance_level = 0.8, 
       }
       if (!missing(cluster)) cv.args$cluster <- cluster ## NEED TO UPDATE
       cv_fit <- do.call("cv.ncvreg", c(cv.args, ncvreg.args))
-      if (missing(lambda)) lambda <- cv_fit$lambda.min
-      if (missing(sigma2)) {
-
+      
+      if (missing(lambda) & missing(sigma2)) {
+        lambda <- cv_fit$lambda.min 
+        sigma2 <- cv_fit$cve[cv_fit$min]
+      } else if (missing(lambda) & !missing(sigma2)) {
+        lambda <- cv_fit$lambda.min
+      } else if (!missing(lambda) & missing(sigma2)) {
         if (max(cv_fit$lambda) < lambda | min(cv_fit$lambda) > lambda) stop("Supplied lambda value is outside the range of the model fit.")
         ## Make note about linear interpolation (or in documentation)
         ind <- stats::approx(cv_fit$lambda, seq(cv_fit$lambda), lambda)$y
@@ -191,6 +195,7 @@ boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, significance_level = 0.8, 
         w <- ind %% 1
         sigma2 <- (1-w)*cv_fit$cve[l] + w*cv_fit$cve[r]
       }
+      
       original_coefs <- coef(cv_fit$fit, lambda = lambda)[-1]
       if (time) toc()
     } 
