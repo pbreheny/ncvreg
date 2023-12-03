@@ -55,7 +55,7 @@
 #' ## Specifying cv_fit
 #' tmp <- boot.ncvreg(cv_fit = cv.ncvreg(dat$X, dat$y, penalty = "lasso", returnX = TRUE))
 #' 
-#' @export boot.ncvreg
+#' @export boot.ncvreg.r
 boot.ncvreg.r <- function(X, y, cv_fit, lambda, sigma2, significance_level = 0.8, nboot = 100, ..., cluster, seed, returnCV=FALSE, verbose = TRUE, time = FALSE, quantiles = "sample") {
   
   if (time) tic(msg = "Overall")
