@@ -286,6 +286,7 @@ bootf.r <- function(XX, y, lambda, sigma2, significance_level = .8, ncvreg.args,
   if (time) tic(msg = "Sample")
   idx_new <- sample(1:n, replace = TRUE)
   ynew <- y[idx_new]
+  ynew <- ynew - mean(ynew)
   xnew <- ncvreg::std(XX[idx_new,,drop=FALSE])
   if (time) toc()
   
