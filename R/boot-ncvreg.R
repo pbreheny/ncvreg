@@ -398,9 +398,9 @@ bootf <- function(XX, y, lambda, sigma2, significance_level = .8, ncvreg.args, r
   
   
   if (time) tic(msg = "Return result")
-  lowers[ns_index] <- (lower * rescale) * rescaleX * sdy
-  uppers[ns_index] <- (upper * rescale) * rescaleX * sdy
-  modes[ns_index] <- (modes * rescale) * rescaleX * sdy
+  lowers[ns_index] <- (lower * rescale) * rescaleX
+  uppers[ns_index] <- (upper * rescale) * rescaleX
+  modes[ns_index] <- (modes * rescale) * rescaleX
   lowers[!(1:length(lowers) %in% ns_index)] <- NA
   uppers[!(1:length(uppers) %in% ns_index)] <- NA
   modes[!(1:length(modes) %in% ns_index)] <- NA
