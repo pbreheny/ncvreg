@@ -233,7 +233,8 @@ boot.ncvreg.r <- function(X, y, cv_fit, lambda, sigma2, significance_level = 0.8
   
   if (time) tic(msg = "Bootstrapping")  
   modes <- matrix(nrow = nboot, ncol = ncol(X))
-  draws <- list()
+  per_draw <- ifelse(is.character(quantiles) && quantiles == "sample", 10, length(quantiles))
+  draws <- matrix(nrow = nboot * per_draw, ncol = ncol(X))
   
   if (!missing(cluster)) {
     if (!inherits(cluster, "cluster")) stop("cluster is not of class 'cluster'; see ?makeCluster", call.=FALSE)
@@ -248,12 +249,12 @@ boot.ncvreg.r <- function(X, y, cv_fit, lambda, sigma2, significance_level = 0.8
     } else {
       res <- bootf.r(XX=X, y=y, lambda = lambda, sigma2 = sigma2, significance_level = significance_level, ncvreg.args=ncvreg.args, rescale_original = rescale_original, quantiles = quantiles)
     }
-    draws[[i]] <- res$draws
+    # print((1 + i*per_draw - per_draw):(i*per_draw))
+    draws[(1 + i*per_draw - per_draw):(i*per_draw),] <- res$draws
     modes[i,] <- res$modes
   }
   if (time) toc()
   
-  draws <- do.call(rbind, draws)
   val <- list(draws = draws, modes = modes, estimates = original_coefs, lamdba = lambda, sigma2 = sigma2)
   
   if (returnCV) val$cv.ncvreg <- cv_fit
@@ -343,23 +344,13 @@ bootf.r <- function(XX, y, lambda, sigma2, significance_level = .8, ncvreg.args,
   #   qnorm(log(1 - ps) + obs_up - frac_up_log, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
   # )})
   
-  draw <- list()
+  draws <- matrix(ncol = length(frac_lw_log), nrow = length(ps))
   for (i in 1:length(frac_lw_log)) {
-    curr_frac_lw <- frac_lw_log[i]
-    curr_frac_up <- frac_up_log[i]
-    curr_obs_lw <- obs_lw[i]
-    curr_obs_up <- obs_up[i]
-    curr_z <- z[i]
-    tmp <- numeric(length(ps))
-    for (j in 1:length(ps)) {
-      p <- ps[j]
-      tmp[j] <- ifelse(
-        curr_frac_lw >= log(p),
-        qnorm(log(p) + curr_obs_lw - curr_frac_lw, curr_z + lambda, se, log.p = TRUE),
-        qnorm(log(1 - p) + curr_obs_up - curr_frac_up, curr_z - lambda, se, lower.tail = FALSE, log.p = TRUE)
-      )
-    }
-    draw[[i]] <- tmp
+    draws[,i] <- ifelse(
+      frac_lw_log[i] >= log(ps),
+      qnorm(log(ps) + obs_lw[i] - frac_lw_log[i], z[i] + lambda, se, log.p = TRUE),
+      qnorm(log(1 - ps) + obs_up[i] - frac_up_log[i], z[i] - lambda, se, lower.tail = FALSE, log.p = TRUE)
+    )
   }
 
   if (time) toc()
@@ -378,12 +369,11 @@ bootf.r <- function(XX, y, lambda, sigma2, significance_level = .8, ncvreg.args,
   
   if (time) tic(msg = "Return result")
   
-  draws <- lapply(1:length(draw), function(x) draw[[x]]*full_rescale_factor[x])
+  draws <- sapply(1:ncol(draws), function(x) draws[,x]*full_rescale_factor[x])
   modes[ns_index] <- (modes * rescale) * rescaleX
-  if (length(ns_index) < length(draws)) draws[[!(1:length(draws) %in% ns_index)]] <- rep(NA, 10)
+  if (length(ns_index) < ncol(draws)) draws[,!(1:ncol(draws) %in% ns_index)] <- rep(NA, length(ps))
   modes[!(1:length(modes) %in% ns_index)] <- NA
   
-  draws <- do.call(cbind, draws)
   ret <- list(draws, modes)
   names(ret) <- c("draws", "modes")
   if (time) toc()
