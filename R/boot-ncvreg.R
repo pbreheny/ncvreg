@@ -304,12 +304,7 @@ bootf <- function(XX, y, lambda, sigma2, significance_level = .8, ncvreg.args, r
   idx_new <- sample(1:n, replace = TRUE)
   ynew <- y[idx_new]
   ynew <- ynew - mean(ynew)
-  # sdy <- sd(ynew)
-  sdy <- 1
-  # ynew <- ynew / sdy
   xnew <- ncvreg::std(XX[idx_new,,drop=FALSE])
-  # lambda <- lambda / sdy
-  # sigma2 <- sigma2 / sdy^2
   if (time) toc()
   
   if (time) tic(msg = "Lambda Sequence")
