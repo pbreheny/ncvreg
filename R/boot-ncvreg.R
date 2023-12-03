@@ -169,14 +169,35 @@ boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, significance_level = 0.8, 
       cv.args$y <- y
       if (!(missing(lambda))) {
         lambda_max <- max(apply(ncvreg::std(X), 2, find_thresh, y))
-        lambda_min <- lambda - lambda / 100 ## set min to be slightly smaller
         nlambda <- ifelse(!is.null(ncvreg.args$nlambda), ncvreg.args$nlambda, 100)
-        if (lambda_min > lambda_max | lambda > lambda_max) {
-          lambda_max <- lambda + lambda / 100
+        
+        if (lambda > lambda_max) {
+          lambda_max <- lambda
+          lambda_min <- lambda
           nlambda <- 2
+        } else {
+          lambda_min <- ifelse(length(y) > ncol(X), 0.001, 0.05) * lambda_max  
         }
+        
+        if (lambda_min < lambda) {
+          lambda_min <- lambda
+        }
+        
         lambda_seq <- 10^(seq(log(lambda_max, 10), log(lambda_min, 10), length.out = nlambda))
+        lambda_seq <- lambda_seq[lambda_seq > lambda]
+        lambda_seq <- c(lambda_seq, lambda)
+        if (length(lambda_seq) == 1) lambda_seq <- c(lambda + lambda / 100, lambda_seq)
+
+        # lambda_min <- lambda - lambda / 100 ## set min to be slightly smaller
+        # nlambda <- ifelse(!is.null(ncvreg.args$nlambda), ncvreg.args$nlambda, 100)
+        # if (lambda_min > lambda_max | lambda > lambda_max) {
+        #   lambda_max <- lambda + lambda / 100
+        #   nlambda <- 2
+        # }
+        # lambda_seq <- 10^(seq(log(lambda_max, 10), log(lambda_min, 10), length.out = nlambda))
+        
         cv.args$lambda <- lambda_seq 
+        
       }
       if (!missing(cluster)) cv.args$cluster <- cluster ## NEED TO UPDATE
       cv_fit <- do.call("cv.ncvreg", c(cv.args, ncvreg.args))
@@ -189,11 +210,13 @@ boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, significance_level = 0.8, 
       } else if (!missing(lambda) & missing(sigma2)) {
         if (max(cv_fit$lambda) < lambda | min(cv_fit$lambda) > lambda) stop("Supplied lambda value is outside the range of the model fit.")
         ## Make note about linear interpolation (or in documentation)
+        
         ind <- stats::approx(cv_fit$lambda, seq(cv_fit$lambda), lambda)$y
         l <- floor(ind)
         r <- ceiling(ind)
         w <- ind %% 1
         sigma2 <- (1-w)*cv_fit$cve[l] + w*cv_fit$cve[r]
+        
       }
       
       original_coefs <- coef(cv_fit$fit, lambda = lambda)[-1]
@@ -280,19 +303,43 @@ bootf <- function(XX, y, lambda, sigma2, significance_level = .8, ncvreg.args, r
   if (time) tic(msg = "Sample")
   idx_new <- sample(1:n, replace = TRUE)
   ynew <- y[idx_new]
+  ynew <- ynew - mean(ynew)
+  # sdy <- sd(ynew)
+  sdy <- 1
+  # ynew <- ynew / sdy
   xnew <- ncvreg::std(XX[idx_new,,drop=FALSE])
+  # lambda <- lambda / sdy
+  # sigma2 <- sigma2 / sdy^2
   if (time) toc()
   
   if (time) tic(msg = "Lambda Sequence")
   lambda_max <- max(apply(xnew, 2, find_thresh, ynew))
-  lambda_min <- lambda - lambda / 100 ## set min to be slightly smaller
-  if (lambda_min > lambda_max | lambda > lambda_max) {
-    lambda_max <- lambda + lambda / 100
-    nlambda <- 2
-  }
-  ## Could use better logic to speed up
   nlambda <- ifelse(!is.null(ncvreg.args$nlambda), ncvreg.args$nlambda, 100)
+  
+  if (lambda > lambda_max) {
+    lambda_max <- lambda
+    lambda_min <- lambda
+    nlambda <- 2
+  } else {
+    lambda_min <- ifelse(length(y) > ncol(XX), 0.001, 0.05) * lambda_max  
+  }
+  
+  if (lambda_min < lambda) {
+    lambda_min <- lambda
+  }
+
   lambda_seq <- 10^(seq(log(lambda_max, 10), log(lambda_min, 10), length.out = nlambda))
+  lambda_seq <- lambda_seq[lambda_seq > lambda]
+  lambda_seq <- c(lambda_seq, lambda)
+  if (length(lambda_seq) == 1) lambda_seq <- c(lambda + lambda / 100, lambda_seq)
+  
+  ## Uncomment this
+  # lambda_min <- lambda - lambda / 100 ## set min to be slightly smaller
+  # if (lambda_min > lambda_max | lambda > lambda_max) {
+  #   lambda_max <- lambda + lambda / 100
+  #   nlambda <- 2
+  # }
+  
   if (time) toc()
   
   if (time) tic(msg = "Fit ncvreg")
@@ -302,8 +349,8 @@ bootf <- function(XX, y, lambda, sigma2, significance_level = .8, ncvreg.args, r
   ncvreg.args$lambda <- lambda_seq
   
   ## Ignores user specified lambda.min and nlambda
-  # fit <- do.call("ncvreg", ncvreg.args[!(names(ncvreg.args) %in% c("lambda.min", "nlambda"))])
-  fit <- ncvreg(xnew, ynew, penalty = "lasso", lambda = lambda_seq)
+  fit <- do.call("ncvreg", ncvreg.args[!(names(ncvreg.args) %in% c("lambda.min", "nlambda"))])
+  # fit <- ncvreg(xnew, ynew, penalty = "lasso", lambda = lambda_seq)
   
   coefs <- coef(fit, lambda = lambda)
   if (time) toc()
@@ -320,26 +367,6 @@ bootf <- function(XX, y, lambda, sigma2, significance_level = .8, ncvreg.args, r
   ## Tails I am transferring on to (log probability in each tail)
   obs_lw <- pnorm(0, z + lambda, se, log.p = TRUE)
   obs_up <- pnorm(0, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
-  
-  ## Find the log density at zero for each tail (This needs to be finite)
-  # dens0_lw <- dnorm(0, z + lambda, se, log = TRUE)
-  # dens0_up <- dnorm(0, z - lambda, se, log = TRUE)
-  
-  ## The difference in the tails log density at 0 I am transferring to
-  ## Since the posterior must be continuous at 0, these tell me how 
-  ## the probabilities above need to be adjusted to get the correct 
-  ## ratio of probabilities in each of the tails of the posterior
-  # dens_adjust <- dens0_lw - dens0_up
-  
-  ## I want to just adjust one of the tails, and I want to make the log probability
-  ## less negative, so this determines how to make that adjustment and applies it
-  # dens_adjust_lw <- ifelse(dens_adjust > 0, 0, -dens_adjust)
-  # dens_adjust_up <- ifelse(dens_adjust < 0, 0, dens_adjust)
-  
-  ## These two probabilities now contain the correct ratio of the lower and upper tails of
-  ## the posterior
-  # obs_p_lw <- obs_lw + dens_adjust_lw
-  # obs_p_up <- obs_up + dens_adjust_up
   
   ## alt
   obs_p_lw <- obs_lw + ((z*lambda*n) / sigma2)
@@ -376,9 +403,9 @@ bootf <- function(XX, y, lambda, sigma2, significance_level = .8, ncvreg.args, r
   
   
   if (time) tic(msg = "Return result")
-  lowers[ns_index] <- (lower * rescale) * rescaleX
-  uppers[ns_index] <- (upper * rescale) * rescaleX
-  modes[ns_index] <- (modes * rescale) * rescaleX
+  lowers[ns_index] <- (lower * rescale) * rescaleX * sdy
+  uppers[ns_index] <- (upper * rescale) * rescaleX * sdy
+  modes[ns_index] <- (modes * rescale) * rescaleX * sdy
   lowers[!(1:length(lowers) %in% ns_index)] <- NA
   uppers[!(1:length(uppers) %in% ns_index)] <- NA
   modes[!(1:length(modes) %in% ns_index)] <- NA
