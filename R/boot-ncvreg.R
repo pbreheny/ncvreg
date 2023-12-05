@@ -375,6 +375,7 @@ bootf <- function(XX, y, lambda, sigma2, significance_level = .8, ncvreg.args, r
   
   ## Unlikely to fail at this point, possible but would already need to be
   ## very near limit with dnorm above
+  
   lower <- ifelse(
     frac_lw_log >= log(lower_p),
     qnorm(log(lower_p) + obs_lw - frac_lw_log, z + lambda, se, log.p = TRUE),
