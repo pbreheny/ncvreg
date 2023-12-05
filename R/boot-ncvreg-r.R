@@ -387,7 +387,7 @@ bootf.r <- function(XX, y, lambda, sigma2, significance_level = .8, ncvreg.args,
   if (time) tic(msg = "Return result")
   
   # draws <- sapply(1:ncol(draws), function(x) draws[,x]*full_rescale_factor[x])
-  draws <- draws*matrix(full_rescale_factor, ncol = length(frac_lw_log), nrow = length(ps), byrow = TRUE)
+  # draws <- draws*matrix(full_rescale_factor, ncol = length(frac_lw_log), nrow = length(ps), byrow = TRUE)
   modes[ns_index] <- (modes * rescale) * rescaleX
   if (length(ns_index) < ncol(draws)) draws[,!(1:ncol(draws) %in% ns_index)] <- rep(NA, length(ps))
   modes[!(1:length(modes) %in% ns_index)] <- NA
