@@ -354,8 +354,18 @@ bootf.r <- function(XX, y, lambda, sigma2, significance_level = .8, ncvreg.args,
   #   )
   # }
   
+  if (time) tic(msg = "Rescale")
+  rescale <- (attr(xnew, "scale")[ns_index])^(-1)
+  if (!is.null(attr(XX, "scale")) & rescale_original) {
+    rescaleX <-  (attr(XX, "scale")[ns_index])^(-1)
+  } else {
+    rescaleX <- 1
+  }
+  if (time) toc()
+  full_rescale_factor <- rescale * rescaleX
+  
   # Function to apply qnorm based on condition
-  apply_qnorm <- function(frac_lw_log, frac_up_log, obs_lw, obs_up, z_val, lambda_val, se_val, p) {
+  apply_qnorm <- function(frac_lw_log, frac_up_log, obs_lw, obs_up, z_val, full_rescale_factor, lambda_val, se_val, p) {
     log_p <- log(p)
     if (frac_lw_log >= log_p) {
       return(qnorm(log_p + obs_lw - frac_lw_log, mean = z_val + lambda_val, sd = se_val, log.p = TRUE))
@@ -366,30 +376,15 @@ bootf.r <- function(XX, y, lambda, sigma2, significance_level = .8, ncvreg.args,
   
   # Apply the function for each combination of ps and frac_lw_log/obs_lw/etc.
   draws <- outer(1:length(ps), 1:length(frac_lw_log), Vectorize(function(i, j) {
-    apply_qnorm(frac_lw_log[j], frac_up_log[j], obs_lw[j], obs_up[j], z[j], lambda, se, ps[i])
+    apply_qnorm(frac_lw_log[j], frac_up_log[j], obs_lw[j], obs_up[j], z[j], full_rescale_factor[j], lambda, se, ps[i])
   }))
-  
-  # Transpose if necessary to match your original matrix layout
-  draws <- t(draws)
 
   if (time) toc()
-  
-  if (time) tic(msg = "Rescale")
-  rescale <- (attr(xnew, "scale")[ns_index])^(-1)
-  if (!is.null(attr(XX, "scale")) & rescale_original) {
-    rescaleX <-  (attr(XX, "scale")[ns_index])^(-1)
-  } else {
-    rescaleX <- 1
-  }
-  if (time) toc()
-  
-  
-  full_rescale_factor <- rescale * rescaleX
   
   if (time) tic(msg = "Return result")
   
   # draws <- sapply(1:ncol(draws), function(x) draws[,x]*full_rescale_factor[x])
-  draws <- draws*matrix(full_rescale_factor, ncol = length(frac_lw_log), nrow = length(ps), byrow = TRUE)
+  # draws <- draws*matrix(full_rescale_factor, ncol = length(frac_lw_log), nrow = length(ps), byrow = TRUE)
   modes[ns_index] <- (modes * rescale) * rescaleX
   if (length(ns_index) < ncol(draws)) draws[,!(1:ncol(draws) %in% ns_index)] <- rep(NA, length(ps))
   modes[!(1:length(modes) %in% ns_index)] <- NA
