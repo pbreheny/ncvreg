@@ -345,14 +345,32 @@ bootf.r <- function(XX, y, lambda, sigma2, significance_level = .8, ncvreg.args,
   #   qnorm(log(1 - ps) + obs_up - frac_up_log, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
   # )})
   
-  draws <- matrix(ncol = length(frac_lw_log), nrow = length(ps))
-  for (i in 1:length(frac_lw_log)) {
-    draws[,i] <- ifelse(
-      frac_lw_log[i] >= log(ps),
-      qnorm(log(ps) + obs_lw[i] - frac_lw_log[i], z[i] + lambda, se, log.p = TRUE),
-      qnorm(log(1 - ps) + obs_up[i] - frac_up_log[i], z[i] - lambda, se, lower.tail = FALSE, log.p = TRUE)
-    )
+  # draws <- matrix(ncol = length(frac_lw_log), nrow = length(ps))
+  # for (i in 1:length(frac_lw_log)) {
+  #   draws[,i] <- ifelse(
+  #     frac_lw_log[i] >= log(ps),
+  #     qnorm(log(ps) + obs_lw[i] - frac_lw_log[i], z[i] + lambda, se, log.p = TRUE),
+  #     qnorm(log(1 - ps) + obs_up[i] - frac_up_log[i], z[i] - lambda, se, lower.tail = FALSE, log.p = TRUE)
+  #   )
+  # }
+  
+  # Function to apply qnorm based on condition
+  apply_qnorm <- function(frac_lw_log, frac_up_log, obs_lw, obs_up, z_val, lambda_val, se_val, p) {
+    log_p <- log(p)
+    if (frac_lw_log >= log_p) {
+      return(qnorm(log_p + obs_lw - frac_lw_log, mean = z_val + lambda_val, sd = se_val, log.p = TRUE))
+    } else {
+      return(qnorm(log(1 - p) + obs_up - frac_up_log, mean = z_val - lambda_val, sd = se_val, lower.tail = FALSE, log.p = TRUE))
+    }
   }
+  
+  # Apply the function for each combination of ps and frac_lw_log/obs_lw/etc.
+  draws <- outer(1:length(ps), 1:length(frac_lw_log), Vectorize(function(i, j) {
+    apply_qnorm(frac_lw_log[j], frac_up_log[j], obs_lw[j], obs_up[j], z[j], lambda, se, ps[i])
+  }))
+  
+  # Transpose if necessary to match your original matrix layout
+  draws <- t(draws)
 
   if (time) toc()
   
