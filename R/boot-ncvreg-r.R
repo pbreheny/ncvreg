@@ -259,7 +259,7 @@ boot.ncvreg.r <- function(X, y, cv_fit, lambda, sigma2, significance_level = 0.8
   if (returnCV) val$cv.ncvreg <- cv_fit
   
   if (time) toc() ## For overall
-  structure(val, class="boot.ncvreg")
+  structure(val, class="boot.ncvreg.r")
   
 }
 bootf.r <- function(XX, y, lambda, sigma2, significance_level = .8, ncvreg.args, rescale_original = TRUE, time = FALSE, quantiles = "sample") {
