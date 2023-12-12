@@ -287,6 +287,7 @@ bootf.r <- function(XX, y, lambda, sigma2, significance_level = .8, ncvreg.args,
   ynew <- y[idx_new]
   ynew <- ynew - mean(ynew)
   xnew <- ncvreg::std(XX[idx_new,,drop=FALSE])
+  nonsingular <- attr(xnew, "nonsingular")
   if (time) toc()
   
   if (time) tic(msg = "Lambda Sequence")
@@ -345,11 +346,11 @@ bootf.r <- function(XX, y, lambda, sigma2, significance_level = .8, ncvreg.args,
   if (time) toc()
   full_rescale_factor <- rescale * rescaleX
   
-  log_ps <- log(ps)
+  log_ps <- log(ps) 
   log_one_minus_ps <- log(1 - ps)
-  draws <- matrix(ncol = length(frac_lw_log), nrow = length(log_ps))
+  draws <- matrix(ncol = ncol(xnew), nrow = length(log_ps))
   for (i in 1:length(ps)) {
-    draws[i,] <- ifelse(
+    draws[i,nonsingular] <- ifelse(
       frac_lw_log >= log_ps[i],
       qnorm(log_ps[i] + obs_lw - frac_lw_log, z + lambda, se, log.p = TRUE),
       qnorm(log_one_minus_ps[i] + obs_up - frac_up_log, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
