@@ -286,8 +286,21 @@ bootf.r <- function(XX, y, lambda, sigma2, significance_level = .8, ncvreg.args,
   idx_new <- sample(1:n, replace = TRUE)
   ynew <- y[idx_new]
   ynew <- ynew - mean(ynew)
+  # attr(xnew, "center") <- NULL
+  # attr(xnew, "scale") <- NULL
+  # attr(xnew, "nonsingular") <- NULL
   xnew <- ncvreg::std(XX[idx_new,,drop=FALSE])
   nonsingular <- attr(xnew, "nonsingular")
+  
+  rescale <- (attr(xnew, "scale")[nonsingular])^(-1)
+  if (!is.null(attr(XX, "scale")) & rescale_original) {
+    rescaleX <-  (attr(XX, "scale")[nonsingular])^(-1)
+  } else {
+    rescaleX <- 1
+  }
+  if (time) toc()
+  full_rescale_factor <- rescale * rescaleX
+  
   if (time) toc()
   
   if (time) tic(msg = "Lambda Sequence")
@@ -316,7 +329,6 @@ bootf.r <- function(XX, y, lambda, sigma2, significance_level = .8, ncvreg.args,
   if (time) toc()
   
   if (time) tic(msg = "Compute Posterior")
-  ns_index <- attr(xnew, "nonsingular")
   modes <- coefs[-1] ## Coefs only returned for nonsingular columns of X
   
   partial_residuals <-  ynew - (coefs[1] + as.numeric(xnew %*% modes) - (xnew * matrix(modes, nrow=nrow(xnew), ncol=ncol(xnew), byrow=TRUE)))
@@ -336,19 +348,9 @@ bootf.r <- function(XX, y, lambda, sigma2, significance_level = .8, ncvreg.args,
   frac_lw_log <- ifelse(is.infinite(exp(obs_p_lw - obs_p_up)), 0, obs_p_lw - obs_p_up - log(1 + exp(obs_p_lw - obs_p_up)))
   frac_up_log <- ifelse(is.infinite(exp(obs_p_up - obs_p_lw)), 0, obs_p_up - obs_p_lw - log(1 + exp(obs_p_up - obs_p_lw)))
   
-  if (time) tic(msg = "Rescale")
-  rescale <- (attr(xnew, "scale")[ns_index])^(-1)
-  if (!is.null(attr(XX, "scale")) & rescale_original) {
-    rescaleX <-  (attr(XX, "scale")[ns_index])^(-1)
-  } else {
-    rescaleX <- 1
-  }
-  if (time) toc()
-  full_rescale_factor <- rescale * rescaleX
-  
   log_ps <- log(ps) 
   log_one_minus_ps <- log(1 - ps)
-  draws <- matrix(ncol = ncol(xnew), nrow = length(log_ps))
+  draws <- matrix(ncol = p, nrow = length(log_ps))
   for (i in 1:length(ps)) {
     draws[i,nonsingular] <- ifelse(
       frac_lw_log >= log_ps[i],
@@ -361,9 +363,9 @@ bootf.r <- function(XX, y, lambda, sigma2, significance_level = .8, ncvreg.args,
   
   if (time) tic(msg = "Return result")
   
-  modes[ns_index] <- (modes * rescale) * rescaleX
-  if (length(ns_index) < ncol(draws)) draws[,!(1:ncol(draws) %in% ns_index)] <- rep(NA, length(ps))
-  modes[!(1:length(modes) %in% ns_index)] <- NA
+  modes[nonsingular] <- (modes * rescale) * rescaleX
+  if (length(nonsingular) < ncol(draws)) draws[,!(1:ncol(draws) %in% nonsingular)] <- rep(NA, length(ps))
+  modes[!(1:length(modes) %in% nonsingular)] <- NA
   
   ret <- list(draws, modes)
   names(ret) <- c("draws", "modes")
