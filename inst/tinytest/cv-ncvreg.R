@@ -1,6 +1,8 @@
+if (interactive()) library(tinytest)
 suppressPackageStartupMessages(library(glmnet))
 
-#### Linear regression ####
+
+# Linear regression -------------------------------------------------------
 
 # Works
 X <- matrix(rnorm(500), 50, 10)
@@ -116,3 +118,12 @@ y <- rnorm(n, mean=X%*%b) > 0
 cvfit <- cv.ncvreg(X, y, family='binomial', returnY=TRUE)
 pe <- apply((cvfit$Y>=0.5)!=y, 2, mean)
 expect_equivalent(pe, cvfit$pe, tol= .001)
+
+# Return Y ----------------------------------------------------------------
+
+X <- matrix(rnorm(500), 50, 10)
+y <- 100 + X[,1] + rnorm(50)
+cvfit <- cv.ncvreg(X, y, returnY=TRUE)
+expect_equivalent(
+  cvfit$cve,
+  apply((cvfit$Y - y)^2, 2, mean))
