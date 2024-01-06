@@ -56,7 +56,7 @@
 #' tmp <- boot.ncvreg(cv_fit = cv.ncvreg(dat$X, dat$y, penalty = "lasso", returnX = TRUE))
 #' 
 #' @export boot.ncvreg
-boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, significance_level = 0.8, nboot = 100, ..., cluster, seed, returnCV=FALSE, verbose = TRUE, time = FALSE) {
+boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, significance_level = 0.8, nboot = 100, ..., cluster, seed, returnCV=FALSE, verbose = TRUE, time = FALSE, quantiles = "sample") {
   
   if (time) tic(msg = "Overall")
   
@@ -169,35 +169,14 @@ boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, significance_level = 0.8, 
       cv.args$y <- y
       if (!(missing(lambda))) {
         lambda_max <- max(apply(ncvreg::std(X), 2, find_thresh, y))
+        lambda_min <- lambda - lambda / 100 ## set min to be slightly smaller
         nlambda <- ifelse(!is.null(ncvreg.args$nlambda), ncvreg.args$nlambda, 100)
-        
-        if (lambda > lambda_max) {
-          lambda_max <- lambda
-          lambda_min <- lambda
+        if (lambda_min > lambda_max | lambda > lambda_max) {
+          lambda_max <- lambda + lambda / 100
           nlambda <- 2
-        } else {
-          lambda_min <- ifelse(length(y) > ncol(X), 0.001, 0.05) * lambda_max  
         }
-        
-        if (lambda_min < lambda) {
-          lambda_min <- lambda
-        }
-        
         lambda_seq <- 10^(seq(log(lambda_max, 10), log(lambda_min, 10), length.out = nlambda))
-        lambda_seq <- lambda_seq[lambda_seq > lambda]
-        lambda_seq <- c(lambda_seq, lambda)
-        if (length(lambda_seq) == 1) lambda_seq <- c(lambda + lambda / 100, lambda_seq)
-
-        # lambda_min <- lambda - lambda / 100 ## set min to be slightly smaller
-        # nlambda <- ifelse(!is.null(ncvreg.args$nlambda), ncvreg.args$nlambda, 100)
-        # if (lambda_min > lambda_max | lambda > lambda_max) {
-        #   lambda_max <- lambda + lambda / 100
-        #   nlambda <- 2
-        # }
-        # lambda_seq <- 10^(seq(log(lambda_max, 10), log(lambda_min, 10), length.out = nlambda))
-        
         cv.args$lambda <- lambda_seq 
-        
       }
       if (!missing(cluster)) cv.args$cluster <- cluster ## NEED TO UPDATE
       cv_fit <- do.call("cv.ncvreg", c(cv.args, ncvreg.args))
@@ -210,13 +189,11 @@ boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, significance_level = 0.8, 
       } else if (!missing(lambda) & missing(sigma2)) {
         if (max(cv_fit$lambda) < lambda | min(cv_fit$lambda) > lambda) stop("Supplied lambda value is outside the range of the model fit.")
         ## Make note about linear interpolation (or in documentation)
-        
         ind <- stats::approx(cv_fit$lambda, seq(cv_fit$lambda), lambda)$y
         l <- floor(ind)
         r <- ceiling(ind)
         w <- ind %% 1
         sigma2 <- (1-w)*cv_fit$cve[l] + w*cv_fit$cve[r]
-        
       }
       
       original_coefs <- coef(cv_fit$fit, lambda = lambda)[-1]
@@ -253,30 +230,37 @@ boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, significance_level = 0.8, 
     original_coefs <- coef(fit, lambda = lambda)[-1]
     if (time) toc()
   }
-
+  
   if (time) tic(msg = "Bootstrapping")  
-  lowers <- uppers <- modes <- matrix(nrow = nboot, ncol = ncol(X))
-
+  modes <- matrix(nrow = nboot, ncol = ncol(X))
+  per_draw <- ifelse(is.character(quantiles), ifelse(quantiles == "sample", 10, 1), length(quantiles))
+  draws <- matrix(nrow = nboot * per_draw, ncol = ncol(X))
+  
+  if (is.character(quantiles) && quantiles == "sample" | !is.character(quantiles)) {
+    bootf <- bootf1 
+  } else if (is.character(quantiles) && quantiles == "disturbed") {
+    bootf <- bootf2
+  }
+  
   if (!missing(cluster)) {
     if (!inherits(cluster, "cluster")) stop("cluster is not of class 'cluster'; see ?makeCluster", call.=FALSE)
     parallel::clusterExport(cluster, c("X", "y", "lambda", "sigma2", "significance_level", "ncvreg.args"), envir=environment())
     parallel::clusterCall(cluster, function() library(ncvreg))
-    results <- parallel::parLapply(cl=cluster, X=1:nboot, fun=bootf, XX=X, y=y, lambda = lambda, sigma2 = sigma2, significance_level = significance_level, ncvreg.args=ncvreg.args, rescale_original = rescale_original)
+    results <- parallel::parLapply(cl=cluster, X=1:nboot, fun=bootf, XX=X, y=y, lambda = lambda, sigma2 = sigma2, significance_level = significance_level, ncvreg.args=ncvreg.args, rescale_original = rescale_original, quantiles = quantiles)
   }
   
   for (i in 1:nboot) {
     if (!missing(cluster)) {
       res <- results[[i]]
     } else {
-      res <- bootf(XX=X, y=y, lambda = lambda, sigma2 = sigma2, significance_level = significance_level, ncvreg.args=ncvreg.args, rescale_original = rescale_original)
+      res <- bootf(XX=X, y=y, lambda = lambda, sigma2 = sigma2, significance_level = significance_level, ncvreg.args=ncvreg.args, rescale_original = rescale_original, quantiles = quantiles)
     }
-    lowers[i,] <- res$lowers
-    uppers[i,] <- res$uppers
+    draws[(1 + i*per_draw - per_draw):(i*per_draw),] <- res$draws
     modes[i,] <- res$modes
   }
   if (time) toc()
   
-  val <- list(lowers = lowers, uppers = uppers, modes = modes, estimates = original_coefs, lamdba = lambda)
+  val <- list(draws = draws, modes = modes, estimates = original_coefs, lamdba = lambda, sigma2 = sigma2)
   
   if (returnCV) val$cv.ncvreg <- cv_fit
   
@@ -284,7 +268,7 @@ boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, significance_level = 0.8, 
   structure(val, class="boot.ncvreg")
   
 }
-bootf <- function(XX, y, lambda, sigma2, significance_level = .8, ncvreg.args, rescale_original = TRUE, time = FALSE) {
+bootf1 <- function(XX, y, lambda, sigma2, significance_level = .8, ncvreg.args, rescale_original = TRUE, time = FALSE, quantiles = "sample") {
   
   if (time) tic(msg = "Overall - Bootstrap")
   if (time) tic(msg = "Prep")
@@ -292,12 +276,16 @@ bootf <- function(XX, y, lambda, sigma2, significance_level = .8, ncvreg.args, r
     ncvreg.args <- list()
   }
   
-  lower_p <- (1 - significance_level) / 2
-  upper_p <- significance_level + lower_p
+  if (is.character(quantiles) && quantiles == "sample") {
+    ps <- runif(10)  
+  } else {
+    ps <- quantiles
+  }
+  
   p <- ncol(XX)
   n <- length(y)
   
-  modes <- uppers <- lowers <- numeric(p)
+  modes <- numeric(p)
   if (time) toc()
   
   if (time) tic(msg = "Sample")
@@ -305,36 +293,29 @@ bootf <- function(XX, y, lambda, sigma2, significance_level = .8, ncvreg.args, r
   ynew <- y[idx_new]
   ynew <- ynew - mean(ynew)
   xnew <- ncvreg::std(XX[idx_new,,drop=FALSE])
+  nonsingular <- attr(xnew, "nonsingular")
+  
+  rescale <- (attr(xnew, "scale")[nonsingular])^(-1)
+  if (!is.null(attr(XX, "scale")) & rescale_original) {
+    rescaleX <-  (attr(XX, "scale")[nonsingular])^(-1)
+  } else {
+    rescaleX <- 1
+  }
+  if (time) toc()
+  full_rescale_factor <- rescale * rescaleX
+  
   if (time) toc()
   
   if (time) tic(msg = "Lambda Sequence")
   lambda_max <- max(apply(xnew, 2, find_thresh, ynew))
-  nlambda <- ifelse(!is.null(ncvreg.args$nlambda), ncvreg.args$nlambda, 100)
-  
-  if (lambda > lambda_max) {
-    lambda_max <- lambda
-    lambda_min <- lambda
+  lambda_min <- lambda - lambda / 100 ## set min to be slightly smaller
+  if (lambda_min > lambda_max | lambda > lambda_max) {
+    lambda_max <- lambda + lambda / 100
     nlambda <- 2
-  } else {
-    lambda_min <- ifelse(length(y) > ncol(XX), 0.001, 0.05) * lambda_max  
   }
-  
-  if (lambda_min < lambda) {
-    lambda_min <- lambda
-  }
-
+  ## Could use better logic to speed up
+  nlambda <- ifelse(!is.null(ncvreg.args$nlambda), ncvreg.args$nlambda, 100)
   lambda_seq <- 10^(seq(log(lambda_max, 10), log(lambda_min, 10), length.out = nlambda))
-  lambda_seq <- lambda_seq[lambda_seq > lambda]
-  lambda_seq <- c(lambda_seq, lambda)
-  if (length(lambda_seq) == 1) lambda_seq <- c(lambda + lambda / 100, lambda_seq)
-  
-  ## Uncomment this
-  # lambda_min <- lambda - lambda / 100 ## set min to be slightly smaller
-  # if (lambda_min > lambda_max | lambda > lambda_max) {
-  #   lambda_max <- lambda + lambda / 100
-  #   nlambda <- 2
-  # }
-  
   if (time) toc()
   
   if (time) tic(msg = "Fit ncvreg")
@@ -344,14 +325,13 @@ bootf <- function(XX, y, lambda, sigma2, significance_level = .8, ncvreg.args, r
   ncvreg.args$lambda <- lambda_seq
   
   ## Ignores user specified lambda.min and nlambda
-  fit <- do.call("ncvreg", ncvreg.args[!(names(ncvreg.args) %in% c("lambda.min", "nlambda"))])
-  # fit <- ncvreg(xnew, ynew, penalty = "lasso", lambda = lambda_seq)
+  # fit <- do.call("ncvreg", ncvreg.args[!(names(ncvreg.args) %in% c("lambda.min", "nlambda"))])
+  fit <- ncvreg(xnew, ynew, penalty = "lasso", lambda = lambda_seq)
   
   coefs <- coef(fit, lambda = lambda)
   if (time) toc()
   
   if (time) tic(msg = "Compute Posterior")
-  ns_index <- attr(xnew, "nonsingular")
   modes <- coefs[-1] ## Coefs only returned for nonsingular columns of X
   
   partial_residuals <-  ynew - (coefs[1] + as.numeric(xnew %*% modes) - (xnew * matrix(modes, nrow=nrow(xnew), ncol=ncol(xnew), byrow=TRUE)))
@@ -371,43 +351,169 @@ bootf <- function(XX, y, lambda, sigma2, significance_level = .8, ncvreg.args, r
   frac_lw_log <- ifelse(is.infinite(exp(obs_p_lw - obs_p_up)), 0, obs_p_lw - obs_p_up - log(1 + exp(obs_p_lw - obs_p_up)))
   frac_up_log <- ifelse(is.infinite(exp(obs_p_up - obs_p_lw)), 0, obs_p_up - obs_p_lw - log(1 + exp(obs_p_up - obs_p_lw)))
   
-  ## Check sum to 1
-  
-  ## Unlikely to fail at this point, possible but would already need to be
-  ## very near limit with dnorm above
-  
-  lower <- ifelse(
-    frac_lw_log >= log(lower_p),
-    qnorm(log(lower_p) + obs_lw - frac_lw_log, z + lambda, se, log.p = TRUE),
-    qnorm(log(upper_p) + obs_up - frac_up_log, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
-  )
-  upper <- ifelse(
-    frac_lw_log >= log(upper_p),
-    qnorm(log(upper_p) + obs_lw - frac_lw_log, z + lambda, se, log.p = TRUE),
-    qnorm(log(lower_p) + obs_up - frac_up_log, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
-  )
+  log_ps <- log(ps) 
+  log_one_minus_ps <- log(1 - ps)
+  draws <- matrix(ncol = p, nrow = length(log_ps))
+  for (i in 1:length(ps)) {
+    draws[i,nonsingular] <- ifelse(
+      frac_lw_log >= log_ps[i],
+      qnorm(log_ps[i] + obs_lw - frac_lw_log, z + lambda, se, log.p = TRUE),
+      qnorm(log_one_minus_ps[i] + obs_up - frac_up_log, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
+    ) * full_rescale_factor
+  }
+
   if (time) toc()
   
-  if (time) tic(msg = "Rescale")
-  rescale <- (attr(xnew, "scale")[ns_index])^(-1)
+  if (time) tic(msg = "Return result")
+  
+  modes[nonsingular] <- (modes * rescale) * rescaleX
+  if (length(nonsingular) < ncol(draws)) draws[,!(1:ncol(draws) %in% nonsingular)] <- rep(NA, length(ps))
+  modes[!(1:length(modes) %in% nonsingular)] <- NA
+  
+  ret <- list(draws, modes)
+  names(ret) <- c("draws", "modes")
+  if (time) toc()
+  if (time) toc()
+  return(ret)
+  
+}
+bootf2 <- function(XX, y, lambda, sigma2, significance_level = .8, ncvreg.args, rescale_original = TRUE, time = FALSE, quantiles = "disturbed") {
+  
+  if (time) tic(msg = "Overall - Bootstrap")
+  if (time) tic(msg = "Prep")
+  if (missing(ncvreg.args)) {
+    ncvreg.args <- list()
+  }
+  
+  p <- ncol(XX)
+  n <- length(y)
+  
+  modes <- numeric(p)
+  if (time) toc()
+  
+  if (time) tic(msg = "Sample")
+  idx_new <- sample(1:n, replace = TRUE)
+  ynew <- y[idx_new]
+  ynew <- ynew - mean(ynew)
+  xnew <- ncvreg::std(XX[idx_new,,drop=FALSE])
+  nonsingular <- attr(xnew, "nonsingular")
+  
+  rescale <- (attr(xnew, "scale")[nonsingular])^(-1)
   if (!is.null(attr(XX, "scale")) & rescale_original) {
-    rescaleX <-  (attr(XX, "scale")[ns_index])^(-1)
+    rescaleX <-  (attr(XX, "scale")[nonsingular])^(-1)
   } else {
     rescaleX <- 1
   }
   if (time) toc()
+  full_rescale_factor <- rescale * rescaleX
   
+  if (time) toc()
+  
+  if (time) tic(msg = "Lambda Sequence")
+  lambda_max <- max(apply(xnew, 2, find_thresh, ynew))
+  lambda_min <- lambda - lambda / 100 ## set min to be slightly smaller
+  if (lambda_min > lambda_max | lambda > lambda_max) {
+    lambda_max <- lambda + lambda / 100
+    nlambda <- 2
+  }
+  ## Could use better logic to speed up
+  nlambda <- ifelse(!is.null(ncvreg.args$nlambda), ncvreg.args$nlambda, 100)
+  lambda_seq <- 10^(seq(log(lambda_max, 10), log(lambda_min, 10), length.out = nlambda))
+  if (time) toc()
+  
+  if (time) tic(msg = "Fit ncvreg")
+  ncvreg.args$X <- xnew
+  ncvreg.args$y <- ynew
+  ncvreg.args$penalty <- "lasso"
+  ncvreg.args$lambda <- lambda_seq
+  
+  ## Ignores user specified lambda.min and nlambda
+  # fit <- do.call("ncvreg", ncvreg.args[!(names(ncvreg.args) %in% c("lambda.min", "nlambda"))])
+  fit <- ncvreg(xnew, ynew, penalty = "lasso", lambda = lambda_seq)
+  
+  coefs <- coef(fit, lambda = lambda)
+  if (time) toc()
+  
+  if (time) tic(msg = "Compute Posterior")
+  modes <- coefs[-1] ## Coefs only returned for nonsingular columns of X
+  partial_residuals <-  ynew - (coefs[1] + as.numeric(xnew %*% modes) - (xnew * matrix(modes, nrow=nrow(xnew), ncol=ncol(xnew), byrow=TRUE)))
+  
+  z <- (1/n)*colSums(xnew * partial_residuals)
+  se <- sqrt(sigma2 / n)
+  
+  ## Tails I am transferring on to (log probability in each tail)
+  obs_lw <- pnorm(0, z + lambda, se, log.p = TRUE)
+  obs_up <- pnorm(0, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
+  
+  ## alt
+  obs_p_lw <- obs_lw + ((z*lambda*n) / sigma2)
+  obs_p_up <- obs_up - ((z*lambda*n) / sigma2)
+  
+  ## But I need to use this to find the proportion of each to the overall probability
+  frac_lw_log <- ifelse(is.infinite(exp(obs_p_lw - obs_p_up)), 0, obs_p_lw - obs_p_up - log(1 + exp(obs_p_lw - obs_p_up)))
+  frac_up_log <- ifelse(is.infinite(exp(obs_p_up - obs_p_lw)), 0, obs_p_up - obs_p_lw - log(1 + exp(obs_p_up - obs_p_lw)))
+  
+  dmodes <- ifelse(
+    modes <= 0,
+    dnorm(modes, z + lambda, se, log = TRUE) + obs_lw - frac_lw_log,
+    dnorm(modes, z - lambda, se, log = TRUE) + obs_up - frac_up_log
+  )
+  
+  
+  spans <- runif(length(modes), 0, 3)
+  
+  accepted <- logical(length(modes))
+  draws <- matrix(ncol = p, nrow = 1)
+  iters <- 0
+  while (any(!accepted) & iters < 1000) {
+    for (i in 1:length(dmodes)) {
+      if (!accepted[i]) {
+        curr_sign <- sample(c(-1, 1), 1)
+        curr_x <- modes[i] + curr_sign * spans[i] * se
+        curr_thresh <- log(runif(1))
+        
+        
+        curr_dens <- ifelse(
+          curr_x <= 0,
+          dnorm(curr_x, z[i] + lambda, se, log = TRUE) + obs_lw[i] - frac_lw_log[i] - dmodes[i],
+          dnorm(curr_x, z[i] - lambda, se, log = TRUE) + obs_up[i] - frac_up_log[i] - dmodes[i]
+        )
+        
+        if (curr_dens >= curr_thresh) {
+          draws[1,i] <- curr_x
+          accepted[i] <- TRUE
+        } else if (sign(curr_x) != sign(modes[i])) {
+          curr_x <- modes[i] + curr_sign * -1 * spans[i] * se
+          curr_dens <- ifelse(
+            curr_x <= 0,
+            dnorm(curr_x, z[i] + lambda, se, log = TRUE) + obs_lw[i] - frac_lw_log[i] - dmodes[i],
+            dnorm(curr_x, z[i] - lambda, se, log = TRUE) + obs_up[i] - frac_up_log[i] - dmodes[i]
+          )
+          if (curr_dens >= curr_thresh) {
+            draws[1,i] <- curr_x
+            accepted[i] <- TRUE
+          }
+        }
+        
+        spans[i] <- runif(1, 0, spans[i])
+      }
+    }
+    iters <- iters + 1
+  }
+  
+  draws <- draws * full_rescale_factor
+  ## * full_rescale_factor
+  
+  if (time) toc()
   
   if (time) tic(msg = "Return result")
-  lowers[ns_index] <- (lower * rescale) * rescaleX
-  uppers[ns_index] <- (upper * rescale) * rescaleX
-  modes[ns_index] <- (modes * rescale) * rescaleX
-  lowers[!(1:length(lowers) %in% ns_index)] <- NA
-  uppers[!(1:length(uppers) %in% ns_index)] <- NA
-  modes[!(1:length(modes) %in% ns_index)] <- NA
   
-  ret <- list(lowers, uppers, modes)
-  names(ret) <- c("lowers", "uppers", "modes")
+  modes[nonsingular] <- (modes * rescale) * rescaleX
+  if (length(nonsingular) < ncol(draws)) draws[,!(1:ncol(draws) %in% nonsingular)] <- NA
+  modes[!(1:length(modes) %in% nonsingular)] <- NA
+  
+  ret <- list(draws, modes)
+  names(ret) <- c("draws", "modes")
   if (time) toc()
   if (time) toc()
   return(ret)
