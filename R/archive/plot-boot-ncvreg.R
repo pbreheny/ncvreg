@@ -8,9 +8,9 @@
 #' @export
 #'
 #' @examples
-plot.boot.ncvreg.r <- function(eb_boot, n = 30, quiet = TRUE) {
+plot.boot.ncvreg <- function(eb_boot, n = 30, quiet = TRUE) {
   
-  plot_res <- ci.boot.ncvreg.r(eb_boot, quiet = quiet) %>%
+  plot_res <- ci.boot.ncvreg(eb_boot, quiet = quiet) %>%
     dplyr::arrange(desc(abs(estimate))) %>%
     head(n)
   
