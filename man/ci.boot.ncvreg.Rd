@@ -4,7 +4,7 @@
 \alias{ci.boot.ncvreg}
 \title{Title}
 \usage{
-ci.boot.ncvreg(eb_boot, quiet = FALSE)
+ci.boot.ncvreg(eb_boot, quiet = FALSE, method = "quantile", alpha = 0.2)
 }
 \arguments{
 \item{eb_boot}{}
