@@ -460,7 +460,7 @@ bootf2 <- function(XX, y, lambda, sigma2, significance_level = .8, ncvreg.args, 
   )
   
   
-  spans <- runif(length(modes), 0, 0.1)
+  spans <- runif(length(modes), 0, 1)
   
   accepted <- logical(length(modes))
   draws <- matrix(ncol = p, nrow = 1)
@@ -501,8 +501,7 @@ bootf2 <- function(XX, y, lambda, sigma2, significance_level = .8, ncvreg.args, 
     iters <- iters + 1
   }
   
-  draws <- draws * full_rescale_factor
-  ## * full_rescale_factor
+  draws[1,nonsingular] <- draws[1,nonsingular] * full_rescale_factor
   
   if (time) toc()
   
@@ -640,8 +639,7 @@ bootf_nosample <- function(XX, y, lambda, sigma2, significance_level = .8, ncvre
     iters <- iters + 1
   }
   
-  draws <- draws * full_rescale_factor
-  ## * full_rescale_factor
+  draws <- draws[nonsingular] * full_rescale_factor
   
   if (time) toc()
   
