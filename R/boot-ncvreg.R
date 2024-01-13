@@ -17,7 +17,6 @@
 #' \code{cv.ncvreg} with \code{returnX = TRUE} and \code{penalty = "lasso"}
 #' @param lambda A positive scalar value of type numeric, if left unspecified, selected using \code{cv.ncvreg}
 #' @param sigma2 A known / estimated value for the variance used in the Laplace prior and Normal likelihood, if left unspecified, selected using \code{cv.ncvreg} only if \code{lambda} is also left as unspecified
-#' @param significance_level Desired confidence level for determining interval width, between 0 and 1. Default is 0.8.
 #' @param nboot The number of bootstrap iterations. Default is 100.
 #' @param ... 
 #' @param cluster \code{cv.ncvreg} and \code{cv.ncvsurv} can be run in parallel
@@ -56,7 +55,7 @@
 #' tmp <- boot.ncvreg(cv_fit = cv.ncvreg(dat$X, dat$y, penalty = "lasso", returnX = TRUE))
 #' 
 #' @export boot.ncvreg
-boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, significance_level = 0.8, nboot = 100, ..., cluster, seed, returnCV=FALSE, verbose = TRUE, time = FALSE, quantiles = "sample") {
+boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster, seed, returnCV=FALSE, verbose = TRUE, time = FALSE, quantiles = "sample") {
   
   if (time) tic(msg = "Overall")
   
@@ -248,16 +247,16 @@ boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, significance_level = 0.8, 
   
   if (!missing(cluster)) {
     if (!inherits(cluster, "cluster")) stop("cluster is not of class 'cluster'; see ?makeCluster", call.=FALSE)
-    parallel::clusterExport(cluster, c("X", "y", "lambda", "sigma2", "significance_level", "ncvreg.args"), envir=environment())
+    parallel::clusterExport(cluster, c("X", "y", "lambda", "sigma2", "ncvreg.args"), envir=environment())
     parallel::clusterCall(cluster, function() library(ncvreg))
-    results <- parallel::parLapply(cl=cluster, X=1:nboot, fun=bootf, XX=X, y=y, lambda = lambda, sigma2 = sigma2, significance_level = significance_level, ncvreg.args=ncvreg.args, rescale_original = rescale_original, quantiles = quantiles)
+    results <- parallel::parLapply(cl=cluster, X=1:nboot, fun=bootf, XX=X, y=y, lambda = lambda, sigma2 = sigma2, ncvreg.args=ncvreg.args, rescale_original = rescale_original, quantiles = quantiles)
   }
   
   for (i in 1:nboot) {
     if (!missing(cluster)) {
       res <- results[[i]]
     } else {
-      res <- bootf(XX=X, y=y, lambda = lambda, sigma2 = sigma2, significance_level = significance_level, ncvreg.args=ncvreg.args, rescale_original = rescale_original, quantiles = quantiles)
+      res <- bootf(XX=X, y=y, lambda = lambda, sigma2 = sigma2, ncvreg.args=ncvreg.args, rescale_original = rescale_original, quantiles = quantiles)
     }
     draws[(1 + i*per_draw - per_draw):(i*per_draw),] <- res$draws
     modes[i,] <- res$modes
@@ -272,7 +271,7 @@ boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, significance_level = 0.8, 
   structure(val, class="boot.ncvreg")
   
 }
-bootf1 <- function(XX, y, lambda, sigma2, significance_level = .8, ncvreg.args, rescale_original = TRUE, time = FALSE, quantiles = "sample") {
+bootf1 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, time = FALSE, quantiles = "sample") {
   
   if (time) tic(msg = "Overall - Bootstrap")
   if (time) tic(msg = "Prep")
@@ -381,7 +380,7 @@ bootf1 <- function(XX, y, lambda, sigma2, significance_level = .8, ncvreg.args, 
   return(ret)
   
 }
-bootf2 <- function(XX, y, lambda, sigma2, significance_level = .8, ncvreg.args, rescale_original = TRUE, time = FALSE, quantiles = "disturbed") {
+bootf2 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, time = FALSE, quantiles = "disturbed") {
   
   if (time) tic(msg = "Overall - Bootstrap")
   if (time) tic(msg = "Prep")
@@ -523,7 +522,7 @@ bootf2 <- function(XX, y, lambda, sigma2, significance_level = .8, ncvreg.args, 
   return(ret)
   
 }
-bootf_nosample <- function(XX, y, lambda, sigma2, significance_level = .8, ncvreg.args, rescale_original = TRUE, time = FALSE, quantiles = "disturbed") {
+bootf_nosample <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, time = FALSE, quantiles = "disturbed") {
   
   if (time) tic(msg = "Overall - Bootstrap")
   if (time) tic(msg = "Prep")
@@ -661,149 +660,7 @@ bootf_nosample <- function(XX, y, lambda, sigma2, significance_level = .8, ncvre
   return(ret)
   
 }
-bootf2 <- function(XX, y, lambda, sigma2, significance_level = .8, ncvreg.args, rescale_original = TRUE, time = FALSE, quantiles = "disturbed") {
-  
-  if (time) tic(msg = "Overall - Bootstrap")
-  if (time) tic(msg = "Prep")
-  if (missing(ncvreg.args)) {
-    ncvreg.args <- list()
-  }
-  
-  p <- ncol(XX)
-  n <- length(y)
-  
-  modes <- numeric(p)
-  if (time) toc()
-  
-  if (time) tic(msg = "Sample")
-  idx_new <- sample(1:n, replace = TRUE)
-  ynew <- y[idx_new]
-  ynew <- ynew - mean(ynew)
-  xnew <- ncvreg::std(XX[idx_new,,drop=FALSE])
-  nonsingular <- attr(xnew, "nonsingular")
-  
-  rescale <- (attr(xnew, "scale")[nonsingular])^(-1)
-  if (!is.null(attr(XX, "scale")) & rescale_original) {
-    rescaleX <-  (attr(XX, "scale")[nonsingular])^(-1)
-  } else {
-    rescaleX <- 1
-  }
-  if (time) toc()
-  full_rescale_factor <- rescale * rescaleX
-  
-  if (time) toc()
-  
-  if (time) tic(msg = "Lambda Sequence")
-  lambda_max <- max(apply(xnew, 2, find_thresh, ynew))
-  lambda_min <- lambda - lambda / 100 ## set min to be slightly smaller
-  if (lambda_min > lambda_max | lambda > lambda_max) {
-    lambda_max <- lambda + lambda / 100
-    nlambda <- 2
-  }
-  ## Could use better logic to speed up
-  nlambda <- ifelse(!is.null(ncvreg.args$nlambda), ncvreg.args$nlambda, 100)
-  lambda_seq <- 10^(seq(log(lambda_max, 10), log(lambda_min, 10), length.out = nlambda))
-  if (time) toc()
-  
-  if (time) tic(msg = "Fit ncvreg")
-  ncvreg.args$X <- xnew
-  ncvreg.args$y <- ynew
-  ncvreg.args$penalty <- "lasso"
-  ncvreg.args$lambda <- lambda_seq
-  
-  ## Ignores user specified lambda.min and nlambda
-  # fit <- do.call("ncvreg", ncvreg.args[!(names(ncvreg.args) %in% c("lambda.min", "nlambda"))])
-  fit <- ncvreg(xnew, ynew, penalty = "lasso", lambda = lambda_seq)
-  
-  coefs <- coef(fit, lambda = lambda)
-  if (time) toc()
-  
-  if (time) tic(msg = "Compute Posterior")
-  modes <- coefs[-1] ## Coefs only returned for nonsingular columns of X
-  partial_residuals <-  ynew - (coefs[1] + as.numeric(xnew %*% modes) - (xnew * matrix(modes, nrow=nrow(xnew), ncol=ncol(xnew), byrow=TRUE)))
-  
-  z <- (1/n)*colSums(xnew * partial_residuals)
-  se <- sqrt(sigma2 / n)
-  
-  ## Tails I am transferring on to (log probability in each tail)
-  obs_lw <- pnorm(0, z + lambda, se, log.p = TRUE)
-  obs_up <- pnorm(0, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
-  
-  ## alt
-  obs_p_lw <- obs_lw + ((z*lambda*n) / sigma2)
-  obs_p_up <- obs_up - ((z*lambda*n) / sigma2)
-  
-  ## But I need to use this to find the proportion of each to the overall probability
-  frac_lw_log <- ifelse(is.infinite(exp(obs_p_lw - obs_p_up)), 0, obs_p_lw - obs_p_up - log(1 + exp(obs_p_lw - obs_p_up)))
-  frac_up_log <- ifelse(is.infinite(exp(obs_p_up - obs_p_lw)), 0, obs_p_up - obs_p_lw - log(1 + exp(obs_p_up - obs_p_lw)))
-  
-  dmodes <- ifelse(
-    modes <= 0,
-    dnorm(modes, z + lambda, se, log = TRUE) + obs_lw - frac_lw_log,
-    dnorm(modes, z - lambda, se, log = TRUE) + obs_up - frac_up_log
-  )
-  
-  
-  spans <- runif(length(modes), 0, 1)
-  
-  accepted <- logical(length(modes))
-  draws <- matrix(ncol = p, nrow = 1)
-  iters <- 0
-  while (any(!accepted) & iters < 1000) {
-    for (i in 1:length(dmodes)) {
-      if (!accepted[i]) {
-        curr_sign <- sample(c(-1, 1), 1)
-        curr_x <- modes[i] + curr_sign * spans[i] * se
-        curr_thresh <- log(runif(1))
-        
-        
-        curr_dens <- ifelse(
-          curr_x <= 0,
-          dnorm(curr_x, z[i] + lambda, se, log = TRUE) + obs_lw[i] - frac_lw_log[i] - dmodes[i],
-          dnorm(curr_x, z[i] - lambda, se, log = TRUE) + obs_up[i] - frac_up_log[i] - dmodes[i]
-        )
-        
-        if (curr_dens >= curr_thresh) {
-          draws[1,i] <- curr_x
-          accepted[i] <- TRUE
-        } else if (sign(curr_x) != sign(modes[i])) {
-          curr_x <- modes[i] + curr_sign * -1 * spans[i] * se
-          curr_dens <- ifelse(
-            curr_x <= 0,
-            dnorm(curr_x, z[i] + lambda, se, log = TRUE) + obs_lw[i] - frac_lw_log[i] - dmodes[i],
-            dnorm(curr_x, z[i] - lambda, se, log = TRUE) + obs_up[i] - frac_up_log[i] - dmodes[i]
-          )
-          if (curr_dens >= curr_thresh) {
-            draws[1,i] <- curr_x
-            accepted[i] <- TRUE
-          }
-        }
-        
-        spans[i] <- runif(1, 0, spans[i])
-      }
-    }
-    iters <- iters + 1
-  }
-  
-  draws <- draws[,nonsingular,drop=FALSE] * full_rescale_factor
-  
-  if (time) toc()
-  
-  if (time) tic(msg = "Return result")
-  
-  modes[nonsingular] <- (modes * rescale) * rescaleX
-  
-  if (length(nonsingular) < ncol(draws)) draws[,!(1:ncol(draws) %in% nonsingular)] <- NA
-  modes[!(1:length(modes) %in% nonsingular)] <- NA
-  
-  ret <- list(draws, modes)
-  names(ret) <- c("draws", "modes")
-  if (time) toc()
-  if (time) toc()
-  return(ret)
-  
-}
-bootf3 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, time = FALSE, quantiles = "disturbed") {
+bootf3 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, time = FALSE, quantiles = "mode") {
   
   if (time) tic(msg = "Overall - Bootstrap")
   if (time) tic(msg = "Prep")
@@ -865,7 +722,7 @@ bootf3 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
   return(ret)
   
 }
-bootf4 <- function(XX, y, lambda, sigma2, significance_level = .8, ncvreg.args, rescale_original = TRUE, time = FALSE, quantiles = "zs") {
+bootf4 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, time = FALSE, quantiles = "zs") {
   
   if (time) tic(msg = "Overall - Bootstrap")
   if (time) tic(msg = "Prep")
