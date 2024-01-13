@@ -53,14 +53,11 @@ BCa_ci <- function(bootstrap_samples, original_estimate, original_data, lambda, 
   # Compute adjusted percentiles
   p1 <- pnorm(z0 + (z0 + qnorm(alpha1)) / (1 - acc * (z0 + qnorm(alpha1))))
   p2 <- pnorm(z0 + (z0 + qnorm(alpha2)) / (1 - acc * (z0 + qnorm(alpha2))))
-  print(p1)
-  print(p2)
   
   # Calculate BCa confidence interval
   bca_ci_lower <- sapply(1:ncol(bootstrap_samples), function(x) quantile(bootstrap_samples[,x], p1[x]))
   bca_ci_upper <- sapply(1:ncol(bootstrap_samples), function(x) quantile(bootstrap_samples[,x], p2[x]))
   bca_ci <- cbind(bca_ci_lower, bca_ci_upper)
-  print(bca_ci)
   
   return(bca_ci)
 }
