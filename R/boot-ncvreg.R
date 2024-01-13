@@ -674,9 +674,11 @@ bootf3 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
   modes <- numeric(p)
   if (time) toc()
   
-  ynew <- y
+  if (time) tic(msg = "Sample")
+  idx_new <- sample(1:n, replace = TRUE)
+  ynew <- y[idx_new]
   ynew <- ynew - mean(ynew)
-  xnew <- ncvreg::std(XX)
+  xnew <- ncvreg::std(XX[idx_new,,drop=FALSE])
   nonsingular <- attr(xnew, "nonsingular")
   
   rescale <- (attr(xnew, "scale")[nonsingular])^(-1)
@@ -685,6 +687,7 @@ bootf3 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
   } else {
     rescaleX <- 1
   }
+  if (time) toc()
   full_rescale_factor <- rescale * rescaleX
   
   if (time) toc()
@@ -712,13 +715,14 @@ bootf3 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
   fit <- ncvreg(xnew, ynew, penalty = "lasso", lambda = lambda_seq)
   
   coefs <- coef(fit, lambda = lambda)
+
   modes <- coefs[-1] ## Coefs only returned for nonsingular columns of X
-  
-  modes[nonsingular] <- modes * full_rescale_factor
+  modes[nonsingular] <- (modes * rescale) * rescaleX
   modes[!(1:length(modes) %in% nonsingular)] <- NA
   
   ret <- list(modes, modes)
   names(ret) <- c("draws", "modes")
+
   return(ret)
   
 }
