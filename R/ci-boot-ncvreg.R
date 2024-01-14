@@ -77,6 +77,7 @@ BCa_ci2 <- function(bootstrap_samples, original_estimate, original_data, lambda,
   n <- nrow(bootstrap_samples)
   
   # Calculate bias correction (z0)
+  original_estimate <- bootf_nosample2(original_data$X, original_data$y, lambda = lambda, sigma2 = sigma2)$draws
   quant <- sapply(1:ncol(bootstrap_samples), function(x) mean(bootstrap_samples[,x] < original_estimate[x]))
   quant <- ifelse(quant == 1, 1 - (1/n), quant)
   quant <- ifelse(quant == 0, 1/n, quant)
@@ -114,7 +115,7 @@ jacknife_acc <- function(original_data, lambda, sigma2) {
   # jk samples
   jk_samples <- matrix(nrow = n, ncol = ncol(original_data$X))
   for (i in 1:n) {
-    jk_samples[i,] <- bootf_nosample(original_data$X, original_data$y, lambda = lambda, sigma2 = sigma2)$draws
+    jk_samples[i,] <- bootf_nosample(original_data$X[-i,], original_data$y[-i], lambda = lambda, sigma2 = sigma2)$draws
   }
   
   acc <- apply(jk_samples, 2, acceleration)
@@ -131,7 +132,7 @@ jacknife_acc2 <- function(original_data, lambda, sigma2) {
   # jk samples
   jk_samples <- matrix(nrow = n, ncol = ncol(original_data$X))
   for (i in 1:n) {
-    jk_samples[i,] <- bootf_nosample2(original_data$X, original_data$y, lambda = lambda, sigma2 = sigma2)$draws
+    jk_samples[i,] <- bootf_nosample2(original_data$X[-i,], original_data$y[-i], lambda = lambda, sigma2 = sigma2)$draws
   }
   
   acc <- apply(jk_samples, 2, acceleration)
