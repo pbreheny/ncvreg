@@ -686,7 +686,7 @@ bootf5 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
   
   rescale <- (attr(xnew, "scale")[nonsingular])^(-1)
   if (!is.null(attr(XX, "scale")) & rescale_original) {
-    rescaleX <-  (attr(XX, "scale")[nonsingular])^(-1)
+    rescaleX <-  (attr(XX, "scale")[nonsingular])^(-1) ## may need to take a closer look at this
   } else {
     rescaleX <- 1
   }
@@ -750,7 +750,7 @@ bootf5 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
     qnorm(log_ps + obs_lw - frac_lw_log, z + lambda, se, log.p = TRUE),
     qnorm(log_one_minus_ps + obs_up - frac_up_log, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
   ) * full_rescale_factor 
-  draws[1, nonsingular[modes != 0]] <- modes * full_rescale_factor
+  draws[1, nonsingular[modes != 0]] <- modes[modes != 0] * full_rescale_factor[modes != 0]
 
   if (time) toc()
   
@@ -759,7 +759,7 @@ bootf5 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
   tmp <- modes
   modes <- numeric(p)
   modes[nonsingular] <- tmp * full_rescale_factor 
-  if (length(nonsingular) < ncol(draws)) draws[,!(1:ncol(draws) %in% nonsingular)] <- rep(NA, length(ps))
+  if (length(nonsingular) < ncol(draws)) draws[1,!(1:ncol(draws) %in% nonsingular)] <- NA
   modes[!(1:length(modes) %in% nonsingular)] <- NA
   
   ret <- list(draws, modes)
