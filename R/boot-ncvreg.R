@@ -906,7 +906,7 @@ bootf_nosample <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original 
   return(ret)
   
 }
-bootf_nosample2 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, time = FALSE, quantiles = "disturbed") {
+bootf_nosample2 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, time = FALSE, quantiles = "zs") {
   
   if (time) tic(msg = "Overall - Bootstrap")
   if (time) tic(msg = "Prep")
@@ -976,6 +976,175 @@ bootf_nosample2 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original
   
   return(ret)
 
+}
+bootf_nosample3 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, time = FALSE, quantiles = "mode") {
+  
+  if (time) tic(msg = "Overall - Bootstrap")
+  if (time) tic(msg = "Prep")
+  if (missing(ncvreg.args)) {
+    ncvreg.args <- list()
+  }
+  
+  p <- ncol(XX)
+  n <- length(y)
+  
+  modes <- numeric(p)
+  if (time) toc()
+  
+  if (time) tic(msg = "Sample")
+  ynew <- y
+  ynew <- ynew - mean(ynew)
+  xnew <- ncvreg::std(XX)
+  nonsingular <- attr(xnew, "nonsingular")
+  
+  rescale <- (attr(xnew, "scale")[nonsingular])^(-1)
+  if (!is.null(attr(XX, "scale")) & rescale_original) {
+    rescaleX <-  (attr(XX, "scale")[nonsingular])^(-1)
+  } else {
+    rescaleX <- 1
+  }
+  if (time) toc()
+  full_rescale_factor <- rescale * rescaleX
+  
+  if (time) toc()
+  
+  if (time) tic(msg = "Lambda Sequence")
+  lambda_max <- max(apply(xnew, 2, find_thresh, ynew))
+  lambda_min <- lambda - lambda / 100 ## set min to be slightly smaller
+  if (lambda_min > lambda_max | lambda > lambda_max) {
+    lambda_max <- lambda + lambda / 100
+    nlambda <- 2
+  }
+  ## Could use better logic to speed up
+  nlambda <- ifelse(!is.null(ncvreg.args$nlambda), ncvreg.args$nlambda, 100)
+  lambda_seq <- 10^(seq(log(lambda_max, 10), log(lambda_min, 10), length.out = nlambda))
+  if (time) toc()
+  
+  if (time) tic(msg = "Fit ncvreg")
+  ncvreg.args$X <- xnew
+  ncvreg.args$y <- ynew
+  ncvreg.args$penalty <- "lasso"
+  ncvreg.args$lambda <- lambda_seq
+  
+  ## Ignores user specified lambda.min and nlambda
+  fit <- do.call("ncvreg", ncvreg.args[!(names(ncvreg.args) %in% c("lambda.min", "nlambda"))])
+  # fit <- ncvreg(xnew, ynew, penalty = "lasso", lambda = lambda_seq)
+  
+  coefs <- coef(fit, lambda = lambda)
+  
+  modes <- coefs[-1] ## Coefs only returned for nonsingular columns of X
+  modes[nonsingular] <- (modes * rescale) * rescaleX
+  modes[!(1:length(modes) %in% nonsingular)] <- NA
+  
+  ret <- list(modes, modes)
+  names(ret) <- c("draws", "modes")
+  
+  return(ret)
+  
+}
+bootf_nosample5 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, time = FALSE, quantiles = "zerosample") {
+  
+  if (time) tic(msg = "Overall - Bootstrap")
+  if (time) tic(msg = "Prep")
+  if (missing(ncvreg.args)) {
+    ncvreg.args <- list()
+  }
+  
+  p <- ncol(XX)
+  n <- length(y)
+  
+  if (time) toc()
+  
+  if (time) tic(msg = "Sample")
+  ynew <- y
+  ynew <- ynew - mean(ynew)
+  xnew <- ncvreg::std(XX)
+  nonsingular <- attr(xnew, "nonsingular")
+  
+  rescale <- (attr(xnew, "scale")[nonsingular])^(-1)
+  if (!is.null(attr(XX, "scale")) & rescale_original) {
+    rescaleX <-  (attr(XX, "scale")[nonsingular])^(-1) ## may need to take a closer look at this
+  } else {
+    rescaleX <- 1
+  }
+  if (time) toc()
+  full_rescale_factor <- rescale * rescaleX
+  
+  if (time) toc()
+  
+  if (time) tic(msg = "Lambda Sequence")
+  lambda_max <- max(apply(xnew, 2, find_thresh, ynew))
+  lambda_min <- lambda - lambda / 100 ## set min to be slightly smaller
+  if (lambda_min > lambda_max | lambda > lambda_max) {
+    lambda_max <- lambda + lambda / 100
+    nlambda <- 2
+  }
+  
+  ## Could use better logic to speed up
+  nlambda <- ifelse(!is.null(ncvreg.args$nlambda), ncvreg.args$nlambda, 100)
+  lambda_seq <- 10^(seq(log(lambda_max, 10), log(lambda_min, 10), length.out = nlambda))
+  if (time) toc()
+  
+  if (time) tic(msg = "Fit ncvreg")
+  ncvreg.args$X <- xnew
+  ncvreg.args$y <- ynew
+  ncvreg.args$penalty <- "lasso"
+  ncvreg.args$lambda <- lambda_seq
+  
+  ## Ignores user specified lambda.min and nlambda
+  fit <- do.call("ncvreg", ncvreg.args[!(names(ncvreg.args) %in% c("lambda.min", "nlambda"))])
+  # fit <- ncvreg(xnew, ynew, penalty = "lasso", lambda = lambda_seq)
+  
+  coefs <- coef(fit, lambda = lambda)
+  if (time) toc()
+  
+  if (time) tic(msg = "Compute Posterior")
+  modes <- coefs[-1] ## Coefs only returned for nonsingular columns of X
+  partial_residuals <-  ynew - (coefs[1] + as.numeric(xnew %*% modes) - (xnew * matrix(modes, nrow=nrow(xnew), ncol=ncol(xnew), byrow=TRUE)))
+  
+  z <- (1/n)*colSums(xnew * partial_residuals)
+  se <- sqrt(sigma2 / n)
+  
+  ## Tails I am transferring on to (log probability in each tail)
+  obs_lw <- pnorm(0, z + lambda, se, log.p = TRUE)
+  obs_up <- pnorm(0, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
+  
+  ## alt
+  obs_p_lw <- obs_lw + ((z*lambda*n) / sigma2)
+  obs_p_up <- obs_up - ((z*lambda*n) / sigma2)
+  
+  ## But I need to use this to find the proportion of each to the overall probability
+  frac_lw_log <- ifelse(is.infinite(exp(obs_p_lw - obs_p_up)), 0, obs_p_lw - obs_p_up - log(1 + exp(obs_p_lw - obs_p_up)))
+  frac_up_log <- ifelse(is.infinite(exp(obs_p_up - obs_p_lw)), 0, obs_p_up - obs_p_lw - log(1 + exp(obs_p_up - obs_p_lw)))
+  
+  ## Can make much more efficient
+  ps <- runif(length(frac_lw_log))  
+  log_ps <- log(ps) 
+  log_one_minus_ps <- log(1 - ps)
+  draws <- matrix(ncol = p, nrow = 1)
+  draws[1,nonsingular] <- ifelse(
+    frac_lw_log >= log_ps,
+    qnorm(log_ps + obs_lw - frac_lw_log, z + lambda, se, log.p = TRUE),
+    qnorm(log_one_minus_ps + obs_up - frac_up_log, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
+  ) * full_rescale_factor 
+  draws[1, nonsingular[modes != 0]] <- modes[modes != 0] * full_rescale_factor[modes != 0]
+  
+  if (time) toc()
+  
+  if (time) tic(msg = "Return result")
+  
+  tmp <- modes
+  modes <- numeric(p)
+  modes[nonsingular] <- tmp * full_rescale_factor 
+  if (length(nonsingular) < ncol(draws)) draws[1,!(1:ncol(draws) %in% nonsingular)] <- NA
+  modes[!(1:length(modes) %in% nonsingular)] <- NA
+  
+  ret <- list(draws, modes)
+  names(ret) <- c("draws", "modes")
+  if (time) toc()
+  if (time) toc()
+  return(ret)
+  
 }
 find_thresh <- function(x, y) { abs(t(x) %*% y) / length(y) }
 
