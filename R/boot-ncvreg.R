@@ -243,7 +243,7 @@ boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster,
     bootf <- bootf3
   } else if (is.character(quantiles) && quantiles == "zs") {
     bootf <- bootf4
-  } else if (is.character(quantiles) && quantiles == "zs") {
+  } else if (is.character(quantiles) && quantiles == "zerosample") {
     bootf <- bootf5
   }
   
