@@ -281,16 +281,15 @@ bootf1 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
     ncvreg.args <- list()
   }
   
+  p <- ncol(XX)
+  n <- length(y)
+  
   if (is.character(quantiles) && quantiles == "sample") {
-    ps <- runif(1)  
+    ps <- runif(p)  
   } else {
     ps <- quantiles
   }
   
-  p <- ncol(XX)
-  n <- length(y)
-  
-  modes <- numeric(p)
   if (time) toc()
   
   if (time) tic(msg = "Sample")
@@ -330,8 +329,8 @@ bootf1 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
   ncvreg.args$lambda <- lambda_seq
   
   ## Ignores user specified lambda.min and nlambda
-  # fit <- do.call("ncvreg", ncvreg.args[!(names(ncvreg.args) %in% c("lambda.min", "nlambda"))])
-  fit <- ncvreg(xnew, ynew, penalty = "lasso", lambda = lambda_seq)
+  fit <- do.call("ncvreg", ncvreg.args[!(names(ncvreg.args) %in% c("lambda.min", "nlambda"))])
+  # fit <- ncvreg(xnew, ynew, penalty = "lasso", lambda = lambda_seq)
   
   coefs <- coef(fit, lambda = lambda)
   if (time) toc()
@@ -358,21 +357,21 @@ bootf1 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
   
   log_ps <- log(ps) 
   log_one_minus_ps <- log(1 - ps)
-  draws <- matrix(ncol = p, nrow = length(log_ps))
-  for (i in 1:length(ps)) {
-    draws[i,nonsingular] <- ifelse(
-      frac_lw_log >= log_ps[i],
-      qnorm(log_ps[i] + obs_lw - frac_lw_log, z + lambda, se, log.p = TRUE),
-      qnorm(log_one_minus_ps[i] + obs_up - frac_up_log, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
-    ) * full_rescale_factor
-  }
+  draws <- matrix(ncol = p, nrow = 1)
+  draws[1,nonsingular] <- ifelse(
+    frac_lw_log >= log_ps,
+    qnorm(log_ps + obs_lw - frac_lw_log, z + lambda, se, log.p = TRUE),
+    qnorm(log_one_minus_ps + obs_up - frac_up_log, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
+  ) * full_rescale_factor
 
   if (time) toc()
   
   if (time) tic(msg = "Return result")
   
-  modes[nonsingular] <- (modes * rescale) * rescaleX
-  if (length(nonsingular) < ncol(draws)) draws[,!(1:ncol(draws) %in% nonsingular)] <- rep(NA, length(ps))
+  tmp <- modes
+  modes <- numeric(p)
+  modes[nonsingular] <- tmp * full_rescale_factor
+  if (length(nonsingular) < ncol(draws)) draws[1,!(1:ncol(draws) %in% nonsingular)] <- NA
   modes[!(1:length(modes) %in% nonsingular)] <- NA
   
   ret <- list(draws, modes)
@@ -433,8 +432,8 @@ bootf2 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
   ncvreg.args$lambda <- lambda_seq
   
   ## Ignores user specified lambda.min and nlambda
-  # fit <- do.call("ncvreg", ncvreg.args[!(names(ncvreg.args) %in% c("lambda.min", "nlambda"))])
-  fit <- ncvreg(xnew, ynew, penalty = "lasso", lambda = lambda_seq)
+  fit <- do.call("ncvreg", ncvreg.args[!(names(ncvreg.args) %in% c("lambda.min", "nlambda"))])
+  # fit <- ncvreg(xnew, ynew, penalty = "lasso", lambda = lambda_seq)
   
   coefs <- coef(fit, lambda = lambda)
   if (time) toc()
@@ -575,8 +574,8 @@ bootf3 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
   ncvreg.args$lambda <- lambda_seq
   
   ## Ignores user specified lambda.min and nlambda
-  # fit <- do.call("ncvreg", ncvreg.args[!(names(ncvreg.args) %in% c("lambda.min", "nlambda"))])
-  fit <- ncvreg(xnew, ynew, penalty = "lasso", lambda = lambda_seq)
+  fit <- do.call("ncvreg", ncvreg.args[!(names(ncvreg.args) %in% c("lambda.min", "nlambda"))])
+  # fit <- ncvreg(xnew, ynew, penalty = "lasso", lambda = lambda_seq)
   
   coefs <- coef(fit, lambda = lambda)
 
@@ -641,8 +640,8 @@ bootf4 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
   ncvreg.args$lambda <- lambda_seq
   
   ## Ignores user specified lambda.min and nlambda
-  # fit <- do.call("ncvreg", ncvreg.args[!(names(ncvreg.args) %in% c("lambda.min", "nlambda"))])
-  fit <- ncvreg(xnew, ynew, penalty = "lasso", lambda = lambda_seq)
+  fit <- do.call("ncvreg", ncvreg.args[!(names(ncvreg.args) %in% c("lambda.min", "nlambda"))])
+  # fit <- ncvreg(xnew, ynew, penalty = "lasso", lambda = lambda_seq)
   
   coefs <- coef(fit, lambda = lambda)
   
@@ -715,8 +714,8 @@ bootf5 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
   ncvreg.args$lambda <- lambda_seq
   
   ## Ignores user specified lambda.min and nlambda
-  # fit <- do.call("ncvreg", ncvreg.args[!(names(ncvreg.args) %in% c("lambda.min", "nlambda"))])
-  fit <- ncvreg(xnew, ynew, penalty = "lasso", lambda = lambda_seq)
+  fit <- do.call("ncvreg", ncvreg.args[!(names(ncvreg.args) %in% c("lambda.min", "nlambda"))])
+  # fit <- ncvreg(xnew, ynew, penalty = "lasso", lambda = lambda_seq)
   
   coefs <- coef(fit, lambda = lambda)
   if (time) toc()
