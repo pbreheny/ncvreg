@@ -740,7 +740,9 @@ bootf5 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
   frac_up_log <- ifelse(is.infinite(exp(obs_p_up - obs_p_lw)), 0, obs_p_up - obs_p_lw - log(1 + exp(obs_p_up - obs_p_lw)))
   
   ## Can make much more efficient
-  ps <- runif(length(frac_lw_log))  
+  ps <- runif(length(frac_lw_log), ifelse(z < 0, 0, exp(frac_lw_log)), ifelse(z < 0, exp(frac_lw_log), 1))  
+  if (sum(z == 0) > 0) {print("Z is exactly zero")}
+  ps[z == 0] <- exp(frac_lw_log) 
   log_ps <- log(ps) 
   log_one_minus_ps <- log(1 - ps)
   draws <- matrix(ncol = p, nrow = 1)
