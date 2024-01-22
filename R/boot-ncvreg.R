@@ -650,7 +650,7 @@ bootf4 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
   
   z <- (1/n)*colSums(xnew * partial_residuals)
   draws <- matrix(ncol = p, nrow = 1)
-  draws[1,] <- z[nonsingular] * full_rescale_factor
+  draws[1,nonsingular] <- z[nonsingular] * full_rescale_factor
   
   modes[nonsingular] <- (modes * rescale) * rescaleX
   
