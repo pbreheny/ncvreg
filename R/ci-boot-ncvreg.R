@@ -7,7 +7,7 @@
 #' @export
 #'
 #' @examples
-ci.boot.ncvreg <- function(eb_boot, quiet = FALSE, method = "quantile", alpha = 0.2, original_data = NULL) {
+ci.boot.ncvreg <- function(eb_boot, quiet = FALSE, method = "quantile", alpha = 0.2) {
   
   if (method == "quantile") {
     all_draws <- eb_boot[["draws"]]
