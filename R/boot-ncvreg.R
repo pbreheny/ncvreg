@@ -55,11 +55,8 @@
 #' tmp <- boot.ncvreg(cv_fit = cv.ncvreg(dat$X, dat$y, penalty = "lasso", returnX = TRUE))
 #' 
 #' @export boot.ncvreg
-boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster, seed, returnCV=FALSE, verbose = TRUE, time = FALSE, quantiles = "sample") {
+boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster, seed, returnCV=FALSE, verbose = TRUE, quantiles = "sample") {
   
-  if (time) tic(msg = "Overall")
-  
-  if (time) tic(msg = "Checks")
   if ((missing(X) | missing(y)) & (missing(cv_fit) || class(cv_fit) != "cv.ncvreg")) {
     stop("Either X and y or an object of class cv.ncvreg must be supplied.")
   }
@@ -148,8 +145,6 @@ boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster,
     warning(paste0("Ignoring argument(s) ", paste0(names(args)[names(args) %in% c("gamma", "alpha")], collapse = " and "), ", not used for lasso penalty"))
   }
   
-  if (time) toc()
-  
   original_coefs <- NULL
   ## Will select lambda, won't estimate sigma^2 without selecting lambda
   if (missing(cv_fit)) {
@@ -162,7 +157,6 @@ boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster,
         message("Using cross validation to estimate variance at supplied value of lambda using linear interpolation")
       }
       
-      if (time) tic(msg = "Cross Validation")
       cv.args$penalty <- "lasso"
       cv.args$X <- X
       cv.args$y <- y
@@ -196,10 +190,8 @@ boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster,
       }
       
       original_coefs <- coef(cv_fit$fit, lambda = lambda)[-1]
-      if (time) toc()
     } 
   } else {
-    if (time) tic(msg = "Setting arguments with supplied cv.ncvreg")
     if (!missing(sigma2) & verbose) message("Overriding variance estimate in cv.ncvreg object with user specified value for sigma2.")
     if (!missing(lambda) & verbose) message("Overriding selected lambda in cv.ncvreg object with user specified value for lambda.")
     if (!missing(lambda) & missing(sigma2)) warning("Estimating variance using CV but using user specified value of lambda. Estimated variance corresponds to interpolated CVE for supplied value of lambda.")
@@ -216,21 +208,17 @@ boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster,
     X <- cv_fit$fit$X
     y <- cv_fit$fit$y
     original_coefs <- coef(cv_fit$fit, lambda = lambda)[-1]
-    if (time) toc()
   }
   
   if (is.null(original_coefs)) {
-    if (time) tic(msg = "Getting posterior mode")
     coef.args <- ncvreg.args
     coef.args$X <- X
     coef.args$y <- y
     coef.args$penalty <- "lasso"
     fit <- do.call("ncvreg", coef.args)
     original_coefs <- coef(fit, lambda = lambda)[-1]
-    if (time) toc()
   }
   
-  if (time) tic(msg = "Bootstrapping")  
   modes <- matrix(nrow = nboot, ncol = ncol(X))
   per_draw <- ifelse(is.character(quantiles), ifelse(quantiles == "sample", 1, 1), length(quantiles))
   draws <- matrix(nrow = nboot * per_draw, ncol = ncol(X))
@@ -263,20 +251,16 @@ boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster,
     draws[(1 + i*per_draw - per_draw):(i*per_draw),] <- res$draws
     modes[i,] <- res$modes
   }
-  if (time) toc()
   
   val <- list(draws = draws, modes = modes, estimates = original_coefs, lambda = lambda, sigma2 = sigma2)
   
   if (returnCV) val$cv.ncvreg <- cv_fit
   
-  if (time) toc() ## For overall
   structure(val, class="boot.ncvreg")
   
 }
-bootf1 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, time = FALSE, quantiles = "sample") {
+bootf1 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, quantiles = "sample") {
   
-  if (time) tic(msg = "Overall - Bootstrap")
-  if (time) tic(msg = "Prep")
   if (missing(ncvreg.args)) {
     ncvreg.args <- list()
   }
@@ -284,9 +268,6 @@ bootf1 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
   p <- ncol(XX)
   n <- length(y)
   
-  if (time) toc()
-  
-  if (time) tic(msg = "Sample")
   idx_new <- sample(1:n, replace = TRUE)
   ynew <- y[idx_new]
   ynew <- ynew - mean(ynew)
@@ -305,12 +286,8 @@ bootf1 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
   } else {
     rescaleX <- 1
   }
-  if (time) toc()
   full_rescale_factor <- rescale * rescaleX
   
-  if (time) toc()
-  
-  if (time) tic(msg = "Lambda Sequence")
   lambda_max <- max(apply(xnew, 2, find_thresh, ynew))
   lambda_min <- lambda - lambda / 100 ## set min to be slightly smaller
   if (lambda_min > lambda_max | lambda > lambda_max) {
@@ -320,9 +297,7 @@ bootf1 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
   ## Could use better logic to speed up
   nlambda <- ifelse(!is.null(ncvreg.args$nlambda), ncvreg.args$nlambda, 100)
   lambda_seq <- 10^(seq(log(lambda_max, 10), log(lambda_min, 10), length.out = nlambda))
-  if (time) toc()
-  
-  if (time) tic(msg = "Fit ncvreg")
+
   ncvreg.args$X <- xnew
   ncvreg.args$y <- ynew
   ncvreg.args$penalty <- "lasso"
@@ -333,9 +308,6 @@ bootf1 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
   # fit <- ncvreg(xnew, ynew, penalty = "lasso", lambda = lambda_seq)
   
   coefs <- coef(fit, lambda = lambda)
-  if (time) toc()
-  
-  if (time) tic(msg = "Compute Posterior")
   modes <- coefs[-1] ## Coefs only returned for nonsingular columns of X
   
   partial_residuals <-  ynew - (coefs[1] + as.numeric(xnew %*% modes) - (xnew * matrix(modes, nrow=nrow(xnew), ncol=ncol(xnew), byrow=TRUE)))
@@ -363,10 +335,6 @@ bootf1 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
     qnorm(log_ps + obs_lw - frac_lw_log, z + lambda, se, log.p = TRUE),
     qnorm(log_one_minus_ps + obs_up - frac_up_log, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
   ) * full_rescale_factor
-
-  if (time) toc()
-  
-  if (time) tic(msg = "Return result")
   
   tmp <- modes
   modes <- numeric(p)
@@ -376,15 +344,11 @@ bootf1 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
   
   ret <- list(draws, modes)
   names(ret) <- c("draws", "modes")
-  if (time) toc()
-  if (time) toc()
   return(ret)
   
 }
-bootf2 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, time = FALSE, quantiles = "disturbed") {
+bootf2 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, quantiles = "disturbed") {
   
-  if (time) tic(msg = "Overall - Bootstrap")
-  if (time) tic(msg = "Prep")
   if (missing(ncvreg.args)) {
     ncvreg.args <- list()
   }
@@ -393,9 +357,7 @@ bootf2 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
   n <- length(y)
   
   modes <- numeric(p)
-  if (time) toc()
-  
-  if (time) tic(msg = "Sample")
+
   idx_new <- sample(1:n, replace = TRUE)
   ynew <- y[idx_new]
   ynew <- ynew - mean(ynew)
@@ -408,12 +370,8 @@ bootf2 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
   } else {
     rescaleX <- 1
   }
-  if (time) toc()
   full_rescale_factor <- rescale * rescaleX
-  
-  if (time) toc()
-  
-  if (time) tic(msg = "Lambda Sequence")
+
   lambda_max <- max(apply(xnew, 2, find_thresh, ynew))
   lambda_min <- lambda - lambda / 100 ## set min to be slightly smaller
   if (lambda_min > lambda_max | lambda > lambda_max) {
@@ -423,9 +381,7 @@ bootf2 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
   ## Could use better logic to speed up
   nlambda <- ifelse(!is.null(ncvreg.args$nlambda), ncvreg.args$nlambda, 100)
   lambda_seq <- 10^(seq(log(lambda_max, 10), log(lambda_min, 10), length.out = nlambda))
-  if (time) toc()
-  
-  if (time) tic(msg = "Fit ncvreg")
+
   ncvreg.args$X <- xnew
   ncvreg.args$y <- ynew
   ncvreg.args$penalty <- "lasso"
@@ -436,9 +392,7 @@ bootf2 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
   # fit <- ncvreg(xnew, ynew, penalty = "lasso", lambda = lambda_seq)
   
   coefs <- coef(fit, lambda = lambda)
-  if (time) toc()
-  
-  if (time) tic(msg = "Compute Posterior")
+
   modes <- coefs[-1] ## Coefs only returned for nonsingular columns of X
   partial_residuals <-  ynew - (coefs[1] + as.numeric(xnew %*% modes) - (xnew * matrix(modes, nrow=nrow(xnew), ncol=ncol(xnew), byrow=TRUE)))
   
@@ -505,11 +459,8 @@ bootf2 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
     iters <- iters + 1
   }
   
-  draws <- draws[,nonsingular,drop=FALSE] * full_rescale_factor
   
-  if (time) toc()
-  
-  if (time) tic(msg = "Return result")
+  draws[,nonsingular] <- draws[,nonsingular,drop=FALSE] * full_rescale_factor
   
   modes[nonsingular] <- (modes * rescale) * rescaleX
   
@@ -518,15 +469,11 @@ bootf2 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
   
   ret <- list(draws, modes)
   names(ret) <- c("draws", "modes")
-  if (time) toc()
-  if (time) toc()
   return(ret)
   
 }
-bootf3 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, time = FALSE, quantiles = "mode") {
+bootf3 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, quantiles = "mode") {
   
-  if (time) tic(msg = "Overall - Bootstrap")
-  if (time) tic(msg = "Prep")
   if (missing(ncvreg.args)) {
     ncvreg.args <- list()
   }
@@ -535,9 +482,7 @@ bootf3 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
   n <- length(y)
   
   modes <- numeric(p)
-  if (time) toc()
-  
-  if (time) tic(msg = "Sample")
+
   idx_new <- sample(1:n, replace = TRUE)
   ynew <- y[idx_new]
   ynew <- ynew - mean(ynew)
@@ -550,12 +495,9 @@ bootf3 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
   } else {
     rescaleX <- 1
   }
-  if (time) toc()
+
   full_rescale_factor <- rescale * rescaleX
   
-  if (time) toc()
-  
-  if (time) tic(msg = "Lambda Sequence")
   lambda_max <- max(apply(xnew, 2, find_thresh, ynew))
   lambda_min <- lambda - lambda / 100 ## set min to be slightly smaller
   if (lambda_min > lambda_max | lambda > lambda_max) {
@@ -565,9 +507,7 @@ bootf3 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
   ## Could use better logic to speed up
   nlambda <- ifelse(!is.null(ncvreg.args$nlambda), ncvreg.args$nlambda, 100)
   lambda_seq <- 10^(seq(log(lambda_max, 10), log(lambda_min, 10), length.out = nlambda))
-  if (time) toc()
-  
-  if (time) tic(msg = "Fit ncvreg")
+
   ncvreg.args$X <- xnew
   ncvreg.args$y <- ynew
   ncvreg.args$penalty <- "lasso"
@@ -589,10 +529,8 @@ bootf3 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
   return(ret)
   
 }
-bootf4 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, time = FALSE, quantiles = "zs") {
+bootf4 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, quantiles = "zs") {
   
-  if (time) tic(msg = "Overall - Bootstrap")
-  if (time) tic(msg = "Prep")
   if (missing(ncvreg.args)) {
     ncvreg.args <- list()
   }
@@ -601,9 +539,7 @@ bootf4 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
   n <- length(y)
   
   modes <- numeric(p)
-  if (time) toc()
   
-  if (time) tic(msg = "Sample")
   idx_new <- sample(1:n, replace = TRUE)
   ynew <- y[idx_new]
   ynew <- ynew - mean(ynew)
@@ -616,12 +552,8 @@ bootf4 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
   } else {
     rescaleX <- 1
   }
-  if (time) toc()
   full_rescale_factor <- rescale * rescaleX
   
-  if (time) toc()
-  
-  if (time) tic(msg = "Lambda Sequence")
   lambda_max <- max(apply(xnew, 2, find_thresh, ynew))
   lambda_min <- lambda - lambda / 100 ## set min to be slightly smaller
   if (lambda_min > lambda_max | lambda > lambda_max) {
@@ -631,9 +563,7 @@ bootf4 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
   ## Could use better logic to speed up
   nlambda <- ifelse(!is.null(ncvreg.args$nlambda), ncvreg.args$nlambda, 100)
   lambda_seq <- 10^(seq(log(lambda_max, 10), log(lambda_min, 10), length.out = nlambda))
-  if (time) toc()
-  
-  if (time) tic(msg = "Fit ncvreg")
+
   ncvreg.args$X <- xnew
   ncvreg.args$y <- ynew
   ncvreg.args$penalty <- "lasso"
@@ -663,10 +593,8 @@ bootf4 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
   return(ret)
   
 }
-bootf5 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, time = FALSE, quantiles = "zerosample") {
+bootf5 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, quantiles = "zerosample") {
   
-  if (time) tic(msg = "Overall - Bootstrap")
-  if (time) tic(msg = "Prep")
   if (missing(ncvreg.args)) {
     ncvreg.args <- list()
   }
@@ -674,9 +602,6 @@ bootf5 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
   p <- ncol(XX)
   n <- length(y)
   
-  if (time) toc()
-  
-  if (time) tic(msg = "Sample")
   idx_new <- sample(1:n, replace = TRUE)
   ynew <- y[idx_new]
   ynew <- ynew - mean(ynew)
@@ -689,12 +614,8 @@ bootf5 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
   } else {
     rescaleX <- 1
   }
-  if (time) toc()
   full_rescale_factor <- rescale * rescaleX
   
-  if (time) toc()
-  
-  if (time) tic(msg = "Lambda Sequence")
   lambda_max <- max(apply(xnew, 2, find_thresh, ynew))
   lambda_min <- lambda - lambda / 100 ## set min to be slightly smaller
   if (lambda_min > lambda_max | lambda > lambda_max) {
@@ -705,9 +626,7 @@ bootf5 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
   ## Could use better logic to speed up
   nlambda <- ifelse(!is.null(ncvreg.args$nlambda), ncvreg.args$nlambda, 100)
   lambda_seq <- 10^(seq(log(lambda_max, 10), log(lambda_min, 10), length.out = nlambda))
-  if (time) toc()
-  
-  if (time) tic(msg = "Fit ncvreg")
+
   ncvreg.args$X <- xnew
   ncvreg.args$y <- ynew
   ncvreg.args$penalty <- "lasso"
@@ -718,9 +637,7 @@ bootf5 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
   # fit <- ncvreg(xnew, ynew, penalty = "lasso", lambda = lambda_seq)
   
   coefs <- coef(fit, lambda = lambda)
-  if (time) toc()
-  
-  if (time) tic(msg = "Compute Posterior")
+
   modes <- coefs[-1] ## Coefs only returned for nonsingular columns of X
   partial_residuals <-  ynew - (coefs[1] + as.numeric(xnew %*% modes) - (xnew * matrix(modes, nrow=nrow(xnew), ncol=ncol(xnew), byrow=TRUE)))
   
@@ -752,10 +669,6 @@ bootf5 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
     qnorm(log_one_minus_ps + obs_up - frac_up_log, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
   ) * full_rescale_factor 
   draws[1, nonsingular[modes != 0]] <- modes[modes != 0] * full_rescale_factor[modes != 0]
-
-  if (time) toc()
-  
-  if (time) tic(msg = "Return result")
   
   tmp <- modes
   modes <- numeric(p)
@@ -765,15 +678,11 @@ bootf5 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
   
   ret <- list(draws, modes)
   names(ret) <- c("draws", "modes")
-  if (time) toc()
-  if (time) toc()
   return(ret)
   
 }
-# bootf_nosample <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, time = FALSE, quantiles = "disturbed") {
+# bootf_nosample <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, quantiles = "disturbed") {
 #   
-#   if (time) tic(msg = "Overall - Bootstrap")
-#   if (time) tic(msg = "Prep")
 #   if (missing(ncvreg.args)) {
 #     ncvreg.args <- list()
 #   }
@@ -782,7 +691,6 @@ bootf5 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
 #   n <- length(y)
 #   
 #   modes <- numeric(p)
-#   if (time) toc()
 #   
 #   ynew <- y
 #   ynew <- ynew - mean(ynew)
@@ -797,9 +705,6 @@ bootf5 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
 #   }
 #   full_rescale_factor <- rescale * rescaleX
 #   
-#   if (time) toc()
-#   
-#   if (time) tic(msg = "Lambda Sequence")
 #   lambda_max <- max(apply(xnew, 2, find_thresh, ynew))
 #   lambda_min <- lambda - lambda / 100 ## set min to be slightly smaller
 #   if (lambda_min > lambda_max | lambda > lambda_max) {
@@ -809,9 +714,6 @@ bootf5 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
 #   ## Could use better logic to speed up
 #   nlambda <- ifelse(!is.null(ncvreg.args$nlambda), ncvreg.args$nlambda, 100)
 #   lambda_seq <- 10^(seq(log(lambda_max, 10), log(lambda_min, 10), length.out = nlambda))
-#   if (time) toc()
-#   
-#   if (time) tic(msg = "Fit ncvreg")
 #   ncvreg.args$X <- xnew
 #   ncvreg.args$y <- ynew
 #   ncvreg.args$penalty <- "lasso"
@@ -822,9 +724,6 @@ bootf5 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
 #   fit <- ncvreg(xnew, ynew, penalty = "lasso", lambda = lambda_seq)
 #   
 #   coefs <- coef(fit, lambda = lambda)
-#   if (time) toc()
-#   
-#   if (time) tic(msg = "Compute Posterior")
 #   modes <- coefs[-1] ## Coefs only returned for nonsingular columns of X
 #   partial_residuals <-  ynew - (coefs[1] + as.numeric(xnew %*% modes) - (xnew * matrix(modes, nrow=nrow(xnew), ncol=ncol(xnew), byrow=TRUE)))
 #   
@@ -893,25 +792,17 @@ bootf5 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
 #   
 #   draws <- draws[,nonsingular,drop=FALSE] * full_rescale_factor
 #   
-#   if (time) toc()
-#   
-#   if (time) tic(msg = "Return result")
-#   
 #   modes[nonsingular] <- (modes * rescale) * rescaleX
 #   if (length(nonsingular) < ncol(draws)) draws[,!(1:ncol(draws) %in% nonsingular)] <- NA
 #   modes[!(1:length(modes) %in% nonsingular)] <- NA
 #   
 #   ret <- list(draws, modes)
 #   names(ret) <- c("draws", "modes")
-#   if (time) toc()
-#   if (time) toc()
 #   return(ret)
 #   
 # }
-# bootf_nosample2 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, time = FALSE, quantiles = "zs") {
+# bootf_nosample2 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, quantiles = "zs") {
 #   
-#   if (time) tic(msg = "Overall - Bootstrap")
-#   if (time) tic(msg = "Prep")
 #   if (missing(ncvreg.args)) {
 #     ncvreg.args <- list()
 #   }
@@ -920,7 +811,6 @@ bootf5 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
 #   n <- length(y)
 #   
 #   modes <- numeric(p)
-#   if (time) toc()
 #   
 #   ynew <- y
 #   ynew <- ynew - mean(ynew)
@@ -934,10 +824,7 @@ bootf5 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
 #     rescaleX <- 1
 #   }
 #   full_rescale_factor <- rescale * rescaleX
-#   
-#   if (time) toc()
-#   
-#   if (time) tic(msg = "Lambda Sequence")
+# 
 #   lambda_max <- max(apply(xnew, 2, find_thresh, ynew))
 #   lambda_min <- lambda - lambda / 100 ## set min to be slightly smaller
 #   if (lambda_min > lambda_max | lambda > lambda_max) {
@@ -947,9 +834,6 @@ bootf5 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
 #   ## Could use better logic to speed up
 #   nlambda <- ifelse(!is.null(ncvreg.args$nlambda), ncvreg.args$nlambda, 100)
 #   lambda_seq <- 10^(seq(log(lambda_max, 10), log(lambda_min, 10), length.out = nlambda))
-#   if (time) toc()
-#   
-#   if (time) tic(msg = "Fit ncvreg")
 #   ncvreg.args$X <- xnew
 #   ncvreg.args$y <- ynew
 #   ncvreg.args$penalty <- "lasso"
@@ -979,10 +863,8 @@ bootf5 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
 #   return(ret)
 # 
 # }
-# bootf_nosample3 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, time = FALSE, quantiles = "mode") {
+# bootf_nosample3 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, quantiles = "mode") {
 #   
-#   if (time) tic(msg = "Overall - Bootstrap")
-#   if (time) tic(msg = "Prep")
 #   if (missing(ncvreg.args)) {
 #     ncvreg.args <- list()
 #   }
@@ -991,9 +873,6 @@ bootf5 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
 #   n <- length(y)
 #   
 #   modes <- numeric(p)
-#   if (time) toc()
-#   
-#   if (time) tic(msg = "Sample")
 #   ynew <- y
 #   ynew <- ynew - mean(ynew)
 #   xnew <- ncvreg::std(XX)
@@ -1005,12 +884,8 @@ bootf5 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
 #   } else {
 #     rescaleX <- 1
 #   }
-#   if (time) toc()
 #   full_rescale_factor <- rescale * rescaleX
 #   
-#   if (time) toc()
-#   
-#   if (time) tic(msg = "Lambda Sequence")
 #   lambda_max <- max(apply(xnew, 2, find_thresh, ynew))
 #   lambda_min <- lambda - lambda / 100 ## set min to be slightly smaller
 #   if (lambda_min > lambda_max | lambda > lambda_max) {
@@ -1020,9 +895,6 @@ bootf5 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
 #   ## Could use better logic to speed up
 #   nlambda <- ifelse(!is.null(ncvreg.args$nlambda), ncvreg.args$nlambda, 100)
 #   lambda_seq <- 10^(seq(log(lambda_max, 10), log(lambda_min, 10), length.out = nlambda))
-#   if (time) toc()
-#   
-#   if (time) tic(msg = "Fit ncvreg")
 #   ncvreg.args$X <- xnew
 #   ncvreg.args$y <- ynew
 #   ncvreg.args$penalty <- "lasso"
@@ -1044,10 +916,8 @@ bootf5 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
 #   return(ret)
 #   
 # }
-# bootf_nosample5 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, time = FALSE, quantiles = "zerosample") {
+# bootf_nosample5 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, quantiles = "zerosample") {
 #   
-#   if (time) tic(msg = "Overall - Bootstrap")
-#   if (time) tic(msg = "Prep")
 #   if (missing(ncvreg.args)) {
 #     ncvreg.args <- list()
 #   }
@@ -1055,9 +925,6 @@ bootf5 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
 #   p <- ncol(XX)
 #   n <- length(y)
 #   
-#   if (time) toc()
-#   
-#   if (time) tic(msg = "Sample")
 #   ynew <- y
 #   ynew <- ynew - mean(ynew)
 #   xnew <- ncvreg::std(XX)
@@ -1069,12 +936,9 @@ bootf5 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
 #   } else {
 #     rescaleX <- 1
 #   }
-#   if (time) toc()
 #   full_rescale_factor <- rescale * rescaleX
 #   
-#   if (time) toc()
 #   
-#   if (time) tic(msg = "Lambda Sequence")
 #   lambda_max <- max(apply(xnew, 2, find_thresh, ynew))
 #   lambda_min <- lambda - lambda / 100 ## set min to be slightly smaller
 #   if (lambda_min > lambda_max | lambda > lambda_max) {
@@ -1085,9 +949,6 @@ bootf5 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
 #   ## Could use better logic to speed up
 #   nlambda <- ifelse(!is.null(ncvreg.args$nlambda), ncvreg.args$nlambda, 100)
 #   lambda_seq <- 10^(seq(log(lambda_max, 10), log(lambda_min, 10), length.out = nlambda))
-#   if (time) toc()
-#   
-#   if (time) tic(msg = "Fit ncvreg")
 #   ncvreg.args$X <- xnew
 #   ncvreg.args$y <- ynew
 #   ncvreg.args$penalty <- "lasso"
@@ -1098,9 +959,6 @@ bootf5 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
 #   # fit <- ncvreg(xnew, ynew, penalty = "lasso", lambda = lambda_seq)
 #   
 #   coefs <- coef(fit, lambda = lambda)
-#   if (time) toc()
-#   
-#   if (time) tic(msg = "Compute Posterior")
 #   modes <- coefs[-1] ## Coefs only returned for nonsingular columns of X
 #   partial_residuals <-  ynew - (coefs[1] + as.numeric(xnew %*% modes) - (xnew * matrix(modes, nrow=nrow(xnew), ncol=ncol(xnew), byrow=TRUE)))
 #   
@@ -1131,9 +989,6 @@ bootf5 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
 #   ) * full_rescale_factor 
 #   draws[1, nonsingular[modes != 0]] <- modes[modes != 0] * full_rescale_factor[modes != 0]
 #   
-#   if (time) toc()
-#   
-#   if (time) tic(msg = "Return result")
 #   
 #   tmp <- modes
 #   modes <- numeric(p)
@@ -1143,8 +998,6 @@ bootf5 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
 #   
 #   ret <- list(draws, modes)
 #   names(ret) <- c("draws", "modes")
-#   if (time) toc()
-#   if (time) toc()
 #   return(ret)
 #   
 # }
