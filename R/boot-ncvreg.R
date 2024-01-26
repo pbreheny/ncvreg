@@ -380,7 +380,7 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, q
       draws[,nonsingular] <- draws[,nonsingular,drop=FALSE] * full_rescale_factor
       
     } else if (quantiles %in% c("sample", "zerosample1", "zerosample2")) {
-      if (quantiles == "zerosample2") {
+      if (quantiles == "zerosample1") {
         ps <- runif(length(frac_lw_log), ifelse(z < 0, 0, exp(frac_lw_log)), ifelse(z < 0, exp(frac_lw_log), 1)) 
         ps[z == 0] <- exp(frac_lw_log) ## redundant, these get replaced anyway
       } else {
