@@ -220,20 +220,8 @@ boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster,
   }
   
   modes <- matrix(nrow = nboot, ncol = ncol(X))
-  per_draw <- ifelse(is.character(quantiles), ifelse(quantiles == "sample", 1, 1), length(quantiles))
+  per_draw <- 1
   draws <- matrix(nrow = nboot * per_draw, ncol = ncol(X))
-  
-  if (is.character(quantiles) && quantiles == "sample" | !is.character(quantiles)) {
-    bootf <- bootf1 
-  } else if (is.character(quantiles) && quantiles == "disturbed") {
-    bootf <- bootf2
-  } else if (is.character(quantiles) && quantiles == "mode") {
-    bootf <- bootf3
-  } else if (is.character(quantiles) && quantiles == "zs") {
-    bootf <- bootf4
-  } else if (is.character(quantiles) && quantiles == "zerosample") {
-    bootf <- bootf5
-  }
   
   if (!missing(cluster)) {
     if (!inherits(cluster, "cluster")) stop("cluster is not of class 'cluster'; see ?makeCluster", call.=FALSE)
@@ -259,7 +247,7 @@ boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster,
   structure(val, class="boot.ncvreg")
   
 }
-bootf1 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, quantiles = "sample") {
+bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, quantiles = "sample") {
   
   if (missing(ncvreg.args)) {
     ncvreg.args <- list()
@@ -270,15 +258,10 @@ bootf1 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
   
   idx_new <- sample(1:n, replace = TRUE)
   ynew <- y[idx_new]
-  ynew <- ynew - mean(ynew)
+  # ynew <- ynew - mean(ynew)
   xnew <- ncvreg::std(XX[idx_new,,drop=FALSE])
   nonsingular <- attr(xnew, "nonsingular")
-  
-  if (is.character(quantiles) && quantiles == "sample") {
-    ps <- runif(length(attr(xnew, "nonsingular")))  
-  } else {
-    ps <- quantiles
-  }
+  np <- length(nonsingular)
   
   rescale <- (attr(xnew, "scale")[nonsingular])^(-1)
   if (!is.null(attr(XX, "scale")) & rescale_original) {
@@ -310,371 +293,120 @@ bootf1 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, 
   coefs <- coef(fit, lambda = lambda)
   modes <- coefs[-1] ## Coefs only returned for nonsingular columns of X
   
+  if (quantiles == "traditional") {
+    
+    tmp <- modes
+    modes <- numeric(p)
+    modes[nonsingular] <- tmp * full_rescale_factor
+    modes[!(1:length(modes) %in% nonsingular)] <- NA
+    
+    ret <- list(modes, modes)
+    names(ret) <- c("draws", "modes")
+    
+    return(ret)
+    
+  }
+  
+  ## update to use ncvreg residuals
   partial_residuals <-  ynew - (coefs[1] + as.numeric(xnew %*% modes) - (xnew * matrix(modes, nrow=nrow(xnew), ncol=ncol(xnew), byrow=TRUE)))
   
   z <- (1/n)*colSums(xnew * partial_residuals)
-  se <- sqrt(sigma2 / n)
   
-  ## Tails I am transferring on to (log probability in each tail)
-  obs_lw <- pnorm(0, z + lambda, se, log.p = TRUE)
-  obs_up <- pnorm(0, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
-  
-  ## alt
-  obs_p_lw <- obs_lw + ((z*lambda*n) / sigma2)
-  obs_p_up <- obs_up - ((z*lambda*n) / sigma2)
-  
-  ## But I need to use this to find the proportion of each to the overall probability
-  frac_lw_log <- ifelse(is.infinite(exp(obs_p_lw - obs_p_up)), 0, obs_p_lw - obs_p_up - log(1 + exp(obs_p_lw - obs_p_up)))
-  frac_up_log <- ifelse(is.infinite(exp(obs_p_up - obs_p_lw)), 0, obs_p_up - obs_p_lw - log(1 + exp(obs_p_up - obs_p_lw)))
-  
-  log_ps <- log(ps) 
-  log_one_minus_ps <- log(1 - ps)
   draws <- matrix(ncol = p, nrow = 1)
-  draws[1,nonsingular] <- ifelse(
-    frac_lw_log >= log_ps,
-    qnorm(log_ps + obs_lw - frac_lw_log, z + lambda, se, log.p = TRUE),
-    qnorm(log_one_minus_ps + obs_up - frac_up_log, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
-  ) * full_rescale_factor
+  if (quantiles == "debiased") {
+    # draws[1,nonsingular] <- z[nonsingular] * full_rescale_factor
+    draws[1,nonsingular] <- z * full_rescale_factor
+  } else {
+    se <- sqrt(sigma2 / n)
+    
+    ## Tails I am transferring on to (log probability in each tail)
+    obs_lw <- pnorm(0, z + lambda, se, log.p = TRUE)
+    obs_up <- pnorm(0, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
+    
+    ## alt
+    obs_p_lw <- obs_lw + ((z*lambda*n) / sigma2)
+    obs_p_up <- obs_up - ((z*lambda*n) / sigma2)
+    
+    ## But I need to use this to find the proportion of each to the overall probability
+    frac_lw_log <- ifelse(is.infinite(exp(obs_p_lw - obs_p_up)), 0, obs_p_lw - obs_p_up - log(1 + exp(obs_p_lw - obs_p_up)))
+    frac_up_log <- ifelse(is.infinite(exp(obs_p_up - obs_p_lw)), 0, obs_p_up - obs_p_lw - log(1 + exp(obs_p_up - obs_p_lw)))
+    
+    if (quantiles == "acceptreject") {
+      dmodes <- ifelse(
+        modes <= 0,
+        dnorm(modes, z + lambda, se, log = TRUE) + obs_lw - frac_lw_log,
+        dnorm(modes, z - lambda, se, log = TRUE) + obs_up - frac_up_log
+      )
+      spans <- runif(length(modes), 0, 3)
+      accepted <- logical(length(modes))
+      iters <- 0
+      while (any(!accepted) & iters < 1000) {
+        for (i in 1:length(dmodes)) {
+          if (!accepted[i]) {
+            curr_sign <- sample(c(-1, 1), 1)
+            curr_x <- modes[i] + curr_sign * spans[i] * se
+            curr_thresh <- log(runif(1))
+            
+            
+            curr_dens <- ifelse(
+              curr_x <= 0,
+              dnorm(curr_x, z[i] + lambda, se, log = TRUE) + obs_lw[i] - frac_lw_log[i] - dmodes[i],
+              dnorm(curr_x, z[i] - lambda, se, log = TRUE) + obs_up[i] - frac_up_log[i] - dmodes[i]
+            )
+            
+            if (curr_dens >= curr_thresh) {
+              draws[1,i] <- curr_x
+              accepted[i] <- TRUE
+            } else if (sign(curr_x) != sign(modes[i])) {
+              curr_x <- modes[i] + curr_sign * -1 * spans[i] * se
+              curr_dens <- ifelse(
+                curr_x <= 0,
+                dnorm(curr_x, z[i] + lambda, se, log = TRUE) + obs_lw[i] - frac_lw_log[i] - dmodes[i],
+                dnorm(curr_x, z[i] - lambda, se, log = TRUE) + obs_up[i] - frac_up_log[i] - dmodes[i]
+              )
+              if (curr_dens >= curr_thresh) {
+                draws[1,i] <- curr_x
+                accepted[i] <- TRUE
+              }
+            }
+            
+            spans[i] <- runif(1, 0, spans[i])
+          }
+        }
+        iters <- iters + 1
+      }
+      
+      ## need to normalize how I save draws across methods
+      draws[,nonsingular] <- draws[,nonsingular,drop=FALSE] * full_rescale_factor
+      
+    } else if (quantiles %in% c("sample", "zerosample1", "zerosample2")) {
+      if (quantiles == "zerosample2") {
+        ps <- runif(length(frac_lw_log), ifelse(z < 0, 0, exp(frac_lw_log)), ifelse(z < 0, exp(frac_lw_log), 1)) 
+        ps[z == 0] <- exp(frac_lw_log) ## redundant, these get replaced anyway
+      } else {
+        ps <- runif(np) 
+      }
+      log_ps <- log(ps) 
+      log_one_minus_ps <- log(1 - ps)
+      draws[1,nonsingular] <- ifelse(
+        frac_lw_log >= log_ps,
+        qnorm(log_ps + obs_lw - frac_lw_log, z + lambda, se, log.p = TRUE),
+        qnorm(log_one_minus_ps + obs_up - frac_up_log, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
+      ) * full_rescale_factor 
+      if (quantiles %in% c("zerosample1", "zerosample2")) {
+        draws[1, nonsingular[modes != 0]] <- modes[modes != 0] * full_rescale_factor[modes != 0]
+      }
+    }
+  }
   
   tmp <- modes
   modes <- numeric(p)
   modes[nonsingular] <- tmp * full_rescale_factor
-  if (length(nonsingular) < ncol(draws)) draws[1,!(1:ncol(draws) %in% nonsingular)] <- NA
-  modes[!(1:length(modes) %in% nonsingular)] <- NA
   
-  ret <- list(draws, modes)
-  names(ret) <- c("draws", "modes")
-  return(ret)
-  
-}
-bootf2 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, quantiles = "disturbed") {
-  
-  if (missing(ncvreg.args)) {
-    ncvreg.args <- list()
+  if (length(nonsingular) < ncol(draws)) {
+    draws[,!(1:ncol(draws) %in% nonsingular)] <- NA
+    modes[!(1:length(modes) %in% nonsingular)] <- NA
   }
-  
-  p <- ncol(XX)
-  n <- length(y)
-  
-  modes <- numeric(p)
-
-  idx_new <- sample(1:n, replace = TRUE)
-  ynew <- y[idx_new]
-  ynew <- ynew - mean(ynew)
-  xnew <- ncvreg::std(XX[idx_new,,drop=FALSE])
-  nonsingular <- attr(xnew, "nonsingular")
-  
-  rescale <- (attr(xnew, "scale")[nonsingular])^(-1)
-  if (!is.null(attr(XX, "scale")) & rescale_original) {
-    rescaleX <-  (attr(XX, "scale")[nonsingular])^(-1)
-  } else {
-    rescaleX <- 1
-  }
-  full_rescale_factor <- rescale * rescaleX
-
-  lambda_max <- max(apply(xnew, 2, find_thresh, ynew))
-  lambda_min <- lambda - lambda / 100 ## set min to be slightly smaller
-  if (lambda_min > lambda_max | lambda > lambda_max) {
-    lambda_max <- lambda + lambda / 100
-    nlambda <- 2
-  }
-  ## Could use better logic to speed up
-  nlambda <- ifelse(!is.null(ncvreg.args$nlambda), ncvreg.args$nlambda, 100)
-  lambda_seq <- 10^(seq(log(lambda_max, 10), log(lambda_min, 10), length.out = nlambda))
-
-  ncvreg.args$X <- xnew
-  ncvreg.args$y <- ynew
-  ncvreg.args$penalty <- "lasso"
-  ncvreg.args$lambda <- lambda_seq
-  
-  ## Ignores user specified lambda.min and nlambda
-  fit <- do.call("ncvreg", ncvreg.args[!(names(ncvreg.args) %in% c("lambda.min", "nlambda"))])
-  # fit <- ncvreg(xnew, ynew, penalty = "lasso", lambda = lambda_seq)
-  
-  coefs <- coef(fit, lambda = lambda)
-
-  modes <- coefs[-1] ## Coefs only returned for nonsingular columns of X
-  partial_residuals <-  ynew - (coefs[1] + as.numeric(xnew %*% modes) - (xnew * matrix(modes, nrow=nrow(xnew), ncol=ncol(xnew), byrow=TRUE)))
-  
-  z <- (1/n)*colSums(xnew * partial_residuals)
-  se <- sqrt(sigma2 / n)
-  
-  ## Tails I am transferring on to (log probability in each tail)
-  obs_lw <- pnorm(0, z + lambda, se, log.p = TRUE)
-  obs_up <- pnorm(0, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
-  
-  ## alt
-  obs_p_lw <- obs_lw + ((z*lambda*n) / sigma2)
-  obs_p_up <- obs_up - ((z*lambda*n) / sigma2)
-  
-  ## But I need to use this to find the proportion of each to the overall probability
-  frac_lw_log <- ifelse(is.infinite(exp(obs_p_lw - obs_p_up)), 0, obs_p_lw - obs_p_up - log(1 + exp(obs_p_lw - obs_p_up)))
-  frac_up_log <- ifelse(is.infinite(exp(obs_p_up - obs_p_lw)), 0, obs_p_up - obs_p_lw - log(1 + exp(obs_p_up - obs_p_lw)))
-  
-  dmodes <- ifelse(
-    modes <= 0,
-    dnorm(modes, z + lambda, se, log = TRUE) + obs_lw - frac_lw_log,
-    dnorm(modes, z - lambda, se, log = TRUE) + obs_up - frac_up_log
-  )
-  
-  
-  spans <- runif(length(modes), 0, 3)
-  
-  accepted <- logical(length(modes))
-  draws <- matrix(ncol = p, nrow = 1)
-  iters <- 0
-  while (any(!accepted) & iters < 1000) {
-    for (i in 1:length(dmodes)) {
-      if (!accepted[i]) {
-        curr_sign <- sample(c(-1, 1), 1)
-        curr_x <- modes[i] + curr_sign * spans[i] * se
-        curr_thresh <- log(runif(1))
-        
-        
-        curr_dens <- ifelse(
-          curr_x <= 0,
-          dnorm(curr_x, z[i] + lambda, se, log = TRUE) + obs_lw[i] - frac_lw_log[i] - dmodes[i],
-          dnorm(curr_x, z[i] - lambda, se, log = TRUE) + obs_up[i] - frac_up_log[i] - dmodes[i]
-        )
-        
-        if (curr_dens >= curr_thresh) {
-          draws[1,i] <- curr_x
-          accepted[i] <- TRUE
-        } else if (sign(curr_x) != sign(modes[i])) {
-          curr_x <- modes[i] + curr_sign * -1 * spans[i] * se
-          curr_dens <- ifelse(
-            curr_x <= 0,
-            dnorm(curr_x, z[i] + lambda, se, log = TRUE) + obs_lw[i] - frac_lw_log[i] - dmodes[i],
-            dnorm(curr_x, z[i] - lambda, se, log = TRUE) + obs_up[i] - frac_up_log[i] - dmodes[i]
-          )
-          if (curr_dens >= curr_thresh) {
-            draws[1,i] <- curr_x
-            accepted[i] <- TRUE
-          }
-        }
-        
-        spans[i] <- runif(1, 0, spans[i])
-      }
-    }
-    iters <- iters + 1
-  }
-  
-  
-  draws[,nonsingular] <- draws[,nonsingular,drop=FALSE] * full_rescale_factor
-  
-  modes[nonsingular] <- (modes * rescale) * rescaleX
-  
-  if (length(nonsingular) < ncol(draws)) draws[,!(1:ncol(draws) %in% nonsingular)] <- NA
-  modes[!(1:length(modes) %in% nonsingular)] <- NA
-  
-  ret <- list(draws, modes)
-  names(ret) <- c("draws", "modes")
-  return(ret)
-  
-}
-bootf3 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, quantiles = "mode") {
-  
-  if (missing(ncvreg.args)) {
-    ncvreg.args <- list()
-  }
-  
-  p <- ncol(XX)
-  n <- length(y)
-  
-  modes <- numeric(p)
-
-  idx_new <- sample(1:n, replace = TRUE)
-  ynew <- y[idx_new]
-  ynew <- ynew - mean(ynew)
-  xnew <- ncvreg::std(XX[idx_new,,drop=FALSE])
-  nonsingular <- attr(xnew, "nonsingular")
-  
-  rescale <- (attr(xnew, "scale")[nonsingular])^(-1)
-  if (!is.null(attr(XX, "scale")) & rescale_original) {
-    rescaleX <-  (attr(XX, "scale")[nonsingular])^(-1)
-  } else {
-    rescaleX <- 1
-  }
-
-  full_rescale_factor <- rescale * rescaleX
-  
-  lambda_max <- max(apply(xnew, 2, find_thresh, ynew))
-  lambda_min <- lambda - lambda / 100 ## set min to be slightly smaller
-  if (lambda_min > lambda_max | lambda > lambda_max) {
-    lambda_max <- lambda + lambda / 100
-    nlambda <- 2
-  }
-  ## Could use better logic to speed up
-  nlambda <- ifelse(!is.null(ncvreg.args$nlambda), ncvreg.args$nlambda, 100)
-  lambda_seq <- 10^(seq(log(lambda_max, 10), log(lambda_min, 10), length.out = nlambda))
-
-  ncvreg.args$X <- xnew
-  ncvreg.args$y <- ynew
-  ncvreg.args$penalty <- "lasso"
-  ncvreg.args$lambda <- lambda_seq
-  
-  ## Ignores user specified lambda.min and nlambda
-  fit <- do.call("ncvreg", ncvreg.args[!(names(ncvreg.args) %in% c("lambda.min", "nlambda"))])
-  # fit <- ncvreg(xnew, ynew, penalty = "lasso", lambda = lambda_seq)
-  
-  coefs <- coef(fit, lambda = lambda)
-
-  modes <- coefs[-1] ## Coefs only returned for nonsingular columns of X
-  modes[nonsingular] <- (modes * rescale) * rescaleX
-  modes[!(1:length(modes) %in% nonsingular)] <- NA
-  
-  ret <- list(modes, modes)
-  names(ret) <- c("draws", "modes")
-
-  return(ret)
-  
-}
-bootf4 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, quantiles = "zs") {
-  
-  if (missing(ncvreg.args)) {
-    ncvreg.args <- list()
-  }
-  
-  p <- ncol(XX)
-  n <- length(y)
-  
-  modes <- numeric(p)
-  
-  idx_new <- sample(1:n, replace = TRUE)
-  ynew <- y[idx_new]
-  ynew <- ynew - mean(ynew)
-  xnew <- ncvreg::std(XX[idx_new,,drop=FALSE])
-  nonsingular <- attr(xnew, "nonsingular")
-  
-  rescale <- (attr(xnew, "scale")[nonsingular])^(-1)
-  if (!is.null(attr(XX, "scale")) & rescale_original) {
-    rescaleX <-  (attr(XX, "scale")[nonsingular])^(-1)
-  } else {
-    rescaleX <- 1
-  }
-  full_rescale_factor <- rescale * rescaleX
-  
-  lambda_max <- max(apply(xnew, 2, find_thresh, ynew))
-  lambda_min <- lambda - lambda / 100 ## set min to be slightly smaller
-  if (lambda_min > lambda_max | lambda > lambda_max) {
-    lambda_max <- lambda + lambda / 100
-    nlambda <- 2
-  }
-  ## Could use better logic to speed up
-  nlambda <- ifelse(!is.null(ncvreg.args$nlambda), ncvreg.args$nlambda, 100)
-  lambda_seq <- 10^(seq(log(lambda_max, 10), log(lambda_min, 10), length.out = nlambda))
-
-  ncvreg.args$X <- xnew
-  ncvreg.args$y <- ynew
-  ncvreg.args$penalty <- "lasso"
-  ncvreg.args$lambda <- lambda_seq
-  
-  ## Ignores user specified lambda.min and nlambda
-  fit <- do.call("ncvreg", ncvreg.args[!(names(ncvreg.args) %in% c("lambda.min", "nlambda"))])
-  # fit <- ncvreg(xnew, ynew, penalty = "lasso", lambda = lambda_seq)
-  
-  coefs <- coef(fit, lambda = lambda)
-  
-  modes <- coefs[-1] ## Coefs only returned for nonsingular columns of X
-  partial_residuals <-  ynew - (coefs[1] + as.numeric(xnew %*% modes) - (xnew * matrix(modes, nrow=nrow(xnew), ncol=ncol(xnew), byrow=TRUE)))
-  
-  z <- (1/n)*colSums(xnew * partial_residuals)
-  draws <- matrix(ncol = p, nrow = 1)
-  draws[1,nonsingular] <- z[nonsingular] * full_rescale_factor
-  
-  modes[nonsingular] <- (modes * rescale) * rescaleX
-  
-  if (length(nonsingular) < ncol(draws)) draws[,!(1:ncol(draws) %in% nonsingular)] <- NA
-  modes[!(1:length(modes) %in% nonsingular)] <- NA
-  
-  ret <- list(draws, modes)
-  names(ret) <- c("draws", "modes")
-
-  return(ret)
-  
-}
-bootf5 <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, quantiles = "zerosample") {
-  
-  if (missing(ncvreg.args)) {
-    ncvreg.args <- list()
-  }
-
-  p <- ncol(XX)
-  n <- length(y)
-  
-  idx_new <- sample(1:n, replace = TRUE)
-  ynew <- y[idx_new]
-  ynew <- ynew - mean(ynew)
-  xnew <- ncvreg::std(XX[idx_new,,drop=FALSE])
-  nonsingular <- attr(xnew, "nonsingular")
-  
-  rescale <- (attr(xnew, "scale")[nonsingular])^(-1)
-  if (!is.null(attr(XX, "scale")) & rescale_original) {
-    rescaleX <-  (attr(XX, "scale")[nonsingular])^(-1) ## may need to take a closer look at this
-  } else {
-    rescaleX <- 1
-  }
-  full_rescale_factor <- rescale * rescaleX
-  
-  lambda_max <- max(apply(xnew, 2, find_thresh, ynew))
-  lambda_min <- lambda - lambda / 100 ## set min to be slightly smaller
-  if (lambda_min > lambda_max | lambda > lambda_max) {
-    lambda_max <- lambda + lambda / 100
-    nlambda <- 2
-  }
-  
-  ## Could use better logic to speed up
-  nlambda <- ifelse(!is.null(ncvreg.args$nlambda), ncvreg.args$nlambda, 100)
-  lambda_seq <- 10^(seq(log(lambda_max, 10), log(lambda_min, 10), length.out = nlambda))
-
-  ncvreg.args$X <- xnew
-  ncvreg.args$y <- ynew
-  ncvreg.args$penalty <- "lasso"
-  ncvreg.args$lambda <- lambda_seq
-  
-  ## Ignores user specified lambda.min and nlambda
-  fit <- do.call("ncvreg", ncvreg.args[!(names(ncvreg.args) %in% c("lambda.min", "nlambda"))])
-  # fit <- ncvreg(xnew, ynew, penalty = "lasso", lambda = lambda_seq)
-  
-  coefs <- coef(fit, lambda = lambda)
-
-  modes <- coefs[-1] ## Coefs only returned for nonsingular columns of X
-  partial_residuals <-  ynew - (coefs[1] + as.numeric(xnew %*% modes) - (xnew * matrix(modes, nrow=nrow(xnew), ncol=ncol(xnew), byrow=TRUE)))
-  
-  z <- (1/n)*colSums(xnew * partial_residuals)
-  se <- sqrt(sigma2 / n)
-  
-  ## Tails I am transferring on to (log probability in each tail)
-  obs_lw <- pnorm(0, z + lambda, se, log.p = TRUE)
-  obs_up <- pnorm(0, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
-  
-  ## alt
-  obs_p_lw <- obs_lw + ((z*lambda*n) / sigma2)
-  obs_p_up <- obs_up - ((z*lambda*n) / sigma2)
-  
-  ## But I need to use this to find the proportion of each to the overall probability
-  frac_lw_log <- ifelse(is.infinite(exp(obs_p_lw - obs_p_up)), 0, obs_p_lw - obs_p_up - log(1 + exp(obs_p_lw - obs_p_up)))
-  frac_up_log <- ifelse(is.infinite(exp(obs_p_up - obs_p_lw)), 0, obs_p_up - obs_p_lw - log(1 + exp(obs_p_up - obs_p_lw)))
-  
-  ## Can make much more efficient
-  ps <- runif(length(frac_lw_log), ifelse(z < 0, 0, exp(frac_lw_log)), ifelse(z < 0, exp(frac_lw_log), 1))  
-  if (sum(z == 0) > 0) {print("Z is exactly zero")}
-  ps[z == 0] <- exp(frac_lw_log) 
-  log_ps <- log(ps) 
-  log_one_minus_ps <- log(1 - ps)
-  draws <- matrix(ncol = p, nrow = 1)
-  draws[1,nonsingular] <- ifelse(
-    frac_lw_log >= log_ps,
-    qnorm(log_ps + obs_lw - frac_lw_log, z + lambda, se, log.p = TRUE),
-    qnorm(log_one_minus_ps + obs_up - frac_up_log, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
-  ) * full_rescale_factor 
-  draws[1, nonsingular[modes != 0]] <- modes[modes != 0] * full_rescale_factor[modes != 0]
-  
-  tmp <- modes
-  modes <- numeric(p)
-  modes[nonsingular] <- tmp * full_rescale_factor 
-  if (length(nonsingular) < ncol(draws)) draws[1,!(1:ncol(draws) %in% nonsingular)] <- NA
-  modes[!(1:length(modes) %in% nonsingular)] <- NA
   
   ret <- list(draws, modes)
   names(ret) <- c("draws", "modes")
