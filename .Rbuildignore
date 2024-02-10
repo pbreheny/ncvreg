@@ -1,6 +1,7 @@
 ^pkgdown$
 ^docs$
 ^\.github$
+^\.vscode$
 ^\.version\.json$
 ^.*\.Rproj$
 ^\.Rproj\.user$
