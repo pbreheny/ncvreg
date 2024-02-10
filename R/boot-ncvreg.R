@@ -379,7 +379,7 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, q
       ## need to normalize how I save draws across methods
       draws[,nonsingular] <- draws[,nonsingular,drop=FALSE] * full_rescale_factor
       
-    } else if (quantiles %in% c("sample", "zerosample1", "zerosample2")) {
+    } else if (quantiles %in% c("sample", "zerosample1", "zerosample2", "truncatedzs2")) {
       if (quantiles == "zerosample1") {
         ps <- runif(length(frac_lw_log), ifelse(z < 0, 0, exp(frac_lw_log)), ifelse(z < 0, exp(frac_lw_log), 1)) 
         ps[z == 0] <- exp(frac_lw_log) ## redundant, these get replaced anyway
@@ -388,12 +388,14 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, q
       }
       log_ps <- log(ps) 
       log_one_minus_ps <- log(1 - ps)
-      draws[1,nonsingular] <- ifelse(
+      draws <- ifelse(
         frac_lw_log >= log_ps,
         qnorm(log_ps + obs_lw - frac_lw_log, z + lambda, se, log.p = TRUE),
         qnorm(log_one_minus_ps + obs_up - frac_up_log, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
-      ) * full_rescale_factor 
-      if (quantiles %in% c("zerosample1", "zerosample2")) {
+      ) 
+      if (quantiles == "truncatedzs2") draws <- sign(draws) * pmin(abs(z), abs(draws))
+      draws[1,nonsingular] <- draws * full_rescale_factor 
+      if (quantiles %in% c("zerosample1", "zerosample2", "truncatedzs2")) {
         draws[1, nonsingular[modes != 0]] <- modes[modes != 0] * full_rescale_factor[modes != 0]
       }
     }
