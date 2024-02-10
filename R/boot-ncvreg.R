@@ -393,9 +393,11 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, q
         qnorm(log_ps + obs_lw - frac_lw_log, z + lambda, se, log.p = TRUE),
         qnorm(log_one_minus_ps + obs_up - frac_up_log, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
       ) 
-      if (quantiles == "truncatedzs2") tmp <- sign(tmp) * pmin(abs(z), abs(tmp))
+      if (quantiles == "truncatedzs2") tmp <- sign(tmp) * pmin(abs(lambda), abs(tmp))
+      print(sum(tmp[modes==0] > min(abs(modes[modes != 0]))))
       draws[1,nonsingular] <- tmp * full_rescale_factor 
       if (quantiles %in% c("zerosample1", "zerosample2", "truncatedzs2")) {
+        
         draws[1, nonsingular[modes != 0]] <- modes[modes != 0] * full_rescale_factor[modes != 0]
       }
     }
