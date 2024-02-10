@@ -393,12 +393,12 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, q
         qnorm(log_one_minus_ps + obs_up - frac_up_log, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
       ) 
       if (quantiles == "truncatedzs2") tmp <- sign(tmp) * pmin(min(abs(modes[modes != 0])), abs(tmp))
-      print("# non-zero modes")
-      print(sum(modes != 0))
-      print("Smallest nonzero mode")
-      print(min(abs(modes[modes != 0])))
-      print("Number draws greater than smallest mode")
-      print(sum(abs(tmp[modes==0]) > min(abs(modes[modes != 0]))))
+      # print("# non-zero modes")
+      # print(sum(modes != 0))
+      # print("Smallest nonzero mode")
+      # print(min(abs(modes[modes != 0])))
+      # print("Number draws greater than smallest mode")
+      # print(sum(abs(tmp[modes==0]) > min(abs(modes[modes != 0]))))
       draws[1,nonsingular] <- tmp * full_rescale_factor 
       if (quantiles %in% c("zerosample1", "zerosample2", "truncatedzs2")) {
         draws[1, nonsingular[modes != 0]] <- modes[modes != 0] * full_rescale_factor[modes != 0]
