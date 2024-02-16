@@ -55,7 +55,7 @@
 #' tmp <- boot.ncvreg(cv_fit = cv.ncvreg(dat$X, dat$y, penalty = "lasso", returnX = TRUE))
 #' 
 #' @export boot.ncvreg
-boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster, seed, returnCV=FALSE, verbose = TRUE, quantiles = "sample") {
+boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster, seed, returnCV=FALSE, verbose = TRUE, quantiles = "sample", a1 = NULL) {
   
   if ((missing(X) | missing(y)) & (missing(cv_fit) || class(cv_fit) != "cv.ncvreg")) {
     stop("Either X and y or an object of class cv.ncvreg must be supplied.")
@@ -227,14 +227,14 @@ boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster,
     if (!inherits(cluster, "cluster")) stop("cluster is not of class 'cluster'; see ?makeCluster", call.=FALSE)
     parallel::clusterExport(cluster, c("X", "y", "lambda", "sigma2", "ncvreg.args"), envir=environment())
     parallel::clusterCall(cluster, function() library(ncvreg))
-    results <- parallel::parLapply(cl=cluster, X=1:nboot, fun=bootf, XX=X, y=y, lambda = lambda, sigma2 = sigma2, ncvreg.args=ncvreg.args, rescale_original = rescale_original, quantiles = quantiles)
+    results <- parallel::parLapply(cl=cluster, X=1:nboot, fun=bootf, XX=X, y=y, lambda = lambda, sigma2 = sigma2, ncvreg.args=ncvreg.args, rescale_original = rescale_original, quantiles = quantiles, alpha = a1)
   }
   
   for (i in 1:nboot) {
     if (!missing(cluster)) {
       res <- results[[i]]
     } else {
-      res <- bootf(XX=X, y=y, lambda = lambda, sigma2 = sigma2, ncvreg.args=ncvreg.args, rescale_original = rescale_original, quantiles = quantiles)
+      res <- bootf(XX=X, y=y, lambda = lambda, sigma2 = sigma2, ncvreg.args=ncvreg.args, rescale_original = rescale_original, quantiles = quantiles, alpha = a1)
     }
     draws[(1 + i*per_draw - per_draw):(i*per_draw),] <- res$draws
     modes[i,] <- res$modes
