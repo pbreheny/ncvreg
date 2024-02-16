@@ -429,7 +429,7 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, q
     tmp_upper <- ifelse(
       frac_lw_log >= log_ps_upper,
       qnorm(log_ps_upper + obs_lw - frac_lw_log, z + lambda, se, log.p = TRUE),
-      qnorm(log_one_minus_ps_upper + obs_up - frac_up_log, z - lambda, se, upper.tail = FALSE, log.p = TRUE)
+      qnorm(log_one_minus_ps_upper + obs_up - frac_up_log, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
     ) 
     draws[1,nonsingular] <- tmp_lower * full_rescale_factor
     draws[2,nonsingular] <- tmp_lower * full_rescale_factor
