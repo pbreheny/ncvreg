@@ -18,9 +18,17 @@ ci.boot.ncvreg <- function(eb_boot, quiet = FALSE, method = "quantile", alpha = 
     ci_info <- data.frame(estimate = eb_boot[["estimates"]], variable = names(eb_boot[["estimates"]]), lower = lowers, upper = uppers, method = "Lasso Boot")    
   
   } else if (method == "bucketfill") {
+  
     estimates <- eb_boot[["estimates"]]
     bounds <- do.call(rbind, lapply(1:ncol(all_draws), function(x) fill_bucket(all_draws[,x], estimates[x], alpha)))
     ci_info <- data.frame(estimate = estimates, variable = names(eb_boot[["estimates"]]), lower = bounds[,1], upper = bounds[,2], method = "Lasso Boot")    
+  
+  } else if (method == "identity") {
+    
+    lowers <- all_draws[1,]
+    uppers <- all_draws[2,]
+    
+    ci_info <- data.frame(estimate = eb_boot[["estimates"]], variable = names(eb_boot[["estimates"]]), lower = lowers, upper = uppers, method = "Lasso Boot")    
   }
   
   return(ci_info)
