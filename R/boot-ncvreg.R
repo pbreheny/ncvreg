@@ -220,7 +220,7 @@ boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster,
   }
   
   modes <- matrix(nrow = nboot, ncol = ncol(X))
-  per_draw <- 1
+  per_draw <- ifelse(quantiles = "fullconditional", 2, 1)
   draws <- matrix(nrow = nboot * per_draw, ncol = ncol(X))
   
   if (!missing(cluster)) {
@@ -247,7 +247,7 @@ boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster,
   structure(val, class="boot.ncvreg")
   
 }
-bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, quantiles = "sample") {
+bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, quantiles = "sample", alpha = NULL) {
   
   if (missing(ncvreg.args)) {
     ncvreg.args <- list()
@@ -256,10 +256,15 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, q
   p <- ncol(XX)
   n <- length(y)
   
-  idx_new <- sample(1:n, replace = TRUE)
-  ynew <- y[idx_new]
-  # ynew <- ynew - mean(ynew)
-  xnew <- ncvreg::std(XX[idx_new,,drop=FALSE])
+  if (quantiles == "fullconditional") {
+    ynew <- y
+    xnew <- ncvreg::std(XX)
+  } else {
+    idx_new <- sample(1:n, replace = TRUE)
+    ynew <- y[idx_new]
+    xnew <- ncvreg::std(XX[idx_new,,drop=FALSE])
+  }
+  
   nonsingular <- attr(xnew, "nonsingular")
   np <- length(nonsingular)
   
@@ -312,7 +317,7 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, q
   
   z <- (1/n)*colSums(xnew * partial_residuals)
   
-  draws <- matrix(ncol = p, nrow = 1)
+  draws <- matrix(ncol = p, nrow = ifelse(quantiles == "fullconditional", 2, 1))
   if (quantiles == "debiased") {
     draws[1,nonsingular] <- z * full_rescale_factor
   } else {
@@ -408,7 +413,27 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, q
       if (quantiles %in% c("zerosample1", "zerosample2")) {
         draws[1, nonsingular[modes != 0]] <- modes[modes != 0] * full_rescale_factor[modes != 0]
       } 
+    } else if (quantiles == "fullconditional") {
+      ps_lower <- rep(length(frac_lw_log), alpha / 2)
+      ps_upper <- rep(length(frac_lw_log), 1 - (alpha / 2))
     }
+    log_ps_lower <- log(ps_lower) 
+    log_one_minus_ps_lower <- log(1 - ps_lower)
+    tmp_lower <- ifelse(
+      frac_lw_log >= log_ps_lower,
+      qnorm(log_ps_lower + obs_lw - frac_lw_log, z + lambda, se, log.p = TRUE),
+      qnorm(log_one_minus_ps_lower + obs_up - frac_up_log, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
+    ) 
+    log_ps_upper <- log(ps_upper) 
+    log_one_minus_ps_upper <- log(1 - ps_upper)
+    tmp_upper <- ifelse(
+      frac_lw_log >= log_ps_upper,
+      qnorm(log_ps_upper + obs_lw - frac_lw_log, z + lambda, se, log.p = TRUE),
+      qnorm(log_one_minus_ps_upper + obs_up - frac_up_log, z - lambda, se, upper.tail = FALSE, log.p = TRUE)
+    ) 
+    draws[1,nonsingular] <- tmp_lower * full_rescale_factor
+    draws[2,nonsingular] <- tmp_lower * full_rescale_factor
+    
   }
   
   tmp <- modes
