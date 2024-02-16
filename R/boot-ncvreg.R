@@ -414,9 +414,9 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, q
         draws[1, nonsingular[modes != 0]] <- modes[modes != 0] * full_rescale_factor[modes != 0]
       } 
     } else if (quantiles == "fullconditional") {
-      ps_lower <- rep(length(frac_lw_log), alpha / 2)
-      ps_upper <- rep(length(frac_lw_log), 1 - (alpha / 2))
-    }
+      ps_lower <- rep(alpha / 2, length(frac_lw_log))
+      ps_upper <- rep(1 - (alpha / 2), length(frac_lw_log))
+    } 
     log_ps_lower <- log(ps_lower) 
     log_one_minus_ps_lower <- log(1 - ps_lower)
     tmp_lower <- ifelse(
