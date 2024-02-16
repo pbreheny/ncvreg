@@ -220,7 +220,7 @@ boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster,
   }
   
   modes <- matrix(nrow = nboot, ncol = ncol(X))
-  per_draw <- ifelse(quantiles = "fullconditional", 2, 1)
+  per_draw <- ifelse(quantiles == "fullconditional", 2, 1)
   draws <- matrix(nrow = nboot * per_draw, ncol = ncol(X))
   
   if (!missing(cluster)) {
