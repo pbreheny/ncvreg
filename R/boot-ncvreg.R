@@ -414,14 +414,10 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, q
         draws[1, nonsingular[modes != 0]] <- modes[modes != 0] * full_rescale_factor[modes != 0]
       } 
     } else if (quantiles == "fullconditional") {
-      print(alpha / 2)
-      print(length(frac_lw_log))
       ps_lower <- rep(alpha / 2, length(frac_lw_log))
       ps_upper <- rep(1 - (alpha / 2), length(frac_lw_log))
       log_ps_lower <- log(ps_lower) 
       log_one_minus_ps_lower <- log(1 - ps_lower)
-      print(log_ps_lower)
-      print(frac_lw_log)
       tmp_lower <- ifelse(
         frac_lw_log >= log_ps_lower,
         qnorm(log_ps_lower + obs_lw - frac_lw_log, z + lambda, se, log.p = TRUE),
