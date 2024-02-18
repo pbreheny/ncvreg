@@ -405,13 +405,13 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, q
       #   tmp <- sign(tmp) * pmin(min(abs(modes[modes != 0])), abs(tmp))
       # }
       # No bigger than it was before shrunk (2) -> should have used z not mode
-      if (quantiles == "truncatedzs2") {
-        tmp <- ifelse(abs(tmp) > abs(z), abs(z) * sign(tmp), tmp)
-      }
-      ## No bigger than lambda (3)
       # if (quantiles == "truncatedzs2") {
-      #   tmp <- ifelse(abs(tmp) > abs(lambda), abs(lambda) * sign(tmp), tmp)
+      #   tmp <- ifelse(abs(tmp) > abs(z), abs(z) * sign(tmp), tmp)
       # }
+      ## No bigger than lambda (3)
+      if (quantiles == "truncatedzs2") {
+        tmp <- ifelse(abs(tmp) > abs(lambda), abs(lambda) * sign(tmp), tmp)
+      }
       
       # Diagnostics
       # print("# non-zero modes")
