@@ -106,7 +106,7 @@ jacknife_acc <- function(original_data, lambda, sigma2) {
   # jk samples
   jk_samples <- matrix(nrow = n, ncol = ncol(original_data$X))
   for (i in 1:n) {
-    jk_samples[i,] <- bootf_nosample(original_data$X[-i,], original_data$y[-i], lambda = lambda, sigma2 = sigma2, quantiles = "debiased")$draws
+    jk_samples[i,] <- bootf(original_data$X[-i,], original_data$y[-i], lambda = lambda, sigma2 = sigma2, quantiles = "debiased", resample = FALSE)$draws
   }
   
   acc <- apply(jk_samples, 2, acceleration)
