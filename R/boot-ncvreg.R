@@ -55,7 +55,7 @@
 #' tmp <- boot.ncvreg(cv_fit = cv.ncvreg(dat$X, dat$y, penalty = "lasso", returnX = TRUE))
 #' 
 #' @export boot.ncvreg
-boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster, seed, returnCV=FALSE, verbose = TRUE, quantiles = "sample", a1 = NULL) {
+boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster, seed, returnCV=FALSE, verbose = TRUE, method = "sample", a1 = NULL) {
   
   if ((missing(X) | missing(y)) & (missing(cv_fit) || class(cv_fit) != "cv.ncvreg")) {
     stop("Either X and y or an object of class cv.ncvreg must be supplied.")
@@ -220,34 +220,34 @@ boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster,
   }
   
   modes <- matrix(nrow = nboot, ncol = ncol(X))
-  per_draw <- ifelse(quantiles == "fullconditional", 2, 1)
+  per_draw <- ifelse(method == "fullconditional", 2, 1)
   draws <- matrix(nrow = nboot * per_draw, ncol = ncol(X))
   
   if (!missing(cluster)) {
     if (!inherits(cluster, "cluster")) stop("cluster is not of class 'cluster'; see ?makeCluster", call.=FALSE)
     parallel::clusterExport(cluster, c("X", "y", "lambda", "sigma2", "ncvreg.args"), envir=environment())
     parallel::clusterCall(cluster, function() library(ncvreg))
-    results <- parallel::parLapply(cl=cluster, X=1:nboot, fun=bootf, XX=X, y=y, lambda = lambda, sigma2 = sigma2, ncvreg.args=ncvreg.args, rescale_original = rescale_original, quantiles = quantiles, alpha = a1)
+    results <- parallel::parLapply(cl=cluster, X=1:nboot, fun=bootf, XX=X, y=y, lambda = lambda, sigma2 = sigma2, ncvreg.args=ncvreg.args, rescale_original = rescale_original, method = method, alpha = a1)
   }
   
   for (i in 1:nboot) {
     if (!missing(cluster)) {
       res <- results[[i]]
     } else {
-      res <- bootf(XX=X, y=y, lambda = lambda, sigma2 = sigma2, ncvreg.args=ncvreg.args, rescale_original = rescale_original, quantiles = quantiles, alpha = a1)
+      res <- bootf(XX=X, y=y, lambda = lambda, sigma2 = sigma2, ncvreg.args=ncvreg.args, rescale_original = rescale_original, method = method, alpha = a1)
     }
     draws[(1 + i*per_draw - per_draw):(i*per_draw),] <- res$draws
     modes[i,] <- res$modes
   }
   
-  val <- list(draws = draws, modes = modes, estimates = original_coefs, lambda = lambda, sigma2 = sigma2)
+  val <- list(draws = draws, modes = modes, estimates = original_coefs, lambda = lambda, sigma2 = sigma2, method = method)
   
   if (returnCV) val$cv.ncvreg <- cv_fit
   
   structure(val, class="boot.ncvreg")
   
 }
-bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, quantiles = "sample", alpha = NULL, resample = TRUE) {
+bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, method = "sample", alpha = NULL, resample = TRUE) {
   
   if (missing(ncvreg.args)) {
     ncvreg.args <- list()
@@ -256,7 +256,7 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, q
   p <- ncol(XX)
   n <- length(y)
   
-  if (quantiles == "fullconditional" | !resample) {
+  if (method == "fullconditional" | !resample) {
     ynew <- y
     xnew <- ncvreg::std(XX)
   } else {
@@ -298,7 +298,7 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, q
   coefs <- coef(fit, lambda = lambda)
   modes <- coefs[-1] ## Coefs only returned for nonsingular columns of X
   
-  if (quantiles == "traditional") {
+  if (method == "traditional") {
     
     tmp <- modes
     modes <- numeric(p)
@@ -316,8 +316,8 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, q
   partial_residuals <-  ynew - (coefs[1] + as.numeric(xnew %*% modes) - (xnew * matrix(modes, nrow=nrow(xnew), ncol=ncol(xnew), byrow=TRUE)))
   z <- (1/n)*colSums(xnew * partial_residuals)
   
-  draws <- matrix(ncol = p, nrow = ifelse(quantiles == "fullconditional", 2, 1))
-  if (quantiles == "debiased") {
+  draws <- matrix(ncol = p, nrow = ifelse(method == "fullconditional", 2, 1))
+  if (method == "debiased") {
     draws[1,nonsingular] <- z * full_rescale_factor
   } else {
     se <- sqrt(sigma2 / n)
@@ -334,7 +334,7 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, q
     frac_lw_log <- ifelse(is.infinite(exp(obs_p_lw - obs_p_up)), 0, obs_p_lw - obs_p_up - log(1 + exp(obs_p_lw - obs_p_up)))
     frac_up_log <- ifelse(is.infinite(exp(obs_p_up - obs_p_lw)), 0, obs_p_up - obs_p_lw - log(1 + exp(obs_p_up - obs_p_lw)))
     
-    if (quantiles == "acceptreject") {
+    if (method == "acceptreject") {
       dmodes <- ifelse(
         modes <= 0,
         dnorm(modes, z + lambda, se, log = TRUE) + obs_lw - frac_lw_log,
@@ -382,8 +382,8 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, q
       ## need to normalize how I save draws across methods
       draws[,nonsingular] <- draws[,nonsingular,drop=FALSE] * full_rescale_factor
       
-    } else if (quantiles %in% c("sample", "zerosample1", "zerosample2", "truncatedzs2")) {
-      if (quantiles == "zerosample1") {
+    } else if (method %in% c("sample", "zerosample1", "zerosample2", "truncatedzs2")) {
+      if (method == "zerosample1") {
         ps <- runif(length(frac_lw_log), ifelse(z < 0, 0, exp(frac_lw_log)), ifelse(z < 0, exp(frac_lw_log), 1)) 
         ps[z == 0] <- exp(frac_lw_log) ## redundant, these get replaced anyway
       } else {
@@ -400,15 +400,15 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, q
       
       ## Truncation
       # No bigger than the smallest non-zero (1)
-      # if (quantiles == "truncatedzs2") {
+      # if (method == "truncatedzs2") {
       #   tmp <- sign(tmp) * pmin(min(abs(modes[modes != 0])), abs(tmp))
       # }
       # No bigger than it was before shrunk (2) -> should have used z not mode
-      # if (quantiles == "truncatedzs2") {
+      # if (method == "truncatedzs2") {
       #   tmp <- ifelse(abs(tmp) > abs(z), abs(z) * sign(tmp), tmp)
       # }
       ## No bigger than lambda (3)
-      if (quantiles == "truncatedzs2") {
+      if (method == "truncatedzs2") {
         tmp <- ifelse(abs(tmp) > abs(lambda), abs(lambda) * sign(tmp), tmp)
       }
       
@@ -420,10 +420,10 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, q
       # print("Number draws greater than smallest mode")
       # print(sum(abs(tmp[modes==0]) > min(abs(modes[modes != 0]))))
       draws[1,nonsingular] <- tmp * full_rescale_factor 
-      if (quantiles %in% c("zerosample1", "zerosample2", "truncatedzs2")) {
+      if (method %in% c("zerosample1", "zerosample2", "truncatedzs2")) {
         draws[1, nonsingular[modes != 0]] <- modes[modes != 0] * full_rescale_factor[modes != 0]
       } 
-    } else if (quantiles == "fullconditional") {
+    } else if (method == "fullconditional") {
       ps_lower <- rep(alpha / 2, length(frac_lw_log))
       ps_upper <- rep(1 - (alpha / 2), length(frac_lw_log))
       log_ps_lower <- log(ps_lower) 

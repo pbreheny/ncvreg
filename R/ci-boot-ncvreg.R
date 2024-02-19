@@ -1,40 +1,40 @@
 #' Title
 #'
-#' @param eb_boot 
+#' @param boot 
 #' @param quiet 
 #'
 #' @return
 #' @export
 #'
 #' @examples
-ci.boot.ncvreg <- function(eb_boot, quiet = FALSE, method = "quantile", alpha = 0.2, original_data = NULL) {
+ci.boot.ncvreg <- function(boot, quiet = FALSE, ci_method = "quantile", alpha = 0.2, original_data = NULL) {
   
-  all_draws <- eb_boot[["draws"]]
-  if (method == "quantile") {
+  all_draws <- boot[["draws"]]
+  if (ci_method == "quantile") {
     
     lowers <- apply(all_draws, 2, function(x) quantile(x, alpha / 2, na.rm = TRUE))
     uppers <- apply(all_draws, 2, function(x) quantile(x, 1 - alpha / 2, na.rm = TRUE))
     
-    ci_info <- data.frame(estimate = eb_boot[["estimates"]], variable = names(eb_boot[["estimates"]]), lower = lowers, upper = uppers, method = "Lasso Boot")    
+    ci_info <- data.frame(estimate = boot[["estimates"]], variable = names(boot[["estimates"]]), lower = lowers, upper = uppers, ci_method = "Lasso Boot")    
   
-  } else if (method == "bucketfill") {
+  } else if (ci_method == "bucketfill") {
   
-    estimates <- eb_boot[["estimates"]]
+    estimates <- boot[["estimates"]]
     bounds <- do.call(rbind, lapply(1:ncol(all_draws), function(x) fill_bucket(all_draws[,x], estimates[x], alpha)))
-    ci_info <- data.frame(estimate = estimates, variable = names(eb_boot[["estimates"]]), lower = bounds[,1], upper = bounds[,2], method = "Lasso Boot")    
+    ci_info <- data.frame(estimate = estimates, variable = names(boot[["estimates"]]), lower = bounds[,1], upper = bounds[,2], ci_method = "Lasso Boot")    
   
-  } else if (method == "identity") {
+  } else if (ci_method == "identity") {
     
     lowers <- all_draws[1,]
     uppers <- all_draws[2,]
     
-    ci_info <- data.frame(estimate = eb_boot[["estimates"]], variable = names(eb_boot[["estimates"]]), lower = lowers, upper = uppers, method = "Lasso Boot")    
-  } else if (method == "bca") {
+    ci_info <- data.frame(estimate = boot[["estimates"]], variable = names(boot[["estimates"]]), lower = lowers, upper = uppers, ci_method = "Lasso Boot")    
+  } else if (ci_method == "bca") {
     ci_info <- data.frame(
-      estimate = eb_boot[["estimates"]],
-      variable = names(eb_boot[["estimates"]]),
-      BCa_ci(eb_boot$draws, eb_boot$estimates, original_data = original_data, lambda = eb_boot$lambda, sigma2 = eb_boot$sigma2, alpha = alpha),
-      method = "Lasso Boot")
+      estimate = boot[["estimates"]],
+      variable = names(boot[["estimates"]]),
+      BCa_ci(boot$draws, boot$estimates, original_data = original_data, lambda = boot$lambda, sigma2 = boot$sigma2, alpha = alpha, method = boot$method),
+      ci_method = "Lasso Boot")
     
     colnames(ci_info)[3:4] <- c("lower", "upper")
   }
@@ -67,20 +67,20 @@ fill_bucket <- function(draws, estimate, alpha) {
   return(data.frame(lower = bounds[1], upper = bounds[2]))
   
 } 
-BCa_ci <- function(bootstrap_samples, original_estimate, original_data, lambda, sigma2, alpha = 0.05) {
+BCa_ci <- function(bootstrap_samples, original_estimate, original_data, lambda, sigma2, alpha = 0.05, method) {
   
   # Calculate the number of bootstrap samples
   n <- nrow(bootstrap_samples)
   
   # Calculate bias correction (z0)
-  original_estimate <- bootf(original_data$X, original_data$y, lambda = lambda, sigma2 = sigma2, resample = FALSE, quantiles = "debiased")$draws
+  original_estimate <- bootf(original_data$X, original_data$y, lambda = lambda, sigma2 = sigma2, resample = FALSE, method = method)$draws
   quant <- sapply(1:ncol(bootstrap_samples), function(x) mean(bootstrap_samples[,x] < original_estimate[x]))
   quant <- ifelse(quant == 1, 1 - (1/n), quant)
   quant <- ifelse(quant == 0, 1/n, quant)
   z0 <- qnorm(quant)
   
   # acc
-  acc <- jacknife_acc(original_data, lambda, sigma2)
+  acc <- jacknife_acc(original_data, lambda, sigma2, method = method)
   
   # Adjust alpha for two-tailed test
   alpha1 <- alpha / 2
@@ -97,7 +97,7 @@ BCa_ci <- function(bootstrap_samples, original_estimate, original_data, lambda, 
   
   return(bca_ci)
 }
-jacknife_acc <- function(original_data, lambda, sigma2) {
+jacknife_acc <- function(original_data, lambda, sigma2, method) {
   
   # Compute jackknife estimates
   n <- nrow(original_data$X)
@@ -106,7 +106,7 @@ jacknife_acc <- function(original_data, lambda, sigma2) {
   # jk samples
   jk_samples <- matrix(nrow = n, ncol = ncol(original_data$X))
   for (i in 1:n) {
-    jk_samples[i,] <- bootf(original_data$X[-i,], original_data$y[-i], lambda = lambda, sigma2 = sigma2, quantiles = "debiased", resample = FALSE)$draws
+    jk_samples[i,] <- bootf(original_data$X[-i,], original_data$y[-i], lambda = lambda, sigma2 = sigma2, method = method, resample = FALSE)$draws
   }
   
   acc <- apply(jk_samples, 2, acceleration)
