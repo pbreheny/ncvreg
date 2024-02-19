@@ -305,13 +305,8 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, q
     modes[nonsingular] <- tmp * full_rescale_factor
     modes[!(1:length(modes) %in% nonsingular)] <- NA
     
-    tmp <- z
-    z <- numeric(p)
-    z[nonsingular] <- tmp * z
-    z[!(1:length(z) %in% nonsingular)] <- NA
-    
-    ret <- list(modes, modes, z)
-    names(ret) <- c("draws", "modes", "zs")
+    ret <- list(modes, modes)
+    names(ret) <- c("draws", "modes")
     
     return(ret)
     
