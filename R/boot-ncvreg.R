@@ -305,12 +305,12 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, q
     modes[nonsingular] <- tmp * full_rescale_factor
     modes[!(1:length(modes) %in% nonsingular)] <- NA
     
-    tmp <- zs
-    zs <- numeric(p)
-    zs[nonsingular] <- tmp * zs
-    zs[!(1:length(zs) %in% nonsingular)] <- NA
+    tmp <- z
+    z <- numeric(p)
+    z[nonsingular] <- tmp * z
+    z[!(1:length(z) %in% nonsingular)] <- NA
     
-    ret <- list(modes, modes, zs)
+    ret <- list(modes, modes, z)
     names(ret) <- c("draws", "modes", "zs")
     
     return(ret)
@@ -455,17 +455,17 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, q
   modes <- numeric(p)
   modes[nonsingular] <- tmp * full_rescale_factor
   
-  tmp <- zs
-  zs <- numeric(p)
-  zs[nonsingular] <- tmp * zs
+  tmp <- z
+  z <- numeric(p)
+  z[nonsingular] <- tmp * z
   
   if (length(nonsingular) < ncol(draws)) {
     draws[,!(1:ncol(draws) %in% nonsingular)] <- NA
     modes[!(1:length(modes) %in% nonsingular)] <- NA
-    zs[!(1:length(zs) %in% nonsingular)] <- NA
+    z[!(1:length(z) %in% nonsingular)] <- NA
   }
   
-  ret <- list(draws, modes, zs)
+  ret <- list(draws, modes, z)
   names(ret) <- c("draws", "modes", "zs")
   return(ret)
   
