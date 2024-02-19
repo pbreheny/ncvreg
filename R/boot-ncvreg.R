@@ -247,7 +247,7 @@ boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster,
   structure(val, class="boot.ncvreg")
   
 }
-bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, quantiles = "sample", alpha = NULL) {
+bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, quantiles = "sample", alpha = NULL, resample = TRUE) {
   
   if (missing(ncvreg.args)) {
     ncvreg.args <- list()
@@ -256,7 +256,7 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, q
   p <- ncol(XX)
   n <- length(y)
   
-  if (quantiles == "fullconditional") {
+  if (quantiles == "fullconditional" | !resample) {
     ynew <- y
     xnew <- ncvreg::std(XX)
   } else {
@@ -305,8 +305,13 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, q
     modes[nonsingular] <- tmp * full_rescale_factor
     modes[!(1:length(modes) %in% nonsingular)] <- NA
     
-    ret <- list(modes, modes)
-    names(ret) <- c("draws", "modes")
+    tmp <- zs
+    zs <- numeric(p)
+    zs[nonsingular] <- tmp * zs
+    zs[!(1:length(zs) %in% nonsingular)] <- NA
+    
+    ret <- list(modes, modes, zs)
+    names(ret) <- c("draws", "modes", "zs")
     
     return(ret)
     
@@ -314,7 +319,6 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, q
   
   ## update to use ncvreg residuals
   partial_residuals <-  ynew - (coefs[1] + as.numeric(xnew %*% modes) - (xnew * matrix(modes, nrow=nrow(xnew), ncol=ncol(xnew), byrow=TRUE)))
-  
   z <- (1/n)*colSums(xnew * partial_residuals)
   
   draws <- matrix(ncol = p, nrow = ifelse(quantiles == "fullconditional", 2, 1))
@@ -451,13 +455,18 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, q
   modes <- numeric(p)
   modes[nonsingular] <- tmp * full_rescale_factor
   
+  tmp <- zs
+  zs <- numeric(p)
+  zs[nonsingular] <- tmp * zs
+  
   if (length(nonsingular) < ncol(draws)) {
     draws[,!(1:ncol(draws) %in% nonsingular)] <- NA
     modes[!(1:length(modes) %in% nonsingular)] <- NA
+    zs[!(1:length(zs) %in% nonsingular)] <- NA
   }
   
-  ret <- list(draws, modes)
-  names(ret) <- c("draws", "modes")
+  ret <- list(draws, modes, zs)
+  names(ret) <- c("draws", "modes", "zs")
   return(ret)
   
 }
