@@ -8,9 +8,9 @@
 #' @export
 #'
 #' @examples
-plot.boot.ncvreg <- function(eb_boot, n = 30, quiet = TRUE, method = "quantile") {
+plot.boot.ncvreg <- function(eb_boot, n = 30, quiet = TRUE, method = "quantile", original_data = NULL) {
   
-  plot_res <- ci.boot.ncvreg(eb_boot, quiet = quiet, method = method) %>%
+  plot_res <- ci.boot.ncvreg(eb_boot, quiet = quiet, method = method, original_data = original_data) %>%
     dplyr::arrange(desc(abs(estimate))) %>%
     head(n)
   
