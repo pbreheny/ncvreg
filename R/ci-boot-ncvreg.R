@@ -15,26 +15,26 @@ ci.boot.ncvreg <- function(boot, quiet = FALSE, ci_method = "quantile", alpha = 
     lowers <- apply(all_draws, 2, function(x) quantile(x, alpha / 2, na.rm = TRUE))
     uppers <- apply(all_draws, 2, function(x) quantile(x, 1 - alpha / 2, na.rm = TRUE))
     
-    ci_info <- data.frame(estimate = boot[["estimates"]], variable = names(boot[["estimates"]]), lower = lowers, upper = uppers, ci_method = "Lasso Boot")    
+    ci_info <- data.frame(estimate = boot[["estimates"]], variable = names(boot[["estimates"]]), lower = lowers, upper = uppers, ci_method = ci_method)    
   
   } else if (ci_method == "bucketfill") {
   
     estimates <- boot[["estimates"]]
     bounds <- do.call(rbind, lapply(1:ncol(all_draws), function(x) fill_bucket(all_draws[,x], estimates[x], alpha)))
-    ci_info <- data.frame(estimate = estimates, variable = names(boot[["estimates"]]), lower = bounds[,1], upper = bounds[,2], ci_method = "Lasso Boot")    
+    ci_info <- data.frame(estimate = estimates, variable = names(boot[["estimates"]]), lower = bounds[,1], upper = bounds[,2], ci_method = ci_method)    
   
   } else if (ci_method == "identity") {
     
     lowers <- all_draws[1,]
     uppers <- all_draws[2,]
     
-    ci_info <- data.frame(estimate = boot[["estimates"]], variable = names(boot[["estimates"]]), lower = lowers, upper = uppers, ci_method = "Lasso Boot")    
+    ci_info <- data.frame(estimate = boot[["estimates"]], variable = names(boot[["estimates"]]), lower = lowers, upper = uppers, ci_method = ci_method)    
   } else if (ci_method == "bca") {
     ci_info <- data.frame(
       estimate = boot[["estimates"]],
       variable = names(boot[["estimates"]]),
       BCa_ci(boot$draws, boot$estimates, original_data = original_data, lambda = boot$lambda, sigma2 = boot$sigma2, alpha = alpha, method = boot$method),
-      ci_method = "Lasso Boot")
+      ci_method = ci_method)
     
     colnames(ci_info)[3:4] <- c("lower", "upper")
   }
