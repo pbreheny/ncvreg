@@ -382,7 +382,7 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, m
       ## need to normalize how I save draws across methods
       draws[,nonsingular] <- draws[,nonsingular,drop=FALSE] * full_rescale_factor
       
-    } else if (method %in% c("sample", "zerosample1", "zerosample2", "truncatedzs2")) {
+    } else if (method %in% c("sample", "zerosample1", "zerosample2", "truncatedzs2", "restrainedzs2")) {
       if (method == "zerosample1") {
         ps <- runif(length(frac_lw_log), ifelse(z < 0, 0, exp(frac_lw_log)), ifelse(z < 0, exp(frac_lw_log), 1)) 
         ps[z == 0] <- exp(frac_lw_log) ## redundant, these get replaced anyway
@@ -411,6 +411,9 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, m
       if (method == "truncatedzs2") {
         tmp <- ifelse(abs(tmp) > abs(lambda), abs(lambda) * sign(tmp), tmp)
       }
+      if (method == "restrainedzs2") {
+        tmp <- tmp * (1/n)
+      }
       
       # Diagnostics
       # print("# non-zero modes")
@@ -420,7 +423,7 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, m
       # print("Number draws greater than smallest mode")
       # print(sum(abs(tmp[modes==0]) > min(abs(modes[modes != 0]))))
       draws[1,nonsingular] <- tmp * full_rescale_factor 
-      if (method %in% c("zerosample1", "zerosample2", "truncatedzs2")) {
+      if (method %in% c("zerosample1", "zerosample2", "truncatedzs2", "restrainedzs2")) {
         draws[1, nonsingular[modes != 0]] <- modes[modes != 0] * full_rescale_factor[modes != 0]
       } 
     } else if (method == "fullconditional") {
