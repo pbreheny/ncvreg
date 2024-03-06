@@ -173,6 +173,7 @@ boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster,
       }
       if (!missing(cluster)) cv.args$cluster <- cluster ## NEED TO UPDATE
       cv_fit <- do.call("cv.ncvreg", c(cv.args, ncvreg.args))
+      lambda_max <- max(cv_fit$lambda)
       
       if (missing(lambda) & missing(sigma2)) {
         lambda <- cv_fit$lambda.min 
@@ -230,6 +231,7 @@ boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster,
     results <- parallel::parLapply(cl=cluster, X=1:nboot, fun=bootf, XX=X, y=y, lambda = lambda, sigma2 = sigma2, ncvreg.args=ncvreg.args, rescale_original = rescale_original, method = method, alpha = a1)
   }
   
+  if (method == "zerosample2la") {lambda <- lambda / lambda_max}
   for (i in 1:nboot) {
     if (!missing(cluster)) {
       res <- results[[i]]
@@ -277,8 +279,9 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, m
   full_rescale_factor <- rescale * rescaleX
   
   lambda_max <- max(apply(xnew, 2, find_thresh, ynew))
+  if (method == "zerosample2la") {lambda <- lambda * lambda_max}
   lambda_min <- lambda - lambda / 100 ## set min to be slightly smaller
-  if (lambda_min > lambda_max | lambda > lambda_max) {
+  if (lambda_min > lambda_max | lambda > lambda_max) { # Should review this
     lambda_max <- lambda + lambda / 100
     nlambda <- 2
   }
@@ -382,7 +385,7 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, m
       ## need to normalize how I save draws across methods
       draws[,nonsingular] <- draws[,nonsingular,drop=FALSE] * full_rescale_factor
       
-    } else if (method %in% c("sample", "zerosample1", "zerosample2", "truncatedzs2", "restrainedzs2")) {
+    } else if (method %in% c("sample", "zerosample1", "zerosample2", "truncatedzs2", "restrainedzs2", "zerosample2la")) {
       if (method == "zerosample1") {
         ps <- runif(length(frac_lw_log), ifelse(z < 0, 0, exp(frac_lw_log)), ifelse(z < 0, exp(frac_lw_log), 1)) 
         ps[z == 0] <- exp(frac_lw_log) ## redundant, these get replaced anyway
@@ -423,7 +426,7 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, m
       # print("Number draws greater than smallest mode")
       # print(sum(abs(tmp[modes==0]) > min(abs(modes[modes != 0]))))
       draws[1,nonsingular] <- tmp * full_rescale_factor 
-      if (method %in% c("zerosample1", "zerosample2", "truncatedzs2", "restrainedzs2")) {
+      if (method %in% c("zerosample1", "zerosample2", "truncatedzs2", "restrainedzs2", "zerosample2la")) {
         draws[1, nonsingular[modes != 0]] <- modes[modes != 0] * full_rescale_factor[modes != 0]
       } 
     } else if (method == "fullconditional") {
