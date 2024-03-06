@@ -301,6 +301,8 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, m
   fit <- do.call("ncvreg", ncvreg.args[!(names(ncvreg.args) %in% c("lambda.min", "nlambda"))])
   # fit <- ncvreg(xnew, ynew, penalty = "lasso", lambda = lambda_seq)
   
+  print(lambda)
+  print(lambda_seq)
   coefs <- coef(fit, lambda = lambda)
   modes <- coefs[-1] ## Coefs only returned for nonsingular columns of X
   
