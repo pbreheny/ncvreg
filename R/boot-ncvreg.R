@@ -173,7 +173,6 @@ boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster,
       }
       if (!missing(cluster)) cv.args$cluster <- cluster ## NEED TO UPDATE
       cv_fit <- do.call("cv.ncvreg", c(cv.args, ncvreg.args))
-      lambda_max <- max(cv_fit$lambda)
       
       if (missing(lambda) & missing(sigma2)) {
         lambda <- cv_fit$lambda.min 
@@ -235,6 +234,10 @@ boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster,
     if (!missing(cluster)) {
       res <- results[[i]]
     } else {
+      if (method == "zerosample2la") {
+        lambda_max <- max(apply(ncvreg::std(X), 2, find_thresh, y))
+        lambda <- lambda / lambda_max
+      }
       res <- bootf(XX=X, y=y, lambda = lambda, sigma2 = sigma2, ncvreg.args=ncvreg.args, rescale_original = rescale_original, method = method, alpha = a1)
     }
     draws[(1 + i*per_draw - per_draw):(i*per_draw),] <- res$draws
