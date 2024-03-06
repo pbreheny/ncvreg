@@ -232,7 +232,10 @@ boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster,
   
   
   if (method == "zerosample2la") {
+    
     lambda_max <- max(apply(ncvreg::std(X), 2, find_thresh, y))
+    
+    print(lambda_max); print(lambda)
     lambda <- lambda / lambda_max
   }
   for (i in 1:nboot) {
@@ -284,7 +287,7 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, m
   lambda_max <- max(apply(xnew, 2, find_thresh, ynew))
   if (method == "zerosample2la") {lambda <- lambda * lambda_max}
   lambda_min <- lambda - lambda / 100 ## set min to be slightly smaller
-  if (lambda_min > lambda_max | lambda > lambda_max) { # Should review this
+  if (lambda_min >= lambda_max | lambda >= lambda_max) { # Should review this
     lambda_max <- lambda + lambda / 100
     nlambda <- 2
   }
@@ -301,8 +304,8 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, m
   fit <- do.call("ncvreg", ncvreg.args[!(names(ncvreg.args) %in% c("lambda.min", "nlambda"))])
   # fit <- ncvreg(xnew, ynew, penalty = "lasso", lambda = lambda_seq)
   
-  print(lambda)
-  print(lambda_seq)
+  # print(lambda)
+  # print(lambda_seq)
   coefs <- coef(fit, lambda = lambda)
   modes <- coefs[-1] ## Coefs only returned for nonsingular columns of X
   
