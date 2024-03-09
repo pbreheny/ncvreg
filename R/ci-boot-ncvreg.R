@@ -37,7 +37,7 @@ ci.boot.ncvreg <- function(boot, quiet = FALSE, ci_method = "quantile", alpha = 
       ci_method = ci_method)
     
     colnames(ci_info)[3:4] <- c("lower", "upper")
-  } else if (ci_method = "mvn") {
+  } else if (ci_method == "mvn") {
     
     means <- apply(all_draws, 2, mean)
     vcov <- cov(all_draws )
