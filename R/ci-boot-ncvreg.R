@@ -37,6 +37,14 @@ ci.boot.ncvreg <- function(boot, quiet = FALSE, ci_method = "quantile", alpha = 
       ci_method = ci_method)
     
     colnames(ci_info)[3:4] <- c("lower", "upper")
+  } else if (ci_method = "mvn") {
+    
+    means <- apply(all_draws, 2, mean)
+    vcov <- cov(all_draws )
+    tmp <- rmvnorm(10000, means, vcov)
+    cis <- apply(tmp, 2, function(x) quantile(x, c(0.1, 0.9)))
+    
+    ci_info <- data.frame(estimate = boot[["estimates"]], variable = names(boot[["estimates"]]), lower = cis[1,], upper = cis[2,], ci_method = ci_method)    
   }
   
   return(ci_info)
