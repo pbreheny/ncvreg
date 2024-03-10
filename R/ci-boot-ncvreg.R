@@ -42,33 +42,30 @@ ci.boot.ncvreg <- function(boot, quiet = FALSE, ci_method = "quantile", alpha = 
     means <- apply(all_draws, 2, mean)
     # vcov <- cov(sparse_draws)
     
-    tic(msg = "varcov")
     scaled_draws <- ncvreg::std(all_draws)
     vcov <- crossprod(scaled_draws) / (nrow(scaled_draws) - 1)
-    toc()
     
-    tic(msg = "Generating draws")
     tmp <- rmvnorm(10000, means, vcov, method = "chol", checkSymmetry = FALSE)
-    toc()
     cis <- apply(tmp, 2, function(x) quantile(x, c(alpha / 2, 1 - (alpha/2))))
     
-    ci_info <- data.frame(estimate = boot[["estimates"]], variable = names(boot[["estimates"]]), lower = cis[1,], upper = cis[2,], ci_method = ci_method)    
+    ci_info <- data.frame(estimate = boot[["estimates"]], variable = names(boot[["estimates"]]), lower = cis[1,], upper = cis[2,], ci_method = ci_method)
+    
   } else if (ci_method == "mvn_uni") {
     
     means <- apply(all_draws, 2, mean)
     # vcov <- cov(sparse_draws)
     
-    tic(msg = "means and vars")
     means <- apply(all_draws, 2, mean)
     vars <- colSums(scale(all_draws, scale = FALSE)^2) / (nrow(all_draws) - 1)
-    toc()
     
-    tic(msg = "Generating draws")
-    tmp <- mapply(draw_samples, mean=means, variance=vars, MoreArgs=list(n=10000))
-    toc()
-    cis <- apply(tmp, 2, function(x) quantile(x, c(alpha / 2, 1 - (alpha/2))))
+    # tic(msg = "Generating draws")
+    # tmp <- mapply(draw_samples, mean=means, variance=vars, MoreArgs=list(n=10000))
+    # toc()
+    # cis <- apply(tmp, 2, function(x) quantile(x, c(alpha / 2, 1 - (alpha/2))))
+    cis <- mapply(produce_normal_cis, mean=means, variance=vars, MoreArgs=list(alpha=alpha))
     
-    ci_info <- data.frame(estimate = boot[["estimates"]], variable = names(boot[["estimates"]]), lower = cis[1,], upper = cis[2,], ci_method = ci_method)    
+    ci_info <- data.frame(estimate = boot[["estimates"]], variable = names(boot[["estimates"]]), lower = cis[1,], upper = cis[2,], ci_method = ci_method)  
+    
   } else if (ci_method == "mvn_corrected") {
     
     rate <- (nrow(original_data$X) * boot$lambda) / boot$sigma2
@@ -179,4 +176,7 @@ acceleration <- function(j) {
 }
 draw_samples <- function(mean, variance, n) {
   rnorm(n, mean, sqrt(variance))
+}
+produce_normal_cis <- function(mean, variance, alpha) {
+  mean + c(-1, 1)*sqrt(variance)*qnorm(1-alpha/2)
 }
