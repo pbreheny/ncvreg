@@ -7,8 +7,6 @@
 #' @export
 #'
 #' @examples
-library(Rcpp)
-Rcpp::sourceCpp("path/to/fastMatrixMult.cpp")
 ci.boot.ncvreg <- function(boot, quiet = FALSE, ci_method = "quantile", alpha = 0.2, original_data = NULL) {
   
   all_draws <- boot[["draws"]]
