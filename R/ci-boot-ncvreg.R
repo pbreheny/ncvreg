@@ -39,8 +39,9 @@ ci.boot.ncvreg <- function(boot, quiet = FALSE, ci_method = "quantile", alpha = 
     colnames(ci_info)[3:4] <- c("lower", "upper")
   } else if (ci_method == "mvn") {
     
-    means <- apply(all_draws, 2, mean)
-    vcov <- cov(all_draws)
+    sparse_draws <- Matrix(all_draws, sparse = TRUE)
+    means <- apply(sparse_draws, 2, mean)
+    vcov <- cov(sparse_draws)
     tmp <- rmvnorm(10000, means, vcov)
     cis <- apply(tmp, 2, function(x) quantile(x, c(alpha / 2, 1 - (alpha/2))))
     
@@ -59,12 +60,12 @@ ci.boot.ncvreg <- function(boot, quiet = FALSE, ci_method = "quantile", alpha = 
     print(summary(probs))
     inds <- sample(1:100000, replace = TRUE, prob = probs)
     tmp <- tmp[inds,]
-    print(hist(tmp[,1]))
     cis <- apply(tmp, 2, function(x) quantile(x, c(alpha / 2, 1 - (alpha/2))))
     ci_info <- data.frame(estimate = boot[["estimates"]], variable = names(boot[["estimates"]]), lower = cis[1,], upper = cis[2,], ci_method = ci_method)    
   } else if (ci_method == "bca_mvn") {
     
     means <- apply(all_draws, 2, mean)
+    sparse_matrix <- Matrix(all_draws, sparse = TRUE)
     vcov <- cov(all_draws)
     tmp <- rmvnorm(10000, means, vcov)
     ci_info <- data.frame(
