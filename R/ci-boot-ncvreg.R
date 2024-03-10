@@ -39,10 +39,26 @@ ci.boot.ncvreg <- function(boot, quiet = FALSE, ci_method = "quantile", alpha = 
     colnames(ci_info)[3:4] <- c("lower", "upper")
   } else if (ci_method == "mvn") {
     
-    sparse_draws <- Matrix(all_draws, sparse = TRUE)
-    means <- apply(sparse_draws, 2, mean)
-    vcov <- cov(sparse_draws)
+    tic(msg = "sparse matrix creation")
+    sparse_draws <- as(all_draws, "sparseMatrix")
+    toc()
+    # means <- apply(sparse_draws, 2, mean)
+    # vcov <- cov(sparse_draws)
+    
+    tic(msg = "Means")
+    ones <- matrix(1, nrow = nrow(sparse_draws), ncol = 1)
+    means <- as.vector((t(ones) %*% sparse_draws) / nrow(sparse_draws))
+    toc()
+    
+    tic(msg = "sparse matrix creation")
+    centered_sparse_draws <- sparse_draws - (ones %*% t(means))
+    n <- nrow(centered_sparse_draws)
+    vcov <- (t(centered_sparse_draws) %*% centered_sparse_draws) / (n - 1)
+    toc(msg = "varcov")
+    
+    tic(msg = "Generating draws")
     tmp <- rmvnorm(10000, means, vcov)
+    toc()
     cis <- apply(tmp, 2, function(x) quantile(x, c(alpha / 2, 1 - (alpha/2))))
     
     ci_info <- data.frame(estimate = boot[["estimates"]], variable = names(boot[["estimates"]]), lower = cis[1,], upper = cis[2,], ci_method = ci_method)    
