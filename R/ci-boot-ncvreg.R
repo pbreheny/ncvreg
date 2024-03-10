@@ -48,7 +48,7 @@ ci.boot.ncvreg <- function(boot, quiet = FALSE, ci_method = "quantile", alpha = 
     toc()
     
     tic(msg = "Generating draws")
-    tmp <- rmvnorm(10000, means, vcov)
+    tmp <- rmvnorm(10000, means, vcov, method = "chol", checkSymmetry = FALSE)
     toc()
     cis <- apply(tmp, 2, function(x) quantile(x, c(alpha / 2, 1 - (alpha/2))))
     
