@@ -46,7 +46,7 @@ ci.boot.ncvreg <- function(boot, quiet = FALSE, ci_method = "quantile", alpha = 
     
     tic(msg = "varcov")
     scaled_draws <- ncvreg::std(all_draws)
-    vcov <- fastMatrixMultiply(scaled_draws, scaled_draws) / (nrow(scaled_draws) - 1)
+    vcov <- crossprod(scaled_draws) / (nrow(scaled_draws) - 1)
     toc()
     
     tic(msg = "Generating draws")
