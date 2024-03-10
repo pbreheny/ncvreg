@@ -60,7 +60,7 @@ ci.boot.ncvreg <- function(boot, quiet = FALSE, ci_method = "quantile", alpha = 
     
     tic(msg = "means and vars")
     means <- apply(all_draws, 2, mean)
-    vars <- colSums(all_draws^2) / (nrow(all_draws) - 1)
+    vars <- colSums(scale(all_draws, scale = FALSE)^2) / (nrow(all_draws) - 1)
     toc()
     
     tic(msg = "Generating draws")
