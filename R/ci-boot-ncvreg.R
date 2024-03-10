@@ -52,7 +52,6 @@ ci.boot.ncvreg <- function(boot, quiet = FALSE, ci_method = "quantile", alpha = 
     
   } else if (ci_method == "mvn_uni") {
     
-    means <- apply(all_draws, 2, mean)
     # vcov <- cov(sparse_draws)
     
     means <- apply(all_draws, 2, mean)
@@ -68,34 +67,16 @@ ci.boot.ncvreg <- function(boot, quiet = FALSE, ci_method = "quantile", alpha = 
     
   } else if (ci_method == "mvn_corrected") {
     
+    means <- apply(all_draws, 2, mean)
+    vars <- colSums(scale(all_draws, scale = FALSE)^2) / (nrow(all_draws) - 1)
+    
     rate <- (nrow(original_data$X) * boot$lambda) / boot$sigma2
     rescale <- attr(original_data$X, "scale")
-    
-    means <- apply(all_draws, 2, mean)
-    vcov <- cov(all_draws)
-    tmp <- rmvnorm(100000, means, vcov)
-    
-    logprobs <- apply(tmp, 1, function(x) ncol(original_data$X)*log(rate / 2) - rate*sum(abs(x*rescale)))
-    probs <- exp(logprobs - max(logprobs))
-    print(summary(probs))
-    inds <- sample(1:100000, replace = TRUE, prob = probs)
-    tmp <- tmp[inds,]
+    tmp <- mapply(draw_samples_corrected, mean=means, variance=vars, rescale=rescale, MoreArgs=list(n=10000, rate = rate))
+   
     cis <- apply(tmp, 2, function(x) quantile(x, c(alpha / 2, 1 - (alpha/2))))
     ci_info <- data.frame(estimate = boot[["estimates"]], variable = names(boot[["estimates"]]), lower = cis[1,], upper = cis[2,], ci_method = ci_method)    
-  } else if (ci_method == "bca_mvn") {
-    
-    means <- apply(all_draws, 2, mean)
-    sparse_draws <- Matrix(all_draws, sparse = TRUE)
-    vcov <- cov(all_draws)
-    tmp <- rmvnorm(10000, means, vcov)
-    ci_info <- data.frame(
-      estimate = boot[["estimates"]],
-      variable = names(boot[["estimates"]]),
-      BCa_ci(all_draws, original_data = original_data, lambda = boot$lambda, sigma2 = boot$sigma2, alpha = alpha, method = boot$method),
-      ci_method = ci_method)
-    
-    colnames(ci_info)[3:4] <- c("lower", "upper")
-  }
+  } 
   
   return(ci_info)
   
@@ -179,4 +160,10 @@ draw_samples <- function(mean, variance, n) {
 }
 produce_normal_cis <- function(mean, variance, alpha) {
   mean + c(-1, 1)*sqrt(variance)*qnorm(1-alpha/2)
+}
+draw_samples_corrected <- function(mean, variance, rescale, n, rate) {
+  tmp <- rnorm(n, mean, sqrt(variance))
+  probs <- (rate / 2) * exp(-rate*abs(tmp*rescale))
+  probs <- probs / sum(probs)
+  sample(tmp, replace = TRUE, prob = probs)
 }
