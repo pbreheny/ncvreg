@@ -45,7 +45,7 @@ ci.boot.ncvreg <- function(boot, quiet = FALSE, ci_method = "quantile", alpha = 
     cis <- apply(tmp, 2, function(x) quantile(x, c(alpha / 2, 1 - (alpha/2))))
     
     ci_info <- data.frame(estimate = boot[["estimates"]], variable = names(boot[["estimates"]]), lower = cis[1,], upper = cis[2,], ci_method = ci_method)    
-  } (ci_method == "mvn_corrected") {
+  } else if (ci_method == "mvn_corrected") {
     
     rate <- (nrow(original_data$X) * boot$lambda) / boot$sigma2
     rescale <- attr(original_data$X, "scale")
