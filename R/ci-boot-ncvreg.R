@@ -7,6 +7,8 @@
 #' @export
 #'
 #' @examples
+library(Rcpp)
+Rcpp::sourceCpp("path/to/fastMatrixMult.cpp")
 ci.boot.ncvreg <- function(boot, quiet = FALSE, ci_method = "quantile", alpha = 0.2, original_data = NULL) {
   
   all_draws <- boot[["draws"]]
@@ -39,23 +41,13 @@ ci.boot.ncvreg <- function(boot, quiet = FALSE, ci_method = "quantile", alpha = 
     colnames(ci_info)[3:4] <- c("lower", "upper")
   } else if (ci_method == "mvn") {
     
-    tic(msg = "sparse matrix creation")
-    sparse_draws <- as(all_draws, "sparseMatrix")
-    toc()
-    # means <- apply(sparse_draws, 2, mean)
+    means <- apply(all_draws, 2, mean)
     # vcov <- cov(sparse_draws)
     
-    tic(msg = "Means")
-    ones <- matrix(1, nrow = nrow(sparse_draws), ncol = 1)
-    means <- as.vector((t(ones) %*% sparse_draws) / nrow(sparse_draws))
+    tic(msg = "varcov")
+    scaled_draws <- ncvreg::std(all_draws)
+    vcov <- fastMatrixMultiply(scaled_draws, scaled_draws) / (nrow(scaled_draws) - 1)
     toc()
-    
-    tic(msg = "sparse matrix creation")
-    rowMeans <- rowSums(sparse_draws) / ncol(sparse_draws)
-    centered_sparse_draws <- sparse_draws - rowMeans
-    n <- nrow(centered_sparse_draws)
-    vcov <- (t(centered_sparse_draws) %*% centered_sparse_draws) / (n - 1)
-    toc(msg = "varcov")
     
     tic(msg = "Generating draws")
     tmp <- rmvnorm(10000, means, vcov)
