@@ -33,7 +33,7 @@ ci.boot.ncvreg <- function(boot, quiet = FALSE, ci_method = "quantile", alpha = 
     ci_info <- data.frame(
       estimate = boot[["estimates"]],
       variable = names(boot[["estimates"]]),
-      BCa_ci(boot$draws, boot$estimates, original_data = original_data, lambda = boot$lambda, sigma2 = boot$sigma2, alpha = alpha, method = boot$method),
+      BCa_ci(all_draws, original_data = original_data, lambda = boot$lambda, sigma2 = boot$sigma2, alpha = alpha, method = boot$method),
       ci_method = ci_method)
     
     colnames(ci_info)[3:4] <- c("lower", "upper")
@@ -60,6 +60,18 @@ ci.boot.ncvreg <- function(boot, quiet = FALSE, ci_method = "quantile", alpha = 
     tmp <- tmp[inds,]
     cis <- apply(tmp, 2, function(x) quantile(x, c(alpha / 2, 1 - (alpha/2))))
     ci_info <- data.frame(estimate = boot[["estimates"]], variable = names(boot[["estimates"]]), lower = cis[1,], upper = cis[2,], ci_method = ci_method)    
+  } else if (ci_method == "bca_mvn") {
+    
+    means <- apply(all_draws, 2, mean)
+    vcov <- cov(all_draws)
+    tmp <- rmvnorm(10000, means, vcov)
+    ci_info <- data.frame(
+      estimate = boot[["estimates"]],
+      variable = names(boot[["estimates"]]),
+      BCa_ci(draws, original_data = original_data, lambda = boot$lambda, sigma2 = boot$sigma2, alpha = alpha, method = boot$method),
+      ci_method = ci_method)
+    
+    colnames(ci_info)[3:4] <- c("lower", "upper")
   }
   
   return(ci_info)
@@ -90,7 +102,7 @@ fill_bucket <- function(draws, estimate, alpha) {
   return(data.frame(lower = bounds[1], upper = bounds[2]))
   
 } 
-BCa_ci <- function(bootstrap_samples, original_estimate, original_data, lambda, sigma2, alpha = 0.05, method) {
+BCa_ci <- function(bootstrap_samples, original_data, lambda, sigma2, alpha = 0.05, method) {
   
   # Calculate the number of bootstrap samples
   n <- nrow(bootstrap_samples)
