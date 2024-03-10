@@ -54,7 +54,8 @@ ci.boot.ncvreg <- function(boot, quiet = FALSE, ci_method = "quantile", alpha = 
     vcov <- cov(all_draws)
     tmp <- rmvnorm(100000, means, vcov)
     
-    probs <- apply(tmp, 1, function(x) (rate / 2)^(ncol(original_data$X)) * exp(-rate*sum(abs(x*rescale))))
+    logprobs <- apply(tmp, 1, function(x) ncol(original_data$X)*log(rate / 2) - rate*sum(abs(x*rescale)))
+    probs <- exp(logprobs - max(logprobs))
     print(summary(probs))
     inds <- sample(1:100000, replace = TRUE, prob = probs)
     tmp <- tmp[inds,]
