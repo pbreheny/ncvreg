@@ -48,7 +48,7 @@ ci.boot.ncvreg <- function(boot, quiet = FALSE, ci_method = "quantile", alpha = 
   } else if (ci_method == "mvn_corrected") {
     
     rate <- (nrow(original_data$X) * boot$lambda) / boot$sigma2
-    rescale <- attr(original_data$X, "scale")
+    rescale <- attr(original_data$X, "scale")^(-1)
     
     means <- apply(all_draws, 2, mean)
     vcov <- cov(all_draws)
