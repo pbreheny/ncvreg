@@ -53,6 +53,22 @@ ci.boot.ncvreg <- function(boot, quiet = FALSE, ci_method = "quantile", alpha = 
     cis <- apply(tmp, 2, function(x) quantile(x, c(alpha / 2, 1 - (alpha/2))))
     
     ci_info <- data.frame(estimate = boot[["estimates"]], variable = names(boot[["estimates"]]), lower = cis[1,], upper = cis[2,], ci_method = ci_method)    
+  } else if (ci_method == "mvn_uni") {
+    
+    means <- apply(all_draws, 2, mean)
+    # vcov <- cov(sparse_draws)
+    
+    tic(msg = "means and vars")
+    means <- apply(all_draws, 2, mean)
+    vars <- colSums(all_draws^2) / (nrow(all_draws) - 1)
+    toc()
+    
+    tic(msg = "Generating draws")
+    tmp <- mapply(draw_samples, mean=means, variance=vars, MoreArgs=list(n=10000))
+    toc()
+    cis <- apply(tmp, 2, function(x) quantile(x, c(alpha / 2, 1 - (alpha/2))))
+    
+    ci_info <- data.frame(estimate = boot[["estimates"]], variable = names(boot[["estimates"]]), lower = cis[1,], upper = cis[2,], ci_method = ci_method)    
   } else if (ci_method == "mvn_corrected") {
     
     rate <- (nrow(original_data$X) * boot$lambda) / boot$sigma2
@@ -160,4 +176,7 @@ jacknife_acc <- function(original_data, lambda, sigma2, method) {
 }
 acceleration <- function(j) {
   return(sum((mean(j) - j)^3) / (6 * sum((mean(j) - j)^2)^1.5))
+}
+draw_samples <- function(mean, variance, n) {
+  rnorm(n, mean, sqrt(variance))
 }
