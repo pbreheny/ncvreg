@@ -55,7 +55,7 @@ ci.boot.ncvreg <- function(boot, quiet = FALSE, ci_method = "quantile", alpha = 
     tmp <- rmvnorm(10000, means, vcov)
     
     probs <- apply(tmp, 1, function(x) (rate / 2)^(ncol(original_data$X)) * exp(-rate*sum(abs(x*rescale))))
-    print(probs)
+    print(min(probs))
     inds <- sample(1:10000, replace = TRUE, prob = probs)
     tmp <- tmp[inds,]
     cis <- apply(tmp, 2, function(x) quantile(x, c(alpha / 2, 1 - (alpha/2))))
