@@ -48,15 +48,15 @@ ci.boot.ncvreg <- function(boot, quiet = FALSE, ci_method = "quantile", alpha = 
   } else if (ci_method == "mvn_corrected") {
     
     rate <- (nrow(original_data$X) * boot$lambda) / boot$sigma2
-    rescale <- attr(original_data$X, "scale")^(-1)
+    rescale <- attr(original_data$X, "scale")
     
     means <- apply(all_draws, 2, mean)
     vcov <- cov(all_draws)
-    tmp <- rmvnorm(10000, means, vcov)
+    tmp <- rmvnorm(100000, means, vcov)
     
     probs <- apply(tmp, 1, function(x) (rate / 2)^(ncol(original_data$X)) * exp(-rate*sum(abs(x*rescale))))
-    print(min(probs))
-    inds <- sample(1:10000, replace = TRUE, prob = probs)
+    print(summary(probs))
+    inds <- sample(1:100000, replace = TRUE, prob = probs)
     tmp <- tmp[inds,]
     cis <- apply(tmp, 2, function(x) quantile(x, c(alpha / 2, 1 - (alpha/2))))
     ci_info <- data.frame(estimate = boot[["estimates"]], variable = names(boot[["estimates"]]), lower = cis[1,], upper = cis[2,], ci_method = ci_method)    
