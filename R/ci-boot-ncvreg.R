@@ -68,7 +68,7 @@ ci.boot.ncvreg <- function(boot, quiet = FALSE, ci_method = "quantile", alpha = 
     ci_info <- data.frame(
       estimate = boot[["estimates"]],
       variable = names(boot[["estimates"]]),
-      BCa_ci(draws, original_data = original_data, lambda = boot$lambda, sigma2 = boot$sigma2, alpha = alpha, method = boot$method),
+      BCa_ci(all_draws, original_data = original_data, lambda = boot$lambda, sigma2 = boot$sigma2, alpha = alpha, method = boot$method),
       ci_method = ci_method)
     
     colnames(ci_info)[3:4] <- c("lower", "upper")
