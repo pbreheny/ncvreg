@@ -51,8 +51,8 @@ ci.boot.ncvreg <- function(boot, quiet = FALSE, ci_method = "quantile", alpha = 
     toc()
     
     tic(msg = "sparse matrix creation")
-    rowMeans <- rowSums(sparse_matrix) / ncol(sparse_matrix)
-    centered_sparse_draws <- sparse_matrix - rowMeans
+    rowMeans <- rowSums(sparse_draws) / ncol(sparse_draws)
+    centered_sparse_draws <- sparse_draws - rowMeans
     n <- nrow(centered_sparse_draws)
     vcov <- (t(centered_sparse_draws) %*% centered_sparse_draws) / (n - 1)
     toc(msg = "varcov")
@@ -82,7 +82,7 @@ ci.boot.ncvreg <- function(boot, quiet = FALSE, ci_method = "quantile", alpha = 
   } else if (ci_method == "bca_mvn") {
     
     means <- apply(all_draws, 2, mean)
-    sparse_matrix <- Matrix(all_draws, sparse = TRUE)
+    sparse_draws <- Matrix(all_draws, sparse = TRUE)
     vcov <- cov(all_draws)
     tmp <- rmvnorm(10000, means, vcov)
     ci_info <- data.frame(
