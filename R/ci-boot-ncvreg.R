@@ -51,7 +51,8 @@ ci.boot.ncvreg <- function(boot, quiet = FALSE, ci_method = "quantile", alpha = 
     toc()
     
     tic(msg = "sparse matrix creation")
-    centered_sparse_draws <- sparse_draws - (ones %*% t(means))
+    rowMeans <- rowSums(sparse_matrix) / ncol(sparse_matrix)
+    centered_sparse_draws <- sparse_matrix - rowMeans
     n <- nrow(centered_sparse_draws)
     vcov <- (t(centered_sparse_draws) %*% centered_sparse_draws) / (n - 1)
     toc(msg = "varcov")
