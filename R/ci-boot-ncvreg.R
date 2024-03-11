@@ -55,7 +55,7 @@ ci.boot.ncvreg <- function(boot, quiet = FALSE, ci_method = "quantile", alpha = 
     # vcov <- cov(sparse_draws)
     
     means <- apply(all_draws, 2, mean)
-    vars <- colSums(scale(all_draws, scale = FALSE)^2) / (nrow(all_draws) - 1)
+    vars <- (colSums(scale(all_draws, scale = FALSE)^2) / (nrow(all_draws) - 1)) / nrow(original_data$X)
     
     # tic(msg = "Generating draws")
     # tmp <- mapply(draw_samples, mean=means, variance=vars, MoreArgs=list(n=10000))
