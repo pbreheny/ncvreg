@@ -37,29 +37,12 @@ ci.boot.ncvreg <- function(boot, quiet = FALSE, ci_method = "quantile", alpha = 
       ci_method = ci_method)
     
     colnames(ci_info)[3:4] <- c("lower", "upper")
-  } else if (ci_method == "mvn") {
-    
-    means <- apply(all_draws, 2, mean)
-    # vcov <- cov(sparse_draws)
-    
-    scaled_draws <- ncvreg::std(all_draws)
-    vcov <- crossprod(scaled_draws) / (nrow(scaled_draws) - 1)
-    
-    tmp <- rmvnorm(10000, means, vcov, method = "chol", checkSymmetry = FALSE)
-    cis <- apply(tmp, 2, function(x) quantile(x, c(alpha / 2, 1 - (alpha/2))))
-    
-    ci_info <- data.frame(estimate = boot[["estimates"]], variable = names(boot[["estimates"]]), lower = cis[1,], upper = cis[2,], ci_method = ci_method)
-    
   } else if (ci_method == "mvn_uni") {
-    
-    # vcov <- cov(sparse_draws)
     
     means <- apply(all_draws, 2, mean)
     vars <- (colSums(scale(all_draws, scale = FALSE)^2) / (nrow(all_draws) - 1)) 
     
-    # tic(msg = "Generating draws")
     # tmp <- mapply(draw_samples, mean=means, variance=vars, MoreArgs=list(n=10000))
-    # toc()
     # cis <- apply(tmp, 2, function(x) quantile(x, c(alpha / 2, 1 - (alpha/2))))
     cis <- mapply(produce_normal_cis, mean=means, variance=vars, MoreArgs=list(alpha=alpha))
     
@@ -67,12 +50,12 @@ ci.boot.ncvreg <- function(boot, quiet = FALSE, ci_method = "quantile", alpha = 
     
   } else if (ci_method == "mvn_corrected") {
     
-    means <- apply(all_draws, 2, mean)
-    vars <- colSums(scale(all_draws, scale = FALSE)^2) / (nrow(all_draws) - 1)
+    # means <- apply(all_draws, 2, mean)
+    # vars <- colSums(scale(all_draws, scale = FALSE)^2) / (nrow(all_draws) - 1)
     
-    # rate <- (nrow(original_data$X) * boot$lambda) / boot$sigma2
-    rate <- boot$lambda
-    rescale <- attr(original_data$X, "scale")
+    rate <- (nrow(original_data$X) * boot$lambda) / boot$sigma2
+    rescale <- attr(ncvreg::std(original_data$X), "scale") ## need to think about this more
+    # tmp <- mapply(draw_samples_corrected, mean=means, variance=vars, rescale=rescale, MoreArgs=list(n=10000, rate = rate))
     tmp <- mapply(draw_samples_corrected, mean=means, variance=vars, rescale=rescale, MoreArgs=list(n=10000, rate = rate))
    
     cis <- apply(tmp, 2, function(x) quantile(x, c(alpha / 2, 1 - (alpha/2))))
