@@ -54,9 +54,10 @@ ci.boot.ncvreg <- function(boot, quiet = FALSE, ci_method = "quantile", alpha = 
     # vars <- colSums(scale(all_draws, scale = FALSE)^2) / (nrow(all_draws) - 1)
     
     rate <- (nrow(original_data$X) * boot$lambda) / boot$sigma2
+    # rate <- boot$lambda
     rescale <- attr(ncvreg::std(original_data$X), "scale") ## need to think about this more
     # tmp <- mapply(draw_samples_corrected, mean=means, variance=vars, rescale=rescale, MoreArgs=list(n=10000, rate = rate))
-    tmp <- mapply(draw_samples_corrected, mean=means, variance=vars, rescale=rescale, MoreArgs=list(n=10000, rate = rate))
+    tmp <- mapply(draw_samples_corrected, idx=1:ncol(all_draws), rescale=rescale, MoreArgs=list(rate = rate, all_draws = all_draws))
    
     cis <- apply(tmp, 2, function(x) quantile(x, c(alpha / 2, 1 - (alpha/2))))
     ci_info <- data.frame(estimate = boot[["estimates"]], variable = names(boot[["estimates"]]), lower = cis[1,], upper = cis[2,], ci_method = ci_method)    
@@ -145,9 +146,14 @@ draw_samples <- function(mean, variance, n) {
 produce_normal_cis <- function(mean, variance, alpha) {
   mean + c(-1, 1)*sqrt(variance)*qnorm(1-alpha/2)
 }
-draw_samples_corrected <- function(mean, variance, rescale, n, rate) {
-  tmp <- rnorm(n, mean, sqrt(variance))
-  probs <- (rate / 2) * exp(-rate*abs(tmp*rescale))
+# draw_samples_corrected <- function(mean, variance, rescale, n, rate) {
+#   tmp <- rnorm(n, mean, sqrt(variance))
+#   probs <- (rate / 2) * exp(-rate*abs(tmp*rescale))
+#   probs <- probs / sum(probs)
+#   sample(tmp, replace = TRUE, prob = probs)
+# }
+draw_samples_corrected <- function(idx, rescale, rate, all_draws) {
+  probs <- (rate / 2) * exp(-rate*abs(all_draws[,idx]*rescale))
   probs <- probs / sum(probs)
-  sample(tmp, replace = TRUE, prob = probs)
+  sample(all_draws[,idx], replace = TRUE, prob = probs)
 }
