@@ -50,14 +50,14 @@ ci.boot.ncvreg <- function(boot, quiet = FALSE, ci_method = "quantile", alpha = 
     
   } else if (ci_method == "mvn_corrected") {
     
-    # means <- apply(all_draws, 2, mean)
-    # vars <- colSums(scale(all_draws, scale = FALSE)^2) / (nrow(all_draws) - 1)
+    means <- apply(all_draws, 2, mean)
+    vars <- colSums(scale(all_draws, scale = FALSE)^2) / (nrow(all_draws) - 1)
     
-    # rate <- (nrow(original_data$X) * boot$lambda) / boot$sigma2
-    rate <- boot$lambda
+    rate <- (nrow(original_data$X) * boot$lambda) / boot$sigma2
+    # rate <- boot$lambda
     rescale <- attr(ncvreg::std(original_data$X), "scale") ## need to think about this more
-    # tmp <- mapply(draw_samples_corrected, mean=means, variance=vars, rescale=rescale, MoreArgs=list(n=10000, rate = rate))
-    tmp <- mapply(draw_samples_corrected, idx=1:ncol(all_draws), rescale=rescale, MoreArgs=list(rate = rate, all_draws = all_draws))
+    tmp <- mapply(draw_samples_corrected, mean=means, variance=vars, rescale=rescale, MoreArgs=list(n=10000, rate = rate))
+    # tmp <- mapply(draw_samples_corrected, idx=1:ncol(all_draws), rescale=rescale, MoreArgs=list(rate = rate, all_draws = all_draws))
    
     cis <- apply(tmp, 2, function(x) quantile(x, c(alpha / 2, 1 - (alpha/2))))
     ci_info <- data.frame(estimate = boot[["estimates"]], variable = names(boot[["estimates"]]), lower = cis[1,], upper = cis[2,], ci_method = ci_method)    
