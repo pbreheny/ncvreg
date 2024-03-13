@@ -146,14 +146,14 @@ draw_samples <- function(mean, variance, n) {
 produce_normal_cis <- function(mean, variance, alpha) {
   mean + c(-1, 1)*sqrt(variance)*qnorm(1-alpha/2)
 }
-# draw_samples_corrected <- function(mean, variance, rescale, n, rate) {
-#   tmp <- rnorm(n, mean, sqrt(variance))
-#   probs <- (rate / 2) * exp(-rate*abs(tmp*rescale))
-#   probs <- probs / sum(probs)
-#   sample(tmp, replace = TRUE, prob = probs)
-# }
-draw_samples_corrected <- function(idx, rescale, rate, all_draws) {
-  probs <- (rate / 2) * exp(-rate*abs(all_draws[,idx]*rescale))
+draw_samples_corrected <- function(mean, variance, rescale, n, rate) {
+  tmp <- rnorm(n, mean, sqrt(variance))
+  probs <- (rate / 2) * exp(-rate*abs(tmp*rescale))
   probs <- probs / sum(probs)
-  sample(all_draws[,idx], replace = TRUE, prob = probs)
+  sample(tmp, replace = TRUE, prob = probs)
 }
+# draw_samples_corrected <- function(idx, rescale, rate, all_draws) {
+#   probs <- (rate / 2) * exp(-rate*abs(all_draws[,idx]*rescale))
+#   probs <- probs / sum(probs)
+#   sample(all_draws[,idx], replace = TRUE, prob = probs)
+# }
