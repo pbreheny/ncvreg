@@ -177,7 +177,7 @@ full_debias <- function(which_var, lassoboot, original_data, alpha, rescale) {
   lam <- lassoboot$lambda * rescale
   sdv <- lassoboot$sigma2
   
-  # mns <- ifelse(ms == 0, ds, lam) * sign(ds)
+  mns <- ifelse(ms == 0, ds, lam) * sign(ds)
   # corrections <- rnorm(n = length(mns), mns, sd = sqrt(sdv / nrow(original_data$X)))
   corrections <- mns
   return(quantile(ds + corrections, c(alpha / 2, 1 - (alpha / 2))))
