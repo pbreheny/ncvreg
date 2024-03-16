@@ -64,7 +64,7 @@ ci.boot.ncvreg <- function(boot, quiet = FALSE, ci_method = "quantile", alpha = 
     ci_info <- data.frame(estimate = boot[["estimates"]], variable = names(boot[["estimates"]]), lower = cis[1,], upper = cis[2,], ci_method = ci_method)    
   } else if (ci_method == "full_debias") {
     
-    rescale <- attr(ncvreg::std(original_data$X), "scale") ## need to think about this more
+    rescale <- attr(ncvreg::std(original_data$X), "scale")^(-1) ## need to think about this more
     cis <- sapply(1:ncol(original_data$X), full_debias, lassoboot = boot, original_data = original_data, alpha = alpha, rescale = rescale)
     ci_info <- data.frame(estimate = boot[["estimates"]], variable = names(boot[["estimates"]]), lower = cis[1,], upper = cis[2,], ci_method = ci_method)    
     
