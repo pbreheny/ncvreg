@@ -169,10 +169,9 @@ draw_samples_corrected <- function(mean, variance, rescale, n, rate) {
 #   sample(all_draws[,idx], replace = TRUE, prob = probs)
 # }
 full_debias <- function(which_var, lassoboot, original_data, alpha, rescale) {
+  
   ds <- lassoboot$draws[,which_var]
   ms <- lassoboot$modes[,which_var]
-  
-  
   
   lam <- lassoboot$lambda * rescale
   sdv <- lassoboot$sigma2
@@ -180,5 +179,6 @@ full_debias <- function(which_var, lassoboot, original_data, alpha, rescale) {
   mns <- ifelse(ms == 0, ds, lam) * sign(ds)
   # corrections <- rnorm(n = length(mns), mns, sd = sqrt(sdv / nrow(original_data$X)))
   corrections <- mns
+  
   return(quantile(ds + corrections, c(alpha / 2, 1 - (alpha / 2))))
 }
