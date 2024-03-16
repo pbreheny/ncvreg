@@ -44,7 +44,7 @@ ci.boot.ncvreg <- function(boot, quiet = FALSE, ci_method = "quantile", alpha = 
     
     # tmp <- mapply(draw_samples, mean=means, variance=vars, MoreArgs=list(n=10000))
     # cis <- apply(tmp, 2, function(x) quantile(x, c(alpha / 2, 1 - (alpha/2))))
-    cis <- mapply(produce_normal_cis, mean=means, variance=vars, MoreArgs=list(alpha=alpha))
+    cis <- mapply(produce_t_cis, mean=means, variance=vars, MoreArgs=list(alpha=alpha, n = nrow(original_data$X)))
     
     ci_info <- data.frame(estimate = boot[["estimates"]], variable = names(boot[["estimates"]]), lower = cis[1,], upper = cis[2,], ci_method = ci_method)  
     
@@ -145,6 +145,9 @@ draw_samples <- function(mean, variance, n) {
 }
 produce_normal_cis <- function(mean, variance, alpha) {
   mean + c(-1, 1)*sqrt(variance)*qnorm(1-alpha/2)
+}
+produce_t_cis <- function(mean, variance, alpha, n) {
+  mean + c(-1, 1)*sqrt(variance)*qt(1-alpha/2, df = n - 1)
 }
 draw_samples_corrected <- function(mean, variance, rescale, n, rate) {
   tmp <- rnorm(n, mean, sqrt(variance))
