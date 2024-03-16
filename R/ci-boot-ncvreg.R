@@ -62,7 +62,12 @@ ci.boot.ncvreg <- function(boot, quiet = FALSE, ci_method = "quantile", alpha = 
    
     cis <- apply(tmp, 2, function(x) quantile(x, c(alpha / 2, 1 - (alpha/2))))
     ci_info <- data.frame(estimate = boot[["estimates"]], variable = names(boot[["estimates"]]), lower = cis[1,], upper = cis[2,], ci_method = ci_method)    
-  } 
+  } else if (ci_method == "full_debias") {
+    
+    cis <- sapply(1:ncol(original_data$X), full_debias, lassoboot = boot, original_data = original_data, alpha = alpha)
+    ci_info <- data.frame(estimate = boot[["estimates"]], variable = names(boot[["estimates"]]), lower = cis[1,], upper = cis[2,], ci_method = ci_method)    
+    
+  }
   
   return(ci_info)
   
@@ -161,3 +166,13 @@ draw_samples_corrected <- function(mean, variance, rescale, n, rate) {
 #   probs <- probs / sum(probs)
 #   sample(all_draws[,idx], replace = TRUE, prob = probs)
 # }
+full_debias <- function(which_var, lassoboot, original_data, alpha) {
+  ds <- lassoboot$draws[,which_var]
+  ms <- lassoboot$modes[,which_var]
+  lam <- lassoboot$lambda
+  sdv <- lassoboot$sigma2
+  
+  mns <- ifelse(ms == 0, ds, lam) * sign(ds)
+  corrections <- rnorm(n = length(mns), mns, sd = sdv / nrow(original_data$X))
+  return(quantile(ds + corrections, c(alpha / 2, 1 - (alpha / 2))))
+}
