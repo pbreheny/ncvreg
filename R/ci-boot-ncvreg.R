@@ -29,7 +29,9 @@ ci.boot.ncvreg <- function(boot, quiet = FALSE, ci_method = "quantile", alpha = 
     uppers <- all_draws[2,]
     
     ci_info <- data.frame(estimate = boot[["estimates"]], variable = names(boot[["estimates"]]), lower = lowers, upper = uppers, ci_method = ci_method)    
+  
   } else if (ci_method == "bca") {
+    
     ci_info <- data.frame(
       estimate = boot[["estimates"]],
       variable = names(boot[["estimates"]]),
@@ -37,15 +39,18 @@ ci.boot.ncvreg <- function(boot, quiet = FALSE, ci_method = "quantile", alpha = 
       ci_method = ci_method)
     
     colnames(ci_info)[3:4] <- c("lower", "upper")
+    
   } else if (ci_method == "mvn_uni") {
     
     means <- apply(all_draws, 2, mean)
     vars <- (colSums(scale(all_draws, scale = FALSE)^2) / (nrow(all_draws) - 1)) 
     
+    # Drawing from normal
     # tmp <- mapply(draw_samples, mean=means, variance=vars, MoreArgs=list(n=10000))
     # cis <- apply(tmp, 2, function(x) quantile(x, c(alpha / 2, 1 - (alpha/2))))
-    df <- max(mean(apply(boot$modes, 1, function(x) (sum(x != 0)))), 1)
-    cis <- mapply(produce_t_cis, mean=means, variance=vars, MoreArgs=list(alpha=alpha, df = df))
+    
+    # df <- max(mean(apply(boot$modes, 1, function(x) (sum(x != 0)))), 1) ## For t cis
+    cis <- mapply(produce_normal_cis, mean=means, variance=vars, MoreArgs=list(alpha=alpha))
     
     ci_info <- data.frame(estimate = boot[["estimates"]], variable = names(boot[["estimates"]]), lower = cis[1,], upper = cis[2,], ci_method = ci_method)  
     
@@ -55,13 +60,14 @@ ci.boot.ncvreg <- function(boot, quiet = FALSE, ci_method = "quantile", alpha = 
     vars <- colSums(scale(all_draws, scale = FALSE)^2) / (nrow(all_draws) - 1)
     
     rate <- (nrow(original_data$X) * boot$lambda) / boot$sigma2
-    # rate <- boot$lambda
     rescale <- attr(ncvreg::std(original_data$X), "scale") ## need to think about this more
     tmp <- mapply(draw_samples_corrected, mean=means, variance=vars, rescale=rescale, MoreArgs=list(n=10000, rate = rate))
+    ## Resample from original draws
     # tmp <- mapply(draw_samples_corrected, idx=1:ncol(all_draws), rescale=rescale, MoreArgs=list(rate = rate, all_draws = all_draws))
    
     cis <- apply(tmp, 2, function(x) quantile(x, c(alpha / 2, 1 - (alpha/2))))
     ci_info <- data.frame(estimate = boot[["estimates"]], variable = names(boot[["estimates"]]), lower = cis[1,], upper = cis[2,], ci_method = ci_method)    
+  
   } else if (ci_method == "full_debias") {
     
     rescale <- attr(ncvreg::std(original_data$X), "scale")^(-1) ## need to think about this more

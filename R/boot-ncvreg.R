@@ -302,10 +302,7 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, m
   
   ## Ignores user specified lambda.min and nlambda
   fit <- do.call("ncvreg", ncvreg.args[!(names(ncvreg.args) %in% c("lambda.min", "nlambda"))])
-  # fit <- ncvreg(xnew, ynew, penalty = "lasso", lambda = lambda_seq)
   
-  # print(lambda)
-  # print(lambda_seq)
   coefs <- coef(fit, lambda = lambda)
   modes <- coefs[-1] ## Coefs only returned for nonsingular columns of X
   
@@ -326,7 +323,6 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, m
   ## update to use ncvreg residuals
   partial_residuals <-  ynew - (coefs[1] + as.numeric(xnew %*% modes) - (xnew * matrix(modes, nrow=nrow(xnew), ncol=ncol(xnew), byrow=TRUE)))
   z <- (1/n)*colSums(xnew * partial_residuals)
-  # z <- (1/n)*colSums(xnew * (partial_residuals - (ynew - (coefs[1] + as.numeric(xnew %*% modes)))))
   
   draws <- matrix(ncol = p, nrow = ifelse(method == "fullconditional", 2, 1))
   if (method == "debiased") {
@@ -409,17 +405,6 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, m
         qnorm(log_one_minus_ps + obs_up - frac_up_log, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
       ) 
       
-      
-      ## Truncation
-      # No bigger than the smallest non-zero (1)
-      # if (method == "truncatedzs2") {
-      #   tmp <- sign(tmp) * pmin(min(abs(modes[modes != 0])), abs(tmp))
-      # }
-      # No bigger than it was before shrunk (2) -> should have used z not mode
-      # if (method == "truncatedzs2") {
-      #   tmp <- ifelse(abs(tmp) > abs(z), abs(z) * sign(tmp), tmp)
-      # }
-      ## No bigger than lambda (3)
       if (method == "truncatedzs2") {
         tmp <- ifelse(abs(tmp) > abs(lambda), abs(lambda) * sign(tmp), tmp)
       }
@@ -427,13 +412,6 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, m
         tmp <- tmp * (1/n)
       }
       
-      # Diagnostics
-      # print("# non-zero modes")
-      # print(sum(modes != 0))
-      # print("Smallest nonzero mode")
-      # print(min(abs(modes[modes != 0])))
-      # print("Number draws greater than smallest mode")
-      # print(sum(abs(tmp[modes==0]) > min(abs(modes[modes != 0]))))
       draws[1,nonsingular] <- tmp * full_rescale_factor 
       if (method %in% c("zerosample1", "zerosample2", "truncatedzs2", "restrainedzs2", "zerosample2la")) {
         draws[1, nonsingular[modes != 0]] <- modes[modes != 0] * full_rescale_factor[modes != 0]
