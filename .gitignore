@@ -1,3 +1,4 @@
 vignettes/*.html
 .Rproj.user
 .vscode
+docs
