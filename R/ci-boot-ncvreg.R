@@ -14,8 +14,9 @@ ci.boot.ncvreg <- function(boot, quiet = FALSE, ci_method = "quantile", alpha = 
     
     lowers <- apply(all_draws, 2, function(x) quantile(x, alpha / 2, na.rm = TRUE))
     uppers <- apply(all_draws, 2, function(x) quantile(x, 1 - alpha / 2, na.rm = TRUE))
+    center <- apply(all_draws, 2, function(x) quantile(x, 0.5, na.rm = TRUE))
     
-    ci_info <- data.frame(estimate = boot[["estimates"]], variable = names(boot[["estimates"]]), lower = lowers, upper = uppers, ci_method = ci_method)    
+    ci_info <- data.frame(estimate = boot[["estimates"]], variable = names(boot[["estimates"]]), lower = lowers, upper = uppers, center = center, ci_method = ci_method)    
   
   } else if (ci_method == "bucketfill") {
   
