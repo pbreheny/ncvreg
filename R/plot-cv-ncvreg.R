@@ -1,38 +1,39 @@
 #' Plots the cross-validation curve from a cv.ncvreg object
 #' 
-#' Plots the cross-validation curve from a \code{cv.ncvreg} or
-#' \code{cv.ncvsurv} object, along with standard error bars.
+#' Plots the cross-validation curve from a `cv.ncvreg` or `cv.ncvsurv` object,
+#' along with standard error bars.
 #' 
-#' Error bars representing approximate 68\% confidence intervals are plotted
-#' along with the estimates at value of \code{lambda}.  For \code{rsq} and
-#' \code{snr} applied to models other than linear regression, the Cox-Snell
-#' R-squared is used.
+#' Error bars representing approximate 68% confidence intervals are plotted
+#' along with the estimates across values of `lambda`. For `rsq` and `snr`
+#' applied to models other than linear regression, the Cox-Snell R-squared is used.
 #' 
-#' @param x A \code{cv.ncvreg} or \code{cv.ncvsurv} object.
-#' @param log.l Should horizontal axis be on the log scale?  Default is TRUE.
-#' @param type What to plot on the vertical axis.  \code{cve} plots the
-#' cross-validation error (deviance); \code{rsq} plots an estimate of the
-#' fraction of the deviance explained by the model (R-squared); \code{snr}
-#' plots an estimate of the signal-to-noise ratio; \code{scale} plots, for
-#' \code{family="gaussian"}, an estimate of the scale parameter (standard
-#' deviation); \code{pred} plots, for \code{family="binomial"}, the estimated
-#' prediction error; \code{all} produces all of the above.
-#' @param selected If \code{TRUE} (the default), places an axis on top of the
-#' plot denoting the number of variables in the model (i.e., that have a
-#' nonzero regression coefficient) at that value of \code{lambda}.
-#' @param vertical.line If \code{TRUE} (the default), draws a vertical line at
-#' the value where cross-validaton error is minimized.
-#' @param col Controls the color of the dots (CV estimates).
-#' @param \dots Other graphical parameters to \code{plot}
+#' @param x          A `cv.ncvreg` or `cv.ncvsurv` object.
+#' @param log.l      Should horizontal axis be on the log scale?  Default is TRUE.
+#' @param type       What to plot on the vertical axis:
+#'   * `cve` plots the cross-validation error (deviance)
+#'   * `rsq` plots an estimate of the fraction of the deviance explained by the model (R-squared)
+#'   * `snr` plots an estimate of the signal-to-noise ratio
+#'   * `scale` plots, for `family="gaussian"`, an estimate of the scale parameter (standard deviation)
+#'   * `pred` plots, for `family="binomial"`, the estimated prediction error
+#'   * `all` produces all of the above
+#' @param selected   If `TRUE` (the default), places an axis on top of the plot
+#'   denoting the number of variables in the model (i.e., that have a nonzero
+#'   regression coefficient) at that value of `lambda`.
+#' @param vertical.line   If `TRUE` (the default), draws a vertical line at the
+#'   value where cross-validaton error is minimized.
+#' @param col             Controls the color of the dots (CV estimates).
+#' @param \dots           Other graphical parameters to [plot()]
+#' 
 #' @author Patrick Breheny
-#' @seealso \code{\link{ncvreg}}, \code{\link{cv.ncvreg}}
-#' @references Breheny P and Huang J. (2011) Coordinate descentalgorithms for
-#' nonconvex penalized regression, with applications to biological feature
-#' selection.  \emph{Annals of Applied Statistics}, \strong{5}: 232-253.
-#' c("\\Sexpr[results=rd]{tools:::Rd_expr_doi(\"#1\")}",
-#' "10.1214/10-AOAS388")\Sexpr{tools:::Rd_expr_doi("10.1214/10-AOAS388")}
-#' @examples
 #' 
+#' @seealso [ncvreg()], [cv.ncvreg()]
+#' 
+#' @references
+#' Breheny P and Huang J. (2011) Coordinate descent algorithms for nonconvex
+#' penalized regression, with applications to biological feature selection.
+#' *Annals of Applied Statistics*, **5**: 232-253. \doi{10.1214/10-AOAS388}
+#' 
+#' @examples
 #' # Linear regression --------------------------------------------------
 #' data(Prostate)
 #' cvfit <- cv.ncvreg(Prostate$X, Prostate$y)

@@ -1,5 +1,7 @@
-^pkgdown$
+^codecov\.yml$
 ^docs$
+^pkgdown$
+^vignettes/web$
 ^\.github$
 ^\.version\.json$
 ^.*\.Rproj$

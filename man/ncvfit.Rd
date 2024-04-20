@@ -44,14 +44,14 @@ argument.  In particular, if X is standardized, one should pass
 \item{penalty}{Penalty function to be applied, either "MCP" (default), "SCAD", or
 "lasso")}
 
-\item{gamma}{Tuning parameter of the MCP/SCAD penalty, as in \code{ncvreg()}; default
+\item{gamma}{Tuning parameter of the MCP/SCAD penalty, as in \code{\link[=ncvreg]{ncvreg()}}; default
 is 3 for MCP and 3.7 for SCAD.}
 
 \item{alpha}{Tuning paramter controlling the ridge component of penalty, as in
-\code{ncvreg()}; default is 1 (meaning no ridge penalty)}
+\code{\link[=ncvreg]{ncvreg()}}; default is 1 (meaning no ridge penalty)}
 
 \item{lambda}{Regularization parameter value at which to estimate beta; must be
-scalar -- for pathwise optimization, see \code{ncvreg()}}
+scalar -- for pathwise optimization, see \code{\link[=ncvreg]{ncvreg()}}}
 
 \item{eps}{Convergence threshhold. The algorithm iterates until the RMSD for
 the change in linear predictors for each coefficient is less than
@@ -61,7 +61,7 @@ eps. Default is 1e-4.}
 algorithm will terminate prior to convergence.  Default: 1000.}
 
 \item{penalty.factor}{Multiplicative factor for the penalty applied to each coefficient,
-as in \code{ncvreg()}.  In particular, note that if you include an
+as in \code{\link[=ncvreg]{ncvreg()}}.  In particular, note that if you include an
 intercept, you probably want to set its entry to zero here.}
 
 \item{warn}{Return warning messages for failures to converge and model

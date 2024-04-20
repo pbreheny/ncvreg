@@ -1,8 +1,8 @@
 #' Estimate local mFDR for all features
 #' 
-#' `local_mfdr()` is called by `summary.ncvreg()`, which typically offers a more convenient interface to users.
+#' `local_mfdr()` is called by [summary.ncvreg()], which typically offers a more convenient interface to users.
 #' If, however, you are working with local mfdrs programmatically rather than interactively, you probably want to
-#' use `local_mfdr()`, which skips the sorting, filtering, and print formatting of `summary.ncvreg()`.
+#' use `local_mfdr()`, which skips the sorting, filtering, and print formatting of [summary.ncvreg()].
 #' 
 #' @param fit      A fitted `ncvreg` or `ncvsurv` object.
 #' @param lambda   The value of lambda at which inference should be carried out.
@@ -13,9 +13,9 @@
 #'   installed.
 #' @param sigma    For linear regression models, users can supply an estimate of the residual standard deviation.
 #'   The default is to use RSS / DF, where degrees of freedom are approximated using the number of nonzero coefficients.
-#' @param ...      Additional arguments to `ash()` if using `method='ashr'`.
+#' @param ...      Additional arguments to [ashr::ash()] if using `method='ashr'`.
 #'   
-#' @return If all features are penalized, then the object returns a data frame with one row per feature and four columns:
+#' @returns If all features are penalized, then the object returns a data frame with one row per feature and four columns:
 #' * `Estimate`: The coefficient estimate from the penalized regression fit
 #' * `z`: A test statistic that approximately follows a standard normal distribution under the null hypothesis that the
 #'        feature is marginally independent of the outcome

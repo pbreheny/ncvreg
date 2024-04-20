@@ -45,6 +45,6 @@ Failure Time Data}. Wiley, New York.
 }
 }
 \seealso{
-\code{ncvsurv()}
+\code{\link[=ncvsurv]{ncvsurv()}}
 }
 \keyword{datasets}

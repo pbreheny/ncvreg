@@ -9,17 +9,17 @@
 \arguments{
 \item{x}{Fitted \code{"ncvreg"} model.}
 
-\item{alpha}{Controls alpha-blending, helpful when the number of covariates
-is large.  Default is alpha=1.}
+\item{alpha}{Controls alpha-blending, helpful when the number of features
+is large. Default is alpha=1.}
 
-\item{log.l}{Should horizontal axis be on the log scale?  Default is FALSE.}
+\item{log.l}{Should horizontal axis be on the log scale? Default is FALSE.}
 
-\item{shade}{Should nonconvex region be shaded?  Default is TRUE.}
+\item{shade}{Should nonconvex region be shaded? Default is TRUE.}
 
-\item{col}{Vector of colors for coefficient lines.  By default, evenly
-spaced colors are selected automatically.}
+\item{col}{Vector of colors for coefficient lines. By default, evenly spaced
+colors are selected automatically.}
 
-\item{\dots}{Other graphical parameters to \code{plot}}
+\item{\dots}{Other graphical parameters to \code{\link[=plot]{plot()}}}
 }
 \description{
 Produces a plot of the coefficient paths for a fitted \code{ncvreg} object.
@@ -34,14 +34,12 @@ fit <- ncvreg(Prostate$X, Prostate$y, penalty.factor=rep(c(1, 1, 1, Inf), 2))
 plot(fit, col=c('red', 'black', 'green'))  # Recycled among nonzero paths
 }
 \references{
-Breheny P and Huang J. (2011) Coordinate descentalgorithms for
-nonconvex penalized regression, with applications to biological feature
-selection.  \emph{Annals of Applied Statistics}, \strong{5}: 232-253.
-c("\\Sexpr[results=rd]{tools:::Rd_expr_doi(\"#1\")}",
-"10.1214/10-AOAS388")\Sexpr{tools:::Rd_expr_doi("10.1214/10-AOAS388")}
+Breheny P and Huang J. (2011) Coordinate descent algorithms for nonconvex
+penalized regression, with applications to biological feature selection.
+\emph{Annals of Applied Statistics}, \strong{5}: 232-253. \doi{10.1214/10-AOAS388}
 }
 \seealso{
-\code{\link{ncvreg}}
+\code{\link[=ncvreg]{ncvreg()}}
 }
 \author{
 Patrick Breheny

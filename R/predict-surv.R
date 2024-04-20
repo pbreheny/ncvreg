@@ -1,47 +1,52 @@
-#' Model predictions based on a fitted "ncvsurv" object.
+#' Model predictions based on a fitted `ncvsurv` object.
 #' 
 #' Similar to other predict methods, this function returns predictions from a
-#' fitted \code{"ncvsurv"} object.
+#' fitted `ncvsurv` object.
 #' 
 #' Estimation of baseline survival function conditional on the estimated values
-#' of \code{beta} is carried out according to the method described in Chapter
+#' of `beta` is carried out according to the method described in Chapter
 #' 4.3 of Kalbfleish and Prentice.  In particular, it agrees exactly the
-#' results returned by \code{survfit.coxph(..., type='kalbfleisch-prentice')}
-#' in the \code{survival} package.
+#' results returned by `survfit.coxph(..., type='kalbfleisch-prentice')`
+#' in the `survival` package.
 #' 
 #' @aliases predict.ncvsurv coef.ncvsurv
-#' @param object Fitted \code{"ncvsurv"} model object.
+#' 
+#' @param object Fitted `"ncvsurv"` model object.
 #' @param X Matrix of values at which predictions are to be made.  Not used for
-#' \code{type="coefficients"} or for some of the \code{type} settings in
-#' \code{predict}.
-#' @param lambda Values of the regularization parameter \code{lambda} at which
-#' predictions are requested.  For values of \code{lambda} not in the sequence
-#' of fitted models, linear interpolation is used.
-#' @param which Indices of the penalty parameter \code{lambda} at which
-#' predictions are required.  By default, all indices are returned.  If
-#' \code{lambda} is specified, this will override \code{which}.
-#' @param type Type of prediction: \code{"link"} returns the linear predictors;
-#' \code{"response"} gives the risk (i.e., exp(link)); \code{"survival"}
-#' returns the estimated survival function; \code{"median"} estimates median
-#' survival times.  The other options are all identical to their \code{ncvreg}
-#' counterparts: \code{"coefficients"} returns the coefficients; \code{"vars"}
-#' returns a list containing the indices and names of the nonzero variables at
-#' each value of \code{lambda}; \code{"nvars"} returns the number of nonzero
-#' coefficients at each value of \code{lambda}.
+#'   `type="coefficients"` or for some of the `type` settings in
+#'   `predict`.
+#' @param lambda Values of the regularization parameter `lambda` at which
+#'   predictions are requested.  For values of `lambda` not in the sequence
+#'   of fitted models, linear interpolation is used.
+#' @param which Indices of the penalty parameter `lambda` at which predictions
+#'   are required. By default, all indices are returned. If `lambda` is
+#'   specified, this will override `which`.
+#' @param type Type of prediction:
+#'   * `link` returns the linear predictors
+#'   * `response` gives the risk (i.e., exp(link))
+#'   * `survival` returns the estimated survival function
+#'   * `median` estimates median survival times
+#'   The other options are all identical to their [ncvreg()] counterparts:
+#'   * `coefficients` returns the coefficients
+#'   * `vars` returns a list containing the indices and names of the nonzero variables at each value of `lambda`
+#'   * `nvars` returns the number of nonzero coefficients at each value of `lambda`.
 #' @param \dots Not used.
-#' @return The object returned depends on type.
+#' 
+#' @returns The object returned depends on type.
+#' 
 #' @author Patrick Breheny <patrick-breheny@@uiowa.edu>
-#' @seealso \code{\link{ncvsurv}}
-#' @references \itemize{ \item Breheny P and Huang J. (2011) Coordinate
-#' descentalgorithms for nonconvex penalized regression, with applications to
-#' biological feature selection.  \emph{Annals of Applied Statistics},
-#' \strong{5}: 232-253.  c("\\Sexpr[results=rd]{tools:::Rd_expr_doi(\"#1\")}",
-#' "10.1214/10-AOAS388")\Sexpr{tools:::Rd_expr_doi("10.1214/10-AOAS388")}
 #' 
-#' \item Kalbfleish JD and Prentice RL (2002). \emph{The Statistical Analysis
-#' of Failure Time Data}, 2nd edition. Wiley.  }
+#' @seealso [ncvsurv()]
+#' 
+#' @references
+#' * Breheny P and Huang J. (2011) Coordinate descent algorithms for nonconvex
+#'   penalized regression, with applications to biological feature selection.
+#'   *Annals of Applied Statistics*, **5**: 232-253. \doi{10.1214/10-AOAS388}
+#'   
+#' * Kalbfleish JD and Prentice RL (2002). *The Statistical Analysis of Failure
+#'   Time Data*, 2nd edition. Wiley.
+
 #' @examples
-#' 
 #' data(Lung)
 #' X <- Lung$X
 #' y <- Lung$y

@@ -2,14 +2,15 @@
 #'
 #' Extract the log-likelihood of an `ncvreg` or `ncvsurv` object.
 #' 
-#' @param object   An `ncvreg` or `ncvsurv` object, as obtained from `ncvreg()` or `ncvsurv()`
-#' @param REML     As in `logLik.lm()`
+#' @param object   An `ncvreg` or `ncvsurv` object, as obtained from [ncvreg()] or [ncvsurv()]
+#' @param REML     As in [logLik.lm()]
 #' @param ...      For S3 compatibility
 #'
-#' @seealso `logLik()`
+#' @seealso [logLik()]
 #' 
 #' @rdname logLik.ncvreg
 #' @export
+
 logLik.ncvreg <- function(object, REML=FALSE, ...) {
   n <- as.double(object$n)
   df <- predict(object, type="nvars") + 1

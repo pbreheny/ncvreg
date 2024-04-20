@@ -7,22 +7,25 @@
 #' penalized regression model.  The estimate tends to be accurate in most
 #' settings, but will be slightly conservative if predictors are highly
 #' correlated.  For an alternative way of estimating the mFDR, typically more
-#' accurate in highly correlated cases, see \code{\link{perm.ncvreg}}.
+#' accurate in highly correlated cases, see [perm.ncvreg()].
 #' 
-#' @param fit An \code{ncvreg} or \code{ncvsurv} object.
-#' @param X The model matrix corresponding to \code{fit}.  This is not
-#' necessary for linear regression, but in logistic and Cox regression, the
-#' mFDR depends on X.  It is not necessary to supply \code{X} if it is already
-#' contained in \code{fit}; i.e., if \code{ncvreg}/\code{ncvsurv} was run with
-#' \code{returnX=TRUE}.
-#' @return An object with S3 class \code{mfdr} inheriting from
-#' \code{data.frame} and containing: \item{EF}{The number of variables selected
-#' at each value of \code{lambda}, averaged over the permutation fits.}
-#' \item{S}{The actual number of selected variables for the non-permuted data.}
-#' \item{mFDR}{The estimated marginal false discovery rate (\code{EF/S}).}
+#' @param fit   An `ncvreg` or `ncvsurv` object.
+#' @param X     The model matrix corresponding to `fit`. This is not necessary
+#'   for linear regression, but in logistic and Cox regression, the mFDR depends
+#'   on X. It is not necessary to supply `X` if it is already contained in `fit`;
+#'   i.e., if `ncvreg`/`ncvsurv` was run with `returnX=TRUE`.
+#' 
+#' @returns An object with S3 class `mfdr` inheriting from `data.frame`, containing:
+#' \describe{
+#'   \item{EF}{The number of variables selected at each value of `lambda`, averaged over the permutation fits.}
+#'   \item{S}{The actual number of selected variables for the non-permuted data.}
+#'   \item{mFDR}{The estimated marginal false discovery rate (`EF/S`).}
+#' }
+#' 
 #' @author Patrick Breheny and Ryan Miller
-#' @seealso \code{\link{ncvreg}}, \code{\link{ncvsurv}},
-#' \code{\link{plot.mfdr}}, \code{\link{perm.ncvreg}}
+#' 
+#' @seealso [ncvreg()], [ncvsurv()], [plot.mfdr()], [perm.ncvreg()]
+#' 
 #' @examples
 #' # Linear regression --------------------------------
 #' data(Prostate)
@@ -59,7 +62,6 @@
 #' plot(obj)
 #' plot(obj, type="EF")
 #' par(op)
-#' 
 #' @export mfdr
 
 mfdr <- function(fit, X) {

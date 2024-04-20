@@ -3,7 +3,7 @@
 \name{predict.ncvsurv}
 \alias{predict.ncvsurv}
 \alias{coef.ncvsurv}
-\title{Model predictions based on a fitted "ncvsurv" object.}
+\title{Model predictions based on a fitted \code{ncvsurv} object.}
 \usage{
 \method{predict}{ncvsurv}(
   object,
@@ -22,22 +22,25 @@
 \code{type="coefficients"} or for some of the \code{type} settings in
 \code{predict}.}
 
-\item{type}{Type of prediction: \code{"link"} returns the linear predictors;
-\code{"response"} gives the risk (i.e., exp(link)); \code{"survival"}
-returns the estimated survival function; \code{"median"} estimates median
-survival times.  The other options are all identical to their \code{ncvreg}
-counterparts: \code{"coefficients"} returns the coefficients; \code{"vars"}
-returns a list containing the indices and names of the nonzero variables at
-each value of \code{lambda}; \code{"nvars"} returns the number of nonzero
-coefficients at each value of \code{lambda}.}
+\item{type}{Type of prediction:
+\itemize{
+\item \code{link} returns the linear predictors
+\item \code{response} gives the risk (i.e., exp(link))
+\item \code{survival} returns the estimated survival function
+\item \code{median} estimates median survival times
+The other options are all identical to their \code{\link[=ncvreg]{ncvreg()}} counterparts:
+\item \code{coefficients} returns the coefficients
+\item \code{vars} returns a list containing the indices and names of the nonzero variables at each value of \code{lambda}
+\item \code{nvars} returns the number of nonzero coefficients at each value of \code{lambda}.
+}}
 
 \item{lambda}{Values of the regularization parameter \code{lambda} at which
 predictions are requested.  For values of \code{lambda} not in the sequence
 of fitted models, linear interpolation is used.}
 
-\item{which}{Indices of the penalty parameter \code{lambda} at which
-predictions are required.  By default, all indices are returned.  If
-\code{lambda} is specified, this will override \code{which}.}
+\item{which}{Indices of the penalty parameter \code{lambda} at which predictions
+are required. By default, all indices are returned. If \code{lambda} is
+specified, this will override \code{which}.}
 
 \item{\dots}{Not used.}
 }
@@ -46,7 +49,7 @@ The object returned depends on type.
 }
 \description{
 Similar to other predict methods, this function returns predictions from a
-fitted \code{"ncvsurv"} object.
+fitted \code{ncvsurv} object.
 }
 \details{
 Estimation of baseline survival function conditional on the estimated values
@@ -56,7 +59,6 @@ results returned by \code{survfit.coxph(..., type='kalbfleisch-prentice')}
 in the \code{survival} package.
 }
 \examples{
-
 data(Lung)
 X <- Lung$X
 y <- Lung$y
@@ -82,17 +84,16 @@ predict(fit, type="vars", lambda=c(0.1, 0.01))
 predict(fit, type="nvars", lambda=c(0.1, 0.01))
 }
 \references{
-\itemize{ \item Breheny P and Huang J. (2011) Coordinate
-descentalgorithms for nonconvex penalized regression, with applications to
-biological feature selection.  \emph{Annals of Applied Statistics},
-\strong{5}: 232-253.  c("\\Sexpr[results=rd]{tools:::Rd_expr_doi(\"#1\")}",
-"10.1214/10-AOAS388")\Sexpr{tools:::Rd_expr_doi("10.1214/10-AOAS388")}
-
-\item Kalbfleish JD and Prentice RL (2002). \emph{The Statistical Analysis
-of Failure Time Data}, 2nd edition. Wiley.  }
+\itemize{
+\item Breheny P and Huang J. (2011) Coordinate descent algorithms for nonconvex
+penalized regression, with applications to biological feature selection.
+\emph{Annals of Applied Statistics}, \strong{5}: 232-253. \doi{10.1214/10-AOAS388}
+\item Kalbfleish JD and Prentice RL (2002). \emph{The Statistical Analysis of Failure
+Time Data}, 2nd edition. Wiley.
+}
 }
 \seealso{
-\code{\link{ncvsurv}}
+\code{\link[=ncvsurv]{ncvsurv()}}
 }
 \author{
 Patrick Breheny \href{mailto:patrick-breheny@uiowa.edu}{patrick-breheny@uiowa.edu}

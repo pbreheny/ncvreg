@@ -14,30 +14,28 @@
 )
 }
 \arguments{
-\item{x}{A \code{"perm.ncvreg"} or \code{"mfdr"} object.}
+\item{x}{A \code{perm.ncvreg} or \code{mfdr} object.}
 
-\item{type}{What to plot on the vertical axis.  \code{mFDR} plots the
-marginal false discovery rate; \code{EF} plots the expected number of false
-discoveries along with the actual number of variables included in the model.}
+\item{type}{What to plot on the vertical axis. \code{mFDR} plots the marginal
+false discovery rate; \code{EF} plots the expected number of false discoveries
+along with the actual number of variables included in the model.}
 
-\item{log.l}{Should horizontal axis be on the log scale?  Default is FALSE.}
+\item{log.l}{Should horizontal axis be on the log scale?  Default is \code{FALSE}.}
 
-\item{selected}{If \code{TRUE} (the default), places an axis on top of the
-plot denoting the number of variables in the model (i.e., that have a
-nonzero regression coefficient) at that value of \code{lambda}.}
+\item{selected}{If \code{TRUE} (the default), places an axis on top of the plot
+denoting the number of variables in the model (i.e., that have a nonzero
+regression coefficient) at that value of \code{lambda}.}
 
-\item{legend}{For \code{type="EF"} plots, draw a legend to indicate which
-line is for the actual selections and which line is for the expected number
-of false discoveries?  Default is \code{TRUE}.}
+\item{legend}{For \code{type="EF"} plots, draw a legend to indicate which line
+is for the actual selections and which line is for the expected number of
+false discoveries? Default is \code{TRUE}.}
 
-\item{\dots}{Other graphical parameters to pass to \code{plot}}
+\item{\dots}{Other graphical parameters to pass to \code{\link[=plot]{plot()}}}
 }
 \description{
-Plot marginal false discovery rate curves from an \code{"mfdr"} or
-\code{"perm.ncvreg"} object.
+Plot marginal false discovery rate curves from an \code{mfdr} or \code{perm.ncvreg} object.
 }
 \examples{
-
 data(Prostate)
 fit <- ncvreg(Prostate$X, Prostate$y)
 
@@ -64,7 +62,7 @@ Breheny P (2019). Marginal false discovery rates for penalized
 regression models. Biostatistics, 20: 299-314.
 }
 \seealso{
-\code{\link{mfdr}}, \code{\link{perm.ncvreg}}
+\code{\link[=mfdr]{mfdr()}}, \code{\link[=perm.ncvreg]{perm.ncvreg()}}
 }
 \author{
 Patrick Breheny

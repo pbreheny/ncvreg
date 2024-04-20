@@ -1,20 +1,19 @@
 #' Plot survival curve for ncvsurv model
 #' 
-#' Plot survival curve for a model that has been fit using \code{ncvsurv}
-#' followed by a prediction of the survival function using
-#' \code{predict.ncvsurv}
+#' Plot survival curve for a model that has been fit using [ncvsurv()] followed
+#' by a prediction of the survival function using [predict.ncvsurv()].
 #' 
+#' @param x       A `ncvsurv.func` object, which is returned by [predict.ncvsurv()]
+#'   if `type='survival'` is specified. See examples.
+#' @param alpha   Controls alpha-blending (i.e., transparency). Useful if many
+#'   overlapping lines are present.
+#' @param \dots   Other graphical parameters to pass to `plot`
 #' 
-#' @param x A \code{'ncvsurv.func'} object, which is returned by
-#' \code{predict.ncvsurv} if \code{type='survival'} is specified.  See
-#' examples.
-#' @param alpha Controls alpha-blending (i.e., transparency).  Useful if many
-#' overlapping lines are present.
-#' @param \dots Other graphical parameters to pass to \code{plot}
 #' @author Patrick Breheny
-#' @seealso \code{\link{ncvsurv}}, \code{\link{predict.ncvsurv}}
-#' @examples
 #' 
+#' @seealso [ncvsurv()], [predict.ncvsurv()]
+#' 
+#' @examples
 #' data(Lung)
 #' X <- Lung$X
 #' y <- Lung$y

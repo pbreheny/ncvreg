@@ -10,9 +10,9 @@
 \method{logLik}{ncvsurv}(object, ...)
 }
 \arguments{
-\item{object}{An \code{ncvreg} or \code{ncvsurv} object, as obtained from \code{ncvreg()} or \code{ncvsurv()}}
+\item{object}{An \code{ncvreg} or \code{ncvsurv} object, as obtained from \code{\link[=ncvreg]{ncvreg()}} or \code{\link[=ncvsurv]{ncvsurv()}}}
 
-\item{REML}{As in \code{logLik.lm()}}
+\item{REML}{As in \code{\link[=logLik.lm]{logLik.lm()}}}
 
 \item{...}{For S3 compatibility}
 }
@@ -20,5 +20,5 @@
 Extract the log-likelihood of an \code{ncvreg} or \code{ncvsurv} object.
 }
 \seealso{
-\code{logLik()}
+\code{\link[=logLik]{logLik()}}
 }

@@ -1,4 +1,5 @@
 library(glmnet, quietly=TRUE)
+if (interactive()) library(tinytest)
 
 # Agrees with linear regression
 n <- 50

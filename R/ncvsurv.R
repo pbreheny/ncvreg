@@ -4,26 +4,25 @@
 #' a grid of values for the regularization parameter lambda, with option for an
 #' additional L2 penalty.
 #'
-#' The sequence of models indexed by the regularization parameter \code{lambda}
+#' The sequence of models indexed by the regularization parameter `lambda`
 #' is fit using a coordinate descent algorithm.  In order to accomplish this,
 #' the second derivative (Hessian) of the Cox partial log-likelihood is
 #' diagonalized (see references for details).  The objective function is
-#' defined to be \deqn{Q(\beta|X, y) = \frac{1}{n} L(\beta|X, y) + }{Q(\beta|X,
-#' y) = (1/n)*L(\beta|X, y) + P(\beta, \lambda),}\deqn{
-#' P_\lambda(\beta)}{Q(\beta|X, y) = (1/n)*L(\beta|X, y) + P(\beta, \lambda),}
+#' defined to be
+#' \deqn{Q(\beta|X, y) = \frac{1}{n} L(\beta|X, y) + P_\lambda(\beta),}
 #' where the loss function L is the deviance (-2 times the partial
 #' log-likelihood) from the Cox regression mode. See
 #' [here](https://pbreheny.github.io/ncvreg/articles/web/models.html) for more
 #' details.
 #'
-#' Presently, ties are not handled by \code{ncvsurv} in a particularly
-#' sophisticated manner.  This will be improved upon in a future release of
-#' \code{ncvreg}.
+#' Presently, ties are not handled by `ncvsurv` in a particularly
+#' sophisticated manner. This will be improved upon in a future release of
+#' **ncvreg**.
 #'
-#' @param X The design matrix of predictor values.  \code{ncvsurv} standardizes
+#' @param X The design matrix of predictor values.  `ncvsurv` standardizes
 #'   the data prior to fitting.
 #' @param y The time-to-event outcome, as a two-column matrix or
-#'   \code{\link[survival]{Surv}} object.  The first column should be time on
+#'   [survival::Surv()] object.  The first column should be time on
 #'   study (follow up time); the second column should be a binary variable with
 #'   1 indicating that the event has occurred and 0 indicating (right)
 #'   censoring.
@@ -33,20 +32,20 @@
 #'   Default is 3 for MCP and 3.7 for SCAD.
 #' @param alpha Tuning parameter for the Mnet estimator which controls the
 #'   relative contributions from the MCP/SCAD penalty and the ridge, or L2
-#'   penalty.  \code{alpha=1} is equivalent to MCP/SCAD penalty, while
-#'   \code{alpha=0} would be equivalent to ridge regression.  However,
-#'   \code{alpha=0} is not supported; \code{alpha} may be arbitrarily small, but
+#'   penalty. `alpha=1` is equivalent to MCP/SCAD penalty, while
+#'   `alpha=0` would be equivalent to ridge regression.  However,
+#'   `alpha=0` is not supported; `alpha` may be arbitrarily small, but
 #'   not exactly 0.
 #' @param lambda.min The smallest value for lambda, as a fraction of lambda.max.
 #'   Default is .001 if the number of observations is larger than the number of
 #'   covariates and .05 otherwise.
 #' @param nlambda The number of lambda values.  Default is 100.
 #' @param lambda A user-specified sequence of lambda values.  By default, a
-#'   sequence of values of length \code{nlambda} is computed, equally spaced on
+#'   sequence of values of length `nlambda` is computed, equally spaced on
 #'   the log scale.
 #' @param eps Convergence threshhold.  The algorithm iterates until the RMSD for
 #'   the change in linear predictors for any coefficient is less than
-#'   \code{eps}.  Default is \code{1e-4}.
+#'   `eps`. Default is `1e-4`.
 #' @param max.iter Maximum number of iterations (total across entire path).
 #'   Default is 1000.
 #' @param convex Calculate index for which objective function ceases to be
@@ -55,11 +54,11 @@
 #'   no upper bound.  However, for large data sets, computational burden may be
 #'   heavy for models with a large number of nonzero coefficients.
 #' @param penalty.factor A multiplicative factor for the penalty applied to each
-#'   coefficient.  If supplied, \code{penalty.factor} must be a numeric vector
-#'   of length equal to the number of columns of \code{X}.  The purpose of
-#'   \code{penalty.factor} is to apply differential penalization if some
+#'   coefficient.  If supplied, `penalty.factor` must be a numeric vector
+#'   of length equal to the number of columns of `X`.  The purpose of
+#'   `penalty.factor` is to apply differential penalization if some
 #'   coefficients are thought to be more likely than others to be in the model.
-#'   In particular, \code{penalty.factor} can be 0, in which case the
+#'   In particular, `penalty.factor` can be 0, in which case the
 #'   coefficient is always in the model without any penalization/shrinkage.
 #' @param warn Return warning messages for failures to converge and model
 #'   saturation?  Default is TRUE.
@@ -70,53 +69,39 @@
 #'   to run if `returnX=FALSE`.
 #' @param ... Not used.
 #'
-#' @return An object with S3 class `ncvsurv` containing:
+#' @returns An object with S3 class `ncvsurv` containing:
 #' \describe{
-#' \item{beta}{The fitted matrix of coefficients.  The number of rows is equal
-#' to the number of coefficients, and the number of columns is equal to
-#' \code{nlambda}.} \item{iter}{A vector of length \code{nlambda} containing
-#' the number of iterations until convergence at each value of \code{lambda}.}
-#' \item{lambda}{The sequence of regularization parameter values in the path.}
-#' \item{penalty}{Same as above.} \item{model}{Same as above.}
-#' \item{gamma}{Same as above.} \item{alpha}{Same as above.}
-#' \item{convex.min}{The last index for which the objective function is locally
-#' convex.  The smallest value of lambda for which the objective function is
-#' convex is therefore \code{lambda[convex.min]}, with corresponding
-#' coefficients \code{beta[,convex.min]}.} \item{loss}{The deviance of the
-#' fitted model at each value of \code{lambda}.} \item{penalty.factor}{Same as
-#' above.} \item{n}{The number of observations.}
+#'   \item{beta}{The fitted matrix of coefficients.  The number of rows is equal to the number of coefficients, and the number of columns is equal to `nlambda`.}
+#'   \item{iter}{A vector of length `nlambda` containing the number of iterations until convergence at each value of `lambda`.}
+#'   \item{lambda}{The sequence of regularization parameter values in the path.}
+#'   \item{penalty, gamma, penalty.factor, alpha, model}{Same as above.}
+#'   \item{convex.min}{The last index for which the objective function is locally convex. The smallest value of lambda for which the objective function is convex is therefore `lambda[convex.min]`, with corresponding coefficients `beta[,convex.min]`.}
+#'   \item{loss}{The deviance of the fitted model at each value of `lambda`.}
+#'   \item{n}{The number of instances.}
 #' }
-#'
-#'   For Cox models, the following objects are also returned (and are necessary
-#'   to estimate baseline survival conditonal on the estimated regression
-#'   coefficients), all of which are ordered by time on study.  I.e., the ith
-#'   row of \code{W} does not correspond to the ith row of \code{X}):
-#'
+#' For Cox models, the following objects are also returned (and are necessary to
+#' estimate baseline survival conditonal on the estimated regression
+#' coefficients), all of which are ordered by time on study.  I.e., the ith row
+#' of `W` does not correspond to the ith row of `X`):
 #' \describe{
-#' \item{W}{Matrix of `exp(beta)` values for each subject over all `lambda` values.}
-#' \item{time}{Times on study.}
-#' \item{fail}{Failure event indicator.}
+#'   \item{W}{Matrix of `exp(beta)` values for each subject over all `lambda` values.}
+#'   \item{time}{Times on study.}
+#'   \item{fail}{Failure event indicator.}
 #' }
-#'
-#'   Additionally, if `returnX=TRUE`, the object will also contain
-#'
+#' Additionally, if `returnX=TRUE`, the object will also contain
 #' \describe{
-#' \item{X}{The standardized design matrix.}
+#'   \item{X}{The standardized design matrix.}
 #' }
 #'
 #' @seealso [plot.ncvreg()], [cv.ncvsurv()]
 #'
 #' @references
-#' \itemize{
-#' \item Breheny P and Huang J. (2011) Coordinate descent algorithms for nonconvex
-#' penalized regression, with applications to biological feature selection.
-#' *Annals of Applied Statistics*, **5**: 232-253. \doi{10.1214/10-AOAS388}
-#'
-#' \item Simon N, Friedman JH, Hastie T, and Tibshirani R. (2011)
-#' Regularization Paths for Cox's Proportional Hazards Model via Coordinate
-#' Descent. *Journal of Statistical Software*, **39**: 1-13.
-#' \doi{10.18637/jss.v039.i05}
-#' }
+#' * Breheny P and Huang J. (2011) Coordinate descent algorithms for nonconvex
+#'   penalized regression, with applications to biological feature selection.
+#'   *Annals of Applied Statistics*, **5**: 232-253. \doi{10.1214/10-AOAS388}
+#' * Simon N, Friedman JH, Hastie T, and Tibshirani R. (2011) Regularization
+#'   Paths for Cox's Proportional Hazards Model via Coordinate Descent.
+#'   *Journal of Statistical Software*, **39**: 1-13. \doi{10.18637/jss.v039.i05}
 #' 
 #' @examples
 #' data(Lung)

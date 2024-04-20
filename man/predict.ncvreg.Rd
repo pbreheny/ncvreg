@@ -40,26 +40,27 @@
 \arguments{
 \item{object}{Fitted \code{ncvreg} model object.}
 
-\item{X}{Matrix of values at which predictions are to be made.  Not used for
-\code{type="coefficients"} or for some of the \code{type} settings in
-\code{predict}.}
+\item{X}{Matrix of values at which predictions are to be made. Not used for
+\code{type="coefficients"} or for some of the \code{type} settings in \code{predict}.}
 
-\item{type}{Type of prediction: \code{"link"} returns the linear predictors;
-\code{"response"} gives the fitted values; \code{"class"} returns the
-binomial outcome with the highest probability; \code{"coefficients"} returns
-the coefficients; \code{"vars"} returns a list containing the indices and
-names of the nonzero variables at each value of \code{lambda};
-\code{"nvars"} returns the number of nonzero coefficients at each value of
-\code{lambda}.}
+\item{type}{Type of prediction:
+\itemize{
+\item \code{link} returns the linear predictors
+\item \code{response} gives the fitted values
+\item \code{class} returns the binomial outcome with the highest probability
+\item \code{coefficients} returns the coefficients
+\item \code{vars} returns a list containing the indices and names of the nonzero variables at each value of \code{lambda}
+\item \code{nvars} returns the number of nonzero coefficients at each value of \code{lambda}.
+}}
 
-\item{which}{Indices of the penalty parameter \code{lambda} at which
-predictions are required.  By default, all indices are returned.  If
-\code{lambda} is specified, this will override \code{which}.}
+\item{which}{Indices of the penalty parameter \code{lambda} at which predictions
+are required.  By default, all indices are returned. If \code{lambda} is
+specified, this will override \code{which}.}
 
 \item{\dots}{Not used.}
 
 \item{lambda}{Values of the regularization parameter \code{lambda} at which
-predictions are requested.  For values of \code{lambda} not in the sequence
+predictions are requested. For values of \code{lambda} not in the sequence
 of fitted models, linear interpolation is used.}
 
 \item{drop}{If coefficients for a single value of \code{lambda} are to be
@@ -74,7 +75,6 @@ Similar to other predict methods, this function returns predictions from a
 fitted \code{ncvreg} object.
 }
 \examples{
-
 data(Heart)
 
 fit <- ncvreg(Heart$X, Heart$y, family="binomial")
@@ -86,14 +86,12 @@ predict(fit, type="vars", lambda=c(0.05, 0.01))
 predict(fit, type="nvars", lambda=c(0.05, 0.01))
 }
 \references{
-Breheny P and Huang J. (2011) Coordinate descentalgorithms for
-nonconvex penalized regression, with applications to biological feature
-selection.  \emph{Annals of Applied Statistics}, \strong{5}: 232-253.
-c("\\Sexpr[results=rd]{tools:::Rd_expr_doi(\"#1\")}",
-"10.1214/10-AOAS388")\Sexpr{tools:::Rd_expr_doi("10.1214/10-AOAS388")}
+Breheny P and Huang J. (2011) Coordinate descent algorithms for nonconvex
+penalized regression, with applications to biological feature selection.
+\emph{Annals of Applied Statistics}, \strong{5}: 232-253. \doi{10.1214/10-AOAS388}
 }
 \seealso{
-\code{\link{ncvreg}}
+\code{\link[=ncvreg]{ncvreg()}}
 }
 \author{
 Patrick Breheny

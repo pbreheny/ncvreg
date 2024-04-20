@@ -57,7 +57,7 @@
 #'   (0=no, 1=yes)}
 #' }
 #' 
-#' @seealso `ncvsurv()`
+#' @seealso [ncvsurv()]
 #' @references
 #' \itemize{
 #'   \item Kalbfleisch D and Prentice RL (1980), *The Statistical Analysis of

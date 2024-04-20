@@ -1,41 +1,43 @@
 #' Model predictions based on a fitted ncvreg object.
 #' 
 #' Similar to other predict methods, this function returns predictions from a
-#' fitted \code{ncvreg} object.
-#' 
+#' fitted `ncvreg` object.
 #' 
 #' @aliases predict.ncvreg coef.ncvreg
-#' @param object Fitted \code{ncvreg} model object.
-#' @param X Matrix of values at which predictions are to be made.  Not used for
-#' \code{type="coefficients"} or for some of the \code{type} settings in
-#' \code{predict}.
-#' @param lambda Values of the regularization parameter \code{lambda} at which
-#' predictions are requested.  For values of \code{lambda} not in the sequence
-#' of fitted models, linear interpolation is used.
-#' @param which Indices of the penalty parameter \code{lambda} at which
-#' predictions are required.  By default, all indices are returned.  If
-#' \code{lambda} is specified, this will override \code{which}.
-#' @param type Type of prediction: \code{"link"} returns the linear predictors;
-#' \code{"response"} gives the fitted values; \code{"class"} returns the
-#' binomial outcome with the highest probability; \code{"coefficients"} returns
-#' the coefficients; \code{"vars"} returns a list containing the indices and
-#' names of the nonzero variables at each value of \code{lambda};
-#' \code{"nvars"} returns the number of nonzero coefficients at each value of
-#' \code{lambda}.
-#' @param drop If coefficients for a single value of \code{lambda} are to be
-#' returned, reduce dimensions to a vector?  Setting \code{drop=FALSE} returns
-#' a 1-column matrix.
-#' @param \dots Not used.
-#' @return The object returned depends on type.
-#' @author Patrick Breheny
-#' @seealso \code{\link{ncvreg}}
-#' @references Breheny P and Huang J. (2011) Coordinate descentalgorithms for
-#' nonconvex penalized regression, with applications to biological feature
-#' selection.  \emph{Annals of Applied Statistics}, \strong{5}: 232-253.
-#' c("\\Sexpr[results=rd]{tools:::Rd_expr_doi(\"#1\")}",
-#' "10.1214/10-AOAS388")\Sexpr{tools:::Rd_expr_doi("10.1214/10-AOAS388")}
-#' @examples
 #' 
+#' @param object Fitted `ncvreg` model object.
+#' @param X Matrix of values at which predictions are to be made. Not used for
+#'   `type="coefficients"` or for some of the `type` settings in `predict`.
+#' @param lambda Values of the regularization parameter `lambda` at which
+#'   predictions are requested. For values of `lambda` not in the sequence
+#'   of fitted models, linear interpolation is used.
+#' @param which Indices of the penalty parameter `lambda` at which predictions
+#'   are required.  By default, all indices are returned. If `lambda` is
+#'   specified, this will override `which`.
+#' @param type Type of prediction:
+#'   * `link` returns the linear predictors
+#'   * `response` gives the fitted values
+#'   * `class` returns the binomial outcome with the highest probability
+#'   * `coefficients` returns the coefficients
+#'   * `vars` returns a list containing the indices and names of the nonzero variables at each value of `lambda`
+#'   * `nvars` returns the number of nonzero coefficients at each value of `lambda`.
+#' @param drop If coefficients for a single value of `lambda` are to be
+#'   returned, reduce dimensions to a vector?  Setting `drop=FALSE` returns
+#'   a 1-column matrix.
+#' @param \dots Not used.
+#' 
+#' @returns The object returned depends on type.
+#' 
+#' @author Patrick Breheny
+#' 
+#' @seealso [ncvreg()]
+#' 
+#' @references
+#' Breheny P and Huang J. (2011) Coordinate descent algorithms for nonconvex
+#' penalized regression, with applications to biological feature selection.
+#' *Annals of Applied Statistics*, **5**: 232-253. \doi{10.1214/10-AOAS388}
+#' 
+#' @examples
 #' data(Heart)
 #' 
 #' fit <- ncvreg(Heart$X, Heart$y, family="binomial")
