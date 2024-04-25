@@ -230,14 +230,6 @@ boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster,
     results <- parallel::parLapply(cl=cluster, X=1:nboot, fun=bootf, XX=X, y=y, lambda = lambda, sigma2 = sigma2, ncvreg.args=ncvreg.args, rescale_original = rescale_original, method = method, alpha = a1)
   }
   
-  
-  if (method == "zerosample2la") {
-    
-    lambda_max <- max(apply(ncvreg::std(X), 2, find_thresh, y))
-    
-    print(lambda_max); print(lambda)
-    lambda <- lambda / lambda_max
-  }
   for (i in 1:nboot) {
     if (!missing(cluster)) {
       res <- results[[i]]
@@ -285,7 +277,6 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, m
   full_rescale_factor <- rescale * rescaleX
   
   lambda_max <- max(apply(xnew, 2, find_thresh, ynew))
-  if (method == "zerosample2la") {lambda <- lambda * lambda_max}
   lambda_min <- lambda - lambda / 100 ## set min to be slightly smaller
   if (lambda_min >= lambda_max | lambda >= lambda_max) { # Should review this
     lambda_max <- lambda + lambda / 100
@@ -342,61 +333,14 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, m
     frac_lw_log <- ifelse(is.infinite(exp(obs_p_lw - obs_p_up)), 0, obs_p_lw - obs_p_up - log(1 + exp(obs_p_lw - obs_p_up)))
     frac_up_log <- ifelse(is.infinite(exp(obs_p_up - obs_p_lw)), 0, obs_p_up - obs_p_lw - log(1 + exp(obs_p_up - obs_p_lw)))
     
-    if (method == "acceptreject") {
-      dmodes <- ifelse(
-        modes <= 0,
-        dnorm(modes, z + lambda, se, log = TRUE) + obs_lw - frac_lw_log,
-        dnorm(modes, z - lambda, se, log = TRUE) + obs_up - frac_up_log
-      )
-      spans <- runif(length(modes), 0, 3)
-      accepted <- logical(length(modes))
-      iters <- 0
-      while (any(!accepted) & iters < 1000) {
-        for (i in 1:length(dmodes)) {
-          if (!accepted[i]) {
-            curr_sign <- sample(c(-1, 1), 1)
-            curr_x <- modes[i] + curr_sign * spans[i] * se
-            curr_thresh <- log(runif(1))
-            
-            
-            curr_dens <- ifelse(
-              curr_x <= 0,
-              dnorm(curr_x, z[i] + lambda, se, log = TRUE) + obs_lw[i] - frac_lw_log[i] - dmodes[i],
-              dnorm(curr_x, z[i] - lambda, se, log = TRUE) + obs_up[i] - frac_up_log[i] - dmodes[i]
-            )
-            
-            if (curr_dens >= curr_thresh) {
-              draws[1,i] <- curr_x
-              accepted[i] <- TRUE
-            } else if (sign(curr_x) != sign(modes[i])) {
-              curr_x <- modes[i] + curr_sign * -1 * spans[i] * se
-              curr_dens <- ifelse(
-                curr_x <= 0,
-                dnorm(curr_x, z[i] + lambda, se, log = TRUE) + obs_lw[i] - frac_lw_log[i] - dmodes[i],
-                dnorm(curr_x, z[i] - lambda, se, log = TRUE) + obs_up[i] - frac_up_log[i] - dmodes[i]
-              )
-              if (curr_dens >= curr_thresh) {
-                draws[1,i] <- curr_x
-                accepted[i] <- TRUE
-              }
-            }
-            
-            spans[i] <- runif(1, 0, spans[i])
-          }
-        }
-        iters <- iters + 1
-      }
-      
-      ## need to normalize how I save draws across methods
-      draws[,nonsingular] <- draws[,nonsingular,drop=FALSE] * full_rescale_factor
-      
-    } else if (method %in% c("sample", "zerosample1", "zerosample2", "truncatedzs2", "restrainedzs2", "zerosample2la")) {
-      if (method == "zerosample1") {
-        ps <- runif(length(frac_lw_log), ifelse(z < 0, 0, exp(frac_lw_log)), ifelse(z < 0, exp(frac_lw_log), 1)) 
-        ps[z == 0] <- exp(frac_lw_log) ## redundant, these get replaced anyway
+    if (method %in% c("sample", "zerosample2", "median")) {
+
+      if (method == "median") {
+        ps <- rep(0.5, np)
       } else {
-        ps <- runif(np) 
+        ps <- runif(np)        
       }
+
       log_ps <- log(ps) 
       log_one_minus_ps <- log(1 - ps)
       tmp <- ifelse(
@@ -405,15 +349,8 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, m
         qnorm(log_one_minus_ps + obs_up - frac_up_log, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
       ) 
       
-      if (method == "truncatedzs2") {
-        tmp <- ifelse(abs(tmp) > abs(lambda), abs(lambda) * sign(tmp), tmp)
-      }
-      if (method == "restrainedzs2") {
-        tmp <- tmp * (1/n)
-      }
-      
       draws[1,nonsingular] <- tmp * full_rescale_factor 
-      if (method %in% c("zerosample1", "zerosample2", "truncatedzs2", "restrainedzs2", "zerosample2la")) {
+      if (method %in% c("zerosample2")) {
         draws[1, nonsingular[modes != 0]] <- modes[modes != 0] * full_rescale_factor[modes != 0]
       } 
     } else if (method == "fullconditional") {
