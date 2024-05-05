@@ -312,13 +312,9 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, m
   }
   
   ## update to use ncvreg residuals
-  print(ncol(xnew))
-  print(length(modes))
   partial_residuals <-  ynew - (coefs[1] + as.numeric(xnew %*% modes) - (xnew * matrix(modes, nrow=nrow(xnew), ncol=ncol(xnew), byrow=TRUE)))
   z <- (1/n)*colSums(xnew * partial_residuals)
-  print(length(z))
-  
-  if (ncol(xnew) != length(z)) stop("Lengths differ")
+
   
   draws <- matrix(ncol = p, nrow = ifelse(method == "fullconditional", 2, 1))
   if (method == "debiased") {
@@ -388,9 +384,9 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, m
   modes <- numeric(p)
   modes[nonsingular] <- tmp * full_rescale_factor
   
-  #tmp <- z
-  #z <- numeric(p)
-  #z[nonsingular] <- tmp * z
+  tmp <- z
+  z <- numeric(p)
+  z[nonsingular] <- tmp * full_rescale_factor
   
   if (length(nonsingular) < ncol(draws)) {
     draws[,!(1:ncol(draws) %in% nonsingular)] <- NA
