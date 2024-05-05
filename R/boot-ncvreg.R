@@ -312,6 +312,8 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, m
   }
   
   ## update to use ncvreg residuals
+  print(ncol(xnew))
+  print(length(z))
   partial_residuals <-  ynew - (coefs[1] + as.numeric(xnew %*% modes) - (xnew * matrix(modes, nrow=nrow(xnew), ncol=ncol(xnew), byrow=TRUE)))
   z <- (1/n)*colSums(xnew * partial_residuals)
   
@@ -319,6 +321,9 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, m
   if (method == "debiased") {
     draws[1,nonsingular] <- z * full_rescale_factor
   } else {
+    
+    # bs <- (colSums(partial_residuals^2) + 2) / 2
+    # sigma2 <- invgamma::rinvgamma(p, shape = (n + 4)/2, rate = bs)
     se <- sqrt(sigma2 / n)
     
     ## Tails I am transferring on to (log probability in each tail)
@@ -380,9 +385,9 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, m
   modes <- numeric(p)
   modes[nonsingular] <- tmp * full_rescale_factor
   
-  tmp <- z
-  z <- numeric(p)
-  z[nonsingular] <- tmp * z
+  #tmp <- z
+  #z <- numeric(p)
+  #z[nonsingular] <- tmp * z
   
   if (length(nonsingular) < ncol(draws)) {
     draws[,!(1:ncol(draws) %in% nonsingular)] <- NA
