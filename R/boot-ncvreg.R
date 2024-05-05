@@ -318,6 +318,8 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, m
   z <- (1/n)*colSums(xnew * partial_residuals)
   print(length(z))
   
+  if (ncol(xnew) != length(z)) stop("Lengths differ")
+  
   draws <- matrix(ncol = p, nrow = ifelse(method == "fullconditional", 2, 1))
   if (method == "debiased") {
     draws[1,nonsingular] <- z * full_rescale_factor
