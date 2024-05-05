@@ -313,9 +313,10 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, m
   
   ## update to use ncvreg residuals
   print(ncol(xnew))
-  print(length(z))
+  print(length(modes))
   partial_residuals <-  ynew - (coefs[1] + as.numeric(xnew %*% modes) - (xnew * matrix(modes, nrow=nrow(xnew), ncol=ncol(xnew), byrow=TRUE)))
   z <- (1/n)*colSums(xnew * partial_residuals)
+  print(length(z))
   
   draws <- matrix(ncol = p, nrow = ifelse(method == "fullconditional", 2, 1))
   if (method == "debiased") {
