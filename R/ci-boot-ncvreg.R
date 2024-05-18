@@ -18,7 +18,7 @@ ci.boot.ncvreg <- function(boot, alpha = 0.2, quiet = FALSE) {
   any_nas <- any(as.logical(apply(all_draws, 2, function(x) sum(is.na(x)) > 0)))
   if (any_nas & !quite) {warning("NAs in draws")}
   
-  ci_info <- data.frame(estimate = boot[["estimates"]], variable = names(boot[["estimates"]]), lower = lowers, upper = uppers, center = center, ci_method = ci_method)    
+  ci_info <- data.frame(estimate = boot[["estimates"]], variable = names(boot[["estimates"]]), lower = lowers, upper = uppers, center = center)    
   
   return(ci_info)
  
