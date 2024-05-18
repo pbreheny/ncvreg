@@ -220,14 +220,14 @@ boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster,
   }
   
   modes <- matrix(nrow = nboot, ncol = ncol(X))
-  per_draw <- ifelse(method == "fullconditional", 2, 1)
+  per_draw <- 1
   draws <- matrix(nrow = nboot * per_draw, ncol = ncol(X))
   
   if (!missing(cluster)) {
     if (!inherits(cluster, "cluster")) stop("cluster is not of class 'cluster'; see ?makeCluster", call.=FALSE)
     parallel::clusterExport(cluster, c("X", "y", "lambda", "sigma2", "ncvreg.args"), envir=environment())
     parallel::clusterCall(cluster, function() library(ncvreg))
-    results <- parallel::parLapply(cl=cluster, X=1:nboot, fun=bootf, XX=X, y=y, lambda = lambda, sigma2 = sigma2, ncvreg.args=ncvreg.args, rescale_original = rescale_original, method = method)
+    results <- parallel::parLapply(cl=cluster, X=1:nboot, fun=bootf, XX=X, y=y, lambda = lambda, sigma2 = sigma2, ncvreg.args=ncvreg.args, rescale_original = rescale_original)
   }
   
   for (i in 1:nboot) {
