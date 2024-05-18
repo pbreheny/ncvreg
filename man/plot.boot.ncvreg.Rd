@@ -4,7 +4,7 @@
 \alias{plot.boot.ncvreg}
 \title{Title}
 \usage{
-\method{plot}{boot.ncvreg}(eb_boot, n = 30, quiet = TRUE, method = "quantile")
+\method{plot}{boot.ncvreg}(eb_boot, n = 30, original_order = FALSE, quiet = TRUE)
 }
 \arguments{
 \item{eb_boot}{}

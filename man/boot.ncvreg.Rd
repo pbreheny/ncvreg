@@ -7,16 +7,14 @@
 boot.ncvreg(
   X,
   y,
-  cvncvreg,
+  cv_fit,
   lambda,
   sigma2,
-  significance_level = 0.8,
   nboot = 100,
   ...,
   cluster,
   seed,
   returnCV = FALSE,
-  trace = FALSE,
   verbose = TRUE
 )
 }
@@ -25,11 +23,12 @@ boot.ncvreg(
 
 \item{y}{The response vector, as in \code{ncvreg}}
 
+\item{cv_fit}{Instead of \code{X} and \code{y}, an object of type
+\code{cv.ncvreg} with \code{returnX = TRUE} and \code{penalty = "lasso"}}
+
 \item{lambda}{A positive scalar value of type numeric, if left unspecified, selected using \code{cv.ncvreg}}
 
 \item{sigma2}{A known / estimated value for the variance used in the Laplace prior and Normal likelihood, if left unspecified, selected using \code{cv.ncvreg} only if \code{lambda} is also left as unspecified}
-
-\item{significance_level}{Desired confidence level for determining interval width, between 0 and 1. Default is 0.8.}
 
 \item{nboot}{The number of bootstrap iterations. Default is 100.}
 
@@ -49,9 +48,6 @@ like to specify a different seed to \code{cv.ncvreg}, they should manually
 specify the call to \code{cv.ncvreg} in the arguments.}
 
 \item{returnCV}{Whether to return \code{cv.ncvreg} object, \code{FALSE} by default.}
-
-\item{cv_fit}{Instead of \code{X} and \code{y}, an object of type
-\code{cv.ncvreg} with \code{returnX = TRUE} and \code{penalty = "lasso"}}
 }
 \value{
 An object with S3 class \code{boot.ncvreg} containing: \describe {
