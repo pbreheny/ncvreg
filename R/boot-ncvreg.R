@@ -55,7 +55,7 @@
 #' tmp <- boot.ncvreg(cv_fit = cv.ncvreg(dat$X, dat$y, penalty = "lasso", returnX = TRUE))
 #' 
 #' @export boot.ncvreg
-boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster, seed, returnCV=FALSE, verbose = TRUE, method = "sample") {
+boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster, seed, returnCV=FALSE, verbose = TRUE) {
   
   if ((missing(X) | missing(y)) & (missing(cv_fit) || class(cv_fit) != "cv.ncvreg")) {
     stop("Either X and y or an object of class cv.ncvreg must be supplied.")
@@ -247,7 +247,7 @@ boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster,
   structure(val, class="boot.ncvreg")
   
 }
-bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, method = "sample", alpha = NULL, resample = TRUE) {
+bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, alpha = NULL, resample = TRUE) {
   
   if (missing(ncvreg.args)) {
     ncvreg.args <- list()
@@ -256,14 +256,9 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, m
   p <- ncol(XX)
   n <- length(y)
   
-  if (method == "fullconditional" | !resample) {
-    ynew <- y
-    xnew <- ncvreg::std(XX)
-  } else {
-    idx_new <- sample(1:n, replace = TRUE)
-    ynew <- y[idx_new]
-    xnew <- ncvreg::std(XX[idx_new,,drop=FALSE])
-  }
+  idx_new <- sample(1:n, replace = TRUE)
+  ynew <- y[idx_new]
+  xnew <- ncvreg::std(XX[idx_new,,drop=FALSE])
   
   nonsingular <- attr(xnew, "nonsingular")
   np <- length(nonsingular)
@@ -297,88 +292,39 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, m
   coefs <- coef(fit, lambda = lambda)
   modes <- coefs[-1] ## Coefs only returned for nonsingular columns of X
   
-  if (method == "traditional") {
-    
-    tmp <- modes
-    modes <- numeric(p)
-    modes[nonsingular] <- tmp * full_rescale_factor
-    modes[!(1:length(modes) %in% nonsingular)] <- NA
-    
-    ret <- list(modes, modes)
-    names(ret) <- c("draws", "modes")
-    
-    return(ret)
-    
-  }
-  
   ## update to use ncvreg residuals
   partial_residuals <-  ynew - (coefs[1] + as.numeric(xnew %*% modes) - (xnew * matrix(modes, nrow=nrow(xnew), ncol=ncol(xnew), byrow=TRUE)))
   z <- (1/n)*colSums(xnew * partial_residuals)
 
   
-  draws <- matrix(ncol = p, nrow = ifelse(method == "fullconditional", 2, 1))
-  if (method == "debiased") {
-    draws[1,nonsingular] <- z * full_rescale_factor
-  } else {
+  draws <- matrix(ncol = p, nrow = 1)
     
-    # bs <- (colSums(partial_residuals^2) + 2) / 2
-    # sigma2 <- invgamma::rinvgamma(p, shape = (n + 4)/2, rate = bs)
-    se <- sqrt(sigma2 / n)
-    
-    ## Tails I am transferring on to (log probability in each tail)
-    obs_lw <- pnorm(0, z + lambda, se, log.p = TRUE)
-    obs_up <- pnorm(0, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
-    
-    ## alt
-    obs_p_lw <- obs_lw + ((z*lambda*n) / sigma2)
-    obs_p_up <- obs_up - ((z*lambda*n) / sigma2)
-    
-    ## But I need to use this to find the proportion of each to the overall probability
-    frac_lw_log <- ifelse(is.infinite(exp(obs_p_lw - obs_p_up)), 0, obs_p_lw - obs_p_up - log(1 + exp(obs_p_lw - obs_p_up)))
-    frac_up_log <- ifelse(is.infinite(exp(obs_p_up - obs_p_lw)), 0, obs_p_up - obs_p_lw - log(1 + exp(obs_p_up - obs_p_lw)))
-    
-    if (method %in% c("sample", "zerosample2", "median")) {
+  se <- sqrt(sigma2 / n)
+  
+  ## Tails I am transferring on to (log probability in each tail)
+  obs_lw <- pnorm(0, z + lambda, se, log.p = TRUE)
+  obs_up <- pnorm(0, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
+  
+  ## alt
+  obs_p_lw <- obs_lw + ((z*lambda*n) / sigma2)
+  obs_p_up <- obs_up - ((z*lambda*n) / sigma2)
+  
+  ## But I need to use this to find the proportion of each to the overall probability
+  frac_lw_log <- ifelse(is.infinite(exp(obs_p_lw - obs_p_up)), 0, obs_p_lw - obs_p_up - log(1 + exp(obs_p_lw - obs_p_up)))
+  frac_up_log <- ifelse(is.infinite(exp(obs_p_up - obs_p_lw)), 0, obs_p_up - obs_p_lw - log(1 + exp(obs_p_up - obs_p_lw)))
 
-      if (method == "median") {
-        ps <- rep(0.5, np)
-      } else {
-        ps <- runif(np)        
-      }
+  ps <- runif(np)        
 
-      log_ps <- log(ps) 
-      log_one_minus_ps <- log(1 - ps)
-      tmp <- ifelse(
-        frac_lw_log >= log_ps,
-        qnorm(log_ps + obs_lw - frac_lw_log, z + lambda, se, log.p = TRUE),
-        qnorm(log_one_minus_ps + obs_up - frac_up_log, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
-      ) 
-      
-      draws[1,nonsingular] <- tmp * full_rescale_factor 
-      if (method %in% c("zerosample2")) {
-        draws[1, nonsingular[modes != 0]] <- modes[modes != 0] * full_rescale_factor[modes != 0]
-      } 
-    } else if (method == "fullconditional") {
-      ps_lower <- rep(alpha / 2, length(frac_lw_log))
-      ps_upper <- rep(1 - (alpha / 2), length(frac_lw_log))
-      log_ps_lower <- log(ps_lower) 
-      log_one_minus_ps_lower <- log(1 - ps_lower)
-      tmp_lower <- ifelse(
-        frac_lw_log >= log_ps_lower,
-        qnorm(log_ps_lower + obs_lw - frac_lw_log, z + lambda, se, log.p = TRUE),
-        qnorm(log_one_minus_ps_lower + obs_up - frac_up_log, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
-      ) 
-      log_ps_upper <- log(ps_upper) 
-      log_one_minus_ps_upper <- log(1 - ps_upper)
-      tmp_upper <- ifelse(
-        frac_lw_log >= log_ps_upper,
-        qnorm(log_ps_upper + obs_lw - frac_lw_log, z + lambda, se, log.p = TRUE),
-        qnorm(log_one_minus_ps_upper + obs_up - frac_up_log, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
-      ) 
-      draws[1,nonsingular] <- tmp_lower * full_rescale_factor
-      draws[2,nonsingular] <- tmp_upper * full_rescale_factor
-    } 
-    
-  }
+  log_ps <- log(ps) 
+  log_one_minus_ps <- log(1 - ps)
+  tmp <- ifelse(
+    frac_lw_log >= log_ps,
+    qnorm(log_ps + obs_lw - frac_lw_log, z + lambda, se, log.p = TRUE),
+    qnorm(log_one_minus_ps + obs_up - frac_up_log, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
+  ) 
+  
+  draws[1,nonsingular] <- tmp * full_rescale_factor 
+  draws[1, nonsingular[modes != 0]] <- modes[modes != 0] * full_rescale_factor[modes != 0]
   
   tmp <- modes
   modes <- numeric(p)

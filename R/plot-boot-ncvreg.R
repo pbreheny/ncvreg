@@ -8,10 +8,16 @@
 #' @export
 #'
 #' @examples
-plot.boot.ncvreg <- function(eb_boot, n = 30, quiet = TRUE, ci_method = "quantile", original_data = NULL) {
+plot.boot.ncvreg <- function(eb_boot, n = 30, original_order = FALSE, quiet = TRUE) {
   
-  plot_res <- ci.boot.ncvreg(eb_boot, quiet = quiet, ci_method = ci_method, original_data = original_data) %>%
-    dplyr::arrange(desc(abs(estimate))) %>%
+  plot_res <- ci.boot.ncvreg(eb_boot, quiet = quiet, ci_method = ci_method, original_data = original_data) 
+  
+  if (!original_order) {
+    plot_res <- plot_res %>%
+      dplyr::arrange(desc(abs(estimate)))
+  }
+  
+  plot_res <- plot_res %>%
     head(n)
   
   plot_res$variable <- factor(plot_res$variable, levels = rev(plot_res$variable))
