@@ -56,3 +56,9 @@ expect_equivalent(drop(y - predict(fit, X, s=fit$lambda[L+1])), nfit$resid, tole
 X <- diag(10)
 y <- 1:10
 expect_equivalent(ncvfit(X, y, lambda=0.2, penalty='lasso')$beta, c(0, 0, 1:8))
+
+# Allows infinite penalty factor
+X <- diag(10)
+y <- 1:10
+ncvfit(X, y, lambda=0.2, penalty='lasso', penalty.factor=rep(c(1, Inf), c(9, 1)))$beta |>
+  expect_equivalent(c(0, 0, 1:7, 0))
