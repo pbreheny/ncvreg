@@ -1,7 +1,7 @@
 #' Bootstrap for ncvreg with lasso penalty
 #' 
-#' Perform bootstrapping for the lasso at a single value of the regularization
-#' parameter lambda.
+#' Perform Hybrid bootstrapping for the lasso at a single value of the regularization
+#' parameter, lambda.
 #' 
 #' At a specified value of lambda and variance 
 #' (which are selected / estimated by default if not provided)
@@ -10,6 +10,8 @@
 #' obtain \code{significance_level * 100}% central credible intervals from 
 #' marginal posteriors based on a Laplace prior and a Normal likelihood 
 #' specified with partial residuals.
+#' 
+#' Note that if a value of lambda is provided, but not for sigma2 that sigma2 will be estimated using cross validation. Additionally, the estimate for sigma2 will be interpolated if the supplied value of lambda is not in the original sequence of lambda values. 
 #'
 #' @param X The design matrix, without an intercept, as in \code{ncvreg}
 #' @param y The response vector, as in \code{ncvreg}
@@ -49,13 +51,13 @@
 #' library(hdrm)
 #' dat <- readData(whoari)
 #' 
-#' tmp <- boot.ncvreg(dat$X, dat$y)
+#' tmp <- boot_ncvreg(dat$X, dat$y)
 #' 
 #' ## Specifying cv_fit
-#' tmp <- boot.ncvreg(cv_fit = cv.ncvreg(dat$X, dat$y, penalty = "lasso", returnX = TRUE))
+#' tmp <- boot_ncvreg(cv_fit = cv.ncvreg(dat$X, dat$y, penalty = "lasso", returnX = TRUE))
 #' 
-#' @export boot.ncvreg
-boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster, seed, returnCV=FALSE, verbose = TRUE) {
+#' @export boot_ncvreg
+boot_ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster, seed, returnCV=FALSE, verbose = TRUE) {
   
   if ((missing(X) | missing(y)) & (missing(cv_fit) || class(cv_fit) != "cv.ncvreg")) {
     stop("Either X and y or an object of class cv.ncvreg must be supplied.")
@@ -121,7 +123,6 @@ boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster,
     stop("Please supply names for all additional arguments passed to ...")
   }
   
-  
   cv.args <- args[names(args) %in% c("nfolds", "fold", "returnY", "trace")]
   ncvreg.args <- args[names(args) %in% c("lambda.min", "nlambda", "eps", "max.iter", "dfmax")]
   if ("penalty.factor" %in% names(args)) {
@@ -132,7 +133,6 @@ boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster,
     warning(paste0("Ignoring argument(s) ", paste0(names(args)[names(args) %in% c("returnX", "warn", "convex")], collapse = ", "), " they are set to FALSE in cv.ncvreg"))
   }
   
-  ## Note ignoring ncvreg arguments
   if ("family" %in% names(args)) {
     warning("Ignoring argument 'family', only guassian family is currently supported")
   }
@@ -146,7 +146,6 @@ boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster,
   }
   
   original_coefs <- NULL
-  ## Will select lambda, won't estimate sigma^2 without selecting lambda
   if (missing(cv_fit)) {
     if (missing(lambda) | missing(sigma2)) {
       if (missing(lambda) & missing(sigma2)) {
@@ -181,7 +180,7 @@ boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster,
         lambda <- cv_fit$lambda.min
       } else if (!missing(lambda) & missing(sigma2)) {
         if (max(cv_fit$lambda) < lambda | min(cv_fit$lambda) > lambda) stop("Supplied lambda value is outside the range of the model fit.")
-        ## Make note about linear interpolation (or in documentation)
+        if (verbose) message("lambda provided but not sigma2, using CV and linear interpolation to obtain an estimate for sigma2.")
         ind <- stats::approx(cv_fit$lambda, seq(cv_fit$lambda), lambda)$y
         l <- floor(ind)
         r <- ceiling(ind)
@@ -198,7 +197,7 @@ boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster,
     if (missing(lambda)) lambda <- cv_fit$lambda.min
     if (missing(sigma2)) {
       if (max(cv_fit$lambda) < lambda | min(cv_fit$lambda) > lambda) stop("Supplied lambda value is outside the range of the model fit.")
-      ## Make note about linear interpolation (or in documentation)
+      if (verbose) message("lambda provided but not sigma2, using CV and linear interpolation to obtain an estimate for sigma2.")
       ind <- stats::approx(cv_fit$lambda, seq(cv_fit$lambda), lambda)$y
       l <- floor(ind)
       r <- ceiling(ind)
@@ -220,8 +219,7 @@ boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster,
   }
   
   modes <- matrix(nrow = nboot, ncol = ncol(X))
-  per_draw <- 1
-  draws <- matrix(nrow = nboot * per_draw, ncol = ncol(X))
+  draws <- matrix(nrow = nboot, ncol = ncol(X))
   
   if (!missing(cluster)) {
     if (!inherits(cluster, "cluster")) stop("cluster is not of class 'cluster'; see ?makeCluster", call.=FALSE)
@@ -236,7 +234,7 @@ boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster,
     } else {
       res <- bootf(XX=X, y=y, lambda = lambda, sigma2 = sigma2, ncvreg.args=ncvreg.args, rescale_original = rescale_original)
     }
-    draws[(1 + i*per_draw - per_draw):(i*per_draw),] <- res$draws
+    draws[i,] <- res$draws
     modes[i,] <- res$modes
   }
   
@@ -247,7 +245,7 @@ boot.ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster,
   structure(val, class="boot.ncvreg")
   
 }
-bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, alpha = NULL, resample = TRUE) {
+bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, alpha = NULL) {
   
   if (missing(ncvreg.args)) {
     ncvreg.args <- list()
@@ -272,12 +270,12 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, a
   full_rescale_factor <- rescale * rescaleX
   
   lambda_max <- max(apply(xnew, 2, find_thresh, ynew))
-  lambda_min <- lambda - lambda / 100 ## set min to be slightly smaller
+  lambda_min <- lambda - lambda / 100 ## set min to be slightly smaller to avoid issue of lambda being out of range
   if (lambda_min >= lambda_max | lambda >= lambda_max) { # Should review this
     lambda_max <- lambda + lambda / 100
     nlambda <- 2
   }
-  ## Could use better logic to speed up
+  
   nlambda <- ifelse(!is.null(ncvreg.args$nlambda), ncvreg.args$nlambda, 100)
   lambda_seq <- 10^(seq(log(lambda_max, 10), log(lambda_min, 10), length.out = nlambda))
 
@@ -292,24 +290,21 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, a
   coefs <- coef(fit, lambda = lambda)
   modes <- coefs[-1] ## Coefs only returned for nonsingular columns of X
   
-  ## update to use ncvreg residuals
   partial_residuals <-  ynew - (coefs[1] + as.numeric(xnew %*% modes) - (xnew * matrix(modes, nrow=nrow(xnew), ncol=ncol(xnew), byrow=TRUE)))
   z <- (1/n)*colSums(xnew * partial_residuals)
 
-  
   draws <- matrix(ncol = p, nrow = 1)
     
   se <- sqrt(sigma2 / n)
   
-  ## Tails I am transferring on to (log probability in each tail)
+  ## Tails being transferred on to (log probability in each tail)
   obs_lw <- pnorm(0, z + lambda, se, log.p = TRUE)
   obs_up <- pnorm(0, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
   
-  ## alt
   obs_p_lw <- obs_lw + ((z*lambda*n) / sigma2)
   obs_p_up <- obs_up - ((z*lambda*n) / sigma2)
   
-  ## But I need to use this to find the proportion of each to the overall probability
+  ## Find the proportion of each to the overall probability
   frac_lw_log <- ifelse(is.infinite(exp(obs_p_lw - obs_p_up)), 0, obs_p_lw - obs_p_up - log(1 + exp(obs_p_lw - obs_p_up)))
   frac_up_log <- ifelse(is.infinite(exp(obs_p_up - obs_p_lw)), 0, obs_p_up - obs_p_lw - log(1 + exp(obs_p_up - obs_p_lw)))
 
