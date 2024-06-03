@@ -218,15 +218,16 @@ assessing the predictive accuracy of the model at various values of
 <span><span class="co"># age     -0.020913 -2.065 0.6238365        *</span></span>
 <span><span class="co"># pgg45    0.005324  1.991 0.6577498        *</span></span>
 <span><span class="co"># lcp     -0.104959 -1.946 0.6773540        *</span></span>
-<span><span class="co"># lbph     0.097353  1.873 0.7069055        *</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">cvfit</span><span class="op">)</span></span></code></pre></div>
+<span><span class="co"># lbph     0.097353  1.873 0.7069055        *</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">cvfit</span><span class="op">)</span></span></code></pre></div>
 <p><img src="getting-started_files/figure-html/cvplot-1.png" width="480"></p>
 <p>The value of <span class="math inline">\(\lambda\)</span> that
 minimizes the cross-validation error is given by
 <code>cvfit$lambda.min</code>, which in this case is 0.017. Applying
 <code>coef</code> to the output of <code>cv.ncvreg</code> returns the
 coefficients at that value of <span class="math inline">\(\lambda\)</span>:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">cvfit</span><span class="op">)</span></span>
 <span><span class="co">#  (Intercept)       lcavol      lweight          age         lbph          svi </span></span>
 <span><span class="co">#  0.494154801  0.569546027  0.614419811 -0.020913467  0.097352536  0.752397339 </span></span>
@@ -234,14 +235,16 @@ coefficients at that value of <span class="math inline">\(\lambda\)</span>:</p>
 <span><span class="co"># -0.104959403  0.000000000  0.005324465</span></span></code></pre></div>
 <p>Predicted values can be obtained via <code>predict</code>, which has
 a number of options:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">cvfit</span>, X<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">)</span>     <span class="co"># Prediction of response for new observations</span></span>
 <span><span class="co">#         1         2         3         4         5         6 </span></span>
-<span><span class="co"># 0.8304040 0.7650906 0.4262072 0.6230117 1.7449492 0.8449595</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">cvfit</span>, type<span class="op">=</span><span class="st">"nvars"</span><span class="op">)</span>  <span class="co"># Number of nonzero coefficients</span></span>
+<span><span class="co"># 0.8304040 0.7650906 0.4262072 0.6230117 1.7449492 0.8449595</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">cvfit</span>, type<span class="op">=</span><span class="st">"nvars"</span><span class="op">)</span>  <span class="co"># Number of nonzero coefficients</span></span>
 <span><span class="co"># 0.01695 </span></span>
-<span><span class="co">#       7</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">cvfit</span>, type<span class="op">=</span><span class="st">"vars"</span><span class="op">)</span>   <span class="co"># Identity of the nonzero coefficients</span></span>
+<span><span class="co">#       7</span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">cvfit</span>, type<span class="op">=</span><span class="st">"vars"</span><span class="op">)</span>   <span class="co"># Identity of the nonzero coefficients</span></span>
 <span><span class="co">#  lcavol lweight     age    lbph     svi     lcp   pgg45 </span></span>
 <span><span class="co">#       1       2       3       4       5       6       8</span></span></code></pre></div>
 <p>Note that the original fit (to the full data set) is returned as
