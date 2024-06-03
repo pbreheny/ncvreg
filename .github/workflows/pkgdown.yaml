@@ -35,6 +35,7 @@ jobs:
           extra-packages: |
             any::pkgdown
             any::ggplot2
+            any::pROC
             local::.
           needs: website
 
