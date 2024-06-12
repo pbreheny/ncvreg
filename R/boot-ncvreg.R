@@ -1,63 +1,76 @@
 #' Bootstrap for ncvreg with lasso penalty
 #' 
-#' Perform Hybrid bootstrapping for the lasso at a single value of the regularization
-#' parameter, lambda.
+#' Perform Hybrid bootstrapping for the lasso at a single value of the
+#' regularization parameter, lambda.
 #' 
 #' At a specified value of lambda and variance 
 #' (which are selected / estimated by default if not provided)
 #' the code does \code{nboot} iterations of taking a pairs bootstrap sample of
 #' \code{X} and \code{y}, fitting \code{ncvreg}, and then uses this fit to
-#' obtain \code{significance_level * 100}% central credible intervals from 
-#' marginal posteriors based on a Laplace prior and a Normal likelihood 
-#' specified with partial residuals.
+#' obtain hybrid bootstrap draws. 
 #' 
-#' Note that if a value of lambda is provided, but not for sigma2 that sigma2 will be estimated using cross validation. Additionally, the estimate for sigma2 will be interpolated if the supplied value of lambda is not in the original sequence of lambda values. 
+#' Note that if a value of lambda is provided, but no value is provided for
+#' sigma2 that sigma2 will be estimated using cross validation. Additionally,
+#' the estimate for sigma2 will be interpolated if the supplied value of lambda
+#' is not in the original sequence of lambda values. 
 #'
 #' @param X The design matrix, without an intercept, as in \code{ncvreg}
 #' @param y The response vector, as in \code{ncvreg}
 #' @param cv_fit Instead of \code{X} and \code{y}, an object of type 
 #' \code{cv.ncvreg} with \code{returnX = TRUE} and \code{penalty = "lasso"}
-#' @param lambda A positive scalar value of type numeric, if left unspecified, selected using \code{cv.ncvreg}
-#' @param sigma2 A known / estimated value for the variance used in the Laplace prior and Normal likelihood, if left unspecified, selected using \code{cv.ncvreg} only if \code{lambda} is also left as unspecified
-#' @param nboot The number of bootstrap iterations. Default is 100.
-#' @param ... 
-#' @param cluster \code{cv.ncvreg} and \code{cv.ncvsurv} can be run in parallel
-#' across a cluster using the \code{parallel} package.  The cluster must be set
-#' up in advance using the \code{makeCluster} function from that package.  The
-#' cluster must then be passed to \code{cv.ncvreg}/\code{cv.ncvsurv} (see
-#' example).
+#' @param lambda A positive scalar value of type numeric, if left unspecified,
+#' selected as \code{lambda.min} from \code{cv.ncvreg}
+#' @param sigma2 A known / estimated value for the variance used in obtaining 
+#' bootstrap draws, if left unspecified, selected as the \code{cve} 
+#' corresponding \code{cv.ncvreg} to \code{lambda}
+#' @param nboot The number of bootstrap iterations. Default is 1000.
+#' @param ... Additional arguments to \code{ncvreg}/\code{cv.ncvreg}
+#' @param cluster \code{cv.ncvreg} and the bootstrapping procedure can be run in
+#' parallel across a cluster using the \code{parallel} package. The cluster must
+#' be set up in advance using the \code{makeCluster} function from that package.
+#' The cluster must then be passed to \code{boot_ncvreg} (see example).
 #' @param seed You may set the seed of the random number generator in order to
 #' obtain reproducible results. Note that the seed is set at the start of the 
-#' code an thus applies to \code{cv.ncvreg} as well as the bootstrap if \code{cv.ncvreg}
-#' is run to select \code{lambda} and estimate \code{sigma2}. If the user would
-#' like to specify a different seed to \code{cv.ncvreg}, they should manually
-#' specify the call to \code{cv.ncvreg} in the arguments.
-#' @param returnCV Whether to return \code{cv.ncvreg} object, \code{FALSE} by default.
-#'
-#' @return An object with S3 class \code{boot.ncvreg} containing: \describe { 
-#' \item{lowers}{A \code{nboot} by \code{ncol(X)} matrix of the lower bounds
-#' from each bootstrap iteration for each variable.} \item{uppers}{A 
-#' \code{nboot} by \code{ncol(X)} matrix of the upper bounds
-#' from each bootstrap iteration for each variable.} \item{modes}{A 
-#' \code{nboot} by \code{ncol(X)} matrix of the posterior modes (lasso solution)
-#' from each bootstrap iteration for each variable.} \item{cv.ncvreg}{If 
-#' \code{returnCV == TRUE}, an object of type \code{cv.ncvreg} that was fit to
-#' \code{X} and \code{y} to optionally select \code{lambda} and estimate 
-#' \code{sigma2}.}}
+#' code an thus applies to \code{cv.ncvreg} as well as the bootstrap if
+#' \code{cv.ncvreg} is run to select \code{lambda} and estimate \code{sigma2}.
+#' If the user would like to specify a different seed to \code{cv.ncvreg}, they
+#' should manually specify the call to \code{cv.ncvreg} in the arguments.
+#' @param returnCV Whether to return \code{cv.ncvreg} object, \code{FALSE} by
+#' default.
+#' @param verbose Whether or not to print non-essential messages that highlight 
+#' potentially unanticipated behavior.
+#' list(draws = draws, estimates = original_coefs, lambda = lambda, sigma2 = sigma2)
+#' @return An object with S3 class \code{boot_ncvreg} containing: \describe { 
+#' \item{draws}{A \code{nboot} by \code{ncol(X)} matrix of the bootstrap draws}
+#' \item{estimates}{A length \code{ncol(X)} vector of the estimates from the
+#' lasso model fit on the original data corresponding to \code{lambda}.}
+#' \item{cv.ncvreg}{If \code{returnCV == TRUE}, an object of type
+#' \code{cv.ncvreg} that was fit to \code{X} and \code{y} to select
+#' \code{lambda} and estimate \code{sigma2}. If user supplies \code{cv_fit},
+#' will return the supplied \code{cv.ncvreg} object. If \code{lambda} and
+#' \code{sigma2} are both specified, will return NULL.}}
 #' @seealso \code{\link{ncvreg}}
 #' 
 #' @examples
 #' 
-#' library(hdrm)
-#' dat <- readData(whoari)
+#' data(Prostate)
 #' 
-#' tmp <- boot_ncvreg(dat$X, dat$y)
+#' bootfit <- boot_ncvreg(Prostate$X, Prostate$y)
 #' 
 #' ## Specifying cv_fit
-#' tmp <- boot_ncvreg(cv_fit = cv.ncvreg(dat$X, dat$y, penalty = "lasso", returnX = TRUE))
+#' bootfit <- boot_ncvreg(cv_fit = cv.ncvreg(Prostate$X, Prostate$y, penalty = "lasso", returnX = TRUE))
+#' 
+#' ## Using a cluster
+#' \dontrun{
+#' library(parallel)
+#' X <- Prostate$X
+#' y <- Prostate$y
+#' cl <- makeCluster(4)
+#' bootfit <- boot_ncvreg(Prostate$X, Prostate$y, cluster = cl)}
 #' 
 #' @export boot_ncvreg
-boot_ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster, seed, returnCV=FALSE, verbose = TRUE) {
+boot_ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 1000, ...,
+                        cluster, seed, returnCV=FALSE, verbose = TRUE, penalty = "lasso") {
   
   if ((missing(X) | missing(y)) & (missing(cv_fit) || class(cv_fit) != "cv.ncvreg")) {
     stop("Either X and y or an object of class cv.ncvreg must be supplied.")
@@ -68,12 +81,8 @@ boot_ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster,
       stop("fit object in cv_fit missing X and y, please rerun cv.ncvreg with returnX = TRUE or supply X and y directly (without also specifying a cv.ncvreg object)") 
     }
     
-    if(cv_fit$fit$penalty != "lasso") {
-      stop(paste0("cv.ncvreg fit with ", cv_fit$fit$penalty, " penalty, but only 'lasso' penalty is currently supported for boot.ncvreg"))
-    }
-    
     if(cv_fit$fit$family != "gaussian") {
-      stop(paste0("cv.ncvreg fit with ", cv_fit$fit$family, " family, but only 'gaussian' family is currently supported for boot.ncvreg"))
+      stop(paste0("cv.ncvreg fit with ", cv_fit$fit$family, " family, but only 'gaussian' family is currently supported for boot_ncvreg"))
     }
   }
   
@@ -123,8 +132,8 @@ boot_ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster,
     stop("Please supply names for all additional arguments passed to ...")
   }
   
-  cv.args <- args[names(args) %in% c("nfolds", "fold", "returnY", "trace")]
-  ncvreg.args <- args[names(args) %in% c("lambda.min", "nlambda", "eps", "max.iter", "dfmax")]
+  cv.args <- args[names(args) %in% c("nfolds", "fold", "returnY", "trace", "penalty")]
+  ncvreg.args <- args[names(args) %in% c("lambda.min", "nlambda", "eps", "max.iter", "dfmax", "penalty")]
   if ("penalty.factor" %in% names(args)) {
     stop("Sorry, specification of alternative penality factors is not yet supported")
   }
@@ -137,13 +146,9 @@ boot_ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster,
     warning("Ignoring argument 'family', only guassian family is currently supported")
   }
   
-  if ("penalty" %in% names(args)) {
-    warning("Ignoring argument 'penalty', only lasso penalty is currently supported")
-  }
-  
-  if (any(c("gamma", "alpha") %in% names(args))) {
-    warning(paste0("Ignoring argument(s) ", paste0(names(args)[names(args) %in% c("gamma", "alpha")], collapse = " and "), ", not used for lasso penalty"))
-  }
+  # if (any(c("gamma", "alpha") %in% names(args))) {
+  #   warning(paste0("Ignoring argument(s) ", paste0(names(args)[names(args) %in% c("gamma", "alpha")], collapse = " and "), ", not used for lasso penalty"))
+  # }
   
   original_coefs <- NULL
   if (missing(cv_fit)) {
@@ -156,7 +161,7 @@ boot_ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster,
         message("Using cross validation to estimate variance at supplied value of lambda using linear interpolation")
       }
       
-      cv.args$penalty <- "lasso"
+      cv.args$penalty <- penalty
       cv.args$X <- X
       cv.args$y <- y
       if (!(missing(lambda))) {
@@ -170,8 +175,10 @@ boot_ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster,
         lambda_seq <- 10^(seq(log(lambda_max, 10), log(lambda_min, 10), length.out = nlambda))
         cv.args$lambda <- lambda_seq 
       }
-      if (!missing(cluster)) cv.args$cluster <- cluster ## NEED TO UPDATE
+      if (!missing(cluster)) cv.args$cluster <- cluster
+      tic()
       cv_fit <- do.call("cv.ncvreg", c(cv.args, ncvreg.args))
+      toc()
       
       if (missing(lambda) & missing(sigma2)) {
         lambda <- cv_fit$lambda.min 
@@ -213,7 +220,7 @@ boot_ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster,
     coef.args <- ncvreg.args
     coef.args$X <- X
     coef.args$y <- y
-    coef.args$penalty <- "lasso"
+    coef.args$penalty <- penalty
     fit <- do.call("ncvreg", coef.args)
     original_coefs <- coef(fit, lambda = lambda)[-1]
   }
@@ -223,7 +230,7 @@ boot_ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster,
   
   if (!missing(cluster)) {
     if (!inherits(cluster, "cluster")) stop("cluster is not of class 'cluster'; see ?makeCluster", call.=FALSE)
-    parallel::clusterExport(cluster, c("X", "y", "lambda", "sigma2", "ncvreg.args"), envir=environment())
+    parallel::clusterExport(cluster, c("X", "y", "lambda", "sigma2", "ncvreg.args", "find_thresh"), envir=environment())
     parallel::clusterCall(cluster, function() library(ncvreg))
     results <- parallel::parLapply(cl=cluster, X=1:nboot, fun=bootf, XX=X, y=y, lambda = lambda, sigma2 = sigma2, ncvreg.args=ncvreg.args, rescale_original = rescale_original)
   }
@@ -235,14 +242,13 @@ boot_ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 100, ..., cluster,
       res <- bootf(XX=X, y=y, lambda = lambda, sigma2 = sigma2, ncvreg.args=ncvreg.args, rescale_original = rescale_original)
     }
     draws[i,] <- res$draws
-    modes[i,] <- res$modes
   }
   
-  val <- list(draws = draws, modes = modes, estimates = original_coefs, lambda = lambda, sigma2 = sigma2)
+  val <- list(draws = draws, estimates = original_coefs, lambda = lambda, sigma2 = sigma2)
   
   if (returnCV) val$cv.ncvreg <- cv_fit
   
-  structure(val, class="boot.ncvreg")
+  structure(val, class="boot_ncvreg")
   
 }
 bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, alpha = NULL) {
@@ -271,7 +277,7 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, a
   
   lambda_max <- max(apply(xnew, 2, find_thresh, ynew))
   lambda_min <- lambda - lambda / 100 ## set min to be slightly smaller to avoid issue of lambda being out of range
-  if (lambda_min >= lambda_max | lambda >= lambda_max) { # Should review this
+  if (lambda_min >= lambda_max | lambda >= lambda_max) {
     lambda_max <- lambda + lambda / 100
     nlambda <- 2
   }
@@ -281,7 +287,7 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, a
 
   ncvreg.args$X <- xnew
   ncvreg.args$y <- ynew
-  ncvreg.args$penalty <- "lasso"
+  ncvreg.args$penalty <- penalty
   ncvreg.args$lambda <- lambda_seq
   
   ## Ignores user specified lambda.min and nlambda
@@ -318,25 +324,15 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, a
     qnorm(log_one_minus_ps + obs_up - frac_up_log, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
   ) 
   
-  draws[1,nonsingular] <- tmp * full_rescale_factor 
+  draws[1, nonsingular] <- tmp * full_rescale_factor 
   draws[1, nonsingular[modes != 0]] <- modes[modes != 0] * full_rescale_factor[modes != 0]
-  
-  tmp <- modes
-  modes <- numeric(p)
-  modes[nonsingular] <- tmp * full_rescale_factor
-  
-  tmp <- z
-  z <- numeric(p)
-  z[nonsingular] <- tmp * full_rescale_factor
   
   if (length(nonsingular) < ncol(draws)) {
     draws[,!(1:ncol(draws) %in% nonsingular)] <- NA
-    modes[!(1:length(modes) %in% nonsingular)] <- NA
-    z[!(1:length(z) %in% nonsingular)] <- NA
   }
   
-  ret <- list(draws, modes, z)
-  names(ret) <- c("draws", "modes", "zs")
+  ret <- list(draws)
+  names(ret) <- c("draws")
   return(ret)
   
 }

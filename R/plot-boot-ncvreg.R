@@ -8,9 +8,9 @@
 #' @export
 #'
 #' @examples
-plot.boot.ncvreg <- function(eb_boot, n = 30, alpha = 0.2, original_order = FALSE, absolute_order = FALSE, quiet = TRUE) {
+plot.boot_ncvreg <- function(eb_boot, n = 30, alpha = 0.2, original_order = FALSE, absolute_order = FALSE, quiet = TRUE) {
   
-  plot_res <- ci.boot.ncvreg(eb_boot, quiet = quiet, alpha = alpha) 
+  plot_res <- ci.boot_ncvreg(eb_boot, quiet = quiet, alpha = alpha) 
   
   if (!original_order) {
     plot_res <- plot_res %>%

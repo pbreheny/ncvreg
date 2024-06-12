@@ -1,13 +1,27 @@
-#' Title
+#' Calculating percentile confidence intervals from bootstrap draws
+#' 
+#' Calculates percentile based confidence intervals from hybrid bootstrap draws
+#' obtained from \code{boot_ncvreg}. This produces intervals that are generally
+#' conservative on average, especially when n is small or the underlying covarites are
+#' especially sparse. However, intervals may undercover when correlation amoung
+#' the predictors is especially high. Although overall coverage is generally
+#' the intervals produced do no attempt to debias and as a result generally
+#' undercover large covariates and overcover covariates near zero.
 #'
-#' @param boot 
-#' @param quiet 
+#' @param bootfit An object of type \code{boot_ncvreg}
+#' @param alpha The desired significance level to obtain confidence intervals
+#' with overall coverage greater than or equal \code{1 - alpha}
+#' @param quiet If \code{TRUE}, suppress warning that some bootstrap draws are
+#' NA. This occurs when a given variable is \code{singlar} for a given bootstrap
+#' sample (see \code{std}).
 #'
-#' @return
+#' @return An object with S3 class \code{data.frame} with the columns:
+#' \describe { \item{estimate}{A length \code{ncol(X)} vector of the estimates from the
+#' lasso model fit on the original data corresponding to \code{lambda}.}}
 #' @export
 #'
 #' @examples
-ci.boot_ncvreg <- function(boot, alpha = 0.2, quiet = FALSE) {
+ci.boot_ncvreg <- function(bootfit, alpha = 0.2, quiet = FALSE) {
   
   all_draws <- boot[["draws"]]
     
