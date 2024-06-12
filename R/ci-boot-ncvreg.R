@@ -21,7 +21,7 @@
 #' @export
 #'
 #' @examples
-ci.boot_ncvreg <- function(bootfit, alpha = 0.2, quiet = FALSE) {
+ci.boot_ncvreg <- function(boot, alpha = 0.2, quiet = FALSE) {
   
   all_draws <- boot[["draws"]]
     
