@@ -15,7 +15,8 @@ boot_ncvreg(
   cluster,
   seed,
   returnCV = FALSE,
-  verbose = TRUE
+  verbose = TRUE,
+  penalty = "lasso"
 )
 }
 \arguments{
