@@ -254,7 +254,7 @@ boot_ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 1000, ...,
 }
 bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
                   penalty = c("MCP", "SCAD", "lasso"),
-                  alpha = NULL, gamma = switch(penalty, SCAD = 3.7, 3), alpha = 1) {
+                  alpha = 1, gamma = switch(penalty, SCAD = 3.7, 3)) {
   
   if (missing(ncvreg.args)) {
     ncvreg.args <- list()
