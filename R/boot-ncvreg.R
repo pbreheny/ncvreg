@@ -240,7 +240,9 @@ boot_ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 1000, ...,
     if (!missing(cluster)) {
       res <- results[[i]]
     } else {
-      res <- bootf(XX=X, y=y, lambda = lambda, sigma2 = sigma2, ncvreg.args=ncvreg.args, rescale_original = rescale_original)
+      res <- bootf(XX=X, y=y, lambda = lambda, sigma2 = sigma2,
+                   ncvreg.args = ncvreg.args, rescale_original = rescale_original,
+                   penalty = penalty)
     }
     draws[i,] <- res$draws
   }
