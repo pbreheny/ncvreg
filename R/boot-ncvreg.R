@@ -165,14 +165,15 @@ boot_ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 1000, ...,
       cv.args$X <- X
       cv.args$y <- y
       if (!(missing(lambda))) {
-        lambda_max <- max(apply(ncvreg::std(X), 2, find_thresh, y))
+        # lambda_max <- max(apply(ncvreg::std(X), 2, find_thresh, y))
         lambda_min <- lambda - lambda / 100 ## set min to be slightly smaller
         nlambda <- ifelse(!is.null(ncvreg.args$nlambda), ncvreg.args$nlambda, 100)
         if (lambda_min > lambda_max | lambda > lambda_max) {
           lambda_max <- lambda + lambda / 100
           nlambda <- 2
         }
-        lambda_seq <- 10^(seq(log(lambda_max, 10), log(lambda_min, 10), length.out = nlambda))
+        # lambda_seq <- 10^(seq(log(lambda_max, 10), log(lambda_min, 10), length.out = nlambda))
+        lambda_seq <- setupLambda(ncvreg::std(X), y, family, alpha, lambda_min, nlambda, penalty.factor)
         cv.args$lambda <- lambda_seq 
       }
       if (!missing(cluster)) cv.args$cluster <- cluster
@@ -251,7 +252,9 @@ boot_ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 1000, ...,
   structure(val, class="boot_ncvreg")
   
 }
-bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, alpha = NULL) {
+bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
+                  penalty = c("MCP", "SCAD", "lasso"),
+                  alpha = NULL, gamma = switch(penalty, SCAD = 3.7, 3), alpha = 1) {
   
   if (missing(ncvreg.args)) {
     ncvreg.args <- list()
@@ -302,6 +305,11 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE, a
   draws <- matrix(ncol = p, nrow = 1)
     
   se <- sqrt(sigma2 / n)
+  
+  ## Update lambda for MCP and SCAD
+  if (penalty != "lasso") {
+    lambda <- lambda * gamma 
+  }
   
   ## Tails being transferred on to (log probability in each tail)
   obs_lw <- pnorm(0, z + lambda, se, log.p = TRUE)
