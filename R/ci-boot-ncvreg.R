@@ -8,7 +8,7 @@
 #' the intervals produced do no attempt to debias and as a result generally
 #' undercover large covariates and overcover covariates near zero.
 #'
-#' @param bootfit An object of type \code{boot_ncvreg}
+#' @param boot An object of type \code{boot_ncvreg}
 #' @param alpha The desired significance level to obtain confidence intervals
 #' with overall coverage greater than or equal \code{1 - alpha}
 #' @param quiet If \code{TRUE}, suppress warning that some bootstrap draws are
@@ -21,19 +21,61 @@
 #' @export
 #'
 #' @examples
-ci.boot_ncvreg <- function(boot, alpha = 0.2, quiet = FALSE) {
+compute_interval <- function(draws, alpha) {
+  lowers <- apply(draws, 2, function(x) quantile(x, alpha / 2, na.rm = TRUE))
+  uppers <- apply(draws, 2, function(x) quantile(x, 1 - alpha / 2, na.rm = TRUE))
+  return(list(lowers, uppers))
+}
+ci.boot_ncvreg <- function(boot, alpha = 0.2, quiet = FALSE, methods = "all") {
   
-  all_draws <- boot[["draws"]]
-    
-  lowers <- apply(all_draws, 2, function(x) quantile(x, alpha / 2, na.rm = TRUE))
-  uppers <- apply(all_draws, 2, function(x) quantile(x, 1 - alpha / 2, na.rm = TRUE))
-  center <- apply(all_draws, 2, function(x) quantile(x, 0.5, na.rm = TRUE))
+  compute_intervals <- function(estimates) {
+    any_nas <- any(as.logical(apply(estimates, 2, function(x) sum(is.na(x)) > 0)))
+    if (any_nas & !quiet) {
+      warning("NAs in draws")
+    }
+    compute_interval(estimates, alpha)
+  }
   
-  any_nas <- any(as.logical(apply(all_draws, 2, function(x) sum(is.na(x)) > 0)))
-  if (any_nas & !quiet) {warning("NAs in draws")}
+  method_list <- c("traditional", "posterior", "hybrid", "debiased")
+  if (methods != "all") {
+    method_list <- intersect(method_list, methods)
+  }
   
-  ci_info <- data.frame(estimate = boot[["estimates"]], variable = names(boot[["estimates"]]), lower = lowers, upper = uppers, center = center)    
+  intervals_list <- list()
+  
+  if ("traditional" %in% method_list) {
+    traditional_cis <- compute_intervals(boot[["point_estimates"]])
+    intervals_list$traditional <- traditional_cis
+  }
+  
+  if ("posterior" %in% method_list) {
+    posterior_cis <- compute_intervals(boot[["fc_draws"]])
+    intervals_list$posterior <- posterior_cis
+  }
+  
+  if ("hybrid" %in% method_list) {
+    point_estimates <- boot[["point_estimates"]]
+    point_estimates[point_estimates == 0] <- boot[["fc_draws"]]
+    hybrid_cis <- compute_intervals(point_estimates)
+    intervals_list$hybrid <- hybrid_cis
+  }
+  
+  if ("debiased" %in% method_list) {
+    debiased_cis <- compute_intervals(boot[["partial_correlations"]])
+    intervals_list$debiased <- debiased_cis
+  }
+  
+  ci_info <- data.frame(estimate = boot[["estimates"]], variable = names(boot[["estimates"]]))
+  
+  for (method in names(intervals_list)) {
+    ci_info <- ci_info %>%
+      mutate(
+        lower = intervals_list[[method]][[1]],
+        upper = intervals_list[[method]][[2]],
+        method = method
+      ) %>%
+      pivot_longer(cols = c(lower, upper), names_to = "interval", values_to = "value")
+  }
   
   return(ci_info)
- 
 }

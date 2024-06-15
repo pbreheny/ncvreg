@@ -240,8 +240,7 @@ boot_ncvreg <- function(X, y, penalty = "lasso", cv_fit, lambda, sigma2, nboot =
     original_coefs <- coef(fit, lambda = lambda)[-1]
   }
   
-  modes <- matrix(nrow = nboot, ncol = ncol(X))
-  draws <- matrix(nrow = nboot, ncol = ncol(X))
+  point_estimates <- fc_draws <- partial_correlations <- matrix(nrow = nboot, ncol = ncol(X))
   
   if (!missing(cluster)) {
     if (!inherits(cluster, "cluster")) stop("cluster is not of class 'cluster'; see ?makeCluster", call.=FALSE)
@@ -258,10 +257,12 @@ boot_ncvreg <- function(X, y, penalty = "lasso", cv_fit, lambda, sigma2, nboot =
                    ncvreg.args = ncvreg.args, rescale_original = rescale_original,
                    penalty = penalty)
     }
-    draws[i,] <- res$draws
+    fc_draws[i,] <- res$fc_draws
+    point_estimates[i,] <- res$point_estimates
+    partial_correlations[i,] <- res$partial_correlations
   }
   
-  val <- list(draws = draws, estimates = original_coefs, lambda = lambda, sigma2 = sigma2)
+  val <- list(fc_draws, point_estimates, partial_correlations, lambda = lambda, sigma2 = sigma2, penalty = penalty)
   
   if (returnCV) val$cv.ncvreg <- cv_fit
   
@@ -278,6 +279,8 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
   
   p <- ncol(XX)
   n <- length(y)
+  
+  fc_draws <- point_estimates <- partial_correlations <- numeric(p)
   
   idx_new <- sample(1:n, replace = TRUE)
   ynew <- y[idx_new]
@@ -325,8 +328,6 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
   
   partial_residuals <-  ynew - (coefs[1] + as.numeric(xnew %*% modes) - (xnew * matrix(modes, nrow=nrow(xnew), ncol=ncol(xnew), byrow=TRUE)))
   z <- (1/n)*colSums(xnew * partial_residuals)
-
-  draws <- matrix(ncol = p, nrow = 1)
     
   se <- sqrt(sigma2 / n)
   
@@ -345,21 +346,24 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
 
   log_ps <- log(ps) 
   log_one_minus_ps <- log(1 - ps)
-  tmp <- ifelse(
+  draws <- ifelse(
     frac_lw_log >= log_ps,
     qnorm(log_ps + obs_lw - frac_lw_log, z + lambda, se, log.p = TRUE),
     qnorm(log_one_minus_ps + obs_up - frac_up_log, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
   ) 
   
-  draws[1, nonsingular] <- tmp * full_rescale_factor 
-  draws[1, nonsingular[modes != 0]] <- modes[modes != 0] * full_rescale_factor[modes != 0]
+  fc_draws[1, nonsingular] <- tmp * full_rescale_factor 
+  point_estimates[1, nonsingular] <- modes * full_rescale_factor 
+  partial_correlations[1, nonsingular] <- z * full_rescale_factor 
   
-  if (length(nonsingular) < ncol(draws)) {
-    draws[,!(1:ncol(draws) %in% nonsingular)] <- NA
+  if (length(nonsingular) < p) {
+    fc_draws[!(1:p %in% nonsingular)] <- NA
+    point_estimates[!(1:p %in% nonsingular)] <- NA
+    partial_correlations[!(1:p %in% nonsingular)] <- NA
   }
   
-  ret <- list(draws)
-  names(ret) <- c("draws")
+  ret <- list(fc_draws, estimates, zjs)
+  names(ret) <- c("fc_draws", "point_estimates", "partial_correlations")
   return(ret)
   
 }
