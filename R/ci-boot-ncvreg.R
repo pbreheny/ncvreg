@@ -55,7 +55,7 @@ ci.boot_ncvreg <- function(boot, alpha = 0.2, quiet = FALSE, methods = "all") {
   
   if ("hybrid" %in% method_list) {
     point_estimates <- boot[["point_estimates"]]
-    point_estimates[point_estimates == 0] <- boot[["fc_draws"]]
+    point_estimates[point_estimates == 0] <- boot[["fc_draws"]][point_estimates == 0]
     hybrid_cis <- compute_intervals(point_estimates)
     intervals_list$hybrid <- hybrid_cis
   }
