@@ -317,8 +317,6 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
   ncvreg.args$y <- ynew
   ncvreg.args$penalty <- penalty
   ncvreg.args$lambda <- lambda_seq
-  ncvreg.args$nlambda <- nlambda
-  ncvreg.args$lambda.min <- lambda_min
   
   fit <- do.call("ncvreg", ncvreg.args[!(names(ncvreg.args) %in% c("lambda.min", "nlambda"))])
   
