@@ -287,9 +287,9 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
   full_rescale_factor <- rescale * rescaleX
   
   lambda_min <- lambda - lambda / 100
-  lambda_seq <- setupLambda(ncvreg::std(xnew), ynew, "gaussian", alpha = 1, lambda_min, nlambda, penalty.factor=rep(1, ncol(X)))
+  lambda_seq <- setupLambda(ncvreg::std(xnew), ynew, "gaussian", alpha = 1, lambda_min, nlambda, penalty.factor=rep(1, ncol(xnew)))
   if (min(lambda_seq) < lambda) {
-    lambda_seq <- setupLambda(ncvreg::std(xnew), ynew, "gaussian", alpha = 1, lambda_min = lambda_min / max(lambda_seq), nlambda, penalty.factor=rep(1, ncol(X)))
+    lambda_seq <- setupLambda(ncvreg::std(xnew), ynew, "gaussian", alpha = 1, lambda_min = lambda_min / max(lambda_seq), nlambda, penalty.factor=rep(1, ncol(xnew)))
   }
   
   nlambda <- ifelse(!is.null(ncvreg.args$nlambda), ncvreg.args$nlambda, 100)
