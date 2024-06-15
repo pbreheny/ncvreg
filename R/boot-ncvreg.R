@@ -362,7 +362,7 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
     partial_correlations[!(1:p %in% nonsingular)] <- NA
   }
   
-  ret <- list(fc_draws, estimates, zjs)
+  ret <- list(fc_draws, point_estimates, partial_correlations)
   names(ret) <- c("fc_draws", "point_estimates", "partial_correlations")
   return(ret)
   
