@@ -65,17 +65,26 @@ ci.boot_ncvreg <- function(boot, alpha = 0.2, quiet = FALSE, methods = "all") {
     intervals_list$debiased <- debiased_cis
   }
   
-  ci_info <- data.frame(estimate = boot[["estimates"]], variable = names(boot[["estimates"]]))
+  ci_info_all <- data.frame(estimate = boot[["estimates"]], variable = names(boot[["estimates"]]))
+  ci_info <- list()
   
+  print(intervals_list)
   for (method in names(intervals_list)) {
-    ci_info <- ci_info %>%
-      mutate(
+    print(method)
+    print(names(boot[["estimates"]]))
+    ci_info[[method]] <- ci_info %>%
+      data.frame(
         lower = intervals_list[[method]][[1]],
         upper = intervals_list[[method]][[2]],
-        method = method
-      ) %>%
-      pivot_longer(cols = c(lower, upper), names_to = "interval", values_to = "value")
+        method = method,
+        variable = names(boot[["estimates"]])
+      )
+    
+    ci_info_all <- left_join(ci_info_all,
+    (do.call(rbind, ci_info) %>%
+      pivot_longer(cols = c(lower, upper), names_to = "interval", values_to = "value")),
+    by = "variable")
   }
   
-  return(ci_info)
+  return(ci_info_all)
 }
