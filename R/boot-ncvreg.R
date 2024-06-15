@@ -146,9 +146,9 @@ boot_ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 1000, ...,
     warning("Ignoring argument 'family', only guassian family is currently supported")
   }
   
-  # if (any(c("gamma", "alpha") %in% names(args))) {
-  #   warning(paste0("Ignoring argument(s) ", paste0(names(args)[names(args) %in% c("gamma", "alpha")], collapse = " and "), ", not used for lasso penalty"))
-  # }
+  if (any(c("alpha") %in% names(args))) {
+    warning(paste0("Ignoring argument(s) ", paste0(names(args)[names(args) %in% c("alpha")], collapse = " and "), ", not used for lasso penalty"))
+  }
   
   original_coefs <- NULL
   if (missing(cv_fit)) {
@@ -165,21 +165,25 @@ boot_ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 1000, ...,
       cv.args$X <- X
       cv.args$y <- y
       if (!(missing(lambda))) {
-        # lambda_max <- max(apply(ncvreg::std(X), 2, find_thresh, y))
-        lambda_min <- lambda - lambda / 100 ## set min to be slightly smaller
+        
+        lambda_min <- lambda - lambda / 100
+        lambda_seq <- setupLambda(ncvreg::std(X), y, "gaussian", alpha = 1, lambda_min, nlambda)
+        if (min(lambda_seq) < lambda) {
+          lambda_seq <- setupLambda(ncvreg::std(X), y, "gaussian", alpha = 1, lambda_min = lambda_min / max(lambda_seq), nlambda)
+        }
+        
         nlambda <- ifelse(!is.null(ncvreg.args$nlambda), ncvreg.args$nlambda, 100)
-        if (lambda_min > lambda_max | lambda > lambda_max) {
+        if (lambda_min > max(lambda_seq)) {
           lambda_max <- lambda + lambda / 100
           nlambda <- 2
+          lambda_seq <- c(lambda_max, lambda_min)
         }
-        # lambda_seq <- 10^(seq(log(lambda_max, 10), log(lambda_min, 10), length.out = nlambda))
-        lambda_seq <- setupLambda(ncvreg::std(X), y, family, alpha, lambda_min, nlambda, penalty.factor)
+        
         cv.args$lambda <- lambda_seq 
       }
+      
       if (!missing(cluster)) cv.args$cluster <- cluster
-      tic()
       cv_fit <- do.call("cv.ncvreg", c(cv.args, ncvreg.args))
-      toc()
       
       if (missing(lambda) & missing(sigma2)) {
         lambda <- cv_fit$lambda.min 
@@ -231,7 +235,7 @@ boot_ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 1000, ...,
   
   if (!missing(cluster)) {
     if (!inherits(cluster, "cluster")) stop("cluster is not of class 'cluster'; see ?makeCluster", call.=FALSE)
-    parallel::clusterExport(cluster, c("X", "y", "lambda", "sigma2", "ncvreg.args", "find_thresh"), envir=environment())
+    parallel::clusterExport(cluster, c("X", "y", "lambda", "sigma2", "ncvreg.args", "setupLambda"), envir=environment())
     parallel::clusterCall(cluster, function() library(ncvreg))
     results <- parallel::parLapply(cl=cluster, X=1:nboot, fun=bootf, XX=X, y=y, lambda = lambda, sigma2 = sigma2, ncvreg.args=ncvreg.args, rescale_original = rescale_original)
   }
@@ -280,16 +284,19 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
   }
   full_rescale_factor <- rescale * rescaleX
   
-  lambda_max <- max(apply(xnew, 2, find_thresh, ynew))
-  lambda_min <- lambda - lambda / 100 ## set min to be slightly smaller to avoid issue of lambda being out of range
-  if (lambda_min >= lambda_max | lambda >= lambda_max) {
-    lambda_max <- lambda + lambda / 100
-    nlambda <- 2
+  lambda_min <- lambda - lambda / 100
+  lambda_seq <- setupLambda(ncvreg::std(X), y, "gaussian", alpha = 1, lambda_min, nlambda)
+  if (min(lambda_seq) < lambda) {
+    lambda_seq <- setupLambda(ncvreg::std(X), y, "gaussian", alpha = 1, lambda_min = lambda_min / max(lambda_seq), nlambda)
   }
   
   nlambda <- ifelse(!is.null(ncvreg.args$nlambda), ncvreg.args$nlambda, 100)
-  lambda_seq <- 10^(seq(log(lambda_max, 10), log(lambda_min, 10), length.out = nlambda))
-
+  if (lambda_min >= max(lambda_seq)) {
+    lambda_max <- lambda + lambda / 100
+    nlambda <- 2
+    lambda_seq <- c(lambda_max, lambda_min)
+  }
+  
   ncvreg.args$X <- xnew
   ncvreg.args$y <- ynew
   ncvreg.args$penalty <- penalty
@@ -307,11 +314,6 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
   draws <- matrix(ncol = p, nrow = 1)
     
   se <- sqrt(sigma2 / n)
-  
-  ## Update lambda for MCP and SCAD
-  if (penalty != "lasso") {
-    lambda <- lambda * gamma 
-  }
   
   ## Tails being transferred on to (log probability in each tail)
   obs_lw <- pnorm(0, z + lambda, se, log.p = TRUE)
@@ -346,6 +348,5 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
   return(ret)
   
 }
-find_thresh <- function(x, y) { abs(t(x) %*% y) / length(y) }
 
 

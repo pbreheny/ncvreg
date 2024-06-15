@@ -10,6 +10,9 @@
 #' @examples
 plot.boot_ncvreg <- function(eb_boot, n = 30, alpha = 0.2, original_order = FALSE, absolute_order = FALSE, quiet = TRUE) {
   
+  
+  # order = c("original", "descending", "ascending", "absolute")
+  # absolute_rder = FALSE # For descending and ascending
   plot_res <- ci.boot_ncvreg(eb_boot, quiet = quiet, alpha = alpha) 
   
   if (!original_order) {
