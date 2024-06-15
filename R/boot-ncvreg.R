@@ -262,7 +262,9 @@ boot_ncvreg <- function(X, y, penalty = "lasso", cv_fit, lambda, sigma2, nboot =
     partial_correlations[i,] <- res$partial_correlations
   }
   
-  val <- list(fc_draws, point_estimates, partial_correlations, lambda = lambda, sigma2 = sigma2, penalty = penalty)
+  val <- list(fc_draws = fc_draws, point_estimates = point_estimates,
+              partial_correlations = partial_correlations, lambda = lambda,
+              sigma2 = sigma2, penalty = penalty)
   
   if (returnCV) val$cv.ncvreg <- cv_fit
   
