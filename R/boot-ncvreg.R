@@ -172,7 +172,7 @@ boot_ncvreg <- function(X, y, penalty = "lasso", cv_fit, lambda, sigma2, nboot =
         lambda_min <- lambda - lambda / 100
         lambda_seq <- setupLambda(ncvreg::std(X), y, "gaussian", alpha = 1, lambda_min, nlambda, penalty.factor=rep(1, ncol(X)))
         if (min(lambda_seq) < lambda) {
-          lambda_seq <- setupLambda(ncvreg::std(X), y, "gaussian", alpha = 1, lambda_min = lambda_min / max(lambda_seq), nlambda, penalty.factor=rep(1, ncol(X)))
+          lambda_seq <- setupLambda(ncvreg::std(X), y, "gaussian", alpha = 1, lambda.min = lambda_min / max(lambda_seq), nlambda, penalty.factor=rep(1, ncol(X)))
         }
         
         if (lambda_min > max(lambda_seq)) {
@@ -290,7 +290,7 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
   lambda_min <- lambda - lambda / 100
   lambda_seq <- setupLambda(ncvreg::std(xnew), ynew, "gaussian", alpha = 1, lambda_min, nlambda, penalty.factor=rep(1, ncol(xnew)))
   if (min(lambda_seq) < lambda) {
-    lambda_seq <- setupLambda(ncvreg::std(xnew), ynew, "gaussian", alpha = 1, lambda_min = lambda_min / max(lambda_seq), nlambda, penalty.factor=rep(1, ncol(xnew)))
+    lambda_seq <- setupLambda(ncvreg::std(xnew), ynew, "gaussian", alpha = 1, lambda.min = lambda_min / max(lambda_seq), nlambda, penalty.factor=rep(1, ncol(xnew)))
   }
   
   if (lambda_min >= max(lambda_seq)) {
