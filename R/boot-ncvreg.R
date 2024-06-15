@@ -352,7 +352,7 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
     qnorm(log_one_minus_ps + obs_up - frac_up_log, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
   ) 
   
-  fc_draws[1, nonsingular] <- tmp * full_rescale_factor 
+  fc_draws[1, nonsingular] <- draws * full_rescale_factor 
   point_estimates[1, nonsingular] <- modes * full_rescale_factor 
   partial_correlations[1, nonsingular] <- z * full_rescale_factor 
   
