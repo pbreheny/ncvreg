@@ -16,6 +16,8 @@
 #'
 #' @param X The design matrix, without an intercept, as in \code{ncvreg}
 #' @param y The response vector, as in \code{ncvreg}
+#' @param penalty The penalty to be applied to the model.  Either "lasso" (the
+#' default), "MCP", or "SCAD".
 #' @param cv_fit Instead of \code{X} and \code{y}, an object of type 
 #' \code{cv.ncvreg} with \code{returnX = TRUE} and \code{penalty = "lasso"}
 #' @param lambda A positive scalar value of type numeric, if left unspecified,
@@ -69,8 +71,8 @@
 #' bootfit <- boot_ncvreg(Prostate$X, Prostate$y, cluster = cl)}
 #' 
 #' @export boot_ncvreg
-boot_ncvreg <- function(X, y, cv_fit, lambda, sigma2, nboot = 1000, ...,
-                        cluster, seed, returnCV=FALSE, verbose = TRUE, penalty = "lasso") {
+boot_ncvreg <- function(X, y, penalty = "lasso", cv_fit, lambda, sigma2, nboot = 1000, ...,
+                        cluster, seed, returnCV=FALSE, verbose = TRUE) {
   
   if ((missing(X) | missing(y)) & (missing(cv_fit) || class(cv_fit) != "cv.ncvreg")) {
     stop("Either X and y or an object of class cv.ncvreg must be supplied.")
@@ -285,9 +287,9 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
   full_rescale_factor <- rescale * rescaleX
   
   lambda_min <- lambda - lambda / 100
-  lambda_seq <- setupLambda(ncvreg::std(X), y, "gaussian", alpha = 1, lambda_min, nlambda)
+  lambda_seq <- setupLambda(ncvreg::std(xnew), ynew, "gaussian", alpha = 1, lambda_min, nlambda)
   if (min(lambda_seq) < lambda) {
-    lambda_seq <- setupLambda(ncvreg::std(X), y, "gaussian", alpha = 1, lambda_min = lambda_min / max(lambda_seq), nlambda)
+    lambda_seq <- setupLambda(ncvreg::std(xnew), ynew, "gaussian", alpha = 1, lambda_min = lambda_min / max(lambda_seq), nlambda)
   }
   
   nlambda <- ifelse(!is.null(ncvreg.args$nlambda), ncvreg.args$nlambda, 100)
