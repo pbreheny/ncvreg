@@ -336,7 +336,6 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
   ncvreg.args$penalty <- penalty
   ncvreg.args$alpha <- alpha
   ncvreg.args$gamma <- gamma
-  print(ncvreg.args) 
   
   ## Ignore user specified lambda.min, nlambda since lambda sequence is being specified
   fit <- do.call("ncvreg", ncvreg.args[!(names(ncvreg.args) %in% c("lambda.min", "nlambda"))])
