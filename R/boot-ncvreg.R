@@ -359,7 +359,7 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
   ) 
   
   if (penalty == "MCP") {
-    draws <- firm_threshold_c(draws, lambda, gamma)
+    draws <- saply(draws, firm_threshold_c, lambda, gamma)
   }
   
   fc_draws[nonsingular] <- draws * full_rescale_factor 
