@@ -101,9 +101,9 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
   }
   
   if (!missing(X)) {
-    rescale_original <- FALSE
+    rescale_original <- FALSE ## Supplied directly, will be scaled once in bootf
   } else {
-    rescale_original <- TRUE
+    rescale_original <- TRUE ## Getting from cv.ncvreg where it has been scaled
   }
   
   # Coercion
@@ -136,11 +136,10 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
     stop("Please supply names for all additional arguments passed to ...")
   }
   
-  ## Need to add gamma and alpha
   cv.args <- args[names(args) %in% c("nfolds", "fold", "returnY", "trace")]
   ncvreg.args <- args[names(args) %in% c("lambda.min", "nlambda", "eps", "max.iter", "dfmax")]
   if ("penalty.factor" %in% names(args)) {
-    stop("Sorry, specification of alternative penality factors is not yet supported")
+    stop("Sorry, specification of alternative penality factors is not supported")
   }
   
   if (any(c("returnX", "warn", "convex") %in% names(args))) {
@@ -158,12 +157,13 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
   original_coefs <- NULL
   if (missing(cv_fit)) {
     if (missing(lambda) | missing(sigma2)) {
+      
       if (missing(lambda) & missing(sigma2)) {
         if (verbose) message("Using cross validation to select lambda and estimate variance")
       } else if (missing(lambda) & !missing(sigma2)) {
-        if (missing(lambda) & verbose) message("Using cross validation to select lambda")
-      } else if (!missing(lambda) & missing(sigma2) & verbose) {
-        message("Using cross validation to estimate variance at supplied value of lambda using linear interpolation")
+        if (verbose) message("Using cross validation to select lambda")
+      } else if (!missing(lambda) & missing(sigma2)) {
+        if (verbose) message("Using cross validation to estimate variance at supplied value of lambda using linear interpolation")
       }
       
       cv.args$X <- X
@@ -176,11 +176,11 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
         nlambda <- ifelse(!is.null(ncvreg.args$nlambda), ncvreg.args$nlambda, 100)
         lambda_seq <- setupLambda(
           ncvreg::std(X), y, "gaussian", alpha = 1,
-          lambda.min = ifelse(nrow(X)>ncol(X),.001,.05),
+          lambda.min = ifelse(nrow(X) > ncol(X), .001, .05),
           nlambda, penalty.factor=rep(1, ncol(X))
         )
         
-        if (min(lambda_seq) > lambda) {
+        if (lambda < min(lambda_seq)) {
           
           lambda_min <- lambda - (lambda / 100)
           lambda_seq <- setupLambda(
@@ -206,8 +206,6 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
       } else if (missing(lambda) & !missing(sigma2)) {
         lambda <- cv_fit$lambda.min
       } else if (!missing(lambda) & missing(sigma2)) {
-        if (max(cv_fit$lambda) < lambda | min(cv_fit$lambda) > lambda) stop("Supplied lambda value is outside the range of the model fit.")
-        if (verbose) message("lambda provided but not sigma2, using CV and linear interpolation to obtain an estimate for sigma2.")
         ind <- stats::approx(cv_fit$lambda, seq(cv_fit$lambda), lambda)$y
         l <- floor(ind)
         r <- ceiling(ind)
@@ -224,7 +222,6 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
     if (missing(lambda)) lambda <- cv_fit$lambda.min
     if (missing(sigma2)) {
       if (max(cv_fit$lambda) < lambda | min(cv_fit$lambda) > lambda) stop("Supplied lambda value is outside the range of the model fit.")
-      if (verbose) message("lambda provided but not sigma2, using CV and linear interpolation to obtain an estimate for sigma2.")
       ind <- stats::approx(cv_fit$lambda, seq(cv_fit$lambda), lambda)$y
       l <- floor(ind)
       r <- ceiling(ind)
@@ -251,18 +248,22 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
   
   if (!missing(cluster)) {
     if (!inherits(cluster, "cluster")) stop("cluster is not of class 'cluster'; see ?makeCluster", call.=FALSE)
-    parallel::clusterExport(cluster, c("X", "y", "lambda", "sigma2", "ncvreg.args", "setupLambda"), envir=environment())
+    parallel::clusterExport(cluster, c("X", "y", "lambda", "sigma2", "ncvreg.args", "rescale_original", "penalty", "gamma", "alpha"), envir=environment())
     parallel::clusterCall(cluster, function() library(ncvreg))
-    results <- parallel::parLapply(cl=cluster, X=1:nboot, fun=bootf, XX = X, yy=y, lambda = lambda, sigma2 = sigma2, ncvreg.args = ncvreg.args, rescale_original = rescale_original)
+    results <- parallel::parLapply(
+      cl=cluster, X=1:nboot, fun=bootf, XX = X, yy=y, lambda = lambda,
+      sigma2 = sigma2, ncvreg.args = ncvreg.args, rescale_original = rescale_original,
+      penalty = penalty, alpha = alpha, gamma = gamma
+    )
   }
   
   for (i in 1:nboot) {
     if (!missing(cluster)) {
       res <- results[[i]]
     } else {
-      res <- bootf(XX=X, y=y, lambda = lambda, sigma2 = sigma2,
+      res <- bootf(XX=X, yy=y, lambda = lambda, sigma2 = sigma2,
                    ncvreg.args = ncvreg.args, rescale_original = rescale_original,
-                   penalty = penalty)
+                   penalty = penalty, alpha = alpha, gamma = gamma)
     }
     fc_draws[i,] <- res$fc_draws
     point_estimates[i,] <- res$point_estimates
@@ -275,7 +276,8 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
   val <- list(fc_draws = fc_draws, point_estimates = point_estimates,
               partial_correlations = partial_correlations, 
               estimates = original_coefs,
-              lambda = lambda, sigma2 = sigma2, penalty = penalty)
+              lambda = lambda, sigma2 = sigma2, penalty = penalty,
+              alpha = gamma, gamma = gamma)
   
   if (returnCV) val$cv.ncvreg <- cv_fit
   
