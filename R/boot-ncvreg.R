@@ -230,14 +230,41 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
   }
   
   if (is.null(original_coefs)) {
+    
     coef.args <- ncvreg.args
     coef.args$X <- X
     coef.args$y <- y
     coef.args$penalty <- penalty
     coef.args$alpha <- alpha
     coef.args$gamma <- gamma
+    
+    nlambda <- ifelse(!is.null(ncvreg.args$nlambda), ncvreg.args$nlambda, 100)
+    lambda_seq <- setupLambda(
+      ncvreg::std(X), y, "gaussian", alpha = alpha,
+      lambda.min = ifelse(nrow(X) > ncol(X), .001, .05),
+      nlambda, penalty.factor = rep(1, ncol(X))
+    )
+    
+    if (lambda < min(lambda_seq) | lambda > max(lambda_seq)) warning("Lambda outisde of range of original model fit, extending lambda sequence.")
+    
+    if (lambda < min(lambda_seq)) {
+      
+      lambda_min <- lambda - (lambda / 100)
+      lambda_seq <- setupLambda(
+        ncvreg::std(X), y, "gaussian", alpha = alpha,
+        lambda.min = lambda_min / max(lambda_seq),
+        nlambda, penalty.factor=rep(1, ncol(X))
+      )
+      
+    }
+    
+    if (lambda >= max(lambda_seq)) lambda <- lambda_max - (lambda_max / 100)
+    
+    coef.args$lambda <- lambda_seq
+    
     fit <- do.call("ncvreg", coef.args)
     original_coefs <- coef(fit, lambda = lambda)[-1]
+    
   }
   
   point_estimates <- fc_draws <- partial_correlations <- matrix(nrow = nboot, ncol = ncol(X))
