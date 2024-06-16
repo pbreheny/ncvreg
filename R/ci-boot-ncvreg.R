@@ -68,7 +68,6 @@ ci.boot_ncvreg <- function(boot, alpha = 0.2, quiet = FALSE, methods = "all") {
   ci_info_all <- data.frame(estimate = boot[["estimates"]], variable = names(boot[["estimates"]]))
   ci_info <- list()
   
-  print(intervals_list)
   for (method in names(intervals_list)) {
     
     ci_info[[method]] <- data.frame(
