@@ -81,10 +81,7 @@ ci.boot_ncvreg <- function(boot, alpha = 0.2, quiet = FALSE, methods = "all") {
     
   }
   
-  ci_info_all <- left_join(ci_info_all,
-                           (do.call(rbind, ci_info) %>%
-                              pivot_longer(cols = c(lower, upper), names_to = "interval", values_to = "value")),
-                           by = "variable")
+  ci_info_all <- left_join(ci_info_all, do.call(rbind, ci_info)), by = "variable")
   
   return(ci_info_all)
 }
