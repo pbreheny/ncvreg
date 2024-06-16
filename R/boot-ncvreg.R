@@ -358,6 +358,10 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
     qnorm(log_one_minus_ps + obs_up - frac_up_log, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
   ) 
   
+  if (penalty == "MCP") {
+    draws <- firm_threshold_c(draws, lambda, gamma)
+  }
+  
   fc_draws[nonsingular] <- draws * full_rescale_factor 
   point_estimates[nonsingular] <- modes * full_rescale_factor 
   partial_correlations[nonsingular] <- z * full_rescale_factor 
@@ -375,5 +379,27 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
 }
 draw_full_cond <- function(something) {
   "do something"
+}
+soft_threshold <- function(z_j, lambda) {
+  
+  if (z_j > lambda) {
+    return(z_j - lambda)
+  } else if (abs(z_j) <= lambda) {
+    return(0)
+  } else if (z_j < -lambda) {
+    return(z_j + lambda)
+  } 
+  
+}
+firm_threshold_c <- function(z_j, lambda, gamma) {
+  
+  z_j <- z_j + sign(z_j)*lambda
+  
+  if (abs(z_j) <= gamma*lambda) {
+    return((gamma / (gamma - 1))*soft_threshold(z_j, lambda))
+  } else {
+    return(z_j)
+  } 
+  
 }
 
