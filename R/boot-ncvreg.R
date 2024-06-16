@@ -137,8 +137,8 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
   }
   
   ## Need to add gamma and alpha
-  cv.args <- args[names(args) %in% c("nfolds", "fold", "returnY", "trace", "penalty", "alpha", "gamma")]
-  ncvreg.args <- args[names(args) %in% c("lambda.min", "nlambda", "eps", "max.iter", "dfmax", "penalty", "alpha", "gamma")]
+  cv.args <- args[names(args) %in% c("nfolds", "fold", "returnY", "trace")]
+  ncvreg.args <- args[names(args) %in% c("lambda.min", "nlambda", "eps", "max.iter", "dfmax")]
   if ("penalty.factor" %in% names(args)) {
     stop("Sorry, specification of alternative penality factors is not yet supported")
   }
@@ -166,9 +166,11 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
         message("Using cross validation to estimate variance at supplied value of lambda using linear interpolation")
       }
       
-      cv.args$penalty <- penalty
       cv.args$X <- X
       cv.args$y <- y
+      cv.args$penalty <- penalty
+      cv.args$alpha <- alpha
+      cv.args$gamma <- gamma
       if (!(missing(lambda))) {
         
         nlambda <- ifelse(!is.null(ncvreg.args$nlambda), ncvreg.args$nlambda, 100)
@@ -239,6 +241,8 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
     coef.args$X <- X
     coef.args$y <- y
     coef.args$penalty <- penalty
+    coef.args$alpha <- alpha
+    coef.args$gamma <- gamma
     fit <- do.call("ncvreg", coef.args)
     original_coefs <- coef(fit, lambda = lambda)[-1]
   }
@@ -329,6 +333,9 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
   ncvreg.args$X <- xnew
   ncvreg.args$y <- ynew
   ncvreg.args$lambda <- lambda_seq
+  ncvreg.args$penalty <- penalty
+  ncvreg.args$alpha <- alpha
+  ncvreg.args$gamma <- gamma
   print(ncvreg.args) 
   
   ## Ignore user specified lambda.min, nlambda since lambda sequence is being specified
