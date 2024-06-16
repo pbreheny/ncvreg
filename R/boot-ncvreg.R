@@ -150,10 +150,6 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
     warning("Ignoring argument 'family', only guassian family is currently supported")
   }
   
-  # if (any(c("alpha") %in% names(args))) {
-  #   warning(paste0("Ignoring argument(s) ", paste0(names(args)[names(args) %in% c("alpha")], collapse = " and "), ", not used for lasso penalty"))
-  # }
-  
   original_coefs <- NULL
   if (missing(cv_fit)) {
     if (missing(lambda) | missing(sigma2)) {
@@ -175,7 +171,7 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
         
         nlambda <- ifelse(!is.null(ncvreg.args$nlambda), ncvreg.args$nlambda, 100)
         lambda_seq <- setupLambda(
-          ncvreg::std(X), y, "gaussian", alpha = 1,
+          ncvreg::std(X), y, "gaussian", alpha = alpha,
           lambda.min = ifelse(nrow(X) > ncol(X), .001, .05),
           nlambda, penalty.factor=rep(1, ncol(X))
         )
@@ -184,7 +180,7 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
           
           lambda_min <- lambda - (lambda / 100)
           lambda_seq <- setupLambda(
-            ncvreg::std(X), y, "gaussian", alpha = 1,
+            ncvreg::std(X), y, "gaussian", alpha = alpha,
             lambda.min = lambda_min / max(lambda_seq),
             nlambda, penalty.factor=rep(1, ncol(X))
           )
@@ -344,9 +340,18 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
   
   modes <- coef(fit, lambda = lambda)[-1]
   
-  partial_residuals <-  ynew - (
+  if (alpha < 1) {
+    ynew <- c(y, rep(0, p))
+    xnew <- rbind(xnew, sqrt(n*(1 - alpha)*lambda)*diag(p))
+    xnew <- ncvreg::std(xnew)
+    xnew <- xnew * sqrt(n / (n + p))
+    lambda <- lambda * alpha
+  }
+  
+  partial_residuals <- ynew - (
     as.numeric(xnew %*% modes) - (xnew * matrix(modes, nrow = nrow(xnew), ncol = ncol(xnew), byrow=TRUE))
   )
+  print(partial_residuals)
   z <- (1/n)*colSums(xnew * partial_residuals)
   
   draws <- draw_full_cond(z, lambda, sigma2, n, p_nonsingular)
