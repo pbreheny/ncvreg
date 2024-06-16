@@ -187,7 +187,7 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
         
         }
         
-        if (lambda >= max(lambda_seq)) lambda <- lambda_max - (lambda_max / 100)
+        if (lambda >= max(lambda_seq)) lambda <- max(lambda_seq) - (max(lambda_seq) / 100)
         
         cv.args$lambda <- lambda_seq 
 
@@ -258,7 +258,7 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
       
     }
     
-    if (lambda >= max(lambda_seq)) lambda <- lambda_max - (lambda_max / 100)
+    if (lambda >= max(lambda_seq)) lambda <- max(lambda_seq) - (max(lambda_seq) / 100)
     
     coef.args$lambda <- lambda_seq
     
