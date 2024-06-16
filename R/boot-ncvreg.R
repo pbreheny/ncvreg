@@ -341,7 +341,7 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
   modes <- coef(fit, lambda = lambda)[-1]
   
   if (alpha < 1) {
-    ynew <- c(y, rep(0, p))
+    ynew <- c(ynew, rep(0, p))
     xnew <- rbind(xnew, sqrt(n*(1 - alpha)*lambda)*diag(p))
     xnew <- ncvreg::std(xnew)
     xnew <- xnew * sqrt(n / (n + p))
