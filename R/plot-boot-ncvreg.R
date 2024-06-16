@@ -35,7 +35,7 @@ plot.boot_ncvreg <- function(eb_boot, method = "hybrid", n = 30, alpha = 0.2, or
         plot_res <- plot_res %>%
           dplyr::arrange(estimate)
       }
-    }
+    } 
   } else {
     # Ensure the provided vector is a proper subset of the variables in plot_res
     if (!all(order %in% plot_res$variable)) {
@@ -47,8 +47,12 @@ plot.boot_ncvreg <- function(eb_boot, method = "hybrid", n = 30, alpha = 0.2, or
   }
   
   plot_res <- plot_res %>%
-    head(n)
-  
+    head(n) 
+
+  if (order == "original") {
+    plot_res$variable <- factor(plot_res$variable, levels = rev(plot_res$variable))
+  }
+
   # Plot the results
   plot_res %>%
     ggplot() +

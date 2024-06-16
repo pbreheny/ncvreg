@@ -406,7 +406,7 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
 draw_full_cond <- function(z, lambda, sigma2, n, p_nonsingular) {
   
   ## Tails being transferred on to (log probability in each tail)
-  se <- sigma2 / n
+  se <- sqrt(sigma2 / n)
   obs_lw <- pnorm(0, z + lambda, se, log.p = TRUE)
   obs_up <- pnorm(0, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
   
