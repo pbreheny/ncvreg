@@ -262,6 +262,9 @@ boot_ncvreg <- function(X, y, penalty = "lasso", cv_fit, lambda, sigma2, nboot =
     partial_correlations[i,] <- res$partial_correlations
   }
   
+  colnames(fc_draws) <- names(original_coefs)
+  colnames(point_estimates) <- names(original_coefs)
+  colnames(partial_correlations) <- names(original_coefs)
   val <- list(fc_draws = fc_draws, point_estimates = point_estimates,
               partial_correlations = partial_correlations, 
               estimates = original_coefs,
