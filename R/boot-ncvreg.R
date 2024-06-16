@@ -71,7 +71,9 @@
 #' bootfit <- boot_ncvreg(Prostate$X, Prostate$y, cluster = cl)}
 #' 
 #' @export boot_ncvreg
-boot_ncvreg <- function(X, y, penalty = "lasso", cv_fit, lambda, sigma2, nboot = 1000, ...,
+boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
+                        lambda, gamma = switch(penalty, SCAD = 3.7, 3), alpha = 1,
+                        sigma2, nboot = 1000, ...,
                         cluster, seed, returnCV=FALSE, verbose = TRUE) {
   
   if ((missing(X) | missing(y)) & (missing(cv_fit) || class(cv_fit) != "cv.ncvreg")) {
@@ -134,8 +136,9 @@ boot_ncvreg <- function(X, y, penalty = "lasso", cv_fit, lambda, sigma2, nboot =
     stop("Please supply names for all additional arguments passed to ...")
   }
   
-  cv.args <- args[names(args) %in% c("nfolds", "fold", "returnY", "trace", "penalty")]
-  ncvreg.args <- args[names(args) %in% c("lambda.min", "nlambda", "eps", "max.iter", "dfmax", "penalty")]
+  ## Need to add gamma and alpha
+  cv.args <- args[names(args) %in% c("nfolds", "fold", "returnY", "trace", "penalty", "alpha", "gamma")]
+  ncvreg.args <- args[names(args) %in% c("lambda.min", "nlambda", "eps", "max.iter", "dfmax", "penalty", "alpha", "gamma")]
   if ("penalty.factor" %in% names(args)) {
     stop("Sorry, specification of alternative penality factors is not yet supported")
   }
@@ -148,9 +151,9 @@ boot_ncvreg <- function(X, y, penalty = "lasso", cv_fit, lambda, sigma2, nboot =
     warning("Ignoring argument 'family', only guassian family is currently supported")
   }
   
-  if (any(c("alpha") %in% names(args))) {
-    warning(paste0("Ignoring argument(s) ", paste0(names(args)[names(args) %in% c("alpha")], collapse = " and "), ", not used for lasso penalty"))
-  }
+  # if (any(c("alpha") %in% names(args))) {
+  #   warning(paste0("Ignoring argument(s) ", paste0(names(args)[names(args) %in% c("alpha")], collapse = " and "), ", not used for lasso penalty"))
+  # }
   
   original_coefs <- NULL
   if (missing(cv_fit)) {
@@ -246,7 +249,7 @@ boot_ncvreg <- function(X, y, penalty = "lasso", cv_fit, lambda, sigma2, nboot =
     if (!inherits(cluster, "cluster")) stop("cluster is not of class 'cluster'; see ?makeCluster", call.=FALSE)
     parallel::clusterExport(cluster, c("X", "y", "lambda", "sigma2", "ncvreg.args", "setupLambda"), envir=environment())
     parallel::clusterCall(cluster, function() library(ncvreg))
-    results <- parallel::parLapply(cl=cluster, X=1:nboot, fun=bootf, XX=X, y=y, lambda = lambda, sigma2 = sigma2, ncvreg.args=ncvreg.args, rescale_original = rescale_original)
+    results <- parallel::parLapply(cl=cluster, X=1:nboot, fun=bootf, XX = X, yy=y, lambda = lambda, sigma2 = sigma2, ncvreg.args = ncvreg.args, rescale_original = rescale_original)
   }
   
   for (i in 1:nboot) {
@@ -275,8 +278,8 @@ boot_ncvreg <- function(X, y, penalty = "lasso", cv_fit, lambda, sigma2, nboot =
   structure(val, class="boot_ncvreg")
   
 }
-bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
-                  penalty = c("MCP", "SCAD", "lasso"),
+bootf <- function(XX, yy, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
+                  penalty = c("lasso", "MCP", "SCAD"),
                   alpha = 1, gamma = switch(penalty, SCAD = 3.7, 3)) {
   
   if (missing(ncvreg.args)) {
@@ -284,12 +287,13 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
   }
   
   p <- ncol(XX)
-  n <- length(y)
+  n <- length(yy)
   
   fc_draws <- point_estimates <- partial_correlations <- numeric(p)
   
   idx_new <- sample(1:n, replace = TRUE)
-  ynew <- y[idx_new]
+  ynew <- yy[idx_new]
+  ynew <- ynew - mean(ynew)
   xnew <- ncvreg::std(XX[idx_new,,drop=FALSE])
   
   nonsingular <- attr(xnew, "nonsingular")
@@ -297,42 +301,44 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
   
   rescale <- (attr(xnew, "scale")[nonsingular])^(-1)
   if (!is.null(attr(XX, "scale")) & rescale_original) {
-    rescaleX <-  (attr(XX, "scale")[nonsingular])^(-1)
+    rescaleXX <- (attr(XX, "scale")[nonsingular])^(-1)
   } else {
-    rescaleX <- 1
+    rescaleXX <- 1
   }
-  full_rescale_factor <- rescale * rescaleX
+  full_rescale_factor <- rescale * rescaleXX
   
   nlambda <- ifelse(!is.null(ncvreg.args$nlambda), ncvreg.args$nlambda, 100)
   lambda_seq <- setupLambda(
-    ncvreg::std(xnew), ynew, "gaussian", alpha = 1,
-    nlambda, lambda.min = ifelse(n>p,.001,.05),
+    ncvreg::std(xnew), ynew, "gaussian", alpha = alpha,
+    nlambda, lambda.min = ifelse(n > p, .001, .05),
     penalty.factor=rep(1, ncol(xnew))
   )
   
-  if (min(lambda_seq) > lambda) {
+  if (lambda < min(lambda_seq)) {
     lambda_min <- lambda - (lambda / 100)  
     lambda_seq <- setupLambda(
-      ncvreg::std(xnew), ynew, "gaussian", alpha = 1,
+      ncvreg::std(xnew), ynew, "gaussian", alpha = alpha,
       lambda.min = lambda_min / max(lambda_seq), nlambda,
       penalty.factor=rep(1, ncol(xnew))
     )
   
   }
   
-  if (lambda >= max(lambda_seq)) lambda <- max(lambda_seq) - max(lambda_seq) / 100
+  if (lambda >= max(lambda_seq)) lambda <- max(lambda_seq) - (max(lambda_seq) / 100)
   
   ncvreg.args$X <- xnew
   ncvreg.args$y <- ynew
-  ncvreg.args$penalty <- penalty
   ncvreg.args$lambda <- lambda_seq
+  print(ncvreg.args) 
   
+  ## Ignore user specified lambda.min, nlambda since lambda sequence is being specified
   fit <- do.call("ncvreg", ncvreg.args[!(names(ncvreg.args) %in% c("lambda.min", "nlambda"))])
   
-  coefs <- coef(fit, lambda = lambda)
-  modes <- coefs[-1] ## Coefs only returned for nonsingular columns of X
+  modes <- coef(fit, lambda = lambda)[-1]
   
-  partial_residuals <-  ynew - (coefs[1] + as.numeric(xnew %*% modes) - (xnew * matrix(modes, nrow=nrow(xnew), ncol=ncol(xnew), byrow=TRUE)))
+  partial_residuals <-  ynew - (
+    as.numeric(xnew %*% modes) - (xnew * matrix(modes, nrow = nrow(xnew), ncol = ncol(xnew), byrow=TRUE))
+  )
   z <- (1/n)*colSums(xnew * partial_residuals)
   
   draws <- draw_full_cond(z, lambda, sigma2, n, p_nonsingular)
@@ -347,7 +353,7 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
   point_estimates[nonsingular] <- modes * full_rescale_factor 
   partial_correlations[nonsingular] <- z * full_rescale_factor 
   
-  if (length(nonsingular) < p) {
+  if (p_nonsingular < p) {
     fc_draws[!(1:p %in% nonsingular)] <- NA
     point_estimates[!(1:p %in% nonsingular)] <- NA
     partial_correlations[!(1:p %in% nonsingular)] <- NA
