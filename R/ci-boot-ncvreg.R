@@ -66,26 +66,25 @@ ci.boot_ncvreg <- function(boot, alpha = 0.2, quiet = FALSE, methods = "all") {
   }
   
   ci_info_all <- data.frame(estimate = boot[["estimates"]], variable = names(boot[["estimates"]]))
+  print(ci_info_all)
   ci_info <- list()
   
   print(intervals_list)
   for (method in names(intervals_list)) {
-    print(method)
-    print(names(boot[["estimates"]]))
-    print(intervals_list[[method]][[1]])
-    ci_info[[method]] <- ci_info %>%
-      data.frame(
+    
+    ci_info[[method]] <- data.frame(
         lower = intervals_list[[method]][[1]],
         upper = intervals_list[[method]][[2]],
-        method = method,
         variable = names(boot[["estimates"]])
-      )
+      ) %>%
+      mutate(method = method)
     
-    ci_info_all <- left_join(ci_info_all,
-    (do.call(rbind, ci_info) %>%
-      pivot_longer(cols = c(lower, upper), names_to = "interval", values_to = "value")),
-    by = "variable")
   }
+  
+  ci_info_all <- left_join(ci_info_all,
+                           (do.call(rbind, ci_info) %>%
+                              pivot_longer(cols = c(lower, upper), names_to = "interval", values_to = "value")),
+                           by = "variable")
   
   return(ci_info_all)
 }
