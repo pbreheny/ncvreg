@@ -293,7 +293,7 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
   xnew <- ncvreg::std(XX[idx_new,,drop=FALSE])
   
   nonsingular <- attr(xnew, "nonsingular")
-  np <- length(nonsingular)
+  p_nonsingular <- length(nonsingular)
   
   rescale <- (attr(xnew, "scale")[nonsingular])^(-1)
   if (!is.null(attr(XX, "scale")) & rescale_original) {
@@ -334,32 +334,13 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
   
   partial_residuals <-  ynew - (coefs[1] + as.numeric(xnew %*% modes) - (xnew * matrix(modes, nrow=nrow(xnew), ncol=ncol(xnew), byrow=TRUE)))
   z <- (1/n)*colSums(xnew * partial_residuals)
-    
-  se <- sqrt(sigma2 / n)
   
-  ## Tails being transferred on to (log probability in each tail)
-  obs_lw <- pnorm(0, z + lambda, se, log.p = TRUE)
-  obs_up <- pnorm(0, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
-  
-  obs_p_lw <- obs_lw + ((z*lambda*n) / sigma2)
-  obs_p_up <- obs_up - ((z*lambda*n) / sigma2)
-  
-  ## Find the proportion of each to the overall probability
-  frac_lw_log <- ifelse(is.infinite(exp(obs_p_lw - obs_p_up)), 0, obs_p_lw - obs_p_up - log(1 + exp(obs_p_lw - obs_p_up)))
-  frac_up_log <- ifelse(is.infinite(exp(obs_p_up - obs_p_lw)), 0, obs_p_up - obs_p_lw - log(1 + exp(obs_p_up - obs_p_lw)))
-
-  ps <- runif(np)        
-
-  log_ps <- log(ps) 
-  log_one_minus_ps <- log(1 - ps)
-  draws <- ifelse(
-    frac_lw_log >= log_ps,
-    qnorm(log_ps + obs_lw - frac_lw_log, z + lambda, se, log.p = TRUE),
-    qnorm(log_one_minus_ps + obs_up - frac_up_log, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
-  ) 
+  draws <- draw_full_cond(z, lambda, sigma2, n, p_nonsingular)
   
   if (penalty == "MCP") {
     draws <- sapply(draws, firm_threshold_c, lambda, gamma)
+  } else if (penalty == "SCAD") {
+    draws <- sapply(draws, scad_threshold_c, lambda, gamma)
   }
   
   fc_draws[nonsingular] <- draws * full_rescale_factor 
@@ -377,8 +358,31 @@ bootf <- function(XX, y, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
   return(ret)
   
 }
-draw_full_cond <- function(something) {
-  "do something"
+draw_full_cond <- function(z, lambda, sigma2, n, p_nonsingular) {
+  
+  ## Tails being transferred on to (log probability in each tail)
+  se <- sigma2 / n
+  obs_lw <- pnorm(0, z + lambda, se, log.p = TRUE)
+  obs_up <- pnorm(0, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
+  
+  obs_p_lw <- obs_lw + ((z*lambda*n) / sigma2)
+  obs_p_up <- obs_up - ((z*lambda*n) / sigma2)
+  
+  ## Find the proportion of each to the overall probability
+  frac_lw_log <- ifelse(is.infinite(exp(obs_p_lw - obs_p_up)), 0, obs_p_lw - obs_p_up - log(1 + exp(obs_p_lw - obs_p_up)))
+  frac_up_log <- ifelse(is.infinite(exp(obs_p_up - obs_p_lw)), 0, obs_p_up - obs_p_lw - log(1 + exp(obs_p_up - obs_p_lw)))
+  
+  ps <- runif(p_nonsingular)        
+  
+  log_ps <- log(ps) 
+  log_one_minus_ps <- log(1 - ps)
+  draws <- ifelse(
+    frac_lw_log >= log_ps,
+    qnorm(log_ps + obs_lw - frac_lw_log, z + lambda, se, log.p = TRUE),
+    qnorm(log_one_minus_ps + obs_up - frac_up_log, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
+  )
+  return(draws)
+  
 }
 soft_threshold <- function(z_j, lambda) {
   
@@ -400,6 +404,20 @@ firm_threshold_c <- function(z_j, lambda, gamma) {
   } else {
     return(z_j)
   } 
+  
+}
+scad_threshold_c <- function(z_j, lambda, gamma) {
+  
+  z_j <- z_j + sign(z_j)*lambda
+  
+  if (abs(z_j) <= 2*lambda) {
+    return(soft_threshold(z_j, lambda))
+  } else if (abs(z_j) > 2*lambda & abs(z_j) <= gamma*lambda) {
+    lambda_alt <- (gamma*lambda) / (gamma - 1)
+    return(((gamma - 1) / (gamma - 2)) * soft_threshold(z_j, lambda_alt))
+  } else {
+    z_j
+  }
   
 }
 
