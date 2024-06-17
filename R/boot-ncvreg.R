@@ -382,14 +382,14 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
   
   draws <- draw_full_cond(z, lambda, sigma2, n, p_nonsingular)
   
-  # if (penalty == "MCP") {
-  #   draws <- sapply(draws, firm_threshold_c, lambda, gamma)
-  # } else if (penalty == "SCAD") {
-  #   draws <- sapply(draws, scad_threshold_c, lambda, gamma)
-  # }
   if (penalty == "MCP") {
-    draws <- (gamma / (gamma - 1)) * draws
-  } 
+    draws <- sapply(draws, firm_threshold_c, lambda, gamma)
+  } else if (penalty == "SCAD") {
+    draws <- sapply(draws, scad_threshold_c, lambda, gamma)
+  }
+  # if (penalty == "MCP") {
+  #   draws <- (gamma / (gamma - 1)) * draws
+  # } 
   
   fc_draws[nonsingular] <- draws * full_rescale_factor 
   point_estimates[nonsingular] <- modes * full_rescale_factor 
