@@ -387,9 +387,9 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
   # } else if (penalty == "SCAD") {
   #   draws <- sapply(draws, scad_threshold_c, lambda, gamma)
   # }
-  if (penalty == "MCP") {
-    draws <- (gamma / (gamma - 1)) * draws
-  }
+  # if (penalty == "MCP") {
+  #   draws <- (gamma / (gamma - 1)) * draws
+  # }
   
   fc_draws[nonsingular] <- draws * full_rescale_factor 
   point_estimates[nonsingular] <- modes * full_rescale_factor 
