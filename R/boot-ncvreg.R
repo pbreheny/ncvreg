@@ -386,7 +386,7 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
   if (penalty == "MCP") {
     draws_alt <- sapply(draws, firm_threshold_c, lambda, gamma)
   } else if (penalty == "SCAD") {
-    draws <- sapply(draws, scad_threshold_c, lambda, gamma)
+    draws_alt <- sapply(draws, scad_threshold_c, lambda, gamma)
   }
   if (penalty == "MCP") {
     draws <- (gamma / (gamma - 1)) * draws
