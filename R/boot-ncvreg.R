@@ -391,7 +391,7 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
   if (penalty == "MCP") {
     draws <- (gamma / (gamma - 1)) * draws
   }
-  print(mean(abs(draws_alt - draws) < 1e-8))
+  print(mean(abs(draws_alt - draws) < 1e-6))
   
   fc_draws[nonsingular] <- draws * full_rescale_factor 
   point_estimates[nonsingular] <- modes * full_rescale_factor 
