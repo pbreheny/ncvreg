@@ -388,10 +388,10 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
   } else if (penalty == "SCAD") {
     draws_alt <- sapply(draws, scad_threshold_c, lambda, gamma)
   }
-  if (penalty == "MCP") {
-    draws <- (gamma / (gamma - 1)) * draws
-  }
-  print(mean(abs(draws_alt[modes == 0] - draws[modes == 0]) < 1e-6))
+  # if (penalty == "MCP") {
+  #   draws <- (gamma / (gamma - 1)) * draws
+  # }
+  # print(mean(abs(draws_alt[modes == 0] - draws[modes == 0]) < 1e-6))
   
   fc_draws[nonsingular] <- draws * full_rescale_factor 
   point_estimates[nonsingular] <- modes * full_rescale_factor 
