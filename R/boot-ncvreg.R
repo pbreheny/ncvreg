@@ -74,7 +74,8 @@
 boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
                         lambda, gamma = switch(penalty, SCAD = 3.7, 3), alpha = 1,
                         sigma2, nboot = 1000, ...,
-                        cluster, seed, returnCV=FALSE, verbose = TRUE) {
+                        cluster, seed, returnCV=FALSE, verbose = TRUE,
+                        debias = FALSE) {
   
   if ((missing(X) | missing(y)) & (missing(cv_fit) || class(cv_fit) != "cv.ncvreg")) {
     stop("Either X and y or an object of class cv.ncvreg must be supplied.")
@@ -276,7 +277,7 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
     results <- parallel::parLapply(
       cl=cluster, X=1:nboot, fun=bootf, XX = X, yy=y, lambda = lambda,
       sigma2 = sigma2, ncvreg.args = ncvreg.args, rescale_original = rescale_original,
-      penalty = penalty, alpha = alpha, gamma = gamma
+      penalty = penalty, alpha = alpha, gamma = gamma, debias = debias
     )
   }
   
@@ -286,7 +287,8 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
     } else {
       res <- bootf(XX=X, yy=y, lambda = lambda, sigma2 = sigma2,
                    ncvreg.args = ncvreg.args, rescale_original = rescale_original,
-                   penalty = penalty, alpha = alpha, gamma = gamma)
+                   penalty = penalty, alpha = alpha, gamma = gamma,
+                   debias = debias)
     }
     fc_draws[i,] <- res$fc_draws
     point_estimates[i,] <- res$point_estimates
@@ -312,7 +314,8 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
 }
 bootf <- function(XX, yy, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
                   penalty = c("lasso", "MCP", "SCAD"),
-                  alpha = 1, gamma = switch(penalty, SCAD = 3.7, 3)) {
+                  alpha = 1, gamma = switch(penalty, SCAD = 3.7, 3),
+                  debias = FALSE) {
   
   if (missing(ncvreg.args)) {
     ncvreg.args <- list()
@@ -396,34 +399,30 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
   # }
   # print(mean(abs(draws_alt[modes == 0] - draws[modes == 0]) < 1e-6))
   
-  bias_est <- lm_betas <- numeric(p)
-  
-  if (sum(modes != 0) > 0) {
-    lm_betas[modes != 0] <- coef(lm(ynew ~ -1 + xnew[,modes != 0]))
-  }
-  lm_betas[modes == 0] <- 0 
-  lm_betas[is.na(lm_betas)] <- 0
-  
-  for (j in 1:p) {
-    bias_est[j] <- (1/p) * t(xnew[,j,drop=FALSE]) %*% xnew[,-j] %*% (lm_betas[-j] - modes[-j])
-  }
-  
-  if (any(is.na(bias_est))) {
-    print(nonsingular)
-    print(modes)
-    print(lm_betas)
-    print(xnew)
-    print(p)
-  }
+  if (debias) {
+    bias_est <- lm_betas <- numeric(p)
     
+    if (sum(modes != 0) > 0) {
+      lm_betas[modes != 0] <- coef(lm(ynew ~ -1 + xnew[,modes != 0]))
+    }
+    lm_betas[modes == 0] <- 0 
+    lm_betas[is.na(lm_betas)] <- 0
+    
+    for (j in 1:p) {
+      bias_est[j] <- (1/p) * t(xnew[,j,drop=FALSE]) %*% xnew[,-j] %*% (lm_betas[-j] - modes[-j])
+    } 
+  } else {
+    bias_est <- NULL
+  }
   
   bias_est[nonsingular] <- bias_est * full_rescale_factor
+  if (p_nonsingular < p) bias_est[!(1:p %in% nonsingular)] <- NA
+  
   fc_draws[nonsingular] <- draws * full_rescale_factor 
   point_estimates[nonsingular] <- modes * full_rescale_factor 
   partial_correlations[nonsingular] <- z * full_rescale_factor 
   
   if (p_nonsingular < p) {
-    bias_est[!(1:p %in% nonsingular)] <- NA
     fc_draws[!(1:p %in% nonsingular)] <- NA
     point_estimates[!(1:p %in% nonsingular)] <- NA
     partial_correlations[!(1:p %in% nonsingular)] <- NA
