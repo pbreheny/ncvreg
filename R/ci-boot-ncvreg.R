@@ -26,8 +26,8 @@ compute_interval <- function(draws, alpha, debias = FALSE, bias = NULL) {
   uppers <- apply(draws, 2, function(x) quantile(x, 1 - alpha / 2, na.rm = TRUE))
   
   if (debias == TRUE) {
-    lowers <- lowers - colMeans(bias)
-    uppers <- uppers - colMeans(bias)
+    lowers <- lowers - colMeans(bias, na.rm = TRUE)
+    uppers <- uppers - colMeans(bias, na.rm = TRUE)
   }
   
   return(list(lowers, uppers))
