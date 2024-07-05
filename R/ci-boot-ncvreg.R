@@ -24,7 +24,7 @@
 compute_interval <- function(draws, alpha, debias = FALSE, bias = NULL) {
   
   if (debias == TRUE) {
-    draws <- draws - debias
+    draws <- draws - bias
   }
   
   lowers <- apply(draws, 2, function(x) quantile(x, alpha / 2, na.rm = TRUE))
