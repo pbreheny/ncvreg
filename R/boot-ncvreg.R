@@ -73,7 +73,7 @@
 #' @export boot_ncvreg
 boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
                         lambda, gamma = switch(penalty, SCAD = 3.7, 3), alpha = 1,
-                        sigma2, nboot = 1000, ...,
+                        sigma2, nboot = 1000, ..., debias = FALSE,
                         cluster, seed, returnCV=FALSE, verbose = TRUE) {
   
   if ((missing(X) | missing(y)) & (missing(cv_fit) || class(cv_fit) != "cv.ncvreg")) {
@@ -284,7 +284,7 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
     if (!missing(cluster)) {
       res <- results[[i]]
     } else {
-      res <- bootf(XX=X, yy=y, lambda = lambda, sigma2 = sigma2,
+      res <- bootf(XX=X, yy=y, lambda = lambda, sigma2 = sigma2, debias = debias,
                    ncvreg.args = ncvreg.args, rescale_original = rescale_original,
                    penalty = penalty, alpha = alpha, gamma = gamma)
     }
@@ -308,7 +308,7 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
   
 }
 bootf <- function(XX, yy, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
-                  penalty = c("lasso", "MCP", "SCAD"),
+                  penalty = c("lasso", "MCP", "SCAD"), debias = FALSE,
                   alpha = 1, gamma = switch(penalty, SCAD = 3.7, 3)) {
   
   if (missing(ncvreg.args)) {
@@ -393,9 +393,24 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
   # }
   # print(mean(abs(draws_alt[modes == 0] - draws[modes == 0]) < 1e-6))
   
-  fc_draws[nonsingular] <- draws * full_rescale_factor 
-  point_estimates[nonsingular] <- modes * full_rescale_factor 
-  partial_correlations[nonsingular] <- z * full_rescale_factor 
+  if (debias) {
+    lm_betas <- numeric(p)
+    lm_betas[modes[i,] != 0] <- coef(lm(newy ~ newx[,modes[i,] != 0]))[-1]
+    lm_betas[modes[i,] == 0] <- 0 
+    
+    for (j in 1:p) {
+      bias_est[i,j] <- (1/p) * t(xnew[,j,drop=FALSE]) %*% xnew[,-j] %*% (lm_betas[-j] - modes[-j])
+    }
+    
+    fc_draws[nonsingular] <- (draws - bias_est) * full_rescale_factor 
+    point_estimates[nonsingular] <- modes * full_rescale_factor 
+    partial_correlations[nonsingular] <- (z - bias_est) * full_rescale_factor 
+    
+  } else {
+    fc_draws[nonsingular] <- draws * full_rescale_factor 
+    point_estimates[nonsingular] <- modes * full_rescale_factor 
+    partial_correlations[nonsingular] <- z * full_rescale_factor 
+  }
   
   if (p_nonsingular < p) {
     fc_draws[!(1:p %in% nonsingular)] <- NA
