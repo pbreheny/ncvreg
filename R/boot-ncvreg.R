@@ -406,6 +406,14 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
   for (j in 1:p) {
     bias_est[j] <- (1/p) * t(xnew[,j,drop=FALSE]) %*% xnew[,-j] %*% (lm_betas[-j] - modes[-j])
   }
+  
+  if (any(is.na(bias_est))) {
+    print(nonsingular)
+    print(modes)
+    print(lm_betas)
+    print(xnew)
+    print(p)
+  }
     
   
   bias_est[nonsingular] <- bias_est * full_rescale_factor
