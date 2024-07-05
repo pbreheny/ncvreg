@@ -27,7 +27,7 @@ compute_interval <- function(draws, alpha, debias = FALSE, bias = NULL) {
   
   if (debias == TRUE) {
     lowers <- lowers - colMeans(bias)
-    uppers <- upper - colMeans(bias)
+    uppers <- uppers - colMeans(bias)
   }
   
   return(list(lowers, uppers))
