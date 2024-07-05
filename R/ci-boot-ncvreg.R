@@ -21,19 +21,25 @@
 #' @export
 #'
 #' @examples
-compute_interval <- function(draws, alpha) {
+compute_interval <- function(draws, alpha, debias = FALSE, bias = NULL) {
   lowers <- apply(draws, 2, function(x) quantile(x, alpha / 2, na.rm = TRUE))
   uppers <- apply(draws, 2, function(x) quantile(x, 1 - alpha / 2, na.rm = TRUE))
+  
+  if (debias == TRUE) {
+    lowers <- lowers - colMeans(bias)
+    uppers <- upper - colMeans(bias)
+  }
+  
   return(list(lowers, uppers))
 }
-ci.boot_ncvreg <- function(boot, alpha = 0.2, quiet = FALSE, methods = "all") {
+ci.boot_ncvreg <- function(boot, alpha = 0.2, quiet = FALSE, methods = "all", debias = FALSE) {
   
-  compute_intervals <- function(estimates) {
+  compute_intervals <- function(estimates, debias = FALSE, bias = NULL) {
     any_nas <- any(as.logical(apply(estimates, 2, function(x) sum(is.na(x)) > 0)))
     if (any_nas & !quiet) {
       warning("NAs in draws")
     }
-    compute_interval(estimates, alpha)
+    compute_interval(estimates, alpha, debias = debias, bias)
   }
   
   method_list <- c("traditional", "posterior", "hybrid", "debiased")
@@ -44,24 +50,24 @@ ci.boot_ncvreg <- function(boot, alpha = 0.2, quiet = FALSE, methods = "all") {
   intervals_list <- list()
   
   if ("traditional" %in% method_list) {
-    traditional_cis <- compute_intervals(boot[["point_estimates"]])
+    traditional_cis <- compute_intervals(boot[["point_estimates"]], debias, boot[["bias"]])
     intervals_list$traditional <- traditional_cis
   }
   
   if ("posterior" %in% method_list) {
-    posterior_cis <- compute_intervals(boot[["fc_draws"]])
+    posterior_cis <- compute_intervals(boot[["fc_draws"]], debias, boot[["bias"]])
     intervals_list$posterior <- posterior_cis
   }
   
   if ("hybrid" %in% method_list) {
     point_estimates <- boot[["point_estimates"]]
     point_estimates[point_estimates == 0] <- boot[["fc_draws"]][point_estimates == 0]
-    hybrid_cis <- compute_intervals(point_estimates)
+    hybrid_cis <- compute_intervals(point_estimates, debias, boot[["bias"]])
     intervals_list$hybrid <- hybrid_cis
   }
   
   if ("debiased" %in% method_list) {
-    debiased_cis <- compute_intervals(boot[["partial_correlations"]])
+    debiased_cis <- compute_intervals(boot[["partial_correlations"]], debias, boot[["bias"]])
     intervals_list$debiased <- debiased_cis
   }
   
