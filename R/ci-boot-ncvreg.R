@@ -22,13 +22,13 @@
 #'
 #' @examples
 compute_interval <- function(draws, alpha, debias = FALSE, bias = NULL) {
-  lowers <- apply(draws, 2, function(x) quantile(x, alpha / 2, na.rm = TRUE))
-  uppers <- apply(draws, 2, function(x) quantile(x, 1 - alpha / 2, na.rm = TRUE))
   
   if (debias == TRUE) {
-    lowers <- lowers - colMeans(bias, na.rm = TRUE)
-    uppers <- uppers - colMeans(bias, na.rm = TRUE)
+    draws <- draws - debias
   }
+  
+  lowers <- apply(draws, 2, function(x) quantile(x, alpha / 2, na.rm = TRUE))
+  uppers <- apply(draws, 2, function(x) quantile(x, 1 - alpha / 2, na.rm = TRUE))
   
   return(list(lowers, uppers))
 }
@@ -61,11 +61,14 @@ ci.boot_ncvreg <- function(boot, alpha = 0.2, quiet = FALSE, methods = "all", de
   
   if ("hybrid" %in% method_list) {
     point_estimates <- boot[["point_estimates"]]
-    remove_draws <- is.na(point_estimates)
-    point_estimates <- point_estimates[!remove_draws]
-    fc_draws <- boot[["fc_draws"]][!remove_draws]
-    point_estimates[point_estimates == 0] <- fc_draws[point_estimates == 0]
-    hybrid_cis <- compute_intervals(point_estimates, debias, boot[["bias"]])
+    fc_draws <- boot[["fc_draws"]]
+    
+    result <- point_estimates
+    result[is.na(point_estimates)] <- NA
+    result[!is.na(point_estimates) & point_estimates == 0] <- fc_draws[!is.na(point_estimates) & point_estimates == 0]
+    result[!is.na(point_estimates) & point_estimates != 0] <- point_estimates[!is.na(point_estimates) & point_estimates != 0]
+
+    hybrid_cis <- compute_intervals(result, debias, boot[["bias"]])
     intervals_list$hybrid <- hybrid_cis
   }
   
