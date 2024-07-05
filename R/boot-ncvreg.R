@@ -395,7 +395,7 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
   
   if (debias) {
     lm_betas <- numeric(p)
-    lm_betas[modes[i,] != 0] <- coef(lm(newy ~ newx[,modes[i,] != 0]))[-1]
+    lm_betas[modes[i,] != 0] <- coef(lm(ynew ~ xnew[,modes[i,] != 0]))[-1]
     lm_betas[modes[i,] == 0] <- 0 
     
     for (j in 1:p) {
