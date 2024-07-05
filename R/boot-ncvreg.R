@@ -397,7 +397,10 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
   # print(mean(abs(draws_alt[modes == 0] - draws[modes == 0]) < 1e-6))
   
   bias_est <- lm_betas <- numeric(p)
-  lm_betas[modes != 0] <- coef(lm(ynew ~ xnew[,modes != 0]))[-1]
+  
+  if (sum(modes != 0) > 0) {
+    lm_betas[modes != 0] <- coef(lm(ynew ~ xnew[,modes != 0]))[-1] 
+  }
   lm_betas[modes == 0] <- 0 
   
   for (j in 1:p) {
