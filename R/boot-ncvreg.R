@@ -399,7 +399,7 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
   bias_est <- lm_betas <- numeric(p)
   
   if (sum(modes != 0) > 0) {
-    lm_betas[modes != 0] <- coef(lm(ynew ~ -1 + xnew[,modes != 0]))[-1] 
+    lm_betas[modes != 0] <- coef(lm(ynew ~ -1 + xnew[,modes != 0]))
   }
   lm_betas[modes == 0] <- 0 
   
