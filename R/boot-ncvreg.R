@@ -293,21 +293,21 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
     fc_draws[i,] <- res$fc_draws
     point_estimates[i,] <- res$point_estimates
     partial_correlations[i,] <- res$partial_correlations
-    bias[i,] <- res$bias
+    if (debias) bias[i,] <- res$bias
   }
   
   colnames(fc_draws) <- names(original_coefs)
   colnames(point_estimates) <- names(original_coefs)
   colnames(partial_correlations) <- names(original_coefs)
-  colnames(bias) <- names(original_coefs)
+  if (debias)  colnames(bias) <- names(original_coefs)
   val <- list(fc_draws = fc_draws, point_estimates = point_estimates,
               partial_correlations = partial_correlations, 
               estimates = original_coefs,
-              bias = bias,
               lambda = lambda, sigma2 = sigma2, penalty = penalty,
               alpha = gamma, gamma = gamma)
   
   if (returnCV) val$cv.ncvreg <- cv_fit
+  if (debias) val$bias <- bias
   
   structure(val, class="boot_ncvreg")
   
