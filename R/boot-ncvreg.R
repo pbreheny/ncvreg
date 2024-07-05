@@ -73,7 +73,7 @@
 #' @export boot_ncvreg
 boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
                         lambda, gamma = switch(penalty, SCAD = 3.7, 3), alpha = 1,
-                        sigma2, nboot = 1000, ..., debias = FALSE,
+                        sigma2, nboot = 1000, ...,
                         cluster, seed, returnCV=FALSE, verbose = TRUE) {
   
   if ((missing(X) | missing(y)) & (missing(cv_fit) || class(cv_fit) != "cv.ncvreg")) {
@@ -267,7 +267,7 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
     
   }
   
-  point_estimates <- fc_draws <- partial_correlations <- matrix(nrow = nboot, ncol = ncol(X))
+  bias <- point_estimates <- fc_draws <- partial_correlations <- matrix(nrow = nboot, ncol = ncol(X))
   
   if (!missing(cluster)) {
     if (!inherits(cluster, "cluster")) stop("cluster is not of class 'cluster'; see ?makeCluster", call.=FALSE)
@@ -284,21 +284,24 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
     if (!missing(cluster)) {
       res <- results[[i]]
     } else {
-      res <- bootf(XX=X, yy=y, lambda = lambda, sigma2 = sigma2, debias = debias,
+      res <- bootf(XX=X, yy=y, lambda = lambda, sigma2 = sigma2,
                    ncvreg.args = ncvreg.args, rescale_original = rescale_original,
                    penalty = penalty, alpha = alpha, gamma = gamma)
     }
     fc_draws[i,] <- res$fc_draws
     point_estimates[i,] <- res$point_estimates
     partial_correlations[i,] <- res$partial_correlations
+    bias[i,] <- res$bias
   }
   
   colnames(fc_draws) <- names(original_coefs)
   colnames(point_estimates) <- names(original_coefs)
   colnames(partial_correlations) <- names(original_coefs)
+  colnames(bias) <- names(original_coefs)
   val <- list(fc_draws = fc_draws, point_estimates = point_estimates,
               partial_correlations = partial_correlations, 
               estimates = original_coefs,
+              bias = bias,
               lambda = lambda, sigma2 = sigma2, penalty = penalty,
               alpha = gamma, gamma = gamma)
   
@@ -308,7 +311,7 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
   
 }
 bootf <- function(XX, yy, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
-                  penalty = c("lasso", "MCP", "SCAD"), debias = FALSE,
+                  penalty = c("lasso", "MCP", "SCAD"),
                   alpha = 1, gamma = switch(penalty, SCAD = 3.7, 3)) {
   
   if (missing(ncvreg.args)) {
@@ -393,33 +396,29 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
   # }
   # print(mean(abs(draws_alt[modes == 0] - draws[modes == 0]) < 1e-6))
   
-  if (debias) {
-    bias_est <- lm_betas <- numeric(p)
-    lm_betas[modes != 0] <- coef(lm(ynew ~ xnew[,modes != 0]))[-1]
-    lm_betas[modes == 0] <- 0 
-    
-    for (j in 1:p) {
-      bias_est[j] <- (1/p) * t(xnew[,j,drop=FALSE]) %*% xnew[,-j] %*% (lm_betas[-j] - modes[-j])
-    }
-    
-    fc_draws[nonsingular] <- (draws - bias_est) * full_rescale_factor 
-    point_estimates[nonsingular] <- modes * full_rescale_factor 
-    partial_correlations[nonsingular] <- (z - bias_est) * full_rescale_factor 
-    
-  } else {
-    fc_draws[nonsingular] <- draws * full_rescale_factor 
-    point_estimates[nonsingular] <- modes * full_rescale_factor 
-    partial_correlations[nonsingular] <- z * full_rescale_factor 
+  bias_est <- lm_betas <- numeric(p)
+  lm_betas[modes != 0] <- coef(lm(ynew ~ xnew[,modes != 0]))[-1]
+  lm_betas[modes == 0] <- 0 
+  
+  for (j in 1:p) {
+    bias_est[j] <- (1/p) * t(xnew[,j,drop=FALSE]) %*% xnew[,-j] %*% (lm_betas[-j] - modes[-j])
   }
+    
+  
+  bias_est[nonsingular] <- bias_est * full_rescale_factor
+  fc_draws[nonsingular] <- draws * full_rescale_factor 
+  point_estimates[nonsingular] <- modes * full_rescale_factor 
+  partial_correlations[nonsingular] <- z * full_rescale_factor 
   
   if (p_nonsingular < p) {
+    bias_est[!(1:p %in% nonsingular)] <- NA
     fc_draws[!(1:p %in% nonsingular)] <- NA
     point_estimates[!(1:p %in% nonsingular)] <- NA
     partial_correlations[!(1:p %in% nonsingular)] <- NA
   }
   
-  ret <- list(fc_draws, point_estimates, partial_correlations)
-  names(ret) <- c("fc_draws", "point_estimates", "partial_correlations")
+  ret <- list(fc_draws, point_estimates, partial_correlations, bias_est)
+  names(ret) <- c("fc_draws", "point_estimates", "partial_correlations", "bias")
   return(ret)
   
 }
