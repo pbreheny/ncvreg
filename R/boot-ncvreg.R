@@ -384,6 +384,7 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
   partial_residuals <- ynew - (
     as.numeric(xnew %*% modes) - (xnew * matrix(modes, nrow = nrow(xnew), ncol = ncol(xnew), byrow=TRUE))
   )
+  resid <- ynew - (xnew %*% modes)
   z <- (1/n)*colSums(xnew * partial_residuals)
   
   draws <- draw_full_cond(z, lambda, sigma2, n, p_nonsingular)
@@ -402,17 +403,14 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
   if (debias) {
     bias_est <- lm_betas <- numeric(p)
     
-    
-    # modes <<- modes
-    # ynew <<- ynew
-    # xnew <<- xnew
     if (sum(modes != 0) > 0) {
       lm_betas[modes != 0] <- coef(lm(ynew ~ -1 + xnew[,modes != 0]))
     }
     lm_betas[modes == 0] <- 0 
     
     for (j in 1:p) {
-      bias_est[j] <- (1/p) * t(xnew[,j,drop=FALSE]) %*% xnew[,-j] %*% (lm_betas[-j] - modes[-j])
+      bias_est[j] <- (1/n) * t(xnew[,j,drop=FALSE]) %*% xnew[,-j] %*% (lm_betas[-j] - modes[-j])
+      # bias_est[j] <- bias_est[j] + (1/n)*(t(xnew[,j,drop=FALSE]) %*% resid)
     } 
   } else {
     bias_est <- NULL
