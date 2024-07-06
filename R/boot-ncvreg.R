@@ -403,14 +403,13 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
     bias_est <- lm_betas <- numeric(p)
     
     
-    modes <<- modes
-    ynew <<- ynew
-    xnew <<- xnew
+    # modes <<- modes
+    # ynew <<- ynew
+    # xnew <<- xnew
     if (sum(modes != 0) > 0) {
       lm_betas[modes != 0] <- coef(lm(ynew ~ -1 + xnew[,modes != 0]))
     }
     lm_betas[modes == 0] <- 0 
-    # lm_betas[is.na(lm_betas)] <- 0
     
     for (j in 1:p) {
       bias_est[j] <- (1/p) * t(xnew[,j,drop=FALSE]) %*% xnew[,-j] %*% (lm_betas[-j] - modes[-j])
