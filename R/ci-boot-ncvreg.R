@@ -23,12 +23,17 @@
 #' @examples
 compute_interval <- function(draws, alpha, debias = FALSE, bias = NULL) {
   
-  if (debias == TRUE) {
-    draws <- draws - bias
-  }
+  # if (debias == TRUE) {
+  #   draws <- draws - bias
+  # }
   
   lowers <- apply(draws, 2, function(x) quantile(x, alpha / 2, na.rm = TRUE))
   uppers <- apply(draws, 2, function(x) quantile(x, 1 - alpha / 2, na.rm = TRUE))
+  
+  if (debias == TRUE) {
+    lowers <- lowers - colMeans(bias, na.rm = TRUE)
+    uppers <- uppers - colMeans(bias, na.rm = TRUE)
+  }
   
   return(list(lowers, uppers))
 }
