@@ -74,8 +74,7 @@
 boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
                         lambda, gamma = switch(penalty, SCAD = 3.7, 3), alpha = 1,
                         sigma2, nboot = 1000, ...,
-                        cluster, seed, returnCV=FALSE, verbose = TRUE,
-                        debias = FALSE) {
+                        cluster, seed, returnCV=FALSE, verbose = TRUE) {
   
   if ((missing(X) | missing(y)) & (missing(cv_fit) || class(cv_fit) != "cv.ncvreg")) {
     stop("Either X and y or an object of class cv.ncvreg must be supplied.")
@@ -277,7 +276,7 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
     results <- parallel::parLapply(
       cl=cluster, X=1:nboot, fun=bootf, XX = X, yy=y, lambda = lambda,
       sigma2 = sigma2, ncvreg.args = ncvreg.args, rescale_original = rescale_original,
-      penalty = penalty, alpha = alpha, gamma = gamma, debias = debias
+      penalty = penalty, alpha = alpha, gamma = gamma
     )
   }
   
@@ -287,19 +286,17 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
     } else {
       res <- bootf(XX=X, yy=y, lambda = lambda, sigma2 = sigma2,
                    ncvreg.args = ncvreg.args, rescale_original = rescale_original,
-                   penalty = penalty, alpha = alpha, gamma = gamma,
-                   debias = debias)
+                   penalty = penalty, alpha = alpha, gamma = gamma)
     }
     fc_draws[i,] <- res$fc_draws
     point_estimates[i,] <- res$point_estimates
     partial_correlations[i,] <- res$partial_correlations
-    if (debias) bias[i,] <- res$bias
+
   }
   
   colnames(fc_draws) <- names(original_coefs)
   colnames(point_estimates) <- names(original_coefs)
   colnames(partial_correlations) <- names(original_coefs)
-  if (debias)  colnames(bias) <- names(original_coefs)
   val <- list(fc_draws = fc_draws, point_estimates = point_estimates,
               partial_correlations = partial_correlations, 
               estimates = original_coefs,
@@ -307,15 +304,13 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
               alpha = gamma, gamma = gamma)
   
   if (returnCV) val$cv.ncvreg <- cv_fit
-  if (debias) val$bias <- bias
   
   structure(val, class="boot_ncvreg")
   
 }
 bootf <- function(XX, yy, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
                   penalty = c("lasso", "MCP", "SCAD"),
-                  alpha = 1, gamma = switch(penalty, SCAD = 3.7, 3),
-                  debias = FALSE) {
+                  alpha = 1, gamma = switch(penalty, SCAD = 3.7, 3)) {
   
   if (missing(ncvreg.args)) {
     ncvreg.args <- list()
@@ -389,32 +384,10 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
   
   draws <- draw_full_cond(z, lambda, sigma2, n, p_nonsingular)
   
-  ## Understand better the impact of using this
   if (penalty == "MCP") {
     draws_alt <- sapply(draws, firm_threshold_c, lambda, gamma)
   } else if (penalty == "SCAD") {
     draws_alt <- sapply(draws, scad_threshold_c, lambda, gamma)
-  }
-  # if (penalty == "MCP") {
-  #   draws <- (gamma / (gamma - 1)) * draws
-  # }
-  # print(mean(abs(draws_alt[modes == 0] - draws[modes == 0]) < 1e-6))
-  
-  if (debias) {
-    bias_est <- lm_betas <- numeric(p)
-    
-    if (sum(modes != 0) > 0) {
-      lm_betas[modes != 0] <- coef(lm(ynew ~ -1 + xnew[,modes != 0]))
-      # z[modes != 0] <- coef(lm(ynew ~ -1 + xnew[,modes != 0]))
-    }
-    lm_betas[modes == 0] <- 0 
-    
-    for (j in 1:p) {
-      bias_est[j] <- (1/n) * t(xnew[,j,drop=FALSE]) %*% xnew[,-j] %*% (lm_betas[-j] - modes[-j])
-      # bias_est[j] <- bias_est[j] + (1/n)*(t(xnew[,j,drop=FALSE]) %*% resid)
-    } 
-  } else {
-    bias_est <- NULL
   }
   
   bias_est[nonsingular] <- bias_est * full_rescale_factor
