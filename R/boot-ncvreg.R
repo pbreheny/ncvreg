@@ -1,6 +1,6 @@
-#' Bootstrap for ncvreg with lasso penalty
+#' Bootstrap for ncvreg with gaussian outcomes
 #' 
-#' Perform Hybrid bootstrapping for the lasso at a single value of the
+#' Perform bootstrapping for the lasso at a single value of the
 #' regularization parameter, lambda.
 #' 
 #' At a specified value of lambda and variance 
@@ -16,12 +16,20 @@
 #'
 #' @param X The design matrix, without an intercept, as in \code{ncvreg}
 #' @param y The response vector, as in \code{ncvreg}
-#' @param penalty The penalty to be applied to the model.  Either "lasso" (the
-#' default), "MCP", or "SCAD".
 #' @param cv_fit Instead of \code{X} and \code{y}, an object of type 
 #' \code{cv.ncvreg} with \code{returnX = TRUE} and \code{penalty = "lasso"}
+#' @param penalty The penalty to be applied to the model.  Either "lasso" (the
+#' default), "MCP", or "SCAD".
 #' @param lambda A positive scalar value of type numeric, if left unspecified,
 #' selected as \code{lambda.min} from \code{cv.ncvreg}
+#' @param gamma The tuning parameter of the MCP/SCAD penalty (see details for \code{ncvreg}).
+#' Default is 3 for MCP and 3.7 for SCAD.
+#' @param alpha Tuning parameter for the Mnet estimator which controls the
+#' relative contributions from the lasso/MCP/SCAD penalty and the ridge, or L2
+#' penalty.  \code{alpha=1} is equivalent to lasso/MCP/SCAD penalty, while
+#' \code{alpha=0} would be equivalent to ridge regression.  However,
+#' \code{alpha=0} is not supported; \code{alpha} may be arbitrarily small, but
+#' not exactly 0.
 #' @param sigma2 A known / estimated value for the variance used in obtaining 
 #' bootstrap draws, if left unspecified, selected as the \code{cve} 
 #' corresponding \code{cv.ncvreg} to \code{lambda}
@@ -382,12 +390,17 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
   resid <- ynew - (xnew %*% modes)
   z <- (1/n)*colSums(xnew * partial_residuals)
   
-  draws <- draw_full_cond(z, lambda, sigma2, n, p_nonsingular)
+  # draws <- draw_full_cond(z, lambda, sigma2, n, p_nonsingular)
+  draws_tmp <- matrix(nrow = 1000, ncol = p_nonsingular)
+  for (k in 1:1000) {
+    draws_tmp[k,] <- draw_full_cond(z, lambda, sigma2, n, p_nonsingular)
+  }
+  draws <- colMeans(draws)
   
   if (penalty == "MCP") {
-    draws_alt <- sapply(draws, firm_threshold_c, lambda, gamma)
+    draws <- sapply(draws, firm_threshold_c, lambda, gamma)
   } else if (penalty == "SCAD") {
-    draws_alt <- sapply(draws, scad_threshold_c, lambda, gamma)
+    draws <- sapply(draws, scad_threshold_c, lambda, gamma)
   }
   
   bias_est[nonsingular] <- bias_est * full_rescale_factor
