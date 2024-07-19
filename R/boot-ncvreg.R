@@ -403,9 +403,6 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
     draws <- sapply(draws, scad_threshold_c, lambda, gamma)
   }
   
-  bias_est[nonsingular] <- bias_est * full_rescale_factor
-  if (p_nonsingular < p) bias_est[!(1:p %in% nonsingular)] <- NA
-  
   fc_draws[nonsingular] <- draws * full_rescale_factor 
   point_estimates[nonsingular] <- modes * full_rescale_factor 
   partial_correlations[nonsingular] <- z * full_rescale_factor 
@@ -416,8 +413,8 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
     partial_correlations[!(1:p %in% nonsingular)] <- NA
   }
   
-  ret <- list(fc_draws, point_estimates, partial_correlations, bias_est)
-  names(ret) <- c("fc_draws", "point_estimates", "partial_correlations", "bias")
+  ret <- list(fc_draws, point_estimates, partial_correlations)
+  names(ret) <- c("fc_draws", "point_estimates", "partial_correlations")
   return(ret)
   
 }
