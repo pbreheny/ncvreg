@@ -390,12 +390,12 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
   resid <- ynew - (xnew %*% modes)
   z <- (1/n)*colSums(xnew * partial_residuals)
   
-  # draws <- draw_full_cond(z, lambda, sigma2, n, p_nonsingular)
-  draws_tmp <- matrix(nrow = 1000, ncol = p_nonsingular)
-  for (k in 1:1000) {
-    draws_tmp[k,] <- draw_full_cond(z, lambda, sigma2, n, p_nonsingular)
-  }
-  draws <- colMeans(draws_tmp)
+  draws <- draw_full_cond(z, lambda, sigma2, n, p_nonsingular)
+  # draws_tmp <- matrix(nrow = 1000, ncol = p_nonsingular)
+  # for (k in 1:1000) {
+  #   draws_tmp[k,] <- draw_full_cond(z, lambda, sigma2, n, p_nonsingular)
+  # }
+  # draws <- colMeans(draws_tmp)
   
   if (penalty == "MCP") {
     draws <- sapply(draws, firm_threshold_c, lambda, gamma)
