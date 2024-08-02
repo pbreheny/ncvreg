@@ -21,31 +21,7 @@
 #' @export
 #'
 #' @examples
-compute_interval <- function(draws, alpha, debias = FALSE, bias = NULL) {
-  
-  if (debias == TRUE) {
-    draws <- draws - bias
-  }
-  
-  lowers <- apply(draws, 2, function(x) quantile(x, alpha / 2, na.rm = TRUE))
-  uppers <- apply(draws, 2, function(x) quantile(x, 1 - alpha / 2, na.rm = TRUE))
-  
-  # if (debias == TRUE) {
-  #   lowers <- lowers - colMeans(bias, na.rm = TRUE)
-  #   uppers <- uppers - colMeans(bias, na.rm = TRUE)
-  # }
-  
-  return(list(lowers, uppers))
-}
-ci.boot_ncvreg <- function(boot, alpha = 0.2, quiet = FALSE, methods = "all", debias = FALSE) {
-  
-  compute_intervals <- function(estimates, debias = FALSE, bias = NULL) {
-    any_nas <- any(as.logical(apply(estimates, 2, function(x) sum(is.na(x)) > 0)))
-    if (any_nas & !quiet) {
-      warning("NAs in draws")
-    }
-    compute_interval(estimates, alpha, debias = debias, bias)
-  }
+ci.boot_ncvreg <- function(boot, alpha = 0.2, quiet = FALSE, methods = "all") {
   
   method_list <- c("traditional", "posterior", "hybrid", "debiased")
   if (methods != "all") {
@@ -55,12 +31,12 @@ ci.boot_ncvreg <- function(boot, alpha = 0.2, quiet = FALSE, methods = "all", de
   intervals_list <- list()
   
   if ("traditional" %in% method_list) {
-    traditional_cis <- compute_intervals(boot[["point_estimates"]], debias, boot[["bias"]])
+    traditional_cis <- compute_intervals(boot[["point_estimates"]], alpha = alpha, quiet = quiet)
     intervals_list$traditional <- traditional_cis
   }
   
   if ("posterior" %in% method_list) {
-    posterior_cis <- compute_intervals(boot[["fc_draws"]], debias, boot[["bias"]])
+    posterior_cis <- compute_intervals(boot[["fc_draws"]], alpha = alpha, quiet = quiet)
     intervals_list$posterior <- posterior_cis
   }
   
@@ -73,12 +49,12 @@ ci.boot_ncvreg <- function(boot, alpha = 0.2, quiet = FALSE, methods = "all", de
     result[!is.na(point_estimates) & point_estimates == 0] <- fc_draws[!is.na(point_estimates) & point_estimates == 0]
     result[!is.na(point_estimates) & point_estimates != 0] <- point_estimates[!is.na(point_estimates) & point_estimates != 0]
 
-    hybrid_cis <- compute_intervals(result, debias, boot[["bias"]])
+    hybrid_cis <- compute_intervals(result, alpha = alpha, quiet = quiet)
     intervals_list$hybrid <- hybrid_cis
   }
   
   if ("debiased" %in% method_list) {
-    debiased_cis <- compute_intervals(boot[["partial_correlations"]], debias, boot[["bias"]])
+    debiased_cis <- compute_intervals(boot[["partial_correlations"]], alpha = alpha, quiet = quiet)
     intervals_list$debiased <- debiased_cis
   }
   
@@ -99,4 +75,18 @@ ci.boot_ncvreg <- function(boot, alpha = 0.2, quiet = FALSE, methods = "all", de
   ci_info_all <- left_join(ci_info_all, do.call(rbind, ci_info), by = "variable")
   
   return(ci_info_all)
+  
+}
+compute_intervals <- function(draws, alpha = 0.2, quiet = FALSE) {
+  
+  any_nas <- any(as.logical(apply(draws, 2, function(x) sum(is.na(x)) > 0)))
+  if (any_nas & !quiet) {
+    warning("NAs in draws")
+  }
+  
+  lowers <- apply(draws, 2, function(x) quantile(x, alpha / 2, na.rm = TRUE))
+  uppers <- apply(draws, 2, function(x) quantile(x, 1 - alpha / 2, na.rm = TRUE))
+  
+  return(list(lowers, uppers))
+  
 }
