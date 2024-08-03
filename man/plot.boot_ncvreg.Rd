@@ -2,24 +2,44 @@
 % Please edit documentation in R/plot-boot-ncvreg.R
 \name{plot.boot_ncvreg}
 \alias{plot.boot_ncvreg}
-\title{Title}
+\title{Plot Bootstrap Results for NCV Regression}
 \usage{
 \method{plot}{boot_ncvreg}(
-  eb_boot,
+  boot,
   n = 30,
   alpha = 0.2,
-  original_order = FALSE,
+  order = "original",
   absolute_order = FALSE,
   quiet = TRUE
 )
 }
 \arguments{
-\item{eb_boot}{}
+\item{boot}{An object containing the bootstrap results from an NCV regression.}
 
-\item{n}{}
+\item{n}{An integer specifying the number of variables to plot. Default is 30.}
 
-\item{quiet}{}
+\item{alpha}{A numeric value for the confidence level, with default 0.2.}
+
+\item{order}{A character string specifying the order of the variables. Options
+are "original", "descending", "ascending", or a vector of variable names.}
+
+\item{absolute_order}{A logical indicating whether to order by the absolute
+value of the estimates. Default is FALSE.}
+
+\item{quiet}{A logical indicating whether to suppress messages during execution.
+Default is TRUE.}
+}
+\value{
+A ggplot object displaying the bootstrap confidence intervals and estimates.
 }
 \description{
-Title
+This function plots the bootstrap confidence intervals and estimates for
+an NCV regression model. It provides options for ordering the results by
+different criteria and allows for displaying a subset of variables.
+}
+\examples{
+\dontrun{
+  boot_results <- boot_ncvreg(...) # Assuming boot_ncvreg() produces the required object
+  plot.boot_ncvreg(boot_results, n = 20, order = "descending", alpha = 0.05)
+}
 }

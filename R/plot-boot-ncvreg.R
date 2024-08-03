@@ -1,21 +1,34 @@
-#' Title
+#' Plot Bootstrap Results for NCV Regression
 #'
-#' @param eb_boot 
-#' @param n 
-#' @param quiet 
+#' This function plots the bootstrap confidence intervals and estimates for
+#' an NCV regression model. It provides options for ordering the results by
+#' different criteria and allows for displaying a subset of variables.
 #'
-#' @return
+#' @param boot An object containing the bootstrap results from an NCV regression.
+#' @param n An integer specifying the number of variables to plot. Default is 30.
+#' @param alpha A numeric value for the confidence level, with default 0.2.
+#' @param order A character string specifying the order of the variables. Options
+#'        are "original", "descending", "ascending", or a vector of variable names.
+#' @param absolute_order A logical indicating whether to order by the absolute
+#'        value of the estimates. Default is FALSE.
+#' @param quiet A logical indicating whether to suppress messages during execution.
+#'        Default is TRUE.
+#' @return A ggplot object displaying the bootstrap confidence intervals and estimates.
 #' @export
 #'
 #' @examples
-plot.boot_ncvreg <- function(eb_boot, method = "hybrid", n = 30, alpha = 0.2, order = "original", absolute_order = FALSE, quiet = TRUE) {
+#' \dontrun{
+#'   boot_results <- boot_ncvreg(...) # Assuming boot_ncvreg() produces the required object
+#'   plot.boot_ncvreg(boot_results, n = 20, order = "descending", alpha = 0.05)
+#' }
+plot.boot_ncvreg <- function(boot, n = 30, alpha = 0.2, order = "original", absolute_order = FALSE, quiet = TRUE) {
   
   # Ensure the order variable is one of the accepted options or a vector of variable names
   if (!is.character(order) && !is.vector(order)) {
     stop("The 'order' parameter must be 'original', 'descending', 'ascending', or a vector of variable names.")
   }
   
-  plot_res <- ci.boot_ncvreg(eb_boot, quiet = quiet, alpha = alpha, methods = method)
+  plot_res <- confint(boot, quiet = quiet, alpha = alpha)
   
   # Handle the ordering of the results
   if (length(order) == 1) {

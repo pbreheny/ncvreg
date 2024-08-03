@@ -1,7 +1,7 @@
-#' Bootstrap for ncvreg with gaussian outcomes
+#' Hybrid bootstrap for \code{ncvreg} with Gaussian outcomes
 #' 
-#' Perform bootstrapping for the lasso at a single value of the
-#' regularization parameter, lambda.
+#' Perform Hybrid bootstrapping for the penalties implemented in \code{ncvreg} 
+#' at a single value of the regularization parameter, lambda.
 #' 
 #' At a specified value of lambda and variance 
 #' (which are selected / estimated by default if not provided)
@@ -17,7 +17,7 @@
 #' @param X The design matrix, without an intercept, as in \code{ncvreg}
 #' @param y The response vector, as in \code{ncvreg}
 #' @param cv_fit Instead of \code{X} and \code{y}, an object of type 
-#' \code{cv.ncvreg} with \code{returnX = TRUE} and \code{penalty = "lasso"}
+#' \code{cv.ncvreg} with \code{returnX = TRUE}
 #' @param penalty The penalty to be applied to the model.  Either "lasso" (the
 #' default), "MCP", or "SCAD".
 #' @param lambda A positive scalar value of type numeric, if left unspecified,
@@ -32,9 +32,9 @@
 #' not exactly 0.
 #' @param sigma2 A known / estimated value for the variance used in obtaining 
 #' bootstrap draws, if left unspecified, selected as the \code{cve} 
-#' corresponding \code{cv.ncvreg} to \code{lambda}
+#' corresponding to \code{lambda} from \code{cv.ncvreg}
 #' @param nboot The number of bootstrap iterations. Default is 1000.
-#' @param ... Additional arguments to \code{ncvreg}/\code{cv.ncvreg}
+#' @param ... Additional arguments to \code{ncvreg}/\code{cv.ncvreg}, must be named
 #' @param cluster \code{cv.ncvreg} and the bootstrapping procedure can be run in
 #' parallel across a cluster using the \code{parallel} package. The cluster must
 #' be set up in advance using the \code{makeCluster} function from that package.
@@ -49,11 +49,20 @@
 #' default.
 #' @param verbose Whether or not to print non-essential messages that highlight 
 #' potentially unanticipated behavior.
-#' list(draws = draws, estimates = original_coefs, lambda = lambda, sigma2 = sigma2)
+#' 
 #' @return An object with S3 class \code{boot_ncvreg} containing: \describe { 
-#' \item{draws}{A \code{nboot} by \code{ncol(X)} matrix of the bootstrap draws}
+#' \item{draws}{A \code{nboot} by \code{ncol(X)} matrix of the Hybrid bootstrap draws}
 #' \item{estimates}{A length \code{ncol(X)} vector of the estimates from the
 #' lasso model fit on the original data corresponding to \code{lambda}.}
+#' \item{lambda}{The value of the regularization parameter used in obtaining 
+#' Hybrid bootstrap draws as selected by \code{cv.ncvreg} or specified by the user.}
+#' \item{sigma2}{The value of the sigma2 used in obtaining 
+#' Hybrid bootstrap draws as selected by \code{cv.ncvreg} or specified by the user.}
+#' \item{penalty}{The corresponding penalty that the Hybrid bootstrap draws correspond to.}
+#' \item{alpha}{The tuning parameter used that controls the trade off between the 
+#' penalty specified and the Ridge (L2) penalty.}
+#' \item{gamma}{The tuning parameter used for the MCP/SCAD penalty, \code{NULL} if 
+#' \code{penalty = "lasso"}}.
 #' \item{cv.ncvreg}{If \code{returnCV == TRUE}, an object of type
 #' \code{cv.ncvreg} that was fit to \code{X} and \code{y} to select
 #' \code{lambda} and estimate \code{sigma2}. If user supplies \code{cv_fit},
@@ -76,8 +85,8 @@
 #' X <- Prostate$X
 #' y <- Prostate$y
 #' cl <- makeCluster(4)
-#' bootfit <- boot_ncvreg(Prostate$X, Prostate$y, cluster = cl)}
-#' 
+#' bootfit <- boot_ncvreg(Prostate$X, Prostate$y, cluster = cl)
+#' }
 #' @export boot_ncvreg
 boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
                         lambda, gamma = switch(penalty, SCAD = 3.7, 3), alpha = 1,
@@ -275,7 +284,7 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
     
   }
   
-  bias <- point_estimates <- fc_draws <- partial_correlations <- matrix(nrow = nboot, ncol = ncol(X))
+  draws <- matrix(nrow = nboot, ncol = ncol(X))
   
   if (!missing(cluster)) {
     if (!inherits(cluster, "cluster")) stop("cluster is not of class 'cluster'; see ?makeCluster", call.=FALSE)
@@ -296,20 +305,15 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
                    ncvreg.args = ncvreg.args, rescale_original = rescale_original,
                    penalty = penalty, alpha = alpha, gamma = gamma)
     }
-    fc_draws[i,] <- res$fc_draws
-    point_estimates[i,] <- res$point_estimates
-    partial_correlations[i,] <- res$partial_correlations
+    draws[i,] <- res
 
   }
   
-  colnames(fc_draws) <- names(original_coefs)
-  colnames(point_estimates) <- names(original_coefs)
-  colnames(partial_correlations) <- names(original_coefs)
-  val <- list(fc_draws = fc_draws, point_estimates = point_estimates,
-              partial_correlations = partial_correlations, 
+  colnames(draws) <- names(original_coefs)
+  val <- list(draws = draws,
               estimates = original_coefs,
               lambda = lambda, sigma2 = sigma2, penalty = penalty,
-              alpha = gamma, gamma = gamma)
+              alpha = alpha, gamma = gamma)
   
   if (returnCV) val$cv.ncvreg <- cv_fit
   
@@ -327,7 +331,7 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
   p <- ncol(XX)
   n <- length(yy)
   
-  fc_draws <- point_estimates <- partial_correlations <- numeric(p)
+  draws <- numeric(p)
   
   idx_new <- sample(1:n, replace = TRUE)
   ynew <- yy[idx_new]
@@ -335,7 +339,6 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
   xnew <- ncvreg::std(XX[idx_new,,drop=FALSE])
   
   nonsingular <- attr(xnew, "nonsingular")
-  p_nonsingular <- length(nonsingular)
   
   rescale <- (attr(xnew, "scale")[nonsingular])^(-1)
   if (!is.null(attr(XX, "scale")) & rescale_original) {
@@ -375,45 +378,42 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
   fit <- do.call("ncvreg", ncvreg.args[!(names(ncvreg.args) %in% c("lambda.min", "nlambda"))])
   
   modes <- coef(fit, lambda = lambda)[-1]
+  draws[nonsingular] <- modes * full_rescale_factor
   
-  if (alpha < 1) {
-    ynew <- c(ynew, rep(0, p))
-    xnew <- rbind(xnew, sqrt(n*(1 - alpha)*lambda)*diag(p))
-    xnew <- ncvreg::std(xnew)
-    xnew <- xnew * sqrt(n / (n + p))
-    lambda <- lambda * alpha
+  if (sum(modes == 0) > 0) {
+    
+    ## Could improve efficiency here
+    if (alpha < 1) {
+      ynew <- c(ynew, rep(0, p))
+      xnew <- rbind(xnew, sqrt(n*(1 - alpha)*lambda)*diag(p))
+      xnew <- ncvreg::std(xnew)
+      xnew <- xnew * sqrt(n / (n + p))
+      lambda <- lambda * alpha
+    }
+    
+    partial_residuals <- (ynew - as.numeric(xnew %*% modes)) + (xnew[modes == 0] * matrix(modes[modes == 0], nrow = nrow(xnew), ncol = sum(modes == 0), byrow=TRUE))
+    z <- (1/n)*colSums(xnew[modes == 0] * partial_residuals)
+    
+    tmp_draws <- draw_full_cond(z, lambda, sigma2, n) 
+  
+    if (penalty == "MCP") {
+      tmp_draws <- sapply(tmp_draws, firm_threshold_c, lambda, gamma)
+    } else if (penalty == "SCAD") {
+      tmp_draws <- sapply(tmp_draws, scad_threshold_c, lambda, gamma)
+    }
+    
+    draws[nonsingular[modes == 0]] <- tmp_draws * full_rescale_factor[modes == 0]
+    
+  }
+
+  if (length(nonsingular) < p) {
+    draws[!(1:p %in% nonsingular)] <- NA
   }
   
-  partial_residuals <- ynew - (
-    as.numeric(xnew %*% modes) - (xnew * matrix(modes, nrow = nrow(xnew), ncol = ncol(xnew), byrow=TRUE))
-  )
-  resid <- ynew - (xnew %*% modes)
-  z <- (1/n)*colSums(xnew * partial_residuals)
-  
-  draws <- draw_full_cond(z, lambda, sigma2, n, p_nonsingular)
-  
-  if (penalty == "MCP") {
-    draws <- sapply(draws, firm_threshold_c, lambda, gamma)
-  } else if (penalty == "SCAD") {
-    draws <- sapply(draws, scad_threshold_c, lambda, gamma)
-  }
-  
-  fc_draws[nonsingular] <- draws * full_rescale_factor 
-  point_estimates[nonsingular] <- modes * full_rescale_factor 
-  partial_correlations[nonsingular] <- z * full_rescale_factor 
-  
-  if (p_nonsingular < p) {
-    fc_draws[!(1:p %in% nonsingular)] <- NA
-    point_estimates[!(1:p %in% nonsingular)] <- NA
-    partial_correlations[!(1:p %in% nonsingular)] <- NA
-  }
-  
-  ret <- list(fc_draws, point_estimates, partial_correlations)
-  names(ret) <- c("fc_draws", "point_estimates", "partial_correlations")
-  return(ret)
+  return(draws)
   
 }
-draw_full_cond <- function(z, lambda, sigma2, n, p_nonsingular) {
+draw_full_cond <- function(z, lambda, sigma2, n) {
   
   ## Tails being transferred on to (log probability in each tail)
   se <- sqrt(sigma2 / n)
@@ -427,7 +427,7 @@ draw_full_cond <- function(z, lambda, sigma2, n, p_nonsingular) {
   frac_lw_log <- ifelse(is.infinite(exp(obs_p_lw - obs_p_up)), 0, obs_p_lw - obs_p_up - log(1 + exp(obs_p_lw - obs_p_up)))
   frac_up_log <- ifelse(is.infinite(exp(obs_p_up - obs_p_lw)), 0, obs_p_up - obs_p_lw - log(1 + exp(obs_p_up - obs_p_lw)))
   
-  ps <- runif(p_nonsingular)        
+  ps <- runif(length(z))        
   
   log_ps <- log(ps) 
   log_one_minus_ps <- log(1 - ps)

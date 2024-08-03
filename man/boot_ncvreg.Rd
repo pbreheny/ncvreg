@@ -2,21 +2,23 @@
 % Please edit documentation in R/boot-ncvreg.R
 \name{boot_ncvreg}
 \alias{boot_ncvreg}
-\title{Bootstrap for ncvreg with lasso penalty}
+\title{Hybrid bootstrap for \code{ncvreg} with Gaussian outcomes}
 \usage{
 boot_ncvreg(
   X,
   y,
   cv_fit,
+  penalty = "lasso",
   lambda,
+  gamma = switch(penalty, SCAD = 3.7, 3),
+  alpha = 1,
   sigma2,
   nboot = 1000,
   ...,
   cluster,
   seed,
   returnCV = FALSE,
-  verbose = TRUE,
-  penalty = "lasso"
+  verbose = TRUE
 )
 }
 \arguments{
@@ -25,18 +27,31 @@ boot_ncvreg(
 \item{y}{The response vector, as in \code{ncvreg}}
 
 \item{cv_fit}{Instead of \code{X} and \code{y}, an object of type
-\code{cv.ncvreg} with \code{returnX = TRUE} and \code{penalty = "lasso"}}
+\code{cv.ncvreg} with \code{returnX = TRUE}}
+
+\item{penalty}{The penalty to be applied to the model.  Either "lasso" (the
+default), "MCP", or "SCAD".}
 
 \item{lambda}{A positive scalar value of type numeric, if left unspecified,
 selected as \code{lambda.min} from \code{cv.ncvreg}}
 
+\item{gamma}{The tuning parameter of the MCP/SCAD penalty (see details for \code{ncvreg}).
+Default is 3 for MCP and 3.7 for SCAD.}
+
+\item{alpha}{Tuning parameter for the Mnet estimator which controls the
+relative contributions from the lasso/MCP/SCAD penalty and the ridge, or L2
+penalty.  \code{alpha=1} is equivalent to lasso/MCP/SCAD penalty, while
+\code{alpha=0} would be equivalent to ridge regression.  However,
+\code{alpha=0} is not supported; \code{alpha} may be arbitrarily small, but
+not exactly 0.}
+
 \item{sigma2}{A known / estimated value for the variance used in obtaining
 bootstrap draws, if left unspecified, selected as the \code{cve}
-corresponding \code{cv.ncvreg} to \code{lambda}}
+corresponding to \code{lambda} from \code{cv.ncvreg}}
 
 \item{nboot}{The number of bootstrap iterations. Default is 1000.}
 
-\item{...}{Additional arguments to \code{ncvreg}/\code{cv.ncvreg}}
+\item{...}{Additional arguments to \code{ncvreg}/\code{cv.ncvreg}, must be named}
 
 \item{cluster}{\code{cv.ncvreg} and the bootstrapping procedure can be run in
 parallel across a cluster using the \code{parallel} package. The cluster must
@@ -54,14 +69,22 @@ should manually specify the call to \code{cv.ncvreg} in the arguments.}
 default.}
 
 \item{verbose}{Whether or not to print non-essential messages that highlight
-potentially unanticipated behavior.
-list(draws = draws, estimates = original_coefs, lambda = lambda, sigma2 = sigma2)}
+potentially unanticipated behavior.}
 }
 \value{
 An object with S3 class \code{boot_ncvreg} containing: \describe {
-\item{draws}{A \code{nboot} by \code{ncol(X)} matrix of the bootstrap draws}
+\item{draws}{A \code{nboot} by \code{ncol(X)} matrix of the Hybrid bootstrap draws}
 \item{estimates}{A length \code{ncol(X)} vector of the estimates from the
 lasso model fit on the original data corresponding to \code{lambda}.}
+\item{lambda}{The value of the regularization parameter used in obtaining
+Hybrid bootstrap draws as selected by \code{cv.ncvreg} or specified by the user.}
+\item{sigma2}{The value of the sigma2 used in obtaining
+Hybrid bootstrap draws as selected by \code{cv.ncvreg} or specified by the user.}
+\item{penalty}{The corresponding penalty that the Hybrid bootstrap draws correspond to.}
+\item{alpha}{The tuning parameter used that controls the trade off between the
+penalty specified and the Ridge (L2) penalty.}
+\item{gamma}{The tuning parameter used for the MCP/SCAD penalty, \code{NULL} if
+\code{penalty = "lasso"}}.
 \item{cv.ncvreg}{If \code{returnCV == TRUE}, an object of type
 \code{cv.ncvreg} that was fit to \code{X} and \code{y} to select
 \code{lambda} and estimate \code{sigma2}. If user supplies \code{cv_fit},
@@ -69,8 +92,8 @@ will return the supplied \code{cv.ncvreg} object. If \code{lambda} and
 \code{sigma2} are both specified, will return NULL.}}
 }
 \description{
-Perform Hybrid bootstrapping for the lasso at a single value of the
-regularization parameter, lambda.
+Perform Hybrid bootstrapping for the penalties implemented in \code{ncvreg}
+at a single value of the regularization parameter, lambda.
 }
 \details{
 At a specified value of lambda and variance
@@ -99,8 +122,8 @@ library(parallel)
 X <- Prostate$X
 y <- Prostate$y
 cl <- makeCluster(4)
-bootfit <- boot_ncvreg(Prostate$X, Prostate$y, cluster = cl)}
-
+bootfit <- boot_ncvreg(Prostate$X, Prostate$y, cluster = cl)
+}
 }
 \seealso{
 \code{\link{ncvreg}}

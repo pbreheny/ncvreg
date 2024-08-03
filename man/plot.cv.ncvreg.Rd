@@ -75,7 +75,7 @@ plot(cvfit, type="rsq")
 par(op)
 }
 \references{
-Breheny P and Huang J. (2011) Coordinate descentalgorithms for
+Breheny P and Huang J. (2011) Coordinate descent algorithms for
 nonconvex penalized regression, with applications to biological feature
 selection.  \emph{Annals of Applied Statistics}, \strong{5}: 232-253.
 c("\\Sexpr[results=rd]{tools:::Rd_expr_doi(\"#1\")}",
