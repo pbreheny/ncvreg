@@ -1,3 +1,7 @@
 vignettes/*.html
 .Rproj.user
 .vscode
+<<<<<<< HEAD
+=======
+docs
+>>>>>>> dae01dbe53c3f055bfaca3a7881be8fc5e4073b0

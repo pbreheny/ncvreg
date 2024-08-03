@@ -12,24 +12,34 @@
 \arguments{
 \item{object}{An \code{ncvreg} or \code{ncvsurv} object.}
 
-\item{lambda}{The regularization parameter value at which inference should be reported.}
+\item{lambda}{The regularization parameter value at which inference should be
+reported.}
 
-\item{which}{Alternatively, \code{lambda} may be specified by index; \code{which=10} means: report inference for the 10th value of
-\code{lambda} along the regularization path.  If both \code{lambda} and \code{which} are specified, \code{lambda} takes precedence.}
+\item{which}{Alternatively, \code{lambda} may be specified by index; \code{which=10}
+means: report inference for the 10th value of \code{lambda} along the
+regularization path.  If both \code{lambda} and \code{which} are specified, \code{lambda}
+takes precedence.}
 
-\item{number}{By default, \code{summary} will provide an inferential summary for each variable that has been selected (i.e.,  each
-variable with a nonzero coefficient).  Specifying \code{number=5}, for example, means that the summary table will include the 5
-features with the lowest mfdr values, regardless of whether they were selected.  To see all features, \code{number=Inf}.}
+\item{number}{By default, \code{summary} will provide an inferential summary for
+each variable that has been selected (i.e.,  each variable with a nonzero
+coefficient). Specifying \code{number=5}, for example, means that the summary
+table will include the 5 features with the lowest mfdr values, regardless
+of whether they were selected.  To see all features, \code{number=Inf}.}
 
-\item{cutoff}{Alternatively, specifying for example \code{cutoff=0.3} will report inference for all features with mfdr under 30\%.
-If both \code{number} and \code{cutoff} are specified, the intersection between both sets of features is reported.}
+\item{cutoff}{Alternatively, specifying for example \code{cutoff=0.3} will report
+inference for all features with mfdr under 30\%. If both \code{number} and
+\code{cutoff} are specified, the intersection between both sets of features is
+reported.}
 
 \item{sort}{Should the results be sorted by \code{mfdr}? (default: TRUE)}
 
-\item{sigma}{For linear regression models, users can supply an estimate of the residual standard deviation.
-The default is to use RSS / DF, where degrees of freedom are approximated using the number of nonzero coefficients.}
+\item{sigma}{For linear regression models, users can supply an estimate of
+the residual standard deviation. The default is to use RSS / DF, where
+degrees of freedom are approximated using the number of nonzero
+coefficients.}
 
-\item{...}{Further arguments; in particular, if you have set \code{returnX=FALSE}, you will need to supply \code{X} and \code{y} in order to calculate local mFDRs.}
+\item{...}{Further arguments; in particular, if you have set \code{returnX=FALSE},
+you will need to supply \code{X} and \code{y} in order to calculate local mFDRs.}
 
 \item{x}{A \code{summary.ncvreg} object.}
 
@@ -37,26 +47,21 @@ The default is to use RSS / DF, where degrees of freedom are approximated using 
 each of the five non-integer printed values.}
 }
 \value{
-Whether passed an \code{ncvreg} or \code{ncvsurv} object, the return value is an object with S3 class \code{summary.ncvreg}. The class has its own print method and contains the following list elements:
-\itemize{
-\item \code{penalty}: The penalty used by \code{ncvreg} or \code{ncvsurv}.
-\item \code{model}: Either \code{"linear"}, \code{"logistic"}, or \code{"Cox"}.
-\item \code{n}: Number of instances.
-\item \code{p}: Number of regression coefficients (not including the intercept).
-\item \code{lambda}: The \code{lambda} value at which inference is being reported.
-\item \code{nvars}: The number of nonzero coefficients (again, not including the intercept) at that value of \code{lambda}.
-\item \code{table}: A table containing estimates, normalized test statistics (z), and an estimate of the local mfdr for each coefficient.
-The mfdr may be loosely interpreted, in an empirical Bayes sense, as the probability that the given feature is null.
-\item \code{unpen.table}: If there are any unpenalized coefficients, a separate inferential summary is given for them.  Currently, this is
-based on \code{lm}/\code{glm}/\code{coxph} using the penalized coefficients to provide an offset.  This is useful and more or less
-accurate, but not ideal; we hope to improve the inferential methods for unpenalized variables in the future.
-}
+An object with S3 class \code{summary.ncvreg}. The class has its own
+print method and contains the following list elements:
+\item{penalty}{The penalty used by \code{ncvreg} or \code{ncvsurv}}
+\item{model}{Either \code{"linear"}, \code{"logistic"}, or \code{"Cox"}.}
+\item{n}{Number of instances.}
+\item{p}{Number of regression coefficients (not including the intercept).}
+\item{lambda}{The \code{lambda} value at which inference is being reported.}
+\item{nvars}{The number of nonzero coefficients (again, not including the intercept) at that value of \code{lambda}.}
+\item{table}{A table containing estimates, normalized test statistics (z), and an estimate of the local mfdr for each coefficient. The mfdr may be loosely interpreted, in an empirical Bayes sense, as the probability that the given feature is null.}
+\item{unpen.table}{If there are any unpenalized coefficients, a separate inferential summary is given for them.  Currently, this is based on \code{lm}/\code{glm}/\code{coxph} using the penalized coefficients to provide an offset. This is useful and more or less accurate, but not ideal; we hope to improve the inferential methods for unpenalized variables in the future.}
 }
 \description{
 Inferential summaries for \code{ncvreg} and \code{ncvsurv} objects based on local marginal false discovery rates.
 }
 \examples{
-
 # Linear regression --------------------------------------------------
 data(Prostate)
 fit <- ncvreg(Prostate$X, Prostate$y)

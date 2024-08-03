@@ -2,37 +2,46 @@
 #' 
 #' Inferential summaries for `ncvreg` and `ncvsurv` objects based on local marginal false discovery rates.
 #' 
-#' @param object   An `ncvreg` or `ncvsurv` object.
-#' @param lambda   The regularization parameter value at which inference should be reported.
-#' @param which    Alternatively, `lambda` may be specified by index; `which=10` means: report inference for the 10th value of
-#'   `lambda` along the regularization path.  If both `lambda` and `which` are specified, `lambda` takes precedence.
-#' @param number   By default, `summary` will provide an inferential summary for each variable that has been selected (i.e.,  each
-#'   variable with a nonzero coefficient).  Specifying `number=5`, for example, means that the summary table will include the 5
-#'   features with the lowest mfdr values, regardless of whether they were selected.  To see all features, `number=Inf`.
-#' @param cutoff   Alternatively, specifying for example `cutoff=0.3` will report inference for all features with mfdr under 30%.
-#'   If both `number` and `cutoff` are specified, the intersection between both sets of features is reported.
-#' @param sort     Should the results be sorted by `mfdr`? (default: TRUE)
-#' @param sigma    For linear regression models, users can supply an estimate of the residual standard deviation.
-#'   The default is to use RSS / DF, where degrees of freedom are approximated using the number of nonzero coefficients.
-#' @param ...      Further arguments; in particular, if you have set `returnX=FALSE`, you will need to supply `X` and `y` in order to calculate local mFDRs.
+#' @param object An `ncvreg` or `ncvsurv` object.
+#' @param lambda The regularization parameter value at which inference should be
+#'   reported.
+#' @param which Alternatively, `lambda` may be specified by index; `which=10`
+#'   means: report inference for the 10th value of `lambda` along the
+#'   regularization path.  If both `lambda` and `which` are specified, `lambda`
+#'   takes precedence.
+#' @param number By default, `summary` will provide an inferential summary for
+#'   each variable that has been selected (i.e.,  each variable with a nonzero
+#'   coefficient). Specifying `number=5`, for example, means that the summary
+#'   table will include the 5 features with the lowest mfdr values, regardless
+#'   of whether they were selected.  To see all features, `number=Inf`.
+#' @param cutoff Alternatively, specifying for example `cutoff=0.3` will report
+#'   inference for all features with mfdr under 30%. If both `number` and
+#'   `cutoff` are specified, the intersection between both sets of features is
+#'   reported.
+#' @param sort Should the results be sorted by `mfdr`? (default: TRUE)
+#' @param sigma For linear regression models, users can supply an estimate of
+#'   the residual standard deviation. The default is to use RSS / DF, where
+#'   degrees of freedom are approximated using the number of nonzero
+#'   coefficients.
+#' @param ... Further arguments; in particular, if you have set `returnX=FALSE`,
+#'   you will need to supply `X` and `y` in order to calculate local mFDRs.
 #' 
-#' @return Whether passed an `ncvreg` or `ncvsurv` object, the return value is an object with S3 class `summary.ncvreg`. The class has its own print method and contains the following list elements:
-#' * `penalty`: The penalty used by `ncvreg` or `ncvsurv`.
-#' * `model`: Either `"linear"`, `"logistic"`, or `"Cox"`.
-#' * `n`: Number of instances.
-#' * `p`: Number of regression coefficients (not including the intercept).
-#' * `lambda`: The `lambda` value at which inference is being reported.
-#' * `nvars`: The number of nonzero coefficients (again, not including the intercept) at that value of `lambda`.
-#' * `table`: A table containing estimates, normalized test statistics (z), and an estimate of the local mfdr for each coefficient.
-#'    The mfdr may be loosely interpreted, in an empirical Bayes sense, as the probability that the given feature is null.
-#' * `unpen.table`: If there are any unpenalized coefficients, a separate inferential summary is given for them.  Currently, this is
-#'    based on \code{lm}/\code{glm}/\code{coxph} using the penalized coefficients to provide an offset.  This is useful and more or less
-#'    accurate, but not ideal; we hope to improve the inferential methods for unpenalized variables in the future.
+#' @returns An object with S3 class `summary.ncvreg`. The class has its own
+#' print method and contains the following list elements:
+#' \item{penalty}{The penalty used by `ncvreg` or `ncvsurv`}
+#' \item{model}{Either `"linear"`, `"logistic"`, or `"Cox"`.}
+#' \item{n}{Number of instances.}
+#' \item{p}{Number of regression coefficients (not including the intercept).}
+#' \item{lambda}{The `lambda` value at which inference is being reported.}
+#' \item{nvars}{The number of nonzero coefficients (again, not including the intercept) at that value of `lambda`.}
+#' \item{table}{A table containing estimates, normalized test statistics (z), and an estimate of the local mfdr for each coefficient. The mfdr may be loosely interpreted, in an empirical Bayes sense, as the probability that the given feature is null.}
+#' \item{unpen.table}{If there are any unpenalized coefficients, a separate inferential summary is given for them.  Currently, this is based on `lm`/`glm`/`coxph` using the penalized coefficients to provide an offset. This is useful and more or less accurate, but not ideal; we hope to improve the inferential methods for unpenalized variables in the future.}
 #'    
 #' @author Patrick Breheny <patrick-breheny@@uiowa.edu>
-#' @seealso [ncvreg()], [cv.ncvreg()], [plot.cv.ncvreg()], [local_mfdr()]
-#' @examples
 #' 
+#' @seealso [ncvreg()], [cv.ncvreg()], [plot.cv.ncvreg()], [local_mfdr()]
+#' 
+#' @examples
 #' # Linear regression --------------------------------------------------
 #' data(Prostate)
 #' fit <- ncvreg(Prostate$X, Prostate$y)

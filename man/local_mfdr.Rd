@@ -29,7 +29,7 @@ installed.}
 \item{sigma}{For linear regression models, users can supply an estimate of the residual standard deviation.
 The default is to use RSS / DF, where degrees of freedom are approximated using the number of nonzero coefficients.}
 
-\item{...}{Additional arguments to \code{ash()} if using \code{method='ashr'}.}
+\item{...}{Additional arguments to \code{\link[ashr:ash]{ashr::ash()}} if using \code{method='ashr'}.}
 }
 \value{
 If all features are penalized, then the object returns a data frame with one row per feature and four columns:
@@ -47,9 +47,9 @@ of the data frame described above, and \code{unpen.vars}, a data frame with four
 penalized features as an offset.
 }
 \description{
-\code{local_mfdr()} is called by \code{summary.ncvreg()}, which typically offers a more convenient interface to users.
+\code{local_mfdr()} is called by \code{\link[=summary.ncvreg]{summary.ncvreg()}}, which typically offers a more convenient interface to users.
 If, however, you are working with local mfdrs programmatically rather than interactively, you probably want to
-use \code{local_mfdr()}, which skips the sorting, filtering, and print formatting of \code{summary.ncvreg()}.
+use \code{local_mfdr()}, which skips the sorting, filtering, and print formatting of \code{\link[=summary.ncvreg]{summary.ncvreg()}}.
 }
 \examples{
 # Linear regression

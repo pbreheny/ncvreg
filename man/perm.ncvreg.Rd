@@ -21,34 +21,28 @@ perm.ncvreg(
 
 \item{...}{Additional arguments to \code{ncvreg}.}
 
-\item{permute}{What to permute.  If \code{'outcome'}, the response vector,
-\code{y}, is permuted.  If \code{'residuals'}, the residuals are permuted.
-This is only available for linear regression (i.e., for
-\code{family='gaussian'}).  Note that permuting the residuals may take a
-long time, as the residuals differ for each value of \code{lambda}, so
-separate permutations are required at every value of \code{lambda}.  See
-also \code{\link{permres}}.}
+\item{permute}{What to permute.  If \code{'outcome'}, the response vector, \code{y}, is
+permuted.  If \code{'residuals'}, the residuals are permuted. This is only
+available for linear regression (i.e., for \code{family='gaussian'}). Note that
+permuting the residuals may take a long time, as the residuals differ for
+each value of \code{lambda}, so separate permutations are required at every
+value of \code{lambda}. See also \code{\link[=permres]{permres()}}.}
 
 \item{N}{The number of permutation replications.  Default is 10.}
 
 \item{seed}{You may set the seed of the random number generator in order to
 obtain reproducible results.}
 
-\item{trace}{If set to TRUE, perm.ncvreg will inform the user of its
-progress by announcing the beginning of each permutation fit. Default is
-FALSE.}
+\item{trace}{If set to TRUE, perm.ncvreg will inform the user of its progress
+by announcing the beginning of each permutation fit. Default is FALSE.}
 }
 \value{
 An object with S3 class \code{"perm.ncvreg"} containing:
-\item{EF}{The number of variables selected at each value of \code{lambda},
-averaged over the permutation fits.} \item{S}{The actual number of selected
-variables for the non-permuted data.} \item{mFDR}{The estimated marginal
-false discovery rate (\code{EF/S}).} \item{fit}{The fitted \code{ncvreg}
-object for the original (non-permuted) data.} \item{loss}{The loss/deviance
-for each value of \code{lambda}, averaged over the permutation fits.  This
-is an estimate of the explanatory power of the model under null conditions,
-and can be used to adjust the loss of the fitted model in a manner akin to
-the idea of an adjusted R-squared in classical regression.}
+\item{EF}{The number of variables selected at each value of \code{lambda}, averaged over the permutation fits.}
+\item{S}{The actual number of selected variables for the non-permuted data.}
+\item{mFDR}{The estimated marginal false discovery rate (\code{EF/S}).}
+\item{fit}{The fitted \code{ncvreg} object for the original (non-permuted) data.}
+\item{loss}{The loss/deviance for each value of \code{lambda}, averaged over the permutation fits.  This is an estimate of the explanatory power of the model under null conditions, and can be used to adjust the loss of the fitted model in a manner akin to the idea of an adjusted R-squared in classical regression.}
 }
 \description{
 Fits multiple penalized regression models in which the outcome is randomly
@@ -63,7 +57,6 @@ quantity to the number of selected variables using the actual (non-permuted)
 response is called the marginal false discovery rate (mFDR).
 }
 \examples{
-
 # Linear regression --------------------------------------------------
 data(Prostate)
 pmfit <- perm.ncvreg(Prostate$X, Prostate$y)
@@ -88,10 +81,9 @@ plot(pmfit)
 plot(pmfit, type="EF")
 plot(pmfit$fit)
 par(op)
-
 }
 \seealso{
-\code{\link{ncvreg}}, \code{\link{plot.mfdr}}, \code{\link{mfdr}}
+\code{\link[=ncvreg]{ncvreg()}}, \code{\link[=plot.mfdr]{plot.mfdr()}}, \code{\link[=mfdr]{mfdr()}}
 }
 \author{
 Patrick Breheny \href{mailto:patrick-breheny@uiowa.edu}{patrick-breheny@uiowa.edu}
