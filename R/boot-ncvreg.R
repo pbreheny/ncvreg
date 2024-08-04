@@ -63,7 +63,7 @@
 #'   \item{alpha}{The tuning parameter used that controls the trade off between the 
 #' penalty specified and the Ridge (L2) penalty.}
 #'   \item{gamma}{The tuning parameter used for the MCP/SCAD penalty, \code{NULL} if 
-#' \code{penalty = "lasso"}}.
+#' \code{penalty = "lasso"}}
 #'   \item{cv.ncvreg}{If \code{returnCV == TRUE}, an object of type
 #' \code{cv.ncvreg} that was fit to \code{X} and \code{y} to select
 #' \code{lambda} and estimate \code{sigma2}. If user supplies \code{cv_fit},
