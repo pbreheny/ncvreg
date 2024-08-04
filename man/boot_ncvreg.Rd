@@ -72,7 +72,8 @@ default.}
 potentially unanticipated behavior.}
 }
 \value{
-An object with S3 class \code{boot_ncvreg} containing: \describe {
+An object with S3 class \code{boot_ncvreg} containing:
+\describe{
 \item{draws}{A \code{nboot} by \code{ncol(X)} matrix of the Hybrid bootstrap draws}
 \item{estimates}{A length \code{ncol(X)} vector of the estimates from the
 lasso model fit on the original data corresponding to \code{lambda}.}
@@ -89,7 +90,8 @@ penalty specified and the Ridge (L2) penalty.}
 \code{cv.ncvreg} that was fit to \code{X} and \code{y} to select
 \code{lambda} and estimate \code{sigma2}. If user supplies \code{cv_fit},
 will return the supplied \code{cv.ncvreg} object. If \code{lambda} and
-\code{sigma2} are both specified, will return NULL.}}
+\code{sigma2} are both specified, will return NULL.}
+}
 }
 \description{
 Perform Hybrid bootstrapping for the penalties implemented in \code{ncvreg}
@@ -108,7 +110,6 @@ the estimate for sigma2 will be interpolated if the supplied value of lambda
 is not in the original sequence of lambda values.
 }
 \examples{
-
 data(Prostate)
 
 boot <- boot_ncvreg(Prostate$X, Prostate$y)

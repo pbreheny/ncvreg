@@ -50,28 +50,29 @@
 #' @param verbose Whether or not to print non-essential messages that highlight 
 #' potentially unanticipated behavior.
 #' 
-#' @return An object with S3 class \code{boot_ncvreg} containing: \describe { 
-#' \item{draws}{A \code{nboot} by \code{ncol(X)} matrix of the Hybrid bootstrap draws}
-#' \item{estimates}{A length \code{ncol(X)} vector of the estimates from the
+#' @return An object with S3 class \code{boot_ncvreg} containing:
+#' \describe{ 
+#'   \item{draws}{A \code{nboot} by \code{ncol(X)} matrix of the Hybrid bootstrap draws}
+#'   \item{estimates}{A length \code{ncol(X)} vector of the estimates from the
 #' lasso model fit on the original data corresponding to \code{lambda}.}
-#' \item{lambda}{The value of the regularization parameter used in obtaining 
+#'   \item{lambda}{The value of the regularization parameter used in obtaining 
 #' Hybrid bootstrap draws as selected by \code{cv.ncvreg} or specified by the user.}
-#' \item{sigma2}{The value of the sigma2 used in obtaining 
+#'   \item{sigma2}{The value of the sigma2 used in obtaining 
 #' Hybrid bootstrap draws as selected by \code{cv.ncvreg} or specified by the user.}
-#' \item{penalty}{The corresponding penalty that the Hybrid bootstrap draws correspond to.}
-#' \item{alpha}{The tuning parameter used that controls the trade off between the 
+#'   \item{penalty}{The corresponding penalty that the Hybrid bootstrap draws correspond to.}
+#'   \item{alpha}{The tuning parameter used that controls the trade off between the 
 #' penalty specified and the Ridge (L2) penalty.}
-#' \item{gamma}{The tuning parameter used for the MCP/SCAD penalty, \code{NULL} if 
+#'   \item{gamma}{The tuning parameter used for the MCP/SCAD penalty, \code{NULL} if 
 #' \code{penalty = "lasso"}}.
-#' \item{cv.ncvreg}{If \code{returnCV == TRUE}, an object of type
+#'   \item{cv.ncvreg}{If \code{returnCV == TRUE}, an object of type
 #' \code{cv.ncvreg} that was fit to \code{X} and \code{y} to select
 #' \code{lambda} and estimate \code{sigma2}. If user supplies \code{cv_fit},
 #' will return the supplied \code{cv.ncvreg} object. If \code{lambda} and
-#' \code{sigma2} are both specified, will return NULL.}}
+#' \code{sigma2} are both specified, will return NULL.}
+#' }
 #' @seealso \code{\link{ncvreg}}
 #' 
 #' @examples
-#' 
 #' data(Prostate)
 #' 
 #' boot <- boot_ncvreg(Prostate$X, Prostate$y)

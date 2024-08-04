@@ -4,28 +4,30 @@
 \alias{confint.boot_ncvreg}
 \title{Calculating percentile confidence intervals from Hybrid bootstrap draws}
 \usage{
-\method{confint}{boot_ncvreg}(boot, alpha = 0.2, quiet = FALSE)
+\method{confint}{boot_ncvreg}(object, parm, level = 0.8, ...)
 }
 \arguments{
-\item{boot}{An object of type \code{boot_ncvreg}}
+\item{object}{An object of type \code{boot_ncvreg}}
 
-\item{alpha}{The desired significance level to obtain confidence intervals
-with overall coverage greater than or equal to \code{1 - alpha}}
+\item{parm}{A specification of which parameters are to be given confidence
+intervals, either a vector of numbers or a vector of names.
+If missing, all parameters are considered.}
 
-\item{quiet}{If \code{TRUE}, suppress warning that some bootstrap draws are
-NA. This occurs when a given variable is \code{singlar} for a given bootstrap
-sample (see \code{std}).}
+\item{level}{The desired significance level to obtain confidence intervals
+with overall coverage greater than or equal to \code{level}}
+
+\item{...}{Not used}
 }
 \value{
-An object with S3 class \code{data.frame} with the columns: \describe {
+An object with S3 class \code{data.frame} with the columns: \describe{
 \item{variable}{If the original covariates \code{X} had column names,
 these are included as the first column.}
 \item{estimate}{A length \code{ncol(X)} vector of the estimates from the
 lasso model fit on the original data corresponding to \code{lambda}.}
 \item{lower}{A length \code{ncol(X)} vector of the lower bounds from the
-Hybrid bootstrap draws with significance level \code{alpha}}
+Hybrid bootstrap draws with significance level \code{level}}
 \item{upper}{A length \code{ncol(X)} vector of the upper bounds from the
-Hybrid bootstrap draws with significance level \code{alpha}}}
+Hybrid bootstrap draws with significance level \code{level}}}
 }
 \description{
 Calculates percentile based confidence intervals from Hybrid bootstrap draws
@@ -37,9 +39,7 @@ the intervals produced do no attempt to debias and as a result
 under cover large covariates and over cover covariates near zero.
 }
 \examples{
-
 data(Prostate)
 boot <- boot_ncvreg(Prostate$X, Prostate$y)
-confint(boot, alpha = 0.1)
-
+confint(boot, level = 0.9)
 }
