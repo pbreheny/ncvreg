@@ -111,10 +111,10 @@ is not in the original sequence of lambda values.
 
 data(Prostate)
 
-bootfit <- boot_ncvreg(Prostate$X, Prostate$y)
+boot <- boot_ncvreg(Prostate$X, Prostate$y)
 
 ## Specifying cv_fit
-bootfit <- boot_ncvreg(cv_fit = cv.ncvreg(Prostate$X, Prostate$y, penalty = "lasso", returnX = TRUE))
+boot <- boot_ncvreg(cv_fit = cv.ncvreg(Prostate$X, Prostate$y, penalty = "lasso", returnX = TRUE))
 
 ## Using a cluster
 \dontrun{
@@ -122,7 +122,7 @@ library(parallel)
 X <- Prostate$X
 y <- Prostate$y
 cl <- makeCluster(4)
-bootfit <- boot_ncvreg(Prostate$X, Prostate$y, cluster = cl)
+boot <- boot_ncvreg(Prostate$X, Prostate$y, cluster = cl)
 }
 }
 \seealso{

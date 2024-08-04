@@ -36,3 +36,10 @@ the predictors is high. Although overall coverage is generally achieved,
 the intervals produced do no attempt to debias and as a result
 under cover large covariates and over cover covariates near zero.
 }
+\examples{
+
+data(Prostate)
+boot <- boot_ncvreg(Prostate$X, Prostate$y)
+confint(boot, alpha = 0.1)
+
+}

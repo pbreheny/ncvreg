@@ -262,7 +262,7 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
       nlambda, penalty.factor = rep(1, ncol(X))
     )
     
-    if (lambda < min(lambda_seq) | lambda > max(lambda_seq)) warning("Lambda outisde of range of original model fit for bootstrap sample, extending lambda sequence.")
+    if (lambda < min(lambda_seq) | lambda > max(lambda_seq)) warning("Lambda outisde of range of original model fit, extending lambda sequence.")
     
     if (lambda < min(lambda_seq)) {
       

@@ -24,11 +24,18 @@
 #' Hybrid bootstrap draws with significance level \code{alpha}}
 #' \item{upper}{A length \code{ncol(X)} vector of the upper bounds from the
 #' Hybrid bootstrap draws with significance level \code{alpha}}}
+#' 
+#' @examples
+#' 
+#' data(Prostate)
+#' boot <- boot_ncvreg(Prostate$X, Prostate$y)
+#' confint(boot, alpha = 0.1)
+#' 
 #' @export
 confint.boot_ncvreg <- function(boot, alpha = 0.2, quiet = FALSE) {
   
   if ((missing(boot) || class(boot) != "boot_ncvreg")) {
-    stop("boot much be supplied and be of class boot_ncvreg.")
+    stop("boot must be supplied and be of class boot_ncvreg.")
   }
   
   draws <- boot[["draws"]]

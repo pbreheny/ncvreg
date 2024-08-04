@@ -1,26 +1,24 @@
-#' Plot Bootstrap Results for NCV Regression
+#' Visualize Hybrid confidence intervals from \code{confint.boot_ncvreg}
 #'
-#' This function plots the bootstrap confidence intervals and estimates for
-#' an NCV regression model. It provides options for ordering the results by
-#' different criteria and allows for displaying a subset of variables.
+#' Plots the estimates and Hybrid bootstrap confidence intervals for
+#' an fit from \code{ncvreg} applied to a Gaussian outcome.
 #'
-#' @param boot An object containing the bootstrap results from an NCV regression.
+#' @param boot An object of class \code{boot_ncvreg} containing the Hybrid bootstrap samples.
 #' @param n An integer specifying the number of variables to plot. Default is 30.
-#' @param alpha A numeric value for the confidence level, with default 0.2.
+#' @param alpha A numeric value for the significance level, with default 0.2.
 #' @param order A character string specifying the order of the variables. Options
 #'        are "original", "descending", "ascending", or a vector of variable names.
 #' @param absolute_order A logical indicating whether to order by the absolute
-#'        value of the estimates. Default is FALSE.
-#' @param quiet A logical indicating whether to suppress messages during execution.
+#'        value of the estimates. Default is FALSE. Only used when order is "descending" or "ascending".
+#' @param quiet A logical indicating whether to suppress messages during execution of confidence intervals.
 #'        Default is TRUE.
 #' @return A ggplot object displaying the bootstrap confidence intervals and estimates.
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#'   boot_results <- boot_ncvreg(...) # Assuming boot_ncvreg() produces the required object
-#'   plot.boot_ncvreg(boot_results, n = 20, order = "descending", alpha = 0.05)
-#' }
+#' data(Prostate)
+#' boot <- boot_ncvreg(Prostate$X, Prostate$y)
+#' plot(boot, n = 20, alpha = 0.1, order = 'descending', absolute_order = TURE)
 plot.boot_ncvreg <- function(boot, n = 30, alpha = 0.2, order = "original", absolute_order = FALSE, quiet = TRUE) {
   
   # Ensure the order variable is one of the accepted options or a vector of variable names

@@ -13,10 +13,10 @@ boot <- boot_ncvreg(X, y, nboot = 100)
 boot_seed <- boot_ncvreg(X, y, seed = 1234, nboot = 100)
 
 ## MCP
-boot <- boot_ncvreg(X, y, penalty = "MCP", nboot = 100)
+boot <- boot_ncvreg(X, y, penalty = "MCP")
 
 ## SCAD
-boot <- boot_ncvreg(X, y, penalty = "SCAD", nboot = 100)
+boot <- boot_ncvreg(X, y, penalty = "SCAD")
 
 ## Elastic Net
 boot <- boot_ncvreg(X, y, alpha = 0.5, nboot = 100)
@@ -63,8 +63,10 @@ tinytest::expect_warning(boot_ncvreg(X, y, cv_fit)) ## Attempt to apply to non-G
 tinytest::expect_warning(boot_ncvreg(cv_fit = cv_fit, warn = TRUE)) ## Attempt to supply additional arguments
 
 ## Expect messages
-tinytest::expect_message(boot_ncvreg(X, y, verbose = FALSE, nboot = 100, lambda = min(cv_fit$lambda) * 0.5)) ## lambda too smalle
+tinytest::expect_message(boot_ncvreg(X, y, verbose = FALSE, nboot = 100, lambda = min(cv_fit$lambda) * 0.5)) ## lambda too small
 tinytest::expect_message(boot_ncvreg(X, y, verbose = FALSE, nboot = 100, lambda = max(cv_fit$lambda) * 2)) ## lambda too large
+tinytest::expect_message(boot_ncvreg(X, y, verbose = FALSE, nboot = 100, lambda = min(cv_fit$lambda) * 0.5, sigma2 = 1)) ## lambda too small
+tinytest::expect_message(boot_ncvreg(X, y, verbose = FALSE, nboot = 100, lambda = max(cv_fit$lambda) * 2, sigma2 = 1)) ## lambda too large
 tinytest::expect_message(boot_ncvreg(cv_fit = cv_fit, lambda = cv_fit$lambda.min, sigma2 = 1)) ## Ignore user supplied value
 tinytest::expect_message(boot_ncvreg(cv_fit = cv_fit, lambda = cv_fit$lambda.min)) ## Estimating sigma2 at supplied value of lambda
 

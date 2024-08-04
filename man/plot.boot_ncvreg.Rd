@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot-boot-ncvreg.R
 \name{plot.boot_ncvreg}
 \alias{plot.boot_ncvreg}
-\title{Plot Bootstrap Results for NCV Regression}
+\title{Visualize Hybrid confidence intervals from \code{confint.boot_ncvreg}}
 \usage{
 \method{plot}{boot_ncvreg}(
   boot,
@@ -14,32 +14,30 @@
 )
 }
 \arguments{
-\item{boot}{An object containing the bootstrap results from an NCV regression.}
+\item{boot}{An object of class \code{boot_ncvreg} containing the Hybrid bootstrap samples.}
 
 \item{n}{An integer specifying the number of variables to plot. Default is 30.}
 
-\item{alpha}{A numeric value for the confidence level, with default 0.2.}
+\item{alpha}{A numeric value for the significance level, with default 0.2.}
 
 \item{order}{A character string specifying the order of the variables. Options
 are "original", "descending", "ascending", or a vector of variable names.}
 
 \item{absolute_order}{A logical indicating whether to order by the absolute
-value of the estimates. Default is FALSE.}
+value of the estimates. Default is FALSE. Only used when order is "descending" or "ascending".}
 
-\item{quiet}{A logical indicating whether to suppress messages during execution.
+\item{quiet}{A logical indicating whether to suppress messages during execution of confidence intervals.
 Default is TRUE.}
 }
 \value{
 A ggplot object displaying the bootstrap confidence intervals and estimates.
 }
 \description{
-This function plots the bootstrap confidence intervals and estimates for
-an NCV regression model. It provides options for ordering the results by
-different criteria and allows for displaying a subset of variables.
+Plots the estimates and Hybrid bootstrap confidence intervals for
+an fit from \code{ncvreg} applied to a Gaussian outcome.
 }
 \examples{
-\dontrun{
-  boot_results <- boot_ncvreg(...) # Assuming boot_ncvreg() produces the required object
-  plot.boot_ncvreg(boot_results, n = 20, order = "descending", alpha = 0.05)
-}
+data(Prostate)
+boot <- boot_ncvreg(Prostate$X, Prostate$y)
+plot(boot, n = 20, alpha = 0.1, order = 'descending', absolute_order = TURE)
 }
