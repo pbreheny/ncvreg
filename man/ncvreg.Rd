@@ -197,15 +197,9 @@ par(op)
 
 }
 \references{
-<<<<<<< HEAD
-Breheny P and Huang J. (2011) Coordinate descentalgorithms for
-nonconvex penalized regression, with applications to biological feature
-selection.  \emph{Annals of Applied Statistics}, \strong{5}: 232-253.
-=======
 Breheny P and Huang J. (2011) Coordinate descent algorithms for nonconvex
 penalized regression, with applications to biological feature selection.
 \emph{Annals of Applied Statistics}, \strong{5}: 232-253.
->>>>>>> dae01dbe53c3f055bfaca3a7881be8fc5e4073b0
 \doi{10.1214/10-AOAS388}
 }
 \seealso{

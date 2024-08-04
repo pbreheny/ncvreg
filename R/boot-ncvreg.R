@@ -74,10 +74,10 @@
 #' 
 #' data(Prostate)
 #' 
-#' bootfit <- boot_ncvreg(Prostate$X, Prostate$y)
+#' boot <- boot_ncvreg(Prostate$X, Prostate$y)
 #' 
 #' ## Specifying cv_fit
-#' bootfit <- boot_ncvreg(cv_fit = cv.ncvreg(Prostate$X, Prostate$y, penalty = "lasso", returnX = TRUE))
+#' boot <- boot_ncvreg(cv_fit = cv.ncvreg(Prostate$X, Prostate$y, penalty = "lasso", returnX = TRUE))
 #' 
 #' ## Using a cluster
 #' \dontrun{
@@ -85,7 +85,7 @@
 #' X <- Prostate$X
 #' y <- Prostate$y
 #' cl <- makeCluster(4)
-#' bootfit <- boot_ncvreg(Prostate$X, Prostate$y, cluster = cl)
+#' boot <- boot_ncvreg(Prostate$X, Prostate$y, cluster = cl)
 #' }
 #' @export boot_ncvreg
 boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
@@ -149,10 +149,6 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
     warning("Additional arguments are ignored when cv.ncvreg object supplied")
   }
   
-  if (length(args) > 0 & any(is.null(names(args)))) {
-    stop("Please supply names for all additional arguments passed to ...")
-  }
-  
   cv.args <- args[names(args) %in% c("nfolds", "fold", "returnY", "trace")]
   ncvreg.args <- args[names(args) %in% c("lambda.min", "nlambda", "eps", "max.iter", "dfmax")]
   if ("penalty.factor" %in% names(args)) {
@@ -195,6 +191,7 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
         
         if (lambda < min(lambda_seq)) {
           
+          message("lambda outside of original sequence, extending lambda sequence")
           lambda_min <- lambda - (lambda / 100)
           lambda_seq <- setupLambda(
             ncvreg::std(X), y, "gaussian", alpha = alpha,
@@ -204,7 +201,10 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
         
         }
         
-        if (lambda >= max(lambda_seq)) lambda <- max(lambda_seq) - (max(lambda_seq) / 100)
+        if (lambda >= max(lambda_seq)) {
+          message("lambda larger than maximum lambda, setting equal to maximum (results in equivalent behavior).")
+          lambda <- max(lambda_seq) - (max(lambda_seq) / 100)
+        }
         
         cv.args$lambda <- lambda_seq 
 
@@ -262,7 +262,7 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
       nlambda, penalty.factor = rep(1, ncol(X))
     )
     
-    if (lambda < min(lambda_seq) | lambda > max(lambda_seq)) warning("Lambda outisde of range of original model fit, extending lambda sequence.")
+    if (lambda < min(lambda_seq) | lambda > max(lambda_seq)) warning("Lambda outisde of range of original model fit for bootstrap sample, extending lambda sequence.")
     
     if (lambda < min(lambda_seq)) {
       
@@ -275,7 +275,7 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
       
     }
     
-    if (lambda >= max(lambda_seq)) lambda <- max(lambda_seq) - (max(lambda_seq) / 100)
+    if (lambda >= max(lambda_seq)) lambda <- max(lambda_seq)
     
     coef.args$lambda <- lambda_seq
     
@@ -322,11 +322,8 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
 }
 bootf <- function(XX, yy, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
                   penalty = c("lasso", "MCP", "SCAD"),
-                  alpha = 1, gamma = switch(penalty, SCAD = 3.7, 3)) {
-  
-  if (missing(ncvreg.args)) {
-    ncvreg.args <- list()
-  }
+                  alpha = 1, gamma = switch(penalty, SCAD = 3.7, MCP = 3, NA),
+                  ...) {
   
   p <- ncol(XX)
   n <- length(yy)

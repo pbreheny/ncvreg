@@ -28,11 +28,7 @@ ncvsurv(
 the data prior to fitting.}
 
 \item{y}{The time-to-event outcome, as a two-column matrix or
-<<<<<<< HEAD
-\code{\link[survival]{Surv}} object.  The first column should be time on
-=======
 \code{\link[survival:Surv]{survival::Surv()}} object.  The first column should be time on
->>>>>>> dae01dbe53c3f055bfaca3a7881be8fc5e4073b0
 study (follow up time); the second column should be a binary variable with
 1 indicating that the event has occurred and 0 indicating (right)
 censoring.}
@@ -62,11 +58,7 @@ the log scale.}
 
 \item{eps}{Convergence threshhold.  The algorithm iterates until the RMSD for
 the change in linear predictors for any coefficient is less than
-<<<<<<< HEAD
-\code{eps}.  Default is \code{1e-4}.}
-=======
 \code{eps}. Default is \code{1e-4}.}
->>>>>>> dae01dbe53c3f055bfaca3a7881be8fc5e4073b0
 
 \item{max.iter}{Maximum number of iterations (total across entire path).
 Default is 1000.}
@@ -100,28 +92,6 @@ to run if \code{returnX=FALSE}.}
 \value{
 An object with S3 class \code{ncvsurv} containing:
 \describe{
-<<<<<<< HEAD
-\item{beta}{The fitted matrix of coefficients.  The number of rows is equal
-to the number of coefficients, and the number of columns is equal to
-\code{nlambda}.} \item{iter}{A vector of length \code{nlambda} containing
-the number of iterations until convergence at each value of \code{lambda}.}
-\item{lambda}{The sequence of regularization parameter values in the path.}
-\item{penalty}{Same as above.} \item{model}{Same as above.}
-\item{gamma}{Same as above.} \item{alpha}{Same as above.}
-\item{convex.min}{The last index for which the objective function is locally
-convex.  The smallest value of lambda for which the objective function is
-convex is therefore \code{lambda[convex.min]}, with corresponding
-coefficients \code{beta[,convex.min]}.} \item{loss}{The deviance of the
-fitted model at each value of \code{lambda}.} \item{penalty.factor}{Same as
-above.} \item{n}{The number of observations.}
-}
-
-For Cox models, the following objects are also returned (and are necessary
-to estimate baseline survival conditonal on the estimated regression
-coefficients), all of which are ordered by time on study.  I.e., the ith
-row of \code{W} does not correspond to the ith row of \code{X}):
-
-=======
 \item{beta}{The fitted matrix of coefficients.  The number of rows is equal to the number of coefficients, and the number of columns is equal to \code{nlambda}.}
 \item{iter}{A vector of length \code{nlambda} containing the number of iterations until convergence at each value of \code{lambda}.}
 \item{lambda}{The sequence of regularization parameter values in the path.}
@@ -134,19 +104,12 @@ For Cox models, the following objects are also returned (and are necessary to
 estimate baseline survival conditonal on the estimated regression
 coefficients), all of which are ordered by time on study.  I.e., the ith row
 of \code{W} does not correspond to the ith row of \code{X}):
->>>>>>> dae01dbe53c3f055bfaca3a7881be8fc5e4073b0
 \describe{
 \item{W}{Matrix of \code{exp(beta)} values for each subject over all \code{lambda} values.}
 \item{time}{Times on study.}
 \item{fail}{Failure event indicator.}
 }
-<<<<<<< HEAD
-
 Additionally, if \code{returnX=TRUE}, the object will also contain
-
-=======
-Additionally, if \code{returnX=TRUE}, the object will also contain
->>>>>>> dae01dbe53c3f055bfaca3a7881be8fc5e4073b0
 \describe{
 \item{X}{The standardized design matrix.}
 }
@@ -207,17 +170,9 @@ plot(S, xlim=c(0,200))
 \item Breheny P and Huang J. (2011) Coordinate descent algorithms for nonconvex
 penalized regression, with applications to biological feature selection.
 \emph{Annals of Applied Statistics}, \strong{5}: 232-253. \doi{10.1214/10-AOAS388}
-<<<<<<< HEAD
-
-\item Simon N, Friedman JH, Hastie T, and Tibshirani R. (2011)
-Regularization Paths for Cox's Proportional Hazards Model via Coordinate
-Descent. \emph{Journal of Statistical Software}, \strong{39}: 1-13.
-\doi{10.18637/jss.v039.i05}
-=======
 \item Simon N, Friedman JH, Hastie T, and Tibshirani R. (2011) Regularization
 Paths for Cox's Proportional Hazards Model via Coordinate Descent.
 \emph{Journal of Statistical Software}, \strong{39}: 1-13. \doi{10.18637/jss.v039.i05}
->>>>>>> dae01dbe53c3f055bfaca3a7881be8fc5e4073b0
 }
 }
 \seealso{

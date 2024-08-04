@@ -25,7 +25,6 @@
 #' @param \dots           Other graphical parameters to [plot()]
 #' 
 #' @author Patrick Breheny
-<<<<<<< HEAD
 #' @seealso \code{\link{ncvreg}}, \code{\link{cv.ncvreg}}
 #' @references Breheny P and Huang J. (2011) Coordinate descent algorithms for
 #' nonconvex penalized regression, with applications to biological feature
@@ -33,8 +32,6 @@
 #' c("\\Sexpr[results=rd]{tools:::Rd_expr_doi(\"#1\")}",
 #' "10.1214/10-AOAS388")\Sexpr{tools:::Rd_expr_doi("10.1214/10-AOAS388")}
 #' @examples
-=======
->>>>>>> dae01dbe53c3f055bfaca3a7881be8fc5e4073b0
 #' 
 #' @seealso [ncvreg()], [cv.ncvreg()]
 #' 

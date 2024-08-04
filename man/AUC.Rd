@@ -19,11 +19,7 @@ Calculates the cross-validated AUC (concordance) from a \code{cv.ncvsurv} object
 \details{
 The area under the curve (AUC), or equivalently, the concordance statistic
 (C), is calculated according to the procedure described in van Houwelingen
-<<<<<<< HEAD
-and Putter (2011). The function calls \code{survival::concordancefit()}, except
-=======
 and Putter (2011). The function calls \code{\link[survival:concordancefit]{survival::concordancefit()}}, except
->>>>>>> dae01dbe53c3f055bfaca3a7881be8fc5e4073b0
 cross-validated linear predictors are used to guard against overfitting.
 Thus, the values returned by \code{AUC.cv.ncvsurv()} will be lower than those you
 would obtain with \code{concordancefit()} if you fit the full (unpenalized) model.
