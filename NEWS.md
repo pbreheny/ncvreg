@@ -1,3 +1,6 @@
+# ncvreg 3.14.3 (2024-09-02)
+  * Internal: Now using R_Calloc for _R_USE_STRICT_R_HEADERS_ compatibility
+
 # ncvreg 3.14.2 (2024-04-20)
   * Documentation: Lots of formatting fixes to the documentation
 

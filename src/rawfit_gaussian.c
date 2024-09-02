@@ -14,10 +14,10 @@ double g_loss(double *r, int n);
 
 // Memory handling, output formatting (Gaussian)
 SEXP cleanupRawG(double *a, double *v, double *z, int *active, SEXP beta, SEXP loss, SEXP iter, SEXP resid) {
-  Free(a);
-  Free(v);
-  Free(z);
-  Free(active);
+  free(a);
+  free(v);
+  free(z);
+  free(active);
   SEXP res;
   PROTECT(res = allocVector(VECSXP, 4));
   SET_VECTOR_ELT(res, 0, beta);
@@ -46,7 +46,7 @@ SEXP rawfit_gaussian(SEXP X_, SEXP y_, SEXP init_, SEXP r_, SEXP xtx_, SEXP pena
   // Declarations
   double *X = REAL(X_);
   double *y = REAL(y_);
-  double *a = Calloc(p, double); // Beta from previous iteration
+  double *a = R_Calloc(p, double); // Beta from previous iteration
   for (int j=0; j<p; j++) a[j]=REAL(init_)[j];
   const char *penalty = CHAR(STRING_ELT(penalty_, 0));
   double lam = REAL(lambda)[0];
@@ -55,7 +55,7 @@ SEXP rawfit_gaussian(SEXP X_, SEXP y_, SEXP init_, SEXP r_, SEXP xtx_, SEXP pena
   double gamma = REAL(gamma_)[0];
   double *m = REAL(multiplier);
   double alpha = REAL(alpha_)[0];
-  int *active = Calloc(p, int);
+  int *active = R_Calloc(p, int);
   for (int j=0; j<p; j++) active[j] = 1*(a[j] != 0);
   double l1, l2;
 
@@ -71,13 +71,13 @@ SEXP rawfit_gaussian(SEXP X_, SEXP y_, SEXP init_, SEXP r_, SEXP xtx_, SEXP pena
   } else {
     for (int i=0; i<n; i++) r[i] = REAL(r_)[i];
   }
-  double *v = Calloc(p, double);
+  double *v = R_Calloc(p, double);
   if (ISNA(REAL(xtx_)[0])) {
     for (int j=0; j<p; j++) v[j] = sqsum(X, n, j)/n;
   } else {
     for (int j=0; j<p; j++) v[j] = REAL(xtx_)[j];
   }
-  double *z = Calloc(p, double);
+  double *z = R_Calloc(p, double);
   double sdy = sqrt(g_loss(y, n)/n);
 
   // Fit

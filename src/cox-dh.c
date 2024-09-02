@@ -14,13 +14,13 @@ double lasso(double z, double l1, double l2, double v);
 
 // Memory handling, output formatting (Cox)
 SEXP cleanupCox(double *a, double *r, double *h, int *e, double *eta, double *haz, double *rsk, SEXP beta, SEXP Loss, SEXP iter, SEXP Eta) {
-  Free(a);
-  Free(r);
-  Free(h);
-  Free(e);
-  Free(eta);
-  Free(haz);
-  Free(rsk);
+  free(a);
+  free(r);
+  free(h);
+  free(e);
+  free(eta);
+  free(haz);
+  free(rsk);
   SEXP res;
   PROTECT(res = allocVector(VECSXP, 4));
   SET_VECTOR_ELT(res, 0, beta);
@@ -66,15 +66,15 @@ SEXP cdfit_cox_dh(SEXP X_, SEXP d_, SEXP penalty_, SEXP lambda, SEXP eps_, SEXP 
   for (int j=0; j<(L*n); j++) REAL(Eta)[j] = 0;
 
   // Intermediate quantities
-  double *a = Calloc(p, double);    // Beta from previous iteration
+  double *a = R_Calloc(p, double);    // Beta from previous iteration
   for (int j=0; j<p; j++) a[j] = 0;
-  double *haz = Calloc(n, double);
-  double *rsk = Calloc(n, double);
-  double *r = Calloc(n, double);
-  double *h = Calloc(n, double);
-  int *e = Calloc(p, int);
+  double *haz = R_Calloc(n, double);
+  double *rsk = R_Calloc(n, double);
+  double *r = R_Calloc(n, double);
+  double *h = R_Calloc(n, double);
+  int *e = R_Calloc(p, int);
   for (int j=0; j<p; j++) e[j] = 0;
-  double *eta = Calloc(n, double);
+  double *eta = R_Calloc(n, double);
   for (int i=0; i<n; i++) eta[i] = 0;
   double xwr, xwx, u, v, l1, l2, shift, si, s, nullDev;
   int lstart;

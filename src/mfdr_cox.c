@@ -23,9 +23,9 @@ SEXP mfdr_cox(SEXP fit) {
   double alpha = REAL(getListElement(fit, "alpha"))[0];
   double *m = REAL(getListElement(fit, "penalty.factor"));
   double tau;
-  double *w = Calloc(n, double);
-  double *haz = Calloc(n, double);
-  double *rsk = Calloc(n, double);
+  double *w = R_Calloc(n, double);
+  double *haz = R_Calloc(n, double);
+  double *rsk = R_Calloc(n, double);
   SEXP EF;
   PROTECT(EF = allocVector(REALSXP, L));
   for (int l=0; l<L; l++) REAL(EF)[l] = 0;
@@ -48,9 +48,9 @@ SEXP mfdr_cox(SEXP fit) {
   }
 
   // Return
-  Free(w);
-  Free(haz);
-  Free(rsk);
+  free(w);
+  free(haz);
+  free(rsk);
   UNPROTECT(1);
   return(EF);
 }

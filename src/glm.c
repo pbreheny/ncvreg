@@ -17,14 +17,14 @@ double p_binomial(double eta);
 
 // Memory handling, output formatting
 SEXP cleanup_glm(double *s, double *w, double *a, double *r, int *e1, int *e2, double *z, double *eta, SEXP beta0, SEXP beta, SEXP Dev, SEXP Eta, SEXP iter) {
-  Free(s);
-  Free(w);
-  Free(a);
-  Free(r);
-  Free(e1);
-  Free(e2);
-  Free(z);
-  Free(eta);
+  free(s);
+  free(w);
+  free(a);
+  free(r);
+  free(e1);
+  free(e2);
+  free(z);
+  free(eta);
   SEXP res;
   PROTECT(res = allocVector(VECSXP, 5));
   SET_VECTOR_ELT(res, 0, beta0);
@@ -77,16 +77,16 @@ SEXP cdfit_glm(SEXP X_, SEXP y_, SEXP family_, SEXP penalty_, SEXP lambda, SEXP 
 
   // Intermediate quantities
   double a0 = 0;                    // Beta0 from previous iteration
-  double *a = Calloc(p, double);    // Beta from previous iteration
+  double *a = R_Calloc(p, double);    // Beta from previous iteration
   for (int j=0; j<p; j++) a[j] = 0;
-  double *r = Calloc(n, double);
-  double *w = Calloc(n, double);
-  double *s = Calloc(n, double);
-  double *z = Calloc(p, double);
-  double *eta = Calloc(n, double);
-  int *e1 = Calloc(p, int);
+  double *r = R_Calloc(n, double);
+  double *w = R_Calloc(n, double);
+  double *s = R_Calloc(n, double);
+  double *z = R_Calloc(p, double);
+  double *eta = R_Calloc(n, double);
+  int *e1 = R_Calloc(p, int);
   for (int j=0; j<p; j++) e1[j] = 0;
-  int *e2 = Calloc(p, int);
+  int *e2 = R_Calloc(p, int);
   for (int j=0; j<p; j++) e2[j] = 0;
   double xwr, xwx, mu, u, v, max_change, cutoff, l1, l2, shift, si;
   int lstart;

@@ -23,7 +23,7 @@ SEXP mfdr_binomial(SEXP fit) {
   double alpha = REAL(getListElement(fit, "alpha"))[0];
   double *m = REAL(getListElement(fit, "penalty.factor"));
   double pi, tau;
-  double *w = Calloc(n, double);
+  double *w = R_Calloc(n, double);
   SEXP EF;
   PROTECT(EF = allocVector(REALSXP, L));
   for (int l=0; l<L; l++) REAL(EF)[l] = 0;
@@ -41,7 +41,7 @@ SEXP mfdr_binomial(SEXP fit) {
   }
 
   // Return
-  Free(w);
+  free(w);
   UNPROTECT(1);
   return(EF);
 }

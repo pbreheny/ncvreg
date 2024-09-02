@@ -13,11 +13,11 @@ double g_loss(double *r, int n);
 
 // Memory handling, output formatting (Gaussian)
 SEXP cleanup_gaussian(double *a, double *r, int *e1, int *e2, double *z, SEXP beta, SEXP loss, SEXP Eta, SEXP iter) {
-  Free(a);
-  Free(r);
-  Free(e1);
-  Free(e2);
-  Free(z);
+  free(a);
+  free(r);
+  free(e1);
+  free(e2);
+  free(z);
   SEXP res;
   PROTECT(res = allocVector(VECSXP, 4));
   SET_VECTOR_ELT(res, 0, beta);
@@ -63,15 +63,15 @@ SEXP cdfit_gaussian(SEXP X_, SEXP y_, SEXP penalty_, SEXP lambda, SEXP eps_, SEX
   for (int i=0; i<L; i++) INTEGER(iter)[i] = 0;
 
   // Intermediate quantities
-  double *a = Calloc(p, double);
+  double *a = R_Calloc(p, double);
   for (int j=0; j<p; j++) a[j]=0;
-  double *r = Calloc(n, double);
+  double *r = R_Calloc(n, double);
   for (int i=0; i<n; i++) r[i] = y[i];
-  double *z = Calloc(p, double);
+  double *z = R_Calloc(p, double);
   for (int j=0; j<p; j++) z[j] = crossprod(X, r, n, j)/n;
-  int *e1 = Calloc(p, int);
+  int *e1 = R_Calloc(p, int);
   for (int j=0; j<p; j++) e1[j] = 0;
-  int *e2 = Calloc(p, int);
+  int *e2 = R_Calloc(p, int);
   for (int j=0; j<p; j++) e2[j] = 0;
   double cutoff, l1, l2;
   int lstart;
