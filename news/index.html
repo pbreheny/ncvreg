@@ -3,7 +3,7 @@
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]--></head><body data-spy="scroll" data-target="#toc">
-    
+
 
     <div class="container template-news">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ncvreg</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.14.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.14.3</span>
       </span>
     </div>
 
@@ -25,7 +25,7 @@
       <ul class="nav navbar-nav"><li>
   <a href="../index.html">
     <span class="fa fa-home fa-lg"></span>
-     
+
   </a>
 </li>
 <li>
@@ -34,7 +34,7 @@
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Learn more
-     
+
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
@@ -65,22 +65,26 @@
       </ul><ul class="nav navbar-nav navbar-right"><li>
   <a href="https://github.com/pbreheny/ncvreg" class="external-link">
     <span class="fa fa-github fa-lg"></span>
-     
+
   </a>
 </li>
       </ul></div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
 
-      
+
 
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
       <h1 data-toc-skip>Changelog <small></small></h1>
-      <small>Source: <a href="https://github.com/pbreheny/ncvreg/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/pbreheny/ncvreg/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="3.14.3" id="ncvreg-3143-2024-09-02">ncvreg 3.14.3 (2024-09-02)<a class="anchor" aria-label="anchor" href="#ncvreg-3143-2024-09-02"></a></h2>
+<ul><li>Internal: Now using R_Calloc for <em>R_USE_STRICT_R_HEADERS</em> compatibility</li>
+</ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="3.14.2" id="ncvreg-3142-2024-04-20">ncvreg 3.14.2 (2024-04-20)<small>2024-04-20</small><a class="anchor" aria-label="anchor" href="#ncvreg-3142-2024-04-20"></a></h2>
 <ul><li>Documentation: Lots of formatting fixes to the documentation</li>
@@ -148,7 +152,7 @@
 <li>New: CVSE now calculated for Cox models, with option of quick or bootstrap</li>
 <li>Change: returnX now turned on by default if X &lt; 10 Mb</li>
 <li>Change: cv.ncvsurv now balances censoring across fold assignments</li>
-<li>Change: All data sets now follow Data<span class="math inline"><em>X</em>, <em>D</em><em>a</em><em>t</em><em>a</em></span>y convention</li>
+<li>Change: All data sets now follow Data<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>X</mi><mo>,</mo><mi>D</mi><mi>a</mi><mi>t</mi><mi>a</mi></mrow><annotation encoding="application/x-tex">X, Data</annotation></semantics></math>y convention</li>
 <li>Deprecated: cv.ind argument to cv.ncvreg is now called fold</li>
 <li>Portability: Fixed C99 flag</li>
 <li>Internal: Fixed &amp; v &amp;&amp; C issue</li>
@@ -329,15 +333,15 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
 </div>
 
       </footer></div>
 
-  
 
 
-  
+
+
 
   </body></html>
 

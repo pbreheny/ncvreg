@@ -3,7 +3,7 @@
 control over the fitting process:
 no standardization is applied, no intercept is included, no path is fit.
 All of these things are best practices for data analysis, so if you are choosing not to do
-them, you are on your own -- there is no guarantee that your results will be meaningful.
+them, you are on your own – there is no guarantee that your results will be meaningful.
 Some things in particular that you should pay attention to:
 If your model has an intercept, it is up to you to (un)penalize it properly, typically
 by settings its corresponding element of penalty.factor to zero.
@@ -15,7 +15,7 @@ converges to.
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]--></head><body data-spy="scroll" data-target="#toc">
-    
+
 
     <div class="container template-reference-topic">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -29,7 +29,7 @@ converges to.
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ncvreg</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.14.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.14.3</span>
       </span>
     </div>
 
@@ -37,7 +37,7 @@ converges to.
       <ul class="nav navbar-nav"><li>
   <a href="../index.html">
     <span class="fa fa-home fa-lg"></span>
-     
+
   </a>
 </li>
 <li>
@@ -46,7 +46,7 @@ converges to.
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Learn more
-     
+
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
@@ -77,20 +77,20 @@ converges to.
       </ul><ul class="nav navbar-nav navbar-right"><li>
   <a href="https://github.com/pbreheny/ncvreg" class="external-link">
     <span class="fa fa-github fa-lg"></span>
-     
+
   </a>
 </li>
       </ul></div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
 
-      
+
 
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Direct interface for nonconvex penalized regression (non-pathwise)</h1>
-    <small class="dont-index">Source: <a href="https://github.com/pbreheny/ncvreg/blob/HEAD/R/ncvfit.R" class="external-link"><code>R/ncvfit.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/pbreheny/ncvreg/blob/master/R/ncvfit.R" class="external-link"><code>R/ncvfit.R</code></a></small>
     <div class="hidden name"><code>ncvfit.Rd</code></div>
     </div>
 
@@ -99,7 +99,7 @@ converges to.
 control over the fitting process:
 no standardization is applied, no intercept is included, no path is fit.
 All of these things are best practices for data analysis, so if you are choosing not to do
-them, you are on your own -- there is no guarantee that your results will be meaningful.
+them, you are on your own – there is no guarantee that your results will be meaningful.
 Some things in particular that you should pay attention to:</p><ul><li><p>If your model has an intercept, it is up to you to (un)penalize it properly, typically
 by settings its corresponding element of <code>penalty.factor</code> to zero.</p></li>
 <li><p>You should provide initial values for the coefficients; in nonconvex optimization,
@@ -127,20 +127,22 @@ converges to.</p></li>
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>X</dt>
+
+
+<dl><dt id="arg-x">X<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
 <dd><p>Design matrix; no intercept will be added, no standardization
 will occur (n x p matrix)</p></dd>
 
 
-<dt>y</dt>
+<dt id="arg-y">y<a class="anchor" aria-label="anchor" href="#arg-y"></a></dt>
 <dd><p>Response vector (length n vector)</p></dd>
 
 
-<dt>init</dt>
+<dt id="arg-init">init<a class="anchor" aria-label="anchor" href="#arg-init"></a></dt>
 <dd><p>Initial values for beta.  Default: zero (length p vector)</p></dd>
 
 
-<dt>r</dt>
+<dt id="arg-r">r<a class="anchor" aria-label="anchor" href="#arg-r"></a></dt>
 <dd><p>Residuals corresponding to <code>init</code>; these will be calculated if not
 supplied, but if they have already been calculated elsewhere, it is
 more efficient to pass them as an argument. WARNING: If you supply
@@ -148,7 +150,7 @@ an incorrect value of <code>r</code>, the solution will be incorrect. (length
 n vector)</p></dd>
 
 
-<dt>xtx</dt>
+<dt id="arg-xtx">xtx<a class="anchor" aria-label="anchor" href="#arg-xtx"></a></dt>
 <dd><p>X scales: the jth element should equal <code>crossprod(X[,j])/n</code>. These
 will be calculated if not supplied, but if they have already been
 calculated elsewhere, it is more efficient to pass them as an
@@ -157,53 +159,51 @@ argument.  In particular, if X is standardized, one should pass
 <code>xtx</code>, the solution will be incorrect. (length p vector)</p></dd>
 
 
-<dt>penalty</dt>
+<dt id="arg-penalty">penalty<a class="anchor" aria-label="anchor" href="#arg-penalty"></a></dt>
 <dd><p>Penalty function to be applied, either "MCP" (default), "SCAD", or
 "lasso")</p></dd>
 
 
-<dt>gamma</dt>
+<dt id="arg-gamma">gamma<a class="anchor" aria-label="anchor" href="#arg-gamma"></a></dt>
 <dd><p>Tuning parameter of the MCP/SCAD penalty, as in <code><a href="ncvreg.html">ncvreg()</a></code>; default
 is 3 for MCP and 3.7 for SCAD.</p></dd>
 
 
-<dt>alpha</dt>
+<dt id="arg-alpha">alpha<a class="anchor" aria-label="anchor" href="#arg-alpha"></a></dt>
 <dd><p>Tuning paramter controlling the ridge component of penalty, as in
 <code><a href="ncvreg.html">ncvreg()</a></code>; default is 1 (meaning no ridge penalty)</p></dd>
 
 
-<dt>lambda</dt>
+<dt id="arg-lambda">lambda<a class="anchor" aria-label="anchor" href="#arg-lambda"></a></dt>
 <dd><p>Regularization parameter value at which to estimate beta; must be
-scalar -- for pathwise optimization, see <code><a href="ncvreg.html">ncvreg()</a></code></p></dd>
+scalar – for pathwise optimization, see <code><a href="ncvreg.html">ncvreg()</a></code></p></dd>
 
 
-<dt>eps</dt>
+<dt id="arg-eps">eps<a class="anchor" aria-label="anchor" href="#arg-eps"></a></dt>
 <dd><p>Convergence threshhold. The algorithm iterates until the RMSD for
 the change in linear predictors for each coefficient is less than
 eps. Default is 1e-4.</p></dd>
 
 
-<dt>max.iter</dt>
+<dt id="arg-max-iter">max.iter<a class="anchor" aria-label="anchor" href="#arg-max-iter"></a></dt>
 <dd><p>Maximum number of allowed iterations; if this number is reached,
 algorithm will terminate prior to convergence.  Default: 1000.</p></dd>
 
 
-<dt>penalty.factor</dt>
+<dt id="arg-penalty-factor">penalty.factor<a class="anchor" aria-label="anchor" href="#arg-penalty-factor"></a></dt>
 <dd><p>Multiplicative factor for the penalty applied to each coefficient,
 as in <code><a href="ncvreg.html">ncvreg()</a></code>.  In particular, note that if you include an
 intercept, you probably want to set its entry to zero here.</p></dd>
 
 
-<dt>warn</dt>
+<dt id="arg-warn">warn<a class="anchor" aria-label="anchor" href="#arg-warn"></a></dt>
 <dd><p>Return warning messages for failures to converge and model
 saturation? Default is TRUE.</p></dd>
 
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    
-
-<p>A list containing:</p><ul><li><p><code>beta</code>: The estimated regression coefficients</p></li>
+    <p>A list containing:</p><ul><li><p><code>beta</code>: The estimated regression coefficients</p></li>
 <li><p><code>iter</code>: The number of iterations required to solve for `beta</p></li>
 <li><p><code>loss</code>: The loss (residual sum of squares) at convergence</p></li>
 <li><p><code>resid</code>: The residuals at convergence</p></li>
@@ -253,15 +253,15 @@ functionality for other loss functions (logistic, Cox) is in development.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
 </div>
 
       </footer></div>
 
-  
 
 
-  
+
+
 
   </body></html>
 

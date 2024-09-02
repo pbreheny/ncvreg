@@ -13,14 +13,13 @@
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../../pkgdown.css" rel="stylesheet">
 <script src="../../pkgdown.js"></script><link href="../../extra.css" rel="stylesheet">
 <script src="../../extra.js"></script><meta property="og:title" content="Standardization and adaptive rescaling">
-<meta property="og:description" content="ncvreg">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
-    
+
 
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -34,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../../index.html">ncvreg</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.14.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.14.3</span>
       </span>
     </div>
 
@@ -43,7 +42,7 @@
 <li>
   <a href="../../index.html">
     <span class="fa fa-home fa-lg"></span>
-     
+
   </a>
 </li>
 <li>
@@ -52,7 +51,7 @@
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Learn more
-     
+
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
@@ -87,7 +86,7 @@
 <li>
   <a href="https://github.com/pbreheny/ncvreg" class="external-link">
     <span class="fa fa-github fa-lg"></span>
-     
+
   </a>
 </li>
       </ul>
@@ -98,7 +97,7 @@
 </div>
 <!--/.navbar -->
 
-      
+
 
       </header><div class="row">
   <div class="col-md-9 contents">
@@ -108,7 +107,7 @@
 Breheny</h4>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/pbreheny/ncvreg/blob/HEAD/vignettes/web/adaptive-rescaling.rmd" class="external-link"><code>vignettes/web/adaptive-rescaling.rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/pbreheny/ncvreg/blob/master/vignettes/web/adaptive-rescaling.rmd" class="external-link"><code>vignettes/web/adaptive-rescaling.rmd</code></a></small>
       <div class="hidden name"><code>adaptive-rescaling.rmd</code></div>
 
     </div>
@@ -119,10 +118,10 @@ Breheny</h4>
 (adopted by <strong>ncvreg</strong>, <a href="https://glmnet.stanford.edu/" class="external-link">glmnet</a>, and many other software
 packages) to standardize the coefficients prior to model fitting.
 Specifically, this means centering and scaling each feature so that</p>
-<p><span class="math display">\[\begin{align*}
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mfrac><mn>1</mn><mi>n</mi></mfrac><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msub><mi>x</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mn>0</mn></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mfrac><mn>1</mn><mi>n</mi></mfrac><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msubsup><mi>x</mi><mrow><mi>i</mi><mi>j</mi></mrow><mn>2</mn></msubsup></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mn>1</mn><mi>.</mi></mtd></mtr></mtable><annotation encoding="application/x-tex">\begin{align*}
 \frac{1}{n} \sum_{i=1}^n x_{ij} &amp;= 0 \\
 \frac{1}{n} \sum_{i=1}^n x_{ij}^2 &amp;= 1.
-\end{align*}\]</span></p>
+\end{align*}</annotation></semantics></math></p>
 <p>Fitting takes place on this standardized scale, but the inverse
 transformation is applied so that coefficients are returned on the
 original scale. This is appealing from a computational perspective, but
@@ -133,15 +132,15 @@ inches or meters, and so on).</p>
 <strong>ncvreg</strong> adopts the approach of constructing quadratic
 approximations to the loss function before updating estimates of the
 regression coefficients:</p>
-<p><span class="math display">\[ Q_{\lambda,\gamma}(\bb) \approx
+<p><span class="math display">$$ Q_{\lambda,\gamma}(\bb) \approx
 \frac{1}{2n}(\yy - \X\bb)'\W(\yy-\X\bb) + \sum_{j=1}^p
-p_{\lambda,\gamma}(\abs{\beta_j}). \]</span></p>
+p_{\lambda,\gamma}(\abs{\beta_j}). $$</span></p>
 <p>The equivalent standardization conditions for this weighted least
 squares loss are</p>
-<p><span class="math display">\[\begin{align*}
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mfrac><mn>1</mn><mi>n</mi></mfrac><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msub><mi>w</mi><mi>i</mi></msub><msub><mi>x</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mn>0</mn></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mfrac><mn>1</mn><mi>n</mi></mfrac><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msub><mi>w</mi><mi>i</mi></msub><msubsup><mi>x</mi><mrow><mi>i</mi><mi>j</mi></mrow><mn>2</mn></msubsup></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mn>1</mn><mi>.</mi></mtd></mtr></mtable><annotation encoding="application/x-tex">\begin{align*}
 \frac{1}{n} \sum_{i=1}^n w_i x_{ij} &amp;= 0 \\
 \frac{1}{n} \sum_{i=1}^n w_i x_{ij}^2 &amp;= 1.
-\end{align*}\]</span></p>
+\end{align*}</annotation></semantics></math></p>
 <p>However, because the approximation is iterative, the weights are
 continually changing and these conditions cannot simply be imposed at
 the outset. There are (at least) two reasonable courses of action here.
@@ -152,14 +151,21 @@ the weighted standardization conditions; in <strong>ncvreg</strong>, we
 refer to this as “adaptive rescaling.”</p>
 <p>For lasso-penalized models, the distinction is not particularly
 important. However, for MCP and SCAD, adaptive rescaling changes the
-meaning of the <a href="penalties.html"><span class="math inline">\(\gamma\)</span> parameter</a>. For example, if
-<span class="math inline">\(w_i=0.25\)</span> for all <span class="math inline">\(i\)</span> (as might be the case in logistic
-regression), then we would need to set <span class="math inline">\(\gamma=12\)</span> in order to obtain a model that
-behaves like <span class="math inline">\(\gamma=3\)</span> would for
-linear regression. To ensure a consistent meaning for <span class="math inline">\(\gamma\)</span> across different models (i.e.,
-that <span class="math inline">\(\gamma=3\)</span> remains a reasonable
-default in terms of balancing bias and variance), we use adaptive
-rescaling in the <strong>ncvreg</strong> package.</p>
+meaning of the <a href="penalties.html"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>γ</mi><annotation encoding="application/x-tex">\gamma</annotation></semantics></math>
+parameter</a>. For example, if
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>w</mi><mi>i</mi></msub><mo>=</mo><mn>0.25</mn></mrow><annotation encoding="application/x-tex">w_i=0.25</annotation></semantics></math>
+for all
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
+(as might be the case in logistic regression), then we would need to set
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>γ</mi><mo>=</mo><mn>12</mn></mrow><annotation encoding="application/x-tex">\gamma=12</annotation></semantics></math>
+in order to obtain a model that behaves like
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>γ</mi><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">\gamma=3</annotation></semantics></math>
+would for linear regression. To ensure a consistent meaning for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>γ</mi><annotation encoding="application/x-tex">\gamma</annotation></semantics></math>
+across different models (i.e., that
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>γ</mi><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">\gamma=3</annotation></semantics></math>
+remains a reasonable default in terms of balancing bias and variance),
+we use adaptive rescaling in the <strong>ncvreg</strong> package.</p>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -177,16 +183,16 @@ rescaling in the <strong>ncvreg</strong> package.</p>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
 </div>
 
       </footer>
 </div>
 
-  
 
 
-  
+
+
 
   </body>
 </html>

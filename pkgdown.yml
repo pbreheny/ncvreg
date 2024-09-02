@@ -1,14 +1,13 @@
 pandoc: 3.1.11
-pkgdown: 2.0.9
+pkgdown: 2.1.0
 pkgdown_sha: ~
 articles:
-  adaptive-rescaling: web/adaptive-rescaling.html
+  web/adaptive-rescaling: web/adaptive-rescaling.html
   getting-started: getting-started.html
-  getting-started: web/getting-started.html
-  inference-local: web/inference-local.html
-  inference-mfdr: web/inference-mfdr.html
-  models: web/models.html
-  other-cv-criteria: web/other-cv-criteria.html
-  penalties: web/penalties.html
-last_built: 2024-06-03T15:15Z
-
+  web/getting-started: web/getting-started.html
+  web/inference-local: web/inference-local.html
+  web/inference-mfdr: web/inference-mfdr.html
+  web/models: web/models.html
+  web/other-cv-criteria: web/other-cv-criteria.html
+  web/penalties: web/penalties.html
+last_built: 2024-09-02T17:33Z

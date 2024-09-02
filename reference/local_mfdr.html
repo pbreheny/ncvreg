@@ -5,7 +5,7 @@ use local_mfdr(), which skips the sorting, filtering, and print formatting of su
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]--></head><body data-spy="scroll" data-target="#toc">
-    
+
 
     <div class="container template-reference-topic">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -19,7 +19,7 @@ use local_mfdr(), which skips the sorting, filtering, and print formatting of su
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ncvreg</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.14.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.14.3</span>
       </span>
     </div>
 
@@ -27,7 +27,7 @@ use local_mfdr(), which skips the sorting, filtering, and print formatting of su
       <ul class="nav navbar-nav"><li>
   <a href="../index.html">
     <span class="fa fa-home fa-lg"></span>
-     
+
   </a>
 </li>
 <li>
@@ -36,7 +36,7 @@ use local_mfdr(), which skips the sorting, filtering, and print formatting of su
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Learn more
-     
+
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
@@ -67,20 +67,20 @@ use local_mfdr(), which skips the sorting, filtering, and print formatting of su
       </ul><ul class="nav navbar-nav navbar-right"><li>
   <a href="https://github.com/pbreheny/ncvreg" class="external-link">
     <span class="fa fa-github fa-lg"></span>
-     
+
   </a>
 </li>
       </ul></div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
 
-      
+
 
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Estimate local mFDR for all features</h1>
-    <small class="dont-index">Source: <a href="https://github.com/pbreheny/ncvreg/blob/HEAD/R/local-mfdr.R" class="external-link"><code>R/local-mfdr.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/pbreheny/ncvreg/blob/master/R/local-mfdr.R" class="external-link"><code>R/local-mfdr.R</code></a></small>
     <div class="hidden name"><code>local_mfdr.Rd</code></div>
     </div>
 
@@ -104,39 +104,39 @@ use <code>local_mfdr()</code>, which skips the sorting, filtering, and print for
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>fit</dt>
+
+
+<dl><dt id="arg-fit">fit<a class="anchor" aria-label="anchor" href="#arg-fit"></a></dt>
 <dd><p>A fitted <code>ncvreg</code> or <code>ncvsurv</code> object.</p></dd>
 
 
-<dt>lambda</dt>
+<dt id="arg-lambda">lambda<a class="anchor" aria-label="anchor" href="#arg-lambda"></a></dt>
 <dd><p>The value of lambda at which inference should be carried out.</p></dd>
 
 
-<dt>X, y</dt>
+<dt id="arg-x-y">X, y<a class="anchor" aria-label="anchor" href="#arg-x-y"></a></dt>
 <dd><p>The design matrix and response used to fit the model; in most cases, it is not necessary to provide
 <code>X</code> and <code>y</code> as they are returned by <code>ncvreg</code>, but see the <code>returnX</code> argument in <code><a href="ncvreg.html">ncvreg()</a></code>.</p></dd>
 
 
-<dt>method</dt>
+<dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
 <dd><p>What method should be used to calculate the local fdr?  Options are <code>ashr</code> (which tends to be more
 accurate) and <code>kernel</code> (which requires no additional packages).  The default is to use <code>ashr</code> if the package is
 installed.</p></dd>
 
 
-<dt>sigma</dt>
+<dt id="arg-sigma">sigma<a class="anchor" aria-label="anchor" href="#arg-sigma"></a></dt>
 <dd><p>For linear regression models, users can supply an estimate of the residual standard deviation.
 The default is to use RSS / DF, where degrees of freedom are approximated using the number of nonzero coefficients.</p></dd>
 
 
-<dt>...</dt>
+<dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Additional arguments to <code><a href="https://rdrr.io/pkg/ashr/man/ash.html" class="external-link">ashr::ash()</a></code> if using <code>method='ashr'</code>.</p></dd>
 
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    
-
-<p>If all features are penalized, then the object returns a data frame with one row per feature and four columns:</p><ul><li><p><code>Estimate</code>: The coefficient estimate from the penalized regression fit</p></li>
+    <p>If all features are penalized, then the object returns a data frame with one row per feature and four columns:</p><ul><li><p><code>Estimate</code>: The coefficient estimate from the penalized regression fit</p></li>
 <li><p><code>z</code>: A test statistic that approximately follows a standard normal distribution under the null hypothesis that the
 feature is marginally independent of the outcome</p></li>
 <li><p><code>mfdr</code>: The estimated marginal local false discovery rate</p></li>
@@ -231,15 +231,15 @@ penalized features as an offset.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
 </div>
 
       </footer></div>
 
-  
 
 
-  
+
+
 
   </body></html>
 

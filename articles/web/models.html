@@ -13,14 +13,13 @@
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../../pkgdown.css" rel="stylesheet">
 <script src="../../pkgdown.js"></script><link href="../../extra.css" rel="stylesheet">
 <script src="../../extra.js"></script><meta property="og:title" content="Models">
-<meta property="og:description" content="ncvreg">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
-    
+
 
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -34,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../../index.html">ncvreg</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.14.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.14.3</span>
       </span>
     </div>
 
@@ -43,7 +42,7 @@
 <li>
   <a href="../../index.html">
     <span class="fa fa-home fa-lg"></span>
-     
+
   </a>
 </li>
 <li>
@@ -52,7 +51,7 @@
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Learn more
-     
+
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
@@ -87,7 +86,7 @@
 <li>
   <a href="https://github.com/pbreheny/ncvreg" class="external-link">
     <span class="fa fa-github fa-lg"></span>
-     
+
   </a>
 </li>
       </ul>
@@ -98,7 +97,7 @@
 </div>
 <!--/.navbar -->
 
-      
+
 
       </header><div class="row">
   <div class="col-md-9 contents">
@@ -108,7 +107,7 @@
 Breheny</h4>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/pbreheny/ncvreg/blob/HEAD/vignettes/web/models.rmd" class="external-link"><code>vignettes/web/models.rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/pbreheny/ncvreg/blob/master/vignettes/web/models.rmd" class="external-link"><code>vignettes/web/models.rmd</code></a></small>
       <div class="hidden name"><code>models.rmd</code></div>
 
     </div>
@@ -116,11 +115,13 @@ Breheny</h4>
     
     
 <p><code>ncvreg</code> fits models that fall into the penalized
-likelihood framework. Rather than estimating <span class="math inline">\(\bb\)</span> by maximizing the likelihood, in this
-framework we estimate <span class="math inline">\(\bb\)</span> by
-minimizing the objective function <span class="math display">\[
+likelihood framework. Rather than estimating <span class="math inline">$\bb$</span> by maximizing the likelihood, in this
+framework we estimate <span class="math inline">$\bb$</span> by
+minimizing the objective function <span class="math display">$$
 Q(\bb|\X, \y) = \frac{1}{n}L(\bb|\X,\y) + P_\lam(\bb),
-\]</span> where the loss function <span class="math inline">\(L(\bb|\X,\y)\)</span> is the deviance (<span class="math inline">\(-2\)</span> times the log-likelihood), <span class="math inline">\(P_\lam(\bb)\)</span> is the penalty, and <span class="math inline">\(\lam\)</span> is a regularization parameter that
+$$</span> where the loss function <span class="math inline">$L(\bb|\X,\y)$</span> is the deviance
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>−</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">-2</annotation></semantics></math>
+times the log-likelihood), <span class="math inline">$P_\lam(\bb)$</span> is the penalty, and <span class="math inline">$\lam$</span> is a regularization parameter that
 controls the tradeoff between the two components. This article describes
 the different loss models available in <code>ncvreg</code>; see <a href="penalties.html">penalties</a> for more information on the
 different penalties available.</p>
@@ -128,10 +129,10 @@ different penalties available.</p>
 <h2 id="gaussian-linear-regression">Gaussian (linear regression)<a class="anchor" aria-label="anchor" href="#gaussian-linear-regression"></a>
 </h2>
 <p>In linear regression, the loss function is simply the squared error
-loss: <span class="math display">\[
+loss: <span class="math display">$$
 L(\bb|\X,\y) = \norm{\y-\X\bb}_2^2;
-\]</span> this loss is proportional to the deviance if the outcome <span class="math inline">\(\y\)</span> follows a normal distribution with
-constant variance and mean given by <span class="math inline">\(\X\bb\)</span>.</p>
+$$</span> this loss is proportional to the deviance if the outcome <span class="math inline">$\y$</span> follows a normal distribution with
+constant variance and mean given by <span class="math inline">$\X\bb$</span>.</p>
 <p>In the <code>Prostate</code> data packaged with <code>ncvreg</code>,
 the response is the prostate specific antigen (PSA), measured on the log
 scale, and follows an approximate normal distribution; see
@@ -179,8 +180,8 @@ method:</p>
 <p>The local marginal false discovery rate (mfdr) is given for each of
 the selected features. Roughly, this corresponds to the probability that
 the given feature is marginally independent of the residuals at that
-value of <span class="math inline">\(\lam\)</span>. In this case, it
-would appear that <code>lcavol</code>, <code>svi</code>, and
+value of <span class="math inline">$\lam$</span>. In this case, it would
+appear that <code>lcavol</code>, <code>svi</code>, and
 <code>lweight</code> are clearly associated with the response, even
 after adjusting for the other variables in the model, while
 <code>lbph</code>, <code>age</code>, and <code>pgg45</code> may be false
@@ -188,27 +189,28 @@ positives selected simply by chance. For more information on
 <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> and its various options, see <a href="inference-local.html">here</a>.</p>
 <p>Typically, one would carry out cross-validation for the purposes of
 assessing the predictive accuracy of the model at various values of
-<span class="math inline">\(\lambda\)</span>:</p>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cvfit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/cv.ncvreg.html">cv.ncvreg</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">y</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">cvfit</span><span class="op">)</span></span></code></pre></div>
 <p><img src="models_files/figure-html/unnamed-chunk-4-1.png" width="480"></p>
 <p>By default, the cross-validation error (CVE) is plotted; for all
 models in <code>ncvreg</code>, the cross-validation error is defined as
-<span class="math display">\[
+<span class="math display">$$
 \begin{align*}
 \CVE(\lam) &amp;= \frac{1}{n} \sum_i L\{y_i, \eta_{-i}(\lam)\}\\
 \eta_{-i}(\lam) &amp;= \sum_j x_{ij}\bh_j(-i,\lam),
 \end{align*}
-\]</span> where <span class="math inline">\(\bbh(-i,\lam)\)</span>
-denotes the estimated regression coefficients at <span class="math inline">\(\lam\)</span> for the fold in which observation
-<span class="math inline">\(i\)</span> has been left out. The loss
-function is determined by the type of model; for least squares loss,
-therefore, <span class="math display">\[
+$$</span> where <span class="math inline">$\bbh(-i,\lam)$</span> denotes
+the estimated regression coefficients at <span class="math inline">$\lam$</span> for the fold in which observation
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
+has been left out. The loss function is determined by the type of model;
+for least squares loss, therefore, <span class="math display">$$
 \CVE(\lam) = \frac{1}{n} \sum_i\{y_i-\eta_{-i}(\lam)\}^2\\
-\]</span></p>
-<p>Alternatively, one can plot <span class="math inline">\(\hat{\sigma}(\lam)\)</span>, the signal-to-noise
-ration (SNR), or <span class="math inline">\(R^2\)</span>:</p>
+$$</span></p>
+<p>Alternatively, one can plot <span class="math inline">$\hat{\sigma}(\lam)$</span>, the signal-to-noise
+ration (SNR), or
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>R</mi><mn>2</mn></msup><annotation encoding="application/x-tex">R^2</annotation></semantics></math>:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">cvfit</span>, type<span class="op">=</span><span class="st">'cve'</span><span class="op">)</span></span>
@@ -217,7 +219,7 @@ ration (SNR), or <span class="math inline">\(R^2\)</span>:</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">cvfit</span>, type<span class="op">=</span><span class="st">'rsq'</span><span class="op">)</span></span></code></pre></div>
 <p><img src="models_files/figure-html/unnamed-chunk-5-1.png" width="480"></p>
 <p>Calling <code>summary</code> on a <code>cv.ncvreg</code> object will
-provide a summary of these quantities at the value which minimizes <span class="math inline">\(\CVE\)</span>:</p>
+provide a summary of these quantities at the value which minimizes <span class="math inline">$\CVE$</span>:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">cvfit</span><span class="op">)</span></span>
 <span><span class="co"># MCP-penalized linear regression with n=97, p=8</span></span>
@@ -247,20 +249,21 @@ provide a summary of these quantities at the value which minimizes <span class="
 <p>To access the elements of the fit, <code>coef</code> and
 <code>predict</code> methods are provided. For example,
 <code>coef(fit, lambda=0.02)</code> returns the estimated coefficients
-at <span class="math inline">\(\lambda\)</span>=0.02, while
-<code>coef(cvfit)</code> returns the estimated coefficients at the value
-of <span class="math inline">\(\lam\)</span> minimizing CVE.</p>
+at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>=0.02,
+while <code>coef(cvfit)</code> returns the estimated coefficients at the
+value of <span class="math inline">$\lam$</span> minimizing CVE.</p>
 </div>
 <div class="section level2">
 <h2 id="binomial-logistic-regression">Binomial (logistic regression)<a class="anchor" aria-label="anchor" href="#binomial-logistic-regression"></a>
 </h2>
-<p>In logistic regression, the loss function is: <span class="math display">\[
+<p>In logistic regression, the loss function is: <span class="math display">$$
 L(\bb|\X,\y) = -2\sum_{i:y_i=1}\log\ph_i - 2\sum_{i:y_i=0}\log(1-\ph_i);
-\]</span> this loss is the deviance for a binomial distribution with
-probabilities <span class="math inline">\(P(Y_i=1)=\ph_i\)</span> given
-by: <span class="math display">\[
+$$</span> this loss is the deviance for a binomial distribution with
+probabilities <span class="math inline">$P(Y_i=1)=\ph_i$</span> given
+by: <span class="math display">$$
 \ph_i = \frac{\exp(\eta_i)}{1+\eta_i},
-\]</span> where <span class="math inline">\(\be = \X\bb\)</span> denotes
+$$</span> where <span class="math inline">$\be = \X\bb$</span> denotes
 the linear predictors. The <code>Heart</code> data provides an example
 of data that can be used with logistic regression. Loading this data set
 into R,</p>
@@ -309,16 +312,16 @@ correctly (27% misclassification).</p>
 <div class="section level2">
 <h2 id="poisson">Poisson<a class="anchor" aria-label="anchor" href="#poisson"></a>
 </h2>
-<p>In Poisson regression, the loss function is: <span class="math display">\[
+<p>In Poisson regression, the loss function is: <span class="math display">$$
 L(\bb|\X,\y) = 2\sum_i \left\{y_i\log y_i - y_i\log \mu_i + mu_i -
 y_i\right\};
-\]</span> note that some of these terms are constant with respect to
-<span class="math inline">\(\mu_i\)</span> and can therefore be ignored
-during optimization. This loss is the deviance for a Poisson
-distribution <span class="math inline">\(Y_i \sim
-\text{Pois}(\mh_i)\)</span> with rate parameter given by: <span class="math display">\[
+$$</span> note that some of these terms are constant with respect to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>μ</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\mu_i</annotation></semantics></math>
+and can therefore be ignored during optimization. This loss is the
+deviance for a Poisson distribution <span class="math inline">$Y_i \sim
+\text{Pois}(\mh_i)$</span> with rate parameter given by: <span class="math display">$$
 \mh_i = \exp(\eta_i).
-\]</span> To fit a penalized Poisson regression model with
+$$</span> To fit a penalized Poisson regression model with
 <code>ncvreg</code>:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/ncvreg.html">ncvreg</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">y</span>, family<span class="op">=</span><span class="st">'poisson'</span><span class="op">)</span></span></code></pre></div>
@@ -331,14 +334,18 @@ exponential families (hence the <code>family</code>) argument.
 <code>ncvreg</code> also allows users to fit Cox proportional hazards
 models, although these models fall outside this framework and are
 therefore fit using a different function, <code>ncvsurv</code>. In Cox
-regression, the deviance is <span class="math display">\[
+regression, the deviance is <span class="math display">$$
 L(\bb|\X,\y) = -2\sum_{j=1}^{m} d_j \eta_j + 2\sum_{j=1}^{m} d_j
 \log\left\{\sum_{i \in R_j} \exp(\eta_i)\right\},
-\]</span> where <span class="math inline">\(t_1 &lt; t_2 &lt; \ldots
-&lt; t_m\)</span> denotes an increasing list of unique failure times
-indexed by <span class="math inline">\(j\)</span> and <span class="math inline">\(R_j\)</span> denotes the set of observations still
-at risk at time <span class="math inline">\(t_j\)</span>, known as the
-risk set.</p>
+$$</span> where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mn>1</mn></msub><mo>&lt;</mo><msub><mi>t</mi><mn>2</mn></msub><mo>&lt;</mo><mi>…</mi><mo>&lt;</mo><msub><mi>t</mi><mi>m</mi></msub></mrow><annotation encoding="application/x-tex">t_1 &lt; t_2 &lt; \ldots &lt; t_m</annotation></semantics></math>
+denotes an increasing list of unique failure times indexed by
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mi>j</mi></msub><annotation encoding="application/x-tex">R_j</annotation></semantics></math>
+denotes the set of observations still at risk at time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>t</mi><mi>j</mi></msub><annotation encoding="application/x-tex">t_j</annotation></semantics></math>,
+known as the risk set.</p>
 <p>The <code>Lung</code> data (see <code><a href="../../reference/Lung.html">?Lung</a></code> for more details)
 provides an example of time-to-event data that can be used with Cox
 regression. Loading this data set into R,</p>
@@ -385,29 +392,24 @@ function is also available:</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">S</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">X</span><span class="op">[</span><span class="fl">1</span>,<span class="op">]</span>, type<span class="op">=</span><span class="st">'survival'</span>, lambda<span class="op">=</span><span class="fl">0.02</span><span class="op">)</span></span>
 <span><span class="fu">S</span><span class="op">(</span><span class="fl">365</span><span class="op">)</span>   <span class="co"># Estiamted survival at 1 year</span></span>
-<span><span class="co"># [1] 0.8594485</span></span></code></pre></div>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">S</span>, xlim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">200</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="co"># [1] 0.8594485</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">S</span>, xlim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">200</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="models_files/figure-html/models-cox-surv-single-1.png" width="480"></p>
 <p>When multiple subjects are involved in the prediction:</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">S</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">X</span>, type<span class="op">=</span><span class="st">'survival'</span>, lambda<span class="op">=</span><span class="fl">0.02</span><span class="op">)</span></span>
 <span><span class="va">S</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">(</span><span class="fl">365</span><span class="op">)</span>  <span class="co"># Estimated survival at 1 year for subject 1</span></span>
-<span><span class="co"># [1] 0.8594485</span></span></code></pre></div>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">S</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">(</span><span class="fl">365</span><span class="op">)</span>  <span class="co"># Estimated survival at 1 year for subject 2</span></span>
-<span><span class="co"># [1] 0.8887079</span></span></code></pre></div>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">S</span>, xlim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">200</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="co"># [1] 0.8594485</span></span>
+<span><span class="va">S</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">(</span><span class="fl">365</span><span class="op">)</span>  <span class="co"># Estimated survival at 1 year for subject 2</span></span>
+<span><span class="co"># [1] 0.8887079</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">S</span>, xlim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">200</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="models_files/figure-html/models-cox-surv-multiple-1.png" width="480"></p>
 </div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
 
-        <nav id="toc" data-toggle="toc"><h2 data-toc-skip>Contents</h2>
-    </nav>
-</div>
+      </div>
 
 </div>
 
@@ -420,16 +422,16 @@ function is also available:</p>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
 </div>
 
       </footer>
 </div>
 
-  
 
 
-  
+
+
 
   </body>
 </html>
