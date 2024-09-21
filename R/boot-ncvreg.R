@@ -217,7 +217,9 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
         sigma2 <- (1-w)*cv_fit$cve[l] + w*cv_fit$cve[r]
       }
       
-      original_coefs <- coef(cv_fit$fit, lambda = lambda)[-1]
+      fit <- cv_fit$fit
+      which_lambda <- cv_fit$min
+      original_coefs <- coef(fit, lambda = lambda)[-1]
     } 
   } else {
     if (!missing(sigma2) & verbose) message("Overriding variance estimate in cv.ncvreg object with user specified value for sigma2.")
@@ -232,9 +234,11 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
       w <- ind %% 1
       sigma2 <- (1-w)*cv_fit$cve[l] + w*cv_fit$cve[r]
     }
-    X <- cv_fit$fit$X
-    y <- cv_fit$fit$y
-    original_coefs <- coef(cv_fit$fit, lambda = lambda)[-1]
+    fit <- cv_fit$fit
+    X <- fit$X
+    y <- fit$y
+    which_lambda <- cv_fit$min
+    original_coefs <- coef(fit, lambda = lambda)[-1]
   }
   
   if (is.null(original_coefs)) {
@@ -271,11 +275,19 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
     coef.args$lambda <- lambda_seq
     
     fit <- do.call("ncvreg", coef.args)
+    which_lambda <- which.min(abs(lambda_seq - lambda))
     original_coefs <- coef(fit, lambda = lambda)[-1]
     
   }
   
   bias <- point_estimates <- fc_draws <- partial_correlations <- matrix(nrow = nboot, ncol = ncol(X))
+  ## REMOVE AFTER TESTING
+  #intercept <- mean(y - as.numeric(X %*% original_coefs))
+  #yhat <- intercept + as.numeric(X %*% original_coefs)
+  yhat <- fit$linear.predictors[,which_lambda]
+  sh_lh <- sum(original_coefs != 0)
+  sigma2 <- (length(y) - sh_lh)^(-1) * sum((y - yhat)^2)
+  
   
   if (!missing(cluster)) {
     if (!inherits(cluster, "cluster")) stop("cluster is not of class 'cluster'; see ?makeCluster", call.=FALSE)
