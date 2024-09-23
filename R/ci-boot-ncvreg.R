@@ -23,7 +23,7 @@
 #' @examples
 ci.boot_ncvreg <- function(boot, alpha = 0.2, quiet = FALSE, methods = "all") {
   
-  method_list <- c("traditional", "posterior", "hybrid", "debiased")
+  method_list <- c("traditional", "posterior", "hybrid", "debiased", "debiased2")
   if (methods != "all") {
     method_list <- intersect(method_list, methods)
   }
@@ -59,7 +59,7 @@ ci.boot_ncvreg <- function(boot, alpha = 0.2, quiet = FALSE, methods = "all") {
   }
   
   if ("debiased2" %in% method_list) {
-    debiased_cis <- compute_intervals(boot[["debiased_draws"]], alpha = alpha, quiet = quiet)
+    debiased2_cis <- compute_intervals(boot[["debiased_draws"]], alpha = alpha, quiet = quiet)
     intervals_list$debiased <- debiased_cis
   }
   
