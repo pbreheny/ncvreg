@@ -58,6 +58,11 @@ ci.boot_ncvreg <- function(boot, alpha = 0.2, quiet = FALSE, methods = "all") {
     intervals_list$debiased <- debiased_cis
   }
   
+  if ("debiased2" %in% method_list) {
+    debiased_cis <- compute_intervals(boot[["debiased_draws"]], alpha = alpha, quiet = quiet)
+    intervals_list$debiased <- debiased_cis
+  }
+  
   ci_info_all <- data.frame(estimate = boot[["estimates"]], variable = names(boot[["estimates"]]))
   ci_info <- list()
   

@@ -280,7 +280,7 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
     
   }
   
-  bias <- point_estimates <- fc_draws <- partial_correlations <- matrix(nrow = nboot, ncol = ncol(X))
+  debiased_draws <- bias <- point_estimates <- fc_draws <- partial_correlations <- matrix(nrow = nboot, ncol = ncol(X))
   ## REMOVE AFTER TESTING
   #intercept <- mean(y - as.numeric(X %*% original_coefs))
   #yhat <- intercept + as.numeric(X %*% original_coefs)
@@ -317,9 +317,11 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
   colnames(fc_draws) <- names(original_coefs)
   colnames(point_estimates) <- names(original_coefs)
   colnames(partial_correlations) <- names(original_coefs)
+  colnames(debiased_draws) <- names(original_coefs)
   val <- list(fc_draws = fc_draws, point_estimates = point_estimates,
               partial_correlations = partial_correlations, 
-              estimates = original_coefs,
+              debiased_draws = debiased_draws,
+              estimates = original_coefs, n = length(y),
               lambda = lambda, sigma2 = sigma2, penalty = penalty,
               alpha = gamma, gamma = gamma)
   
@@ -339,7 +341,7 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
   p <- ncol(XX)
   n <- length(yy)
   
-  fc_draws <- point_estimates <- partial_correlations <- numeric(p)
+  debiased_draws <- fc_draws <- point_estimates <- partial_correlations <- numeric(p)
   
   idx_new <- sample(1:n, replace = TRUE)
   ynew <- yy[idx_new]
@@ -413,15 +415,17 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
   fc_draws[nonsingular] <- draws * full_rescale_factor 
   point_estimates[nonsingular] <- modes * full_rescale_factor 
   partial_correlations[nonsingular] <- z * full_rescale_factor 
+  debiased_draws[nonsingular] <- rnorm(length(z), z, sqrt(sigma2 / n)) * full_rescale_factor 
   
   if (p_nonsingular < p) {
     fc_draws[!(1:p %in% nonsingular)] <- NA
     point_estimates[!(1:p %in% nonsingular)] <- NA
     partial_correlations[!(1:p %in% nonsingular)] <- NA
+    debiased_draws[!(1:p %in% nonsingular)] <- NA
   }
   
-  ret <- list(fc_draws, point_estimates, partial_correlations)
-  names(ret) <- c("fc_draws", "point_estimates", "partial_correlations")
+  ret <- list(fc_draws, point_estimates, partial_correlations, debiased_draws)
+  names(ret) <- c("fc_draws", "point_estimates", "partial_correlations", "debiased_draws")
   return(ret)
   
 }
