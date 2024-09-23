@@ -311,6 +311,7 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
     fc_draws[i,] <- res$fc_draws
     point_estimates[i,] <- res$point_estimates
     partial_correlations[i,] <- res$partial_correlations
+    partial_correlations[i,] <- res$debiased_draws
 
   }
   
