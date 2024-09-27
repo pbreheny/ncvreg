@@ -59,7 +59,7 @@ ci.boot_ncvreg <- function(boot, alpha = 0.2, quiet = FALSE, methods = "all") {
   }
   
   if ("debiased2" %in% method_list) {
-    point_estimates <- boot[["point_estimates"]]
+    point_estimates <- boot[["partial_correlations"]]
     debiased_draws <- boot[["debiased_draws"]]
     
     result <- point_estimates
