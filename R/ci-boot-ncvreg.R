@@ -59,7 +59,15 @@ ci.boot_ncvreg <- function(boot, alpha = 0.2, quiet = FALSE, methods = "all") {
   }
   
   if ("debiased2" %in% method_list) {
-    debiased2_cis <- compute_intervals(boot[["debiased_draws"]], alpha = alpha, quiet = quiet)
+    point_estimates <- boot[["point_estimates"]]
+    debiased_draws <- boot[["debiased_draws"]]
+    
+    result <- point_estimates
+    result[is.na(point_estimates)] <- NA
+    result[!is.na(point_estimates) & point_estimates == 0] <- debiased_draws[!is.na(point_estimates) & point_estimates == 0]
+    result[!is.na(point_estimates) & point_estimates != 0] <- point_estimates[!is.na(point_estimates) & point_estimates != 0]
+    
+    debiased2_cis <- compute_intervals(result, alpha = alpha, quiet = quiet)
     intervals_list$debiased2 <- debiased2_cis
   }
   
