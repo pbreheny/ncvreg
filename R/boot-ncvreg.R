@@ -82,7 +82,8 @@
 boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
                         lambda, gamma = switch(penalty, SCAD = 3.7, 3), alpha = 1,
                         sigma2, nboot = 1000, ...,
-                        cluster, seed, returnCV=FALSE, verbose = TRUE) {
+                        cluster, seed, returnCV=FALSE, verbose = TRUE,
+                        returnCorr = None) {
   
   if ((missing(X) | missing(y)) & (missing(cv_fit) || class(cv_fit) != "cv.ncvreg")) {
     stop("Either X and y or an object of class cv.ncvreg must be supplied.")
@@ -281,6 +282,7 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
   }
   
   debiased_draws <- bias <- point_estimates <- fc_draws <- partial_correlations <- matrix(nrow = nboot, ncol = ncol(X))
+  abCorrs <- numeric(nboot)
   ## REMOVE AFTER TESTING
   #intercept <- mean(y - as.numeric(X %*% original_coefs))
   #yhat <- intercept + as.numeric(X %*% original_coefs)
@@ -312,6 +314,7 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
     point_estimates[i,] <- res$point_estimates
     partial_correlations[i,] <- res$partial_correlations
     debiased_draws[i,] <- res$debiased_draws
+    abCorrs[i] <- res$abCorr
 
   }
   
@@ -327,13 +330,15 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
               alpha = gamma, gamma = gamma)
   
   if (returnCV) val$cv.ncvreg <- cv_fit
+  if (returnCorr) val$abCorrs <- abCorrs
   
   structure(val, class="boot_ncvreg")
   
 }
 bootf <- function(XX, yy, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
                   penalty = c("lasso", "MCP", "SCAD"),
-                  alpha = 1, gamma = switch(penalty, SCAD = 3.7, 3)) {
+                  alpha = 1, gamma = switch(penalty, SCAD = 3.7, 3),
+                  returnCorr = NULL) {
   
   if (missing(ncvreg.args)) {
     ncvreg.args <- list()
@@ -348,6 +353,9 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
   ynew <- yy[idx_new]
   ynew <- ynew - mean(ynew)
   xnew <- ncvreg::std(XX[idx_new,,drop=FALSE])
+  if (returnCorr) {
+    abCorr <- (1/n) * xnew[,1] %*% xnew[,2]
+  }
   
   nonsingular <- attr(xnew, "nonsingular")
   p_nonsingular <- length(nonsingular)
@@ -426,7 +434,7 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
   }
   
   ret <- list(fc_draws, point_estimates, partial_correlations, debiased_draws)
-  names(ret) <- c("fc_draws", "point_estimates", "partial_correlations", "debiased_draws")
+  names(ret) <- c("fc_draws", "point_estimates", "partial_correlations", "debiased_draws", "abCorr")
   return(ret)
   
 }
