@@ -433,7 +433,7 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
     debiased_draws[!(1:p %in% nonsingular)] <- NA
   }
   
-  ret <- list(fc_draws, point_estimates, partial_correlations, debiased_draws)
+  ret <- list(fc_draws, point_estimates, partial_correlations, debiased_draws, abCorr)
   names(ret) <- c("fc_draws", "point_estimates", "partial_correlations", "debiased_draws", "abCorr")
   return(ret)
   
