@@ -83,7 +83,7 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
                         lambda, gamma = switch(penalty, SCAD = 3.7, 3), alpha = 1,
                         sigma2, nboot = 1000, ...,
                         cluster, seed, returnCV=FALSE, verbose = TRUE,
-                        returnCorr = None) {
+                        returnCorr = TRUE) {
   
   if ((missing(X) | missing(y)) & (missing(cv_fit) || class(cv_fit) != "cv.ncvreg")) {
     stop("Either X and y or an object of class cv.ncvreg must be supplied.")
@@ -338,7 +338,7 @@ boot_ncvreg <- function(X, y, cv_fit, penalty = "lasso",
 bootf <- function(XX, yy, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
                   penalty = c("lasso", "MCP", "SCAD"),
                   alpha = 1, gamma = switch(penalty, SCAD = 3.7, 3),
-                  returnCorr = NULL) {
+                  returnCorr = TRUE) {
   
   if (missing(ncvreg.args)) {
     ncvreg.args <- list()
