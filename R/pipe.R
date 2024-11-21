@@ -48,6 +48,12 @@ pipe <- function(X, y, fit, lambda, sigma,
     }
   }
   
+  if (missing(lambda)) {
+    message("No lambda provided, using cv.ncvreg to select the value of lambda that minimizes CVE.")
+    cv_fit <- cv.ncvreg(X, y, family = family, penalty = penalty, gamma = gamma, alpha = alpha, returnX = TRUE)
+    lambda <- cv_fit$lambda.min
+  }
+  
   if (is.null(fit$X)) {
     XX <- ncvreg::std(X)
   } else {
@@ -66,24 +72,18 @@ pipe <- function(X, y, fit, lambda, sigma,
   p <- ncol(XX)
   n <- nrow(XX)
   
-  # load model (NEED TO UPDATE FOR BINOMIAL)
-  if (fit$family == "gaussian") {
-    beta <- coef(fit, lambda = lambda)[-1]
-    beta <- beta * rescale_factorX
-    S <- beta != 0
-    S_hat <- which(S)
-    N_hat <- which(!S)
-  } else if (fit$family == "binomial") {
-    beta <- coef(fit, lambda = lambda)
-    S_hat <- which(beta[-1] != 0)
-    N_hat <- which(beta[-1] == 0)
-  }
-  
   # initialize
   beta_PIPE <- numeric(p)
   sigma_PIPE <- numeric(p)
   
   if (fit$family == "gaussian"){
+    
+    # Load model
+    beta <- coef(fit, lambda = lambda)[-1]
+    beta <- beta * rescale_factorX
+    S <- beta != 0
+    S_hat <- which(S)
+    N_hat <- which(!S)
     
     # Compute sigma if not provided
     if (missing(sigma)) {
@@ -131,27 +131,42 @@ pipe <- function(X, y, fit, lambda, sigma,
       
     }
     
-  } else if (fit$family == "binomial") {
+  } else {
     
-    # compute pseudo outcome
+    ## Refit the model with standardized X -> I don't love this...
+    if (!all(abs(attr(XX, "scale") - 1) < 1e-8)) {
+      fit <- ncvreg::ncvreg(
+        XX, yy, family = fit$family, penalty = fit$penalty, gamma = fit$gamma, alpha = fit$alpha
+      )  
+    }
+    
     pii <- predict(fit, XX, type = "response", lambda = lambda)
-    A <- pii * (1-pii)
-    W <- diag(A) #
-    v <- yy - pii # W and v change for different family of distribution
-    Y_pse <- diag(1/A) %*% v + predict(fit, XX, type = "link", lambda = lambda)
+    beta <- coef(fit, lambda = lambda)
+    S_hat <- which(beta[-1] != 0)
+    N_hat <- which(beta[-1] == 0)
+    
+    if (fit$family == "binomial") {
+      A <- pii * (1 - pii)
+    } else if (fit$faimly == "poissson") {
+      A <- pii
+    }
+    
+    v <- yy - pii
+    W <- diag(A) 
+    Y_pse <- diag(1/A) %*% v + predict(fit, XX, type = "link", lambda = lambda) 
     
     # compute weight matrix
     sqrtW <- sqrt(W)
     yy_pse <- sqrtW %*% Y_pse
-    X_int <- cbind(rep(1,n), XX)
+    X_int <- cbind(rep(1, n), XX)
     
-    # compute pipe for features in the estimated support
+    # Compute pipe for features in the estimated support
     for (i in S_hat) {
       
-      S_hat_i <- beta[-1] != 0
+      S_hat_i <- s_hat
       S_hat_i[i] <- FALSE
       
-      Xs <- X_int[, c(TRUE,S_hat_i), drop = FALSE]
+      Xs <- X_int[, c(TRUE, S_hat_i), drop = FALSE]
       XXs <- sqrtW %*% Xs
       xx <- crossprod(sqrtW, XX[,i])
       
@@ -161,8 +176,7 @@ pipe <- function(X, y, fit, lambda, sigma,
       
     }
     
-    # compute pipe for null features
-    S_hat <- beta[-1] != 0
+    # Compute pipe for null features
     Xs <- X_int[,c(TRUE, S_hat), drop = FALSE]
     XXs <- sqrtW %*% Xs
     Qs <- diag(n) - tcrossprod(qr.Q(qr(XXs)))
@@ -182,7 +196,7 @@ pipe <- function(X, y, fit, lambda, sigma,
   qvalue <- p.adjust(pvalue, method = "BH")
   ci_width <- qnorm(1 - ((1 - confidence_level)/2)) * sigma_PIPE
   
-  if (fit$family == "binomial") beta <- beta[-1]
+  if (fit$family != "gaussian") beta <- beta[-1]
   
   res <- data.frame(
     variable = colnames(X),
