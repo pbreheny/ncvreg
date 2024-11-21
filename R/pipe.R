@@ -17,7 +17,7 @@
 #'
 #' @examples
 pipe <- function(X, y, fit, lambda, sigma,
-                 family = c("gaussian", "binomial"),
+                 family = c("gaussian", "binomial", "poisson"),
                  penalty = c("MCP", "SCAD", "lasso"),
                  gamma = switch(penalty, SCAD = 3.7, 3),
                  alpha = 1, confidence_level = 0.95,
@@ -142,12 +142,13 @@ pipe <- function(X, y, fit, lambda, sigma,
     
     pii <- predict(fit, XX, type = "response", lambda = lambda)
     beta <- coef(fit, lambda = lambda)
-    S_hat <- which(beta[-1] != 0)
-    N_hat <- which(beta[-1] == 0)
+    S <- beta[-1] != 0
+    S_hat <- which(S)
+    N_hat <- which(!S)
     
     if (fit$family == "binomial") {
       A <- pii * (1 - pii)
-    } else if (fit$faimly == "poissson") {
+    } else if (fit$family == "poisson") {
       A <- pii
     }
     
@@ -163,7 +164,7 @@ pipe <- function(X, y, fit, lambda, sigma,
     # Compute pipe for features in the estimated support
     for (i in S_hat) {
       
-      S_hat_i <- s_hat
+      S_hat_i <- S
       S_hat_i[i] <- FALSE
       
       Xs <- X_int[, c(TRUE, S_hat_i), drop = FALSE]
@@ -177,14 +178,14 @@ pipe <- function(X, y, fit, lambda, sigma,
     }
     
     # Compute pipe for null features
-    Xs <- X_int[,c(TRUE, S_hat), drop = FALSE]
+    Xs <- X_int[,c(TRUE, S), drop = FALSE]
     XXs <- sqrtW %*% Xs
     Qs <- diag(n) - tcrossprod(qr.Q(qr(XXs)))
     
     for (i in N_hat) {
       
       xx <- crossprod(sqrtW, XX[,i])
-      beta_PIPE[i] <- t(xx) %*% (yy - XXs %*% beta[c(TRUE, S_hat)]) / crossprod(xx)
+      beta_PIPE[i] <- t(xx) %*% (yy - XXs %*% beta[c(TRUE, S)]) / crossprod(xx)
       sigma_PIPE[i] <- sqrt(1 / (t(xx) %*% Qs %*% xx))
       
     }
@@ -197,6 +198,9 @@ pipe <- function(X, y, fit, lambda, sigma,
   ci_width <- qnorm(1 - ((1 - confidence_level)/2)) * sigma_PIPE
   
   if (fit$family != "gaussian") beta <- beta[-1]
+  if (missing(sigma)) {sigma <- NA}
+  
+  print(rescale_factorX)
   
   res <- data.frame(
     variable = colnames(X),
