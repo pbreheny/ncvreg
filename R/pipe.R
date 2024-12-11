@@ -21,20 +21,27 @@ pipe <- function(X, y, fit, lambda, sigma,
                  penalty = c("MCP", "SCAD", "lasso"),
                  gamma = switch(penalty, SCAD = 3.7, 3),
                  alpha = 1, confidence_level = 0.95,
-                 relaxed = FALSE
+                 relaxed = FALSE, posterior = FALSE
 ) {
   
   ## If user wants more control, call ncvreg or cv.ncvreg directly
   family <- match.arg(family)
   penalty <- match.arg(penalty)
   
-  ## I don't actually like this. Must supply X and y or fit object?
   if (missing(fit) & (missing(X) | missing(y))) {
     stop("Must supply a fit of class ncvreg or cv.ncvreg or both X and y.")
   }
   
   if ((!missing(fit) && is.null(fit$X)) & missing(X)) {
     stop("This procedure requires X. Either supply X, or fit the model using the option 'returnX = TRUE'")
+  }
+  
+  if ((!missing(fit) && !is.null(fit$X)) && (!missing(X) && !identical(fit$X, X))) {
+    stop(glue("X supplied both in {class(fit)} and as an argument to pipe and they are not the same. It is unclear which should be used."))
+  }
+  
+  if (!missing(fit) && (!missing(y) && !identical(fit$y, y))) {
+    stop(glue("y supplied along with object of class {class(fit)} which also contains y and they are not the same. It is unclear which should be used."))
   }
   
   ## Get a fit in some way, after this, every version of supplied X and y is the same
@@ -54,13 +61,18 @@ pipe <- function(X, y, fit, lambda, sigma,
     lambda <- cv_fit$lambda.min
   }
   
+  ## Get standardized X
   if (is.null(fit$X)) {
-    XX <- ncvreg::std(X)
+    if (is.null(attr(X, "scale"))) {
+      XX <- ncvreg::std(X)
+    } else {
+      XX <- X
+    }
   } else {
     XX <- fit$X
   }
   rescale_factorX <- attr(XX, "scale")
-  yy <- fit$y ## not centered??, need to confirm always returned
+  yy <- fit$y ## not centered??
   if (fit$family == "gaussian") yy <- yy - mean(yy) ## center y
   
   ## Check for nonsingular?? Can't do unless have original X
@@ -137,7 +149,7 @@ pipe <- function(X, y, fit, lambda, sigma,
     if (!all(abs(attr(XX, "scale") - 1) < 1e-8)) {
       fit <- ncvreg::ncvreg(
         XX, yy, family = fit$family, penalty = fit$penalty, gamma = fit$gamma, alpha = fit$alpha
-      )  
+      )
     }
     
     pii <- predict(fit, XX, type = "response", lambda = lambda)
@@ -153,13 +165,14 @@ pipe <- function(X, y, fit, lambda, sigma,
     }
     
     v <- yy - pii
-    W <- diag(A) 
-    Y_pse <- diag(1/A) %*% v + predict(fit, XX, type = "link", lambda = lambda) 
+    W <- diag(A)
+    Y_pse <- diag(1/A) %*% v + predict(fit, XX, type = "link", lambda = lambda)
     
     # compute weight matrix
     sqrtW <- sqrt(W)
     yy_pse <- sqrtW %*% Y_pse
     X_int <- cbind(rep(1, n), XX)
+    weights <- colSums((W %*% XX) * XX) / n
     
     # Compute pipe for features in the estimated support
     for (i in S_hat) {
@@ -172,7 +185,7 @@ pipe <- function(X, y, fit, lambda, sigma,
       xx <- crossprod(sqrtW, XX[,i])
       
       Qs <- diag(n) - tcrossprod(qr.Q(qr(XXs)))
-      beta_PIPE[i] <- t(xx) %*% (yy - XXs %*% beta[c(TRUE, S_hat_i)]) / crossprod(xx)
+      beta_PIPE[i] <- t(xx) %*% (yy_pse - XXs %*% beta[c(TRUE, S_hat_i)]) / crossprod(xx)
       sigma_PIPE[i] <- sqrt(1 / (t(xx) %*% Qs %*% xx))
       
     }
@@ -185,7 +198,7 @@ pipe <- function(X, y, fit, lambda, sigma,
     for (i in N_hat) {
       
       xx <- crossprod(sqrtW, XX[,i])
-      beta_PIPE[i] <- t(xx) %*% (yy - XXs %*% beta[c(TRUE, S)]) / crossprod(xx)
+      beta_PIPE[i] <- t(xx) %*% (yy_pse - XXs %*% beta[c(TRUE, S)]) / crossprod(xx)
       sigma_PIPE[i] <- sqrt(1 / (t(xx) %*% Qs %*% xx))
       
     }
@@ -195,12 +208,31 @@ pipe <- function(X, y, fit, lambda, sigma,
   t <- beta_PIPE / sigma_PIPE
   pvalue <- (1 - pnorm(abs(t)))*2
   qvalue <- p.adjust(pvalue, method = "BH")
-  ci_width <- qnorm(1 - ((1 - confidence_level)/2)) * sigma_PIPE
   
   if (fit$family != "gaussian") beta <- beta[-1]
   if (missing(sigma)) {sigma <- NA}
   
-  print(rescale_factorX)
+  if (posterior) {
+    
+    if (family == "gaussian") {
+      ci <- ci_full_cond(beta_PIPE, lambda = lambda, se = sigma_PIPE,
+                         alpha = 1 - confidence_level, penalty = penalty)
+    } else {
+      ci <- ci_full_cond(beta_PIPE, lambda = lambda, se = sigma_PIPE,
+                         alpha = 1 - confidence_level, penalty = penalty, family = family, weights = weights)
+    }
+    
+    
+    lower <- ci$lower
+    upper <- ci$upper
+    
+  } else {
+    
+    ci_width <- qnorm(1 - ((1 - confidence_level)/2)) * sigma_PIPE
+    lower <- (beta_PIPE - ci_width)
+    upper <- (beta_PIPE + ci_width)
+    
+  }
   
   res <- data.frame(
     variable = colnames(X),
@@ -208,14 +240,117 @@ pipe <- function(X, y, fit, lambda, sigma,
     estimate = beta_PIPE / rescale_factorX,
     SE = sigma_PIPE,
     t = t,
-    lower = (beta_PIPE - ci_width) / rescale_factorX,
-    upper = (beta_PIPE + ci_width) / rescale_factorX,
+    lower = lower / rescale_factorX,
+    upper = upper / rescale_factorX,
     p.value = pvalue,
     p.adjust = qvalue,
     sigma = sigma,
-    lamda = lambda
+    lamda = lambda,
+    rescale_factor = rescale_factorX
   )
   
   return(res)
   
 }
+ci_full_cond <- function(z, lambda, se, alpha, penalty = "lasso", family = "gaussian", weights = NULL) {
+  
+  ## ADJUST LAMBDA FOR non gaussian
+  if (family != "gaussian") {
+    lambda_orig <- lambda
+    lambda <- lambda / weights
+  }
+  
+  ## Tails being transferred on to (log probability in each tail)
+  obs_lw <- pnorm(0, z + lambda, se, log.p = TRUE)
+  obs_up <- pnorm(0, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
+  
+  obs_p_lw <- obs_lw + (z*lambda / se^2)
+  obs_p_up <- obs_up - (z*lambda / se^2)
+  
+  ## Find the proportion of each to the overall probability
+  frac_lw_log <- ifelse(is.infinite(exp(obs_p_lw - obs_p_up)), 0, obs_p_lw - obs_p_up - log(1 + exp(obs_p_lw - obs_p_up)))
+  frac_up_log <- ifelse(is.infinite(exp(obs_p_up - obs_p_lw)), 0, obs_p_up - obs_p_lw - log(1 + exp(obs_p_up - obs_p_lw)))
+  
+  ps <- alpha / 2
+  log_ps <- log(ps)
+  log_one_minus_ps <- log(1 - ps)
+  lowers <- ifelse(
+    frac_lw_log >= log_ps,
+    qnorm(log_ps + obs_lw - frac_lw_log, z + lambda, se, log.p = TRUE),
+    qnorm(log_one_minus_ps + obs_up - frac_up_log, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
+  )
+  
+  
+  ps <- 1 - alpha / 2
+  log_ps <- log(ps)
+  log_one_minus_ps <- log(1 - ps)
+  uppers <- ifelse(
+    frac_lw_log >= log_ps,
+    qnorm(log_ps + obs_lw - frac_lw_log, z + lambda, se, log.p = TRUE),
+    qnorm(log_one_minus_ps + obs_up - frac_up_log, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
+  )
+  
+  if (penalty == "MCP") {
+    if (family != "gaussian") {lambda <- lambda_orig}
+    uppers <- firm_threshold_c(uppers, lambda, 3, family = family, weights = weights)
+    lowers <- firm_threshold_c(lowers, lambda, 3, family = family, weights = weights)
+  }
+  return(data.frame(lower = lowers, upper = uppers, lambda = lambda))
+  
+}
+## THIS SHOULD E TRUE LAMBDA
+firm_threshold_c <- function(bound, lambda, gamma, family = "gaussian", weights = NULL) {
+  
+  # If the original code expected to never have bound == 0, we must ensure that condition.
+  if (any(bound == 0)) {
+    stop("An unexpected error occurred when adjusting the lasso penalty to MCP.")
+  }
+  
+  # For Gaussian family
+  if (family == "gaussian") {
+    
+    # Vectorized computation of z_j
+    z_j <- bound + sign(bound)*lambda
+    
+    # Create a logical vector for the condition abs(z_j) <= gamma*lambda
+    cond <- abs(z_j) <= (gamma * lambda)
+    
+    # Where cond is TRUE, apply the MCP thresholding
+    z_j[cond] <- (gamma / (gamma - 1)) * soft_threshold(z_j[cond], lambda)
+    
+    return(z_j)
+    
+  } else {
+    # Non-Gaussian case:
+    # Compute z_j element-wise in a vectorized manner
+    z_j <- (bound * weights) + sign(bound)*lambda
+    
+    # Logical vector for the condition
+    cond <- abs(z_j) <= (gamma * lambda)
+    
+    # Apply MCP thresholding where condition holds
+    z_j[cond] <- (gamma / (gamma - 1)) * soft_threshold(z_j[cond], lambda)
+    
+    # Return the adjusted values, scaling back by weights
+    return(z_j / weights)
+  }
+}
+soft_threshold <- function(z_j, lambda) {
+  # Initialize an output vector of the same size as z_j
+  out <- numeric(length(z_j))
+  
+  # Condition where z_j > lambda
+  idx_pos <- z_j > lambda
+  out[idx_pos] <- z_j[idx_pos] - lambda
+  
+  # Condition where |z_j| ≤ lambda
+  idx_mid <- abs(z_j) <= lambda
+  out[idx_mid] <- 0
+  
+  # Condition where z_j < -lambda
+  idx_neg <- z_j < -lambda
+  out[idx_neg] <- z_j[idx_neg] + lambda
+  
+  return(out)
+}
+
