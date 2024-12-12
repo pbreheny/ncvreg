@@ -1,16 +1,17 @@
 #' Title
 #'
-#' @param X
-#' @param y
-#' @param fit
-#' @param lambda
-#' @param sigma
-#' @param family
-#' @param penalty
-#' @param gamma
-#' @param alpha
-#' @param confidence_level
-#' @param relaxed
+#' @param X 
+#' @param y 
+#' @param fit 
+#' @param lambda 
+#' @param sigma 
+#' @param family 
+#' @param penalty 
+#' @param gamma 
+#' @param alpha 
+#' @param level 
+#' @param relaxed 
+#' @param posterior 
 #'
 #' @return
 #' @export
@@ -20,7 +21,7 @@ pipe <- function(X, y, fit, lambda, sigma,
                  family = c("gaussian", "binomial", "poisson"),
                  penalty = c("MCP", "SCAD", "lasso"),
                  gamma = switch(penalty, SCAD = 3.7, 3),
-                 alpha = 1, confidence_level = 0.95,
+                 alpha = 1, level = 0.95,
                  relaxed = FALSE, posterior = FALSE
 ) {
   
@@ -42,6 +43,10 @@ pipe <- function(X, y, fit, lambda, sigma,
   
   if (!missing(fit) && (!missing(y) && !identical(fit$y, y))) {
     stop(glue("y supplied along with object of class {class(fit)} which also contains y and they are not the same. It is unclear which should be used."))
+  }
+  
+  if (alpha < 1) {
+    stop("alpha less than 1 not yet implimented.")
   }
   
   ## Get a fit in some way, after this, every version of supplied X and y is the same
@@ -76,6 +81,7 @@ pipe <- function(X, y, fit, lambda, sigma,
   if (fit$family == "gaussian") yy <- yy - mean(yy) ## center y
   
   ## Check for nonsingular?? Can't do unless have original X
+  ## likely not a huge deal for non-bootstrap scenario
   # nonsingular <- attr(XX, "nonsingular")
   # if (length(nonsingular) != ncol(XX)) {
   #   warning("Columns in X are singular, inference will not be provided for these features")
@@ -102,9 +108,8 @@ pipe <- function(X, y, fit, lambda, sigma,
       sigma <- sqrt(crossprod(yy - XX %*% beta) / (n - sum(beta != 0)))
     }
     
-    ## Compute pipe estimate
     yhat <- as.numeric(XX %*% beta)
-    partial_residuals <- (yy - yhat) + (XX * matrix(beta, nrow = n, ncol = p, byrow = TRUE))
+    partial_residuals <- (yy - yhat) + (XX * matrix(beta, nrow = nrow(XX), ncol = ncol(XX), byrow = TRUE))
     if (!relaxed) beta_PIPE <- (1/n) * colSums(XX * partial_residuals)
     
     ## Compute PIPE Variance
@@ -116,7 +121,7 @@ pipe <- function(X, y, fit, lambda, sigma,
       
       ## Compute variance
       Xsi <- XX[,S_hat_i,drop = FALSE]
-      Qsi <- diag(n) - tcrossprod(qr.Q(qr(Xsi)))
+      Qsi <- diag(nrow(XX)) - tcrossprod(qr.Q(qr(Xsi)))
       adjusted_n <- t(XX[,i,drop = FALSE]) %*% Qsi %*% XX[,i,drop = FALSE]
       sigma_PIPE[i] <- sqrt(sigma^2 / adjusted_n)
       if (relaxed) {
@@ -127,9 +132,9 @@ pipe <- function(X, y, fit, lambda, sigma,
     # For null features
     if (length(S_hat) > 0 & length(N_hat) > 0) {
       Xs <- XX[,S_hat]
-      Qs <- diag(n) - tcrossprod(qr.Q(qr(Xs)))
+      Qs <- diag(nrow(XX)) - tcrossprod(qr.Q(qr(Xs)))
     } else {
-      Qs <- diag(n)
+      Qs <- diag(nrow(XX))
     }
     
     for (i in N_hat) {
@@ -145,7 +150,7 @@ pipe <- function(X, y, fit, lambda, sigma,
     
   } else {
     
-    ## Refit the model with standardized X -> I don't love this...
+    ## Refit the model with standardized X -> I don't love this... but not sure of a better solution
     if (!all(abs(attr(XX, "scale") - 1) < 1e-8)) {
       fit <- ncvreg::ncvreg(
         XX, yy, family = fit$family, penalty = fit$penalty, gamma = fit$gamma, alpha = fit$alpha
@@ -171,7 +176,7 @@ pipe <- function(X, y, fit, lambda, sigma,
     # compute weight matrix
     sqrtW <- sqrt(W)
     yy_pse <- sqrtW %*% Y_pse
-    X_int <- cbind(rep(1, n), XX)
+    X_int <- cbind(rep(1, nrow(XX)), XX)
     weights <- colSums((W %*% XX) * XX) / n
     
     # Compute pipe for features in the estimated support
@@ -184,7 +189,7 @@ pipe <- function(X, y, fit, lambda, sigma,
       XXs <- sqrtW %*% Xs
       xx <- crossprod(sqrtW, XX[,i])
       
-      Qs <- diag(n) - tcrossprod(qr.Q(qr(XXs)))
+      Qs <- diag(nrow(XX)) - tcrossprod(qr.Q(qr(XXs)))
       beta_PIPE[i] <- t(xx) %*% (yy_pse - XXs %*% beta[c(TRUE, S_hat_i)]) / crossprod(xx)
       sigma_PIPE[i] <- sqrt(1 / (t(xx) %*% Qs %*% xx))
       
@@ -193,7 +198,7 @@ pipe <- function(X, y, fit, lambda, sigma,
     # Compute pipe for null features
     Xs <- X_int[,c(TRUE, S), drop = FALSE]
     XXs <- sqrtW %*% Xs
-    Qs <- diag(n) - tcrossprod(qr.Q(qr(XXs)))
+    Qs <- diag(nrow(XX)) - tcrossprod(qr.Q(qr(XXs)))
     
     for (i in N_hat) {
       
@@ -290,49 +295,69 @@ ci_full_cond <- function(z, lambda, se, alpha, penalty = "lasso", family = "gaus
     qnorm(log_one_minus_ps + obs_up - frac_up_log, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
   )
   
-  if (penalty == "MCP") {
+  if (penalty %in% c("MCP", "SCAD")) {
     if (family != "gaussian") {lambda <- lambda_orig}
-    uppers <- firm_threshold_c(uppers, lambda, 3, family = family, weights = weights)
-    lowers <- firm_threshold_c(lowers, lambda, 3, family = family, weights = weights)
+    uppers <- threshold_c(uppers, lambda, 3, family = family, weights = weights, penalty = penalty)
+    lowers <- threshold_c(lowers, lambda, 3, family = family, weights = weights, penalty = penalty)
   }
   return(data.frame(lower = lowers, upper = uppers, lambda = lambda))
   
 }
-## THIS SHOULD E TRUE LAMBDA
-firm_threshold_c <- function(bound, lambda, gamma, family = "gaussian", weights = NULL) {
+threshold_c <- function(bound, lambda, gamma, family = "gaussian", weights = NULL, penalty = "MCP") {
   
   # If the original code expected to never have bound == 0, we must ensure that condition.
   if (any(bound == 0)) {
-    stop("An unexpected error occurred when adjusting the lasso penalty to MCP.")
+    stop("An unexpected error occurred when adjusting the lasso penalty to MCP/SCAD.")
   }
   
-  # For Gaussian family
+  # Compute z_j depending on family
   if (family == "gaussian") {
-    
-    # Vectorized computation of z_j
-    z_j <- bound + sign(bound)*lambda
-    
-    # Create a logical vector for the condition abs(z_j) <= gamma*lambda
-    cond <- abs(z_j) <= (gamma * lambda)
-    
-    # Where cond is TRUE, apply the MCP thresholding
-    z_j[cond] <- (gamma / (gamma - 1)) * soft_threshold(z_j[cond], lambda)
-    
-    return(z_j)
-    
+    z_j <- bound
   } else {
-    # Non-Gaussian case:
-    # Compute z_j element-wise in a vectorized manner
-    z_j <- (bound * weights) + sign(bound)*lambda
-    
-    # Logical vector for the condition
+    # Non-gaussian uses adaptive rescaling
+    z_j <- bound * weights
+  }
+  
+  # Add penalty adjustment
+  z_j <- z_j + sign(z_j)*lambda
+  
+  if (penalty == "MCP") {
+    # MCP thresholding
+    # Condition for MCP
     cond <- abs(z_j) <= (gamma * lambda)
     
     # Apply MCP thresholding where condition holds
     z_j[cond] <- (gamma / (gamma - 1)) * soft_threshold(z_j[cond], lambda)
     
-    # Return the adjusted values, scaling back by weights
-    return(z_j / weights)
+    # If non-gaussian, scale back by weights
+    if (family != "gaussian") {
+      z_j <- z_j / weights
+    }
+    return(z_j)
+    
+  } else if (penalty == "SCAD") {
+    # SCAD thresholding
+    cond1 <- abs(z_j) <= 2 * lambda
+    cond2 <- (abs(z_j) > 2 * lambda) & (abs(z_j) <= gamma * lambda)
+    
+    out <- z_j
+    # Region 1
+    out[cond1] <- soft_threshold(z_j[cond1], lambda)
+    
+    # Region 2
+    lambda_alt <- (gamma * lambda) / (gamma - 1)
+    out[cond2] <- ((gamma - 1) / (gamma - 2)) * soft_threshold(z_j[cond2], lambda_alt)
+    
+    # Region 3: No change
+    
+    # If non-gaussian, scale back by weights
+    if (family != "gaussian") {
+      out <- out / weights
+    }
+    return(out)
+    
+  } else {
+    stop("Unsupported penalty. Use 'MCP' or 'SCAD'.")
   }
 }
 soft_threshold <- function(z_j, lambda) {
