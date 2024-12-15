@@ -1,17 +1,16 @@
 #' Title
 #'
-#' @param X 
-#' @param y 
-#' @param fit 
-#' @param lambda 
-#' @param sigma 
-#' @param family 
-#' @param penalty 
-#' @param gamma 
-#' @param alpha 
-#' @param level 
-#' @param relaxed 
-#' @param posterior 
+#' @param X
+#' @param y
+#' @param fit
+#' @param lambda
+#' @param sigma
+#' @param family
+#' @param penalty
+#' @param gamma
+#' @param alpha
+#' @param level
+#' @param posterior
 #'
 #' @return
 #' @export
@@ -22,7 +21,7 @@ pipe <- function(X, y, fit, lambda, sigma,
                  penalty = c("MCP", "SCAD", "lasso"),
                  gamma = switch(penalty, SCAD = 3.7, 3),
                  alpha = 1, level = 0.95,
-                 relaxed = FALSE, posterior = FALSE
+                 posterior = FALSE
 ) {
   
   ## If user wants more control, call ncvreg or cv.ncvreg directly
@@ -110,7 +109,7 @@ pipe <- function(X, y, fit, lambda, sigma,
     
     yhat <- as.numeric(XX %*% beta)
     partial_residuals <- (yy - yhat) + (XX * matrix(beta, nrow = nrow(XX), ncol = ncol(XX), byrow = TRUE))
-    if (!relaxed) beta_PIPE <- (1/n) * colSums(XX * partial_residuals)
+    beta_PIPE <- (1/n) * colSums(XX * partial_residuals)
     
     ## Compute PIPE Variance
     ## For features in the estimated support
@@ -124,9 +123,7 @@ pipe <- function(X, y, fit, lambda, sigma,
       Qsi <- diag(nrow(XX)) - tcrossprod(qr.Q(qr(Xsi)))
       adjusted_n <- t(XX[,i,drop = FALSE]) %*% Qsi %*% XX[,i,drop = FALSE]
       sigma_PIPE[i] <- sqrt(sigma^2 / adjusted_n)
-      if (relaxed) {
-        beta_PIPE[i] <- (t(XX[,i,drop = FALSE]) %*% Qsi %*% yy) / adjusted_n
-      }
+      
     }
     
     # For null features
@@ -141,10 +138,6 @@ pipe <- function(X, y, fit, lambda, sigma,
       
       adjusted_n <- t(XX[,i,drop = FALSE]) %*% Qs %*% XX[,i,drop = FALSE]
       sigma_PIPE[i] <- sqrt(sigma^2 / adjusted_n)
-      
-      if (relaxed) {
-        beta_PIPE[i] <- (t(XX[,i,drop = FALSE]) %*% Qs %*% yy) / adjusted_n
-      }
       
     }
     
@@ -221,10 +214,10 @@ pipe <- function(X, y, fit, lambda, sigma,
     
     if (family == "gaussian") {
       ci <- ci_full_cond(beta_PIPE, lambda = lambda, se = sigma_PIPE,
-                         alpha = 1 - confidence_level, penalty = penalty)
+                         alpha = 1 - level, penalty = penalty)
     } else {
       ci <- ci_full_cond(beta_PIPE, lambda = lambda, se = sigma_PIPE,
-                         alpha = 1 - confidence_level, penalty = penalty, family = family, weights = weights)
+                         alpha = 1 - level, penalty = penalty, family = family, weights = weights)
     }
     
     
@@ -233,7 +226,7 @@ pipe <- function(X, y, fit, lambda, sigma,
     
   } else {
     
-    ci_width <- qnorm(1 - ((1 - confidence_level)/2)) * sigma_PIPE
+    ci_width <- qnorm(1 - ((1 - level)/2)) * sigma_PIPE
     lower <- (beta_PIPE - ci_width)
     upper <- (beta_PIPE + ci_width)
     
