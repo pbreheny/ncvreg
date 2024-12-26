@@ -10,7 +10,6 @@
 #' @param gamma
 #' @param alpha
 #' @param level
-#' @param posterior
 #'
 #' @return
 #' @export
@@ -20,8 +19,7 @@ pipe <- function(X, y, fit, lambda, sigma,
                  family = c("gaussian", "binomial", "poisson"),
                  penalty = c("MCP", "SCAD", "lasso"),
                  gamma = switch(penalty, SCAD = 3.7, 3),
-                 alpha = 1, level = 0.95,
-                 posterior = FALSE
+                 alpha = 1, level = 0.95
 ) {
   
   ## If user wants more control, call ncvreg or cv.ncvreg directly
@@ -78,13 +76,6 @@ pipe <- function(X, y, fit, lambda, sigma,
   rescale_factorX <- attr(XX, "scale")
   yy <- fit$y ## not centered??
   if (fit$family == "gaussian") yy <- yy - mean(yy) ## center y
-  
-  ## Check for nonsingular?? Can't do unless have original X
-  ## likely not a huge deal for non-bootstrap scenario
-  # nonsingular <- attr(XX, "nonsingular")
-  # if (length(nonsingular) != ncol(XX)) {
-  #   warning("Columns in X are singular, inference will not be provided for these features")
-  # }
   
   p <- ncol(XX)
   n <- nrow(XX)
@@ -210,28 +201,10 @@ pipe <- function(X, y, fit, lambda, sigma,
   if (fit$family != "gaussian") beta <- beta[-1]
   if (missing(sigma)) {sigma <- NA}
   
-  if (posterior) {
+  ci_width <- qnorm(1 - ((1 - level)/2)) * sigma_PIPE
+  lower <- (beta_PIPE - ci_width)
+  upper <- (beta_PIPE + ci_width)
     
-    if (family == "gaussian") {
-      ci <- ci_full_cond(beta_PIPE, lambda = lambda, se = sigma_PIPE,
-                         alpha = 1 - level, penalty = penalty)
-    } else {
-      ci <- ci_full_cond(beta_PIPE, lambda = lambda, se = sigma_PIPE,
-                         alpha = 1 - level, penalty = penalty, family = family, weights = weights)
-    }
-    
-    
-    lower <- ci$lower
-    upper <- ci$upper
-    
-  } else {
-    
-    ci_width <- qnorm(1 - ((1 - level)/2)) * sigma_PIPE
-    lower <- (beta_PIPE - ci_width)
-    upper <- (beta_PIPE + ci_width)
-    
-  }
-  
   res <- data.frame(
     variable = colnames(X),
     coef = beta / rescale_factorX,
@@ -250,125 +223,3 @@ pipe <- function(X, y, fit, lambda, sigma,
   return(res)
   
 }
-ci_full_cond <- function(z, lambda, se, alpha, penalty = "lasso", family = "gaussian", weights = NULL) {
-  
-  ## ADJUST LAMBDA FOR non gaussian
-  if (family != "gaussian") {
-    lambda_orig <- lambda
-    lambda <- lambda / weights
-  }
-  
-  ## Tails being transferred on to (log probability in each tail)
-  obs_lw <- pnorm(0, z + lambda, se, log.p = TRUE)
-  obs_up <- pnorm(0, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
-  
-  obs_p_lw <- obs_lw + (z*lambda / se^2)
-  obs_p_up <- obs_up - (z*lambda / se^2)
-  
-  ## Find the proportion of each to the overall probability
-  frac_lw_log <- ifelse(is.infinite(exp(obs_p_lw - obs_p_up)), 0, obs_p_lw - obs_p_up - log(1 + exp(obs_p_lw - obs_p_up)))
-  frac_up_log <- ifelse(is.infinite(exp(obs_p_up - obs_p_lw)), 0, obs_p_up - obs_p_lw - log(1 + exp(obs_p_up - obs_p_lw)))
-  
-  ps <- alpha / 2
-  log_ps <- log(ps)
-  log_one_minus_ps <- log(1 - ps)
-  lowers <- ifelse(
-    frac_lw_log >= log_ps,
-    qnorm(log_ps + obs_lw - frac_lw_log, z + lambda, se, log.p = TRUE),
-    qnorm(log_one_minus_ps + obs_up - frac_up_log, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
-  )
-  
-  
-  ps <- 1 - alpha / 2
-  log_ps <- log(ps)
-  log_one_minus_ps <- log(1 - ps)
-  uppers <- ifelse(
-    frac_lw_log >= log_ps,
-    qnorm(log_ps + obs_lw - frac_lw_log, z + lambda, se, log.p = TRUE),
-    qnorm(log_one_minus_ps + obs_up - frac_up_log, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
-  )
-  
-  if (penalty %in% c("MCP", "SCAD")) {
-    if (family != "gaussian") {lambda <- lambda_orig}
-    uppers <- threshold_c(uppers, lambda, 3, family = family, weights = weights, penalty = penalty)
-    lowers <- threshold_c(lowers, lambda, 3, family = family, weights = weights, penalty = penalty)
-  }
-  return(data.frame(lower = lowers, upper = uppers, lambda = lambda))
-  
-}
-threshold_c <- function(bound, lambda, gamma, family = "gaussian", weights = NULL, penalty = "MCP") {
-  
-  # If the original code expected to never have bound == 0, we must ensure that condition.
-  if (any(bound == 0)) {
-    stop("An unexpected error occurred when adjusting the lasso penalty to MCP/SCAD.")
-  }
-  
-  # Compute z_j depending on family
-  if (family == "gaussian") {
-    z_j <- bound
-  } else {
-    # Non-gaussian uses adaptive rescaling
-    z_j <- bound * weights
-  }
-  
-  # Add penalty adjustment
-  z_j <- z_j + sign(z_j)*lambda
-  
-  if (penalty == "MCP") {
-    # MCP thresholding
-    # Condition for MCP
-    cond <- abs(z_j) <= (gamma * lambda)
-    
-    # Apply MCP thresholding where condition holds
-    z_j[cond] <- (gamma / (gamma - 1)) * soft_threshold(z_j[cond], lambda)
-    
-    # If non-gaussian, scale back by weights
-    if (family != "gaussian") {
-      z_j <- z_j / weights
-    }
-    return(z_j)
-    
-  } else if (penalty == "SCAD") {
-    # SCAD thresholding
-    cond1 <- abs(z_j) <= 2 * lambda
-    cond2 <- (abs(z_j) > 2 * lambda) & (abs(z_j) <= gamma * lambda)
-    
-    out <- z_j
-    # Region 1
-    out[cond1] <- soft_threshold(z_j[cond1], lambda)
-    
-    # Region 2
-    lambda_alt <- (gamma * lambda) / (gamma - 1)
-    out[cond2] <- ((gamma - 1) / (gamma - 2)) * soft_threshold(z_j[cond2], lambda_alt)
-    
-    # Region 3: No change
-    
-    # If non-gaussian, scale back by weights
-    if (family != "gaussian") {
-      out <- out / weights
-    }
-    return(out)
-    
-  } else {
-    stop("Unsupported penalty. Use 'MCP' or 'SCAD'.")
-  }
-}
-soft_threshold <- function(z_j, lambda) {
-  # Initialize an output vector of the same size as z_j
-  out <- numeric(length(z_j))
-  
-  # Condition where z_j > lambda
-  idx_pos <- z_j > lambda
-  out[idx_pos] <- z_j[idx_pos] - lambda
-  
-  # Condition where |z_j| ≤ lambda
-  idx_mid <- abs(z_j) <= lambda
-  out[idx_mid] <- 0
-  
-  # Condition where z_j < -lambda
-  idx_neg <- z_j < -lambda
-  out[idx_neg] <- z_j[idx_neg] + lambda
-  
-  return(out)
-}
-
