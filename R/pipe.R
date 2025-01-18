@@ -1,20 +1,66 @@
-#' Title
+#' Projection base test statistic and confidence intervals
+#' 
+#' Constructs projection based test statistics with FDR control along with
+#' corresponding unadjusted confidence intervals for a penalized regression model.
+#' 
+#' The function constructs test statistics and confidence intervals based off an
+#' approximate projection onto the column space of the active features. The test
+#' statistic can be used to control FDR and the confidence intervals generally
+#' have good coverage. However, both tend to be conservative with the
+#' introduction of correlation.
 #'
-#' @param X
-#' @param y
-#' @param fit
-#' @param lambda
-#' @param sigma
-#' @param family
-#' @param penalty
-#' @param gamma
-#' @param alpha
-#' @param level
+#' @param X      The design matrix, without an intercept. `pipe`
+#'               standardizes the data and includes an intercept by default.
+#' @param y      The response vector.
+#' @param fit    An optional fit of class `ncvreg` or `cv.ncvreg`. If supplied,
+#'               `X` should only be supplied if `fit` does not contain it.
+#' @param lambda The penalty at which the tests and confidence intervals are to
+#'               be constructed. If left unspecified, will be selected using
+#'               cross validation.
+#' @param sigma Standard deviation estimate used to compute test statistic and 
+#'              confidence intervals. If left unspecified (default) it will be 
+#'              estimated using the recommendation from Reid et al. (2016)
+#' @param family Either "gaussian" (default), "binomial", or "poisson",
+#'               depending on the response.
+#' @param penalty The penalty to be applied to the model.  Either "MCP" (the
+#'                default), "SCAD", or "lasso".
+#' @param gamma The tuning parameter of the MCP/SCAD penalty (see details).
+#'              Default is 3 for MCP and 3.7 for SCAD.
+#' @param alpha Tuning parameter for the Mnet estimator which controls the
+#'              relative contributions from the MCP/SCAD penalty and the
+#'              ridge, or L2 penalty. `alpha=1` is equivalent to MCP/SCAD
+#'              penalty, while `alpha=0` would be equivalent to ridge
+#'              regression. However, `alpha=0` is not supported; `alpha` may
+#'              be arbitrarily small, but not exactly 0.
+#' @param level the confidence level required.
 #'
-#' @return
-#' @export
-#'
+#' @returns An `data.frame` containing the following columns:
+#' \describe{
+#'   \item{variable}{`colnames(X)`}
+#'   \item{coef}{The original estimate at the specified parameters (`lambda`, `gamma`, `alpha`)}
+#'   \item{estimate}{The PIPE estimates}
+#'   \item{SE}{The PIPE standard errors}
+#'   \item{t}{The PIPE test statistics}
+#'   \item{lower}{CI lower bounds}
+#'   \item{upper}{CI upper bounds}
+#'   \item{p.value}{The unadjusted p-value}
+#'   \item{q.value}{The Benhamini and Hochberg corrected p-value}
+#'   \item{sigma}{The standard deviation used for constructing the test statistis and CIs.}
+#'   \item{lambda}{The lambda value the test statistics and CIs were constructed at.}
+#' }
+#' 
+#' @author Patrick Breheny, Biyue Dai, and Logan Harris
+#' 
 #' @examples
+#' # Linear regression --------------------------------
+#' data(Prostate)
+#' fit <- pipe(Prostate$X, Prostate$y)
+#' 
+#' # Logistic regression ------------------------------
+#' data(Heart)
+#' pipe(Heart$X, Heart$y, family="binomial")
+#' 
+#' @export pipe
 pipe <- function(X, y, fit, lambda, sigma,
                  family = c("gaussian", "binomial", "poisson"),
                  penalty = c("MCP", "SCAD", "lasso"),
@@ -216,8 +262,7 @@ pipe <- function(X, y, fit, lambda, sigma,
     p.value = pvalue,
     p.adjust = qvalue,
     sigma = sigma,
-    lamda = lambda,
-    rescale_factor = rescale_factorX
+    lamda = lambda
   )
   
   return(res)
