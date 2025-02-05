@@ -11,7 +11,6 @@ cv.ncvreg(
   ...,
   cluster,
   nfolds = 10,
-  seed,
   fold,
   returnY = FALSE,
   trace = FALSE
@@ -23,7 +22,6 @@ cv.ncvsurv(
   ...,
   cluster,
   nfolds = 10,
-  seed,
   fold,
   se = c("quick", "bootstrap"),
   returnY = FALSE,
@@ -43,8 +41,6 @@ up in advance using the \code{\link[parallel:makeCluster]{parallel::makeCluster(
 The cluster must then be passed to \code{cv.ncvreg()} or \code{cv.ncvsurv()} (see example).}
 
 \item{nfolds}{The number of cross-validation folds.  Default is 10.}
-
-\item{seed}{You may set the seed of the random number generator in order to obtain reproducible results.}
 
 \item{fold}{Which fold each observation belongs to. By default the observations are randomly assigned.}
 

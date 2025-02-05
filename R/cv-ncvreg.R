@@ -32,7 +32,6 @@
 #' The cluster must then be passed to `cv.ncvreg()` or `cv.ncvsurv()` (see example).
 #' @param nfolds    The number of cross-validation folds.  Default is 10.
 #' @param fold      Which fold each observation belongs to. By default the observations are randomly assigned.
-#' @param seed      You may set the seed of the random number generator in order to obtain reproducible results.
 #' @param returnY   Should `cv.ncvreg()`/`cv.ncvsurv()` return the linear predictors
 #'   from the cross-validation folds?  Default is `FALSE`; if `TRUE`, this will
 #'   return a matrix in which the element for row i, column j is the fitted
@@ -108,7 +107,7 @@
 #' plot(cvfit, type="rsq")
 #' @export cv.ncvreg
 
-cv.ncvreg <- function(X, y, ..., cluster, nfolds=10, seed, fold, returnY=FALSE, trace=FALSE) {
+cv.ncvreg <- function(X, y, ..., cluster, nfolds=10, fold, returnY=FALSE, trace=FALSE) {
 
   # Coercion
   if (!is.matrix(X)) {
@@ -129,33 +128,13 @@ cv.ncvreg <- function(X, y, ..., cluster, nfolds=10, seed, fold, returnY=FALSE, 
     if (!identical(sort(unique(y)), 0:1)) y <- as.double(y==max(y))
   }
 
-  if (!missing(seed)) {
-    original_seed <- .GlobalEnv$.Random.seed
-    on.exit(.GlobalEnv$.Random.seed <- original_seed)
-    set.seed(seed)
-  }
-  sde <- sqrt(.Machine$double.eps)
+  # Set up folds  
   if (missing(fold)) {
-    if (fit$family=="binomial") {
-      ind1 <- which(y==1)
-      ind0 <- which(y==0)
-      n1 <- length(ind1)
-      n0 <- length(ind0)
-      fold1 <- 1:n1 %% nfolds
-      fold0 <- (n1 + 1:n0) %% nfolds
-      fold1[fold1==0] <- nfolds
-      fold0[fold0==0] <- nfolds
-      fold <- double(n)
-      fold[y==1] <- sample(fold1)
-      fold[y==0] <- sample(fold0)
-    } else {
-      fold <- sample(1:n %% nfolds)
-      fold[fold==0] <- nfolds
-    }
+    fold <- assign_fold(y, nfolds)
   } else {
     nfolds <- max(fold)
   }
-
+  
   cv.args <- list(...)
   cv.args$lambda <- fit$lambda
   cv.args$returnX <- FALSE
