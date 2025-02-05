@@ -1,6 +1,6 @@
 #' Projection base test statistic and confidence intervals
 #' 
-#' Constructs projection based test statistics with FDR control along with
+#' Constructs projection based test statistics that can be used to control FDR along with
 #' corresponding unadjusted confidence intervals for a penalized regression model.
 #' 
 #' The function constructs test statistics and confidence intervals based off an
