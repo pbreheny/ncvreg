@@ -128,7 +128,7 @@ cv.ncvreg <- function(X, y, ..., cluster, nfolds=10, fold, returnY=FALSE, trace=
     if (!identical(sort(unique(y)), 0:1)) y <- as.double(y==max(y))
   }
 
-  # Set up folds  
+  # Set up folds
   if (missing(fold)) {
     fold <- assign_fold(y, nfolds)
   } else {
