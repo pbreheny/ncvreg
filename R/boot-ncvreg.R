@@ -6,10 +6,10 @@
 #' @param fit     (optional) An object of class \code{ncvreg} or 
 #'                \code{cv.ncvreg}. An object of class \code{ncvreg} simply
 #'                provides data and penalty choices to \code{boot_ncvreg}. An
-#'                object of class{cv.ncvreg} can in addition can provide
+#'                object of class \code{cv.ncvreg} can in addition can provide
 #'                information for selecting \code{lambda} and estimating
 #'                \code{sigma2}. If provided, \code{y} should not be provided
-#'                and \coode{X} should only be provided if \code{fit} does not
+#'                and \code{X} should only be provided if \code{fit} does not
 #'                contain \code{X}.
 #' @param lambda  (optional) The value of lambda to provide interval estimates
 #'                for. If left missing will be selected using CV. If user wants
@@ -295,7 +295,7 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
   full_rescale_factor <- rescale * rescaleXX
   
   nlambda <- ifelse(!is.null(ncvreg.args$nlambda), ncvreg.args$nlambda, 100)
-  lambda_seq <- ncvreg:::setupLambda(
+  lambda_seq <- setupLambda(
     xnew, ynew, "gaussian", alpha = alpha,
     nlambda, lambda.min = ifelse(n > p, .001, .05),
     penalty.factor=rep(1, ncol(xnew))
@@ -305,7 +305,7 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
     
     message("Lambda too small, extending lambda sequence for bootstrap sample.")
     lambda_min <- lambda - (lambda / 100)
-    lambda_seq <- ncvreg:::setupLambda(
+    lambda_seq <- setupLambda(
       xnew, ynew, "gaussian", alpha = alpha,
       lambda.min = lambda_min / max(lambda_seq), nlambda,
       penalty.factor=rep(1, ncol(xnew))

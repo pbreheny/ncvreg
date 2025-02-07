@@ -32,10 +32,10 @@ standardizes the data and includes an intercept by default.}
 \item{fit}{(optional) An object of class \code{ncvreg} or
 \code{cv.ncvreg}. An object of class \code{ncvreg} simply
 provides data and penalty choices to \code{boot_ncvreg}. An
-object of class{cv.ncvreg} can in addition can provide
+object of class \code{cv.ncvreg} can in addition can provide
 information for selecting \code{lambda} and estimating
 \code{sigma2}. If provided, \code{y} should not be provided
-and \coode{X} should only be provided if \code{fit} does not
+and \code{X} should only be provided if \code{fit} does not
 contain \code{X}.}
 
 \item{lambda}{(optional) The value of lambda to provide interval estimates
