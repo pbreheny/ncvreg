@@ -371,7 +371,7 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args,
     print(full_rescale_factor)
   })
   
-  # boot_draws[nonsingular]             <- modes * full_rescale_factor
+  #boot_draws[nonsingular]             <- modes * full_rescale_factor
   boot_draws[!(1:p %in% nonsingular)] <- NA
   
   return(boot_draws)
