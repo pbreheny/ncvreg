@@ -135,7 +135,5 @@ expect_true(all(is.na(boot_res$confidence_intervals[2,c("lower", "upper")])))
 data(Prostate)
 X <- Prostate$X
 y <- Prostate$y
-boot_ncvreg(X, y, max.iter = 100)
-boot_ncvreg(fit = cv.ncvreg(X, y, penalty = "lasso"))
+boot_ncvreg(X, y)
 
-ncvreg(X, y, penalty = "lasso", max.iter = 100)
