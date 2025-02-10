@@ -68,8 +68,8 @@ default), "MCP", or "SCAD".}
 \item{level}{The confidence level required.}
 
 \item{gamma}{The tuning parameter of the MCP/SCAD penalty
-(see \code{ncvreg} details). Default is 3 for MCP and 3.7 for
-SCAD.}
+(see \code{ncvreg} for details). Default is 3 for MCP and 3.7
+for SCAD.}
 
 \item{alpha}{Tuning parameter for the Elastc net estimator which controls
 the relative contributions from the lasso/MCP/SCAD penalty and
@@ -97,7 +97,6 @@ A list with:
 \item{sigma2}{The value of \code{sigma2} used for the Hybrid bootstrap sampling.}
 \item{penalty}{The penalty the intervals correspond to.}
 \item{alpha}{The tuning parameter for the Enet estimator used.}
-\item{gamma}{The tuning parameter for MCP/SCAD penalty.}
 }
 If a penalty other than "lasso" is used,
 \describe{
@@ -113,7 +112,22 @@ If \code{return_boot} is \code{TRUE}
 }
 }
 \description{
-Hybrid Bootstrap Confidence Intervals
+Performs a hybrid bootstrapping approach to construct quantile based
+confidence intervals around the original lasso/MCP/SCAD estimator.
+Specifically, a traditional pairs bootstrap is performed with 1 adjustment:
+if the bootstrap sample for a given covariate is zero, a random sample from
+the full conditional posterior is used as the bootstrap sample instead.
+This avoids the creation of intervals with endpoints exactly equal to zero.
+}
+\details{
+The resulting intervals WILL NOT have exact nominal coverage for all
+covariates. They are instead constructed in a way that overall coverage will
+be approximately equal to nominal so long as the true distribution of betas
+is Laplace and the covariates are independent. That said, in practice,
+average coverage is fairly robust to these assumptions.
+
+Note: Draws from the full conditional posterior are approximations for
+MCP/SCAD or when \code{alpha} is not 1.
 }
 \examples{
 data(Prostate)

@@ -1,5 +1,21 @@
 #' Hybrid Bootstrap Confidence Intervals
-#'
+#' 
+#' Performs a hybrid bootstrapping approach to construct quantile based
+#' confidence intervals around the original lasso/MCP/SCAD estimator.
+#' Specifically, a traditional pairs bootstrap is performed with 1 adjustment:
+#' if the bootstrap sample for a given covariate is zero, a random sample from
+#' the full conditional posterior is used as the bootstrap sample instead.
+#' This avoids the creation of intervals with endpoints exactly equal to zero.
+#' 
+#' The resulting intervals WILL NOT have exact nominal coverage for all
+#' covariates. They are instead constructed in a way that overall coverage will
+#' be approximately equal to nominal so long as the true distribution of betas
+#' is Laplace and the covariates are independent. That said, in practice,
+#' average coverage is fairly robust to these assumptions.
+#' 
+#' Note: Draws from the full conditional posterior are approximations for
+#' MCP/SCAD or when \code{alpha} is not 1.
+#' 
 #' @param X       The design matrix, without an intercept. \code{boot_ncvreg}
 #'                standardizes the data and includes an intercept by default.
 #' @param y       The response vector.
@@ -34,8 +50,8 @@
 #'                default), "MCP", or "SCAD".
 #' @param level   The confidence level required.
 #' @param gamma   The tuning parameter of the MCP/SCAD penalty
-#'                (see \code{ncvreg} details). Default is 3 for MCP and 3.7 for
-#'                SCAD.
+#'                (see \code{ncvreg} for details). Default is 3 for MCP and 3.7
+#'                for SCAD.
 #' @param alpha   Tuning parameter for the Elastc net estimator which controls
 #'                the relative contributions from the lasso/MCP/SCAD penalty and
 #'                the ridge, or L2 penalty. `alpha=1` is equivalent to
@@ -57,7 +73,6 @@
 #'  \item{sigma2}{The value of \code{sigma2} used for the Hybrid bootstrap sampling.}
 #'  \item{penalty}{The penalty the intervals correspond to.}
 #'  \item{alpha}{The tuning parameter for the Enet estimator used.}
-#'  \item{gamma}{The tuning parameter for MCP/SCAD penalty.}
 #' }
 #' If a penalty other than "lasso" is used,
 #' \describe{
@@ -81,17 +96,14 @@
 boot_ncvreg <- function(X, y, fit, lambda, sigma2, cluster, seed,  nboot = 1000,
                         penalty = "lasso", level = 0.95,
                         gamma = switch(penalty, SCAD = 3.7, 3), alpha = 1,
-                        returnCV=FALSE, return_boot = FALSE, verbose = FALSE,
+                        returnCV = FALSE, return_boot = FALSE, verbose = FALSE,
                         ...) {
   
-  if ((missing(X) | missing(y)) & (missing(fit) || (!inherits(fit, "cv.ncvreg") & !inherits(fit, "ncvreg")))) {
+  if ((missing(X) | missing(y)) & (missing(fit) || !inherits(fit, c("cv.ncvreg", "ncvreg")))) {
     stop("Either X and y or a fit of class ncvreg or cv.ncvreg must be supplied.")
   }
   
-  if (missing(X)) {
-    rescale_original <- TRUE ## Getting from cv.ncvreg where it has been scaled
-  } else {
-    rescale_original <- FALSE ## Supplied directly, will be scaled once in bootf
+  if (!missing(X) & missing(fit)) { # After &, just makes sure warning isn't duplicated as this is checked below as well
     if (any(attr(ncvreg::std(X), "scale") == 0)) warning("Some columns in X are singular. Intervals cannot be produced for corresponding covariates.")
   }
   
@@ -148,16 +160,15 @@ boot_ncvreg <- function(X, y, fit, lambda, sigma2, cluster, seed,  nboot = 1000,
   }
   
   args <- list(...)
-  if (length(args) > 0 & !missing(fit)) {
-    warning("Additional arguments are ignored when cv.ncvreg object supplied")
-  }
-  
   cv.args <- args[names(args) %in% c("nfolds", "fold", "returnY", "trace")] ## returnY is depricated
   ncvreg.args <- args[names(args) %in% c("lambda.min", "nlambda", "eps", "max.iter", "dfmax", "warn")]
+  
+  if (length(cv.args) > 0 & !is.null(cv_fit)) {
+    warning("Additional arguments for cv.ncvreg are ignored when a cv.ncvreg object is supplied")
+  }
   if ("penalty.factor" %in% names(args)) {
     stop("Sorry, specification of alternative penality factors is not supported")
   }
-  
   if (any(c("returnX", "convex") %in% names(args))) {
     message(paste0("Ignoring argument(s) ", paste0(names(args)[names(args) %in% c("returnX", "convex")], collapse = ", "), " they are set to FALSE in cv.ncvreg and any ncvreg objects fit are not accessible to user."))
   }
@@ -176,7 +187,7 @@ boot_ncvreg <- function(X, y, fit, lambda, sigma2, cluster, seed,  nboot = 1000,
       cv.args$gamma   <- gamma
       if (!missing(cluster)) cv.args$cluster <- cluster
       cv_fit <- do.call("cv.ncvreg", c(cv.args, ncvreg.args))
-      if (missing(fit)) fit <- cv_fit$fit
+      if (missing(fit)) fit <- cv_fit$fit ## Considering here if should just always use fit from cv_fit
 
   }
     
@@ -195,14 +206,15 @@ boot_ncvreg <- function(X, y, fit, lambda, sigma2, cluster, seed,  nboot = 1000,
   
   if (missing(lambda)) lambda <- cv_fit$lambda.min
   if (missing(sigma2)) {
-    
-    yhat       <- fit$linear.predictors[,cv_fit$min]
-    reid_coefs <- coef(fit, lambda = cv_fit$lambda.min)[-1]
+    ## Using fit from cv_fit here to ensure consistency
+    yhat       <- cv_fit$fit$linear.predictors[,cv_fit$min]
+    reid_coefs <- coef(cv_fit$fit, lambda = cv_fit$lambda.min)[-1]
     sh_lh      <- sum(reid_coefs != 0)
     sigma2     <- (max(length(y) - sh_lh, 1))^(-1) * sum((y - yhat)^2)
     
   }
   
+  ## If X, y, lambda, sigma2 specified, still need an ncvreg fit
   if (missing(fit)) {
     ncvreg.args$X       <- X
     ncvreg.args$y       <- y
@@ -216,11 +228,11 @@ boot_ncvreg <- function(X, y, fit, lambda, sigma2, cluster, seed,  nboot = 1000,
   
   if (!missing(cluster)) {
     if (!inherits(cluster, "cluster")) stop("cluster is not of class 'cluster'; see ?makeCluster", call.=FALSE)
-    parallel::clusterExport(cluster, c("X", "y", "lambda", "sigma2", "ncvreg.args", "rescale_original", "penalty", "gamma", "alpha"), envir=environment())
+    parallel::clusterExport(cluster, c("X", "y", "lambda", "sigma2", "ncvreg.args", "penalty", "gamma", "alpha"), envir=environment())
     parallel::clusterCall(cluster, function() library(ncvreg))
     results <- parallel::parLapply(
       cl=cluster, X=1:nboot, fun=bootf, XX = X, yy=y, lambda = lambda,
-      sigma2 = sigma2, ncvreg.args = ncvreg.args, rescale_original = rescale_original,
+      sigma2 = sigma2, ncvreg.args = ncvreg.args,
       penalty = penalty, alpha = alpha, gamma = gamma
     )
   }
@@ -231,18 +243,15 @@ boot_ncvreg <- function(X, y, fit, lambda, sigma2, cluster, seed,  nboot = 1000,
     ns <- attr(X, "nonsingular")
   }
   
-  
   boot_draws <- matrix(nrow = nboot, ncol = length(original_coefs))
   for (i in 1:nboot) {
     if (!missing(cluster)) {
-      res <- results[[i]]
+      boot_draws[i,ns] <- results[[i]]
     } else {
-      res <- bootf(XX=X, yy=y, lambda = lambda, sigma2 = sigma2,
-                   ncvreg.args = ncvreg.args, rescale_original = rescale_original,
+      boot_draws[i,ns] <- bootf(XX=X, yy=y, lambda = lambda, sigma2 = sigma2,
+                   ncvreg.args = ncvreg.args,
                    penalty = penalty, alpha = alpha, gamma = gamma)
     }
-    boot_draws[i,ns] <- res
-    
   }
   
   colnames(boot_draws) <- names(original_coefs)
@@ -267,7 +276,7 @@ boot_ncvreg <- function(X, y, fit, lambda, sigma2, cluster, seed,  nboot = 1000,
   return(val)
   
 }
-bootf <- function(XX, yy, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
+bootf <- function(XX, yy, lambda, sigma2, ncvreg.args,
                   penalty = c("lasso", "MCP", "SCAD"),
                   alpha = 1, gamma = switch(penalty, SCAD = 3.7, 3),
                   ...) {
@@ -286,7 +295,7 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
   p_nonsingular <- length(nonsingular)
   
   rescale <- (attr(xnew, "scale")[nonsingular])^(-1)
-  if (!is.null(attr(XX, "scale")) & rescale_original) {
+  if (!is.null(attr(XX, "scale"))) {
     XXnonsingular <- attr(XX, "nonsingular")
     rescaleXX <- (attr(XX, "scale")[XXnonsingular][nonsingular])^(-1)
   } else {
@@ -325,13 +334,12 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
   ncvreg.args$alpha   <- alpha
   ncvreg.args$gamma   <- gamma
   
-  ## Ignore user specified lambda.min, nlambda since lambda sequence is being specified
+  ## Ignore user specified lambda.min, nlambda here since lambda sequence is being specified
   fit <- do.call("ncvreg", ncvreg.args[!(names(ncvreg.args) %in% c("lambda.min", "nlambda"))])
   modes <- coef(fit, lambda = lambda)[-1]
   
   ## For "elastic net" idea
   if (alpha < 1) {
-    ## Should these be p nonsingular??
     ynew <- c(ynew, rep(0, p_nonsingular))
     xnew <- rbind(xnew, sqrt(n*(1 - alpha)*lambda)*diag(p_nonsingular))
     xnew <- ncvreg::std(xnew)
@@ -351,12 +359,10 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args, rescale_original = TRUE,
     draws <- sapply(draws, scad_threshold_c, lambda, gamma)
   }
   
-  if (sum(modes == 0) != length(draws)) stop("There is an error in the sampling that is not properly handled, please submit an issue.")
   modes[modes == 0]                   <- draws
   boot_draws                          <- numeric(p)
   boot_draws[nonsingular]             <- modes * full_rescale_factor
   boot_draws[!(1:p %in% nonsingular)] <- NA
-  if (sum(boot_draws[nonsingular] == 0) > 0) stop("There is an error in the sampling that is not properly handled, please submit an issue.")
   
   return(boot_draws)
   
@@ -431,9 +437,9 @@ compute_intervals <- function(draws, alpha = 0.2, quiet = FALSE) {
   }
   
   lowers <- apply(draws, 2, function(x) quantile(x, alpha / 2, na.rm = TRUE))
-  uppers <- apply(draws, 2, function(x) quantile(x, 1 - alpha / 2, na.rm = TRUE))
+  uppers <- apply(draws, 2, function(x) quantile(x, 1 - (alpha / 2), na.rm = TRUE))
   
-  return(data.frame(lowers = lowers, uppers = uppers))
+  return(data.frame(lower = lowers, upper = uppers))
   
 }
 

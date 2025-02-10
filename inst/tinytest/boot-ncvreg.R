@@ -10,7 +10,7 @@ run_tests <- function(boot_res) {
   tinytest::expect_inherits(boot_res$confidence_intervals, "data.frame")
   tinytest::expect_equivalent(dim(boot_res$confidence_intervals), c(10, 3))
   tinytest::expect_false(any(is.na(boot_res$confidence_intervals)))  
-  tinytest::expect_true(all(apply(boot_res$confidence_intervals[,c("lowers", "uppers")], c(1, 2), is.finite)))  
+  tinytest::expect_true(all(apply(boot_res$confidence_intervals[,c("lower", "upper")], c(1, 2), is.finite)))  
 }
 
 ## Regular usage, also test returning boot draws
@@ -105,7 +105,7 @@ tinytest::expect_message(boot_ncvreg(X, y, returnX = TRUE, convex = TRUE), stric
 ## Parallelization support
 cl <- parallel::makeCluster(4)
 runtime_orig <- system.time({
-  boot_res_par <- boot_ncvreg(X, y)
+  boot_res <- boot_ncvreg(X, y, seed = 123445)
 })
 runtime_par <- system.time({
   boot_res_par <- boot_ncvreg(X, y, cluster = cl)
@@ -122,18 +122,18 @@ X[,2] <- 1
 tinytest::expect_warning({
   boot_res <- boot_ncvreg(X, y)
 }, strict = TRUE)
-tinytest::expect_true(all(is.na(boot_res$confidence_intervals[2,c("lowers", "uppers")])))
+tinytest::expect_true(all(is.na(boot_res$confidence_intervals[2,c("lower", "upper")])))
 
 ## Nonsingular issue with cv.ncvreg object passed
 tinytest::expect_warning({
   cv_fit <- cv.ncvreg(X, y, penalty = "lasso")
   boot_res <- boot_ncvreg(fit = cv_fit)
 }, strict = TRUE)
-tinytest::expect_true(all(is.na(boot_res$confidence_intervals[2,c("lowers", "uppers")])))
-
+tinytest::expect_true(all(is.na(boot_res$confidence_intervals[2,c("lower", "upper")])))
 
 ## Examples
 data(Prostate)
 X <- Prostate$X
 y <- Prostate$y
 boot_ncvreg(X, y)
+boot_ncvreg(fit = cv.ncvreg(X, y, penalty = "lasso"))
