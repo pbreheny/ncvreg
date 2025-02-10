@@ -351,7 +351,7 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args,
     as.numeric(xnew %*% modes) - (xnew * matrix(modes, nrow = nrow(xnew), ncol = ncol(xnew), byrow=TRUE))
   )
   z <- (1/n)*colSums(xnew * partial_residuals)
-  draws <- draw_full_cond(z[modes == 0], lambda, sigma2, n) ## Only where modes are 0
+  if (sum(modes == 0) > 0) draws <- draw_full_cond(z[modes == 0], lambda, sigma2, n) ## Only where modes are 0
   
   if (penalty == "MCP") {
     draws <- sapply(draws, firm_threshold_c, lambda, gamma)
@@ -359,9 +359,23 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args,
     draws <- sapply(draws, scad_threshold_c, lambda, gamma)
   }
   
-  modes[modes == 0]                   <- draws
+  if (sum(modes == 0) > 0) modes[modes == 0] <- draws
   boot_draws                          <- numeric(p)
-  boot_draws[nonsingular]             <- modes * full_rescale_factor
+  # boot_draws[nonsingular]             <- modes * full_rescale_factor
+  tryCatch({
+    boot_draws[nonsingular] <- modes * full_rescale_factor
+  }, error = function(err) {
+    message("Error occurred: ", err$message)
+    message("Modes:")
+    print(modes)
+    message("Full rescale factor:")
+    print(full_rescale_factor)
+    message("Boot draws:")
+    print(boot_draws)
+    message("Nonsingular:")
+    print(nonsingular)
+  })
+  
   boot_draws[!(1:p %in% nonsingular)] <- NA
   
   return(boot_draws)
