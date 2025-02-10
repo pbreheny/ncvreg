@@ -351,13 +351,15 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args,
     as.numeric(xnew %*% modes) - (xnew * matrix(modes, nrow = nrow(xnew), ncol = ncol(xnew), byrow=TRUE))
   )
   z <- (1/n)*colSums(xnew * partial_residuals)
-  if (sum(modes == 0) > 0) draws <- draw_full_cond(z[modes == 0], lambda, sigma2, n) ## Only where modes are 0
-  
-  if (penalty == "MCP") {
-    draws <- sapply(draws, firm_threshold_c, lambda, gamma)
-  } else if (penalty == "SCAD") {
-    draws <- sapply(draws, scad_threshold_c, lambda, gamma)
-  }
+  if (sum(modes == 0) > 0) {
+    draws <- draw_full_cond(z[modes == 0], lambda, sigma2, n) ## Only where modes are 0
+    
+    if (penalty == "MCP") {
+      draws <- sapply(draws, firm_threshold_c, lambda, gamma)
+    } else if (penalty == "SCAD") {
+      draws <- sapply(draws, scad_threshold_c, lambda, gamma)
+    }
+  } 
   
   if (sum(modes == 0) > 0) modes[modes == 0] <- draws
   boot_draws                          <- numeric(p)
