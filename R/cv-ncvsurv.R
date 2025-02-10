@@ -1,7 +1,7 @@
 #' @rdname cv.ncvreg
 #' @export
 
-cv.ncvsurv <- function(X, y, ..., cluster, nfolds=10, seed, fold, se=c('quick', 'bootstrap'), returnY=FALSE, trace=FALSE) {
+cv.ncvsurv <- function(X, y, ..., cluster, nfolds=10, fold, se=c('quick', 'bootstrap'), returnY=FALSE, trace=FALSE) {
   se <- match.arg(se)
 
   # Coersion
@@ -20,31 +20,15 @@ cv.ncvsurv <- function(X, y, ..., cluster, nfolds=10, seed, fold, se=c('quick', 
   # Complete data fit
   fit <- ncvsurv(X=X, y=y, ...)
 
-  # Set up folds
-  n <- nrow(X)
-  sde <- sqrt(.Machine$double.eps)
-  if (!missing(seed)) {
-    original_seed <- .GlobalEnv$.Random.seed
-    on.exit(.GlobalEnv$.Random.seed <- original_seed)
-    set.seed(seed)
-  }
+  # Set up folds  
   if (missing(fold)) {
-    ind1 <- which(fit$fail==1)
-    ind0 <- which(fit$fail==0)
-    n1 <- length(ind1)
-    n0 <- length(ind0)
-    fold1 <- 1:n1 %% nfolds
-    fold0 <- (n1 + 1:n0) %% nfolds
-    fold1[fold1==0] <- nfolds
-    fold0[fold0==0] <- nfolds
-    fold <- integer(n)
-    fold[fit$fail==1] <- sample(fold1)
-    fold[fit$fail==0] <- sample(fold0)
+    fold <- assign_fold(fit$fail, nfolds)
   } else {
     fold <- fold[fit$order]
     nfolds <- max(fold)
   }
 
+  n <- nrow(X)
   Y <- matrix(NA, nrow=n, ncol=length(fit$lambda))
   cv.args <- list(...)
   cv.args$lambda <- fit$lambda
