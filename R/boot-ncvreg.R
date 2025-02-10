@@ -367,7 +367,6 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args,
   tryCatch({
     boot_draws[nonsingular] <- modes * full_rescale_factor
   }, error = function(err) {
-    message("Error occurred: ", err$message)
     message("Modes:")
     print(modes)
     message("Full rescale factor:")
@@ -376,6 +375,7 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args,
     print(boot_draws)
     message("Nonsingular:")
     print(nonsingular)
+    stop("Error occurred: ", err$message)
   })
   
   boot_draws[!(1:p %in% nonsingular)] <- NA
