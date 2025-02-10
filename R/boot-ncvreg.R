@@ -294,6 +294,11 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args,
   nonsingular <- attr(xnew, "nonsingular")
   p_nonsingular <- length(nonsingular)
   
+  if (p_nonsingular == 0) {
+    warning("No non-singular columns in bootstrap draw, returning NAs.")
+    return(rep(NA_real_, p))
+  }
+  
   rescale <- (attr(xnew, "scale")[nonsingular])^(-1)
   if (!is.null(attr(XX, "scale"))) {
     XXnonsingular <- attr(XX, "nonsingular")
@@ -361,24 +366,10 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args,
     }
   } 
   
+  boot_draws                                 <- numeric(p)
   if (sum(modes == 0) > 0) modes[modes == 0] <- draws
-  boot_draws                          <- numeric(p)
-  # boot_draws[nonsingular]             <- modes * full_rescale_factor
-  tryCatch({
-    boot_draws[nonsingular] <- modes * full_rescale_factor
-  }, error = function(err) {
-    message("Modes:")
-    print(modes)
-    message("Full rescale factor:")
-    print(full_rescale_factor)
-    message("Boot draws:")
-    print(boot_draws)
-    message("Nonsingular:")
-    print(nonsingular)
-    stop("Error occurred: ", err$message)
-  })
-  
-  boot_draws[!(1:p %in% nonsingular)] <- NA
+  if (length(nonsingular) > 0) boot_draws[nonsingular] <- modes * full_rescale_factor
+  if (length(nonsingular) < p) boot_draws[!(1:p %in% nonsingular)] <- NA
   
   return(boot_draws)
   
