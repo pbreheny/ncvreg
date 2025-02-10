@@ -361,17 +361,7 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args,
   
   modes[modes == 0]                   <- draws
   boot_draws                          <- numeric(p)
-  tryCatch({
-    boot_draws[nonsingular] <- modes * full_rescale_factor
-  }, error = function(err) {
-    message("Error occurred: ", err$message)
-    message("Modes:")
-    print(modes)
-    message("Full rescale factor:")
-    print(full_rescale_factor)
-  })
-  
-  #boot_draws[nonsingular]             <- modes * full_rescale_factor
+  boot_draws[nonsingular]             <- modes * full_rescale_factor
   boot_draws[!(1:p %in% nonsingular)] <- NA
   
   return(boot_draws)
