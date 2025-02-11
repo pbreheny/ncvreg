@@ -145,78 +145,77 @@ penalized regression, with applications to biological feature selection.
 <span class="r-in"><span><span class="va">cvfit</span> <span class="op">&lt;-</span> <span class="fu"><a href="cv.ncvreg.html">cv.ncvreg</a></span><span class="op">(</span><span class="va">Prostate</span><span class="op">$</span><span class="va">X</span>, <span class="va">Prostate</span><span class="op">$</span><span class="va">y</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">cvfit</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> MCP-penalized linear regression with n=97, p=8</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> At minimum cross-validation error (lambda=0.0008):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> At minimum cross-validation error (lambda=0.0276):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -------------------------------------------------</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Nonzero coefficients: 8</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Cross-validation error (deviance): 0.56</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   R-squared: 0.57</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Signal-to-noise ratio: 1.35</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Scale estimate (sigma): 0.749</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Nonzero coefficients: 7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Cross-validation error (deviance): 0.54</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   R-squared: 0.59</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Signal-to-noise ratio: 1.45</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Scale estimate (sigma): 0.734</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> MCP-penalized linear regression with n=97, p=8</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> At lambda=0.0008:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> At lambda=0.0276:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -------------------------------------------------</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Nonzero coefficients         :   8</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Expected nonzero coefficients:   3.93</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Average mfdr (8 features)    :   0.491</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Nonzero coefficients         :   7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Expected nonzero coefficients:   2.67</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Average mfdr (7 features)    :   0.382</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          Estimate      z      mfdr Selected</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> lcavol   0.564341  8.700   &lt; 1e-04        *</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> svi      0.761673  4.125 0.0042041        *</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> lweight  0.622020  3.486 0.0406489        *</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> age     -0.021248 -2.069 0.6629229        *</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> lcp     -0.106051 -1.940 0.7179764        *</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> lbph     0.096713  1.835 0.7558911        *</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> pgg45    0.004458  1.644 0.8116904        *</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> gleason  0.049228  0.465 0.9372195        *</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> lcavol   0.569546  8.956   &lt; 1e-04        *</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> svi      0.752400  4.156 0.0035352        *</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> lweight  0.614420  3.512 0.0325374        *</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> age     -0.020913 -2.077 0.6160315        *</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> pgg45    0.005324  2.004 0.6506811        *</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> lcp     -0.104960 -1.958 0.6707274        *</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> lbph     0.097353  1.884 0.7009923        *</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Logistic regression ------------------------------------------------</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Heart</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">cvfit</span> <span class="op">&lt;-</span> <span class="fu"><a href="cv.ncvreg.html">cv.ncvreg</a></span><span class="op">(</span><span class="va">Heart</span><span class="op">$</span><span class="va">X</span>, <span class="va">Heart</span><span class="op">$</span><span class="va">y</span>, family<span class="op">=</span><span class="st">"binomial"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">cvfit</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> MCP-penalized logistic regression with n=462, p=9</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> At minimum cross-validation error (lambda=0.0252):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> At minimum cross-validation error (lambda=0.0270):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -------------------------------------------------</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Nonzero coefficients: 5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Cross-validation error (deviance): 1.05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Cross-validation error (deviance): 1.06</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   R-squared: 0.21</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Signal-to-noise ratio: 0.27</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Prediction error: 0.260</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Signal-to-noise ratio: 0.26</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Prediction error: 0.271</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> MCP-penalized logistic regression with n=462, p=9</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> At lambda=0.0252:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> At lambda=0.0270:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -------------------------------------------------</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Nonzero coefficients         :   5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Expected nonzero coefficients:   0.21</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Average mfdr (5 features)    :   0.043</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Average mfdr (5 features)    :   0.042</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         Estimate     z      mfdr Selected</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> age      0.05082 5.895   &lt; 1e-04        *</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> famhist  0.90707 4.137 0.0022898        *</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> tobacco  0.07354 3.327 0.0432209        *</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> typea    0.03210 3.167 0.0704138        *</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ldl      0.14117 3.052 0.0977875        *</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> age      0.05109 5.946   &lt; 1e-04        *</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> famhist  0.90619 4.143 0.0022421        *</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> tobacco  0.07012 3.328 0.0435944        *</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> typea    0.03045 3.169 0.0707198        *</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ldl      0.13459 3.062 0.0959303        *</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Cox regression -----------------------------------------------------</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Lung</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">cvfit</span> <span class="op">&lt;-</span> <span class="fu"><a href="cv.ncvreg.html">cv.ncvsurv</a></span><span class="op">(</span><span class="va">Lung</span><span class="op">$</span><span class="va">X</span>, <span class="va">Lung</span><span class="op">$</span><span class="va">y</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">cvfit</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> MCP-penalized Cox regression with n=137, p=8</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> At minimum cross-validation error (lambda=0.1467):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> At minimum cross-validation error (lambda=0.1276):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -------------------------------------------------</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Nonzero coefficients: 3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Cross-validation error (deviance): 7.50</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   R-squared: 0.32</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Signal-to-noise ratio: 0.48</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Cross-validation error (deviance): 7.53</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   R-squared: 0.29</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Signal-to-noise ratio: 0.41</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> MCP-penalized Cox regression with n=137, p=8</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> At lambda=0.1467:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> At lambda=0.1276:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -------------------------------------------------</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Nonzero coefficients         :   3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Expected nonzero coefficients:   1.02</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Average mfdr (3 features)    :   0.341</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Expected nonzero coefficients:   1.28</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Average mfdr (3 features)    :   0.426</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          Estimate      z    mfdr Selected</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> karno    -0.03321 -6.572 &lt; 1e-04        *</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> squamous -0.33597 -2.825 0.44987        *</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> adeno     0.23767  2.644 0.57257        *</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> karno    -0.03318 -6.589 &lt; 1e-04        *</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> squamous -0.38295 -2.732 0.59462        *</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> adeno     0.33542  2.585 0.68452        *</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
