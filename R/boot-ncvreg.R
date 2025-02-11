@@ -62,8 +62,7 @@
 #' @param returnCV    If \code{TRUE}, the \code{cv.ncvreg} fit will be returned
 #'                    (if applicable).
 #' @param return_boot If \code{TRUE}, the bootstrap draws will be returned.
-#' @param verbose     If \code{TRUE}, messages are displayed indicating how
-#'                    \code{lambda} and \code{sigma} are being selected.
+#' @param verbose     If \code{FALSE}, non-essential messages are suppressed.
 #' @param ...         named arguments to be passed to \code{ncvreg} and
 #'                    \code{cv.ncvreg}.
 #'
@@ -74,6 +73,7 @@
 #'  \item{sigma2}{The value of \code{sigma2} used for the Hybrid bootstrap sampling.}
 #'  \item{penalty}{The penalty the intervals correspond to.}
 #'  \item{alpha}{The tuning parameter for the Enet estimator used.}
+#'  \item{level}{The confidence level the intervals correspond to.}
 #' }
 #' If a penalty other than "lasso" is used,
 #' \describe{
@@ -176,7 +176,7 @@ boot_ncvreg <- function(X, y, fit, lambda, sigma2, cluster, seed,  nboot = 1000,
   if ("penalty.factor" %in% names(args)) {
     stop("Sorry, specification of alternative penality factors is not supported")
   }
-  if (any(c("returnX", "convex") %in% names(args))) {
+  if (verbose & any(c("returnX", "convex") %in% names(args))) {
     message(paste0("Ignoring argument(s) ", paste0(names(args)[names(args) %in% c("returnX", "convex")], collapse = ", "), " they are set to FALSE in cv.ncvreg and any ncvreg objects fit are not accessible to user."))
   }
   
@@ -241,7 +241,8 @@ boot_ncvreg <- function(X, y, fit, lambda, sigma2, cluster, seed,  nboot = 1000,
     results <- parallel::parLapply(
       cl=cluster, X=1:nboot, fun=bootf, XX = X, yy=y, lambda = lambda,
       sigma2 = sigma2, ncvreg.args = ncvreg.args,
-      penalty = penalty, alpha = alpha, gamma = gamma
+      penalty = penalty, alpha = alpha, gamma = gamma,
+      verbose = FALSE
     )
   }
   
@@ -258,7 +259,8 @@ boot_ncvreg <- function(X, y, fit, lambda, sigma2, cluster, seed,  nboot = 1000,
     } else {
       boot_draws[i,ns] <- bootf(XX=X, yy=y, lambda = lambda, sigma2 = sigma2,
                    ncvreg.args = ncvreg.args,
-                   penalty = penalty, alpha = alpha, gamma = gamma)
+                   penalty = penalty, alpha = alpha, gamma = gamma,
+                   verbose = verbose)
     }
   }
   
@@ -274,7 +276,8 @@ boot_ncvreg <- function(X, y, fit, lambda, sigma2, cluster, seed,  nboot = 1000,
     lambda               = lambda,
     sigma2               = sigma2,
     penalty              = penalty,
-    alpha                = alpha
+    alpha                = alpha,
+    level                = level
   )
   
   if (penalty != "lasso") val$gamma <- gamma
@@ -287,6 +290,7 @@ boot_ncvreg <- function(X, y, fit, lambda, sigma2, cluster, seed,  nboot = 1000,
 bootf <- function(XX, yy, lambda, sigma2, ncvreg.args,
                   penalty = c("lasso", "MCP", "SCAD"),
                   alpha = 1, gamma = switch(penalty, SCAD = 3.7, 3),
+                  verbose = FALSE,
                   ...) {
   
   p <- ncol(XX)
@@ -323,7 +327,7 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args,
   
   if (lambda < min(lambda_seq)) {
     
-    message("Lambda too small, extending lambda sequence for bootstrap sample.")
+    if (verbose) message("Lambda too small, extending lambda sequence for bootstrap sample.")
     lambda_min <- lambda - (lambda / 100)
     lambda_seq <- setupLambda(
       xnew, ynew, "gaussian", alpha = alpha,
@@ -334,7 +338,7 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args,
   }
   
   if (lambda >= max(lambda_seq)) {
-    message("Lambda too large, setting to lambda max for bootstrap sample.")
+    if (verbose) message("Lambda too large, setting to lambda max for bootstrap sample.")
     lambda <- max(lambda_seq) - (max(lambda_seq) / 100)
   }
   

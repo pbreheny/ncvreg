@@ -86,10 +86,10 @@ expect_equal(boot_res$alpha, 0.5)
 ## Lambda specification outside of range
 lambda_seq <- ncvreg::ncvreg(X, y, penalty = "lasso")$lambda
 expect_message({
-  boot_ncvreg(X, y, lambda = min(lambda_seq))
+  boot_ncvreg(X, y, lambda = min(lambda_seq), verbose = TRUE)
 }, strict = TRUE)
 expect_message({
-  boot_ncvreg(X, y, lambda = max(lambda_seq))
+  boot_ncvreg(X, y, lambda = max(lambda_seq), verbose = TRUE)
 }, strict = TRUE)
 
 ## Coercion 
@@ -110,7 +110,7 @@ expect_error({
 })
 expect_message(boot_ncvreg(X, y, verbose = TRUE), strict = TRUE)
 expect_message(boot_ncvreg(X, y, verbose = TRUE, sigma2 = 1, lambda = 0.1), strict = TRUE)
-expect_message(boot_ncvreg(X, y, returnX = TRUE, convex = TRUE), strict = TRUE)
+expect_message(boot_ncvreg(X, y, verbose = TRUE, returnX = TRUE, convex = TRUE), strict = TRUE)
 
 ## Parallelization support
 cl <- parallel::makeCluster(4)

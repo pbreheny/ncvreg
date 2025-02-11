@@ -84,8 +84,7 @@ provided.}
 
 \item{return_boot}{If \code{TRUE}, the bootstrap draws will be returned.}
 
-\item{verbose}{If \code{TRUE}, messages are displayed indicating how
-\code{lambda} and \code{sigma} are being selected.}
+\item{verbose}{If \code{FALSE}, non-essential messages are suppressed.}
 
 \item{...}{named arguments to be passed to \code{ncvreg} and
 \code{cv.ncvreg}.}
@@ -98,6 +97,7 @@ A list with:
 \item{sigma2}{The value of \code{sigma2} used for the Hybrid bootstrap sampling.}
 \item{penalty}{The penalty the intervals correspond to.}
 \item{alpha}{The tuning parameter for the Enet estimator used.}
+\item{level}{The confidence level the intervals correspond to.}
 }
 If a penalty other than "lasso" is used,
 \describe{
