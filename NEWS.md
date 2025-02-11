@@ -1,14 +1,20 @@
-# ncvreg 3.14.3 (2024-09-02)
+# ncvreg 3.15.0
+  * New: boot_ncvreg() function to obtain confidence intervals
+  * New: assign_fold() function to assign folds for CV
+  * Change: seed is no longer an argument to CV functions; use assign_fold()
+    instead
+
+# ncvreg 3.14.3
   * Internal: Now using R_Calloc for _R_USE_STRICT_R_HEADERS_ compatibility
 
-# ncvreg 3.14.2 (2024-04-20)
+# ncvreg 3.14.2
   * Documentation: Lots of formatting fixes to the documentation
 
-# ncvreg 3.14.1 (2023-04-03)
+# ncvreg 3.14.1
   * Fixed: cv.ncvreg(), cv.ncvsurv() no longer affect seed in global
     environment if seed is specified
 
-# ncvreg 3.14.0 (2023-03-28)
+# ncvreg 3.14.0
   * New: residuals() method
   * New: std() can now be applied to new data
   * New: summary.ncvreg() now offers sort option; fixes #13
@@ -25,31 +31,31 @@
     structure
   * Internal: Now using roxygen2 for all documentation
 
-# ncvreg 3.13.0 (2021-03-26)
+# ncvreg 3.13.0
   * New: Options 'xtx' and 'r' for ncvfit()
   * Internal: cv.ncvreg() now uses less memory (returnX off)
   * Internal: Better error handling if a matrix is supplied for y
   * Fixed: AUC() now compatible with survival 3.2.10
 
-# ncvreg 3.12.0 (2020-07-09)
+# ncvreg 3.12.0
   * New: ncvfit(), a raw API to the ncvreg solver with full control over
     standardization, etc.
   * Changed: ncvreg and ncvsurv now issue warning for non-pathwise usage
   * Internal: Now using tinytest for unit testing
   * Fixed: Memory leak in cox-dh; resolves #20
 
-# ncvreg 3.11.2 (2020-02-12)
+# ncvreg 3.11.2
   * New: std() now works on integer matrices and numeric vectors
   * Internal: Lots of internal changes for cleaner, more reliable code
   * New version numbering system
 
-# ncvreg 3.11-1 (2019-02-26)
+# ncvreg 3.11-1
   * Fixed: Leave-one-out cross-validation now works correctly for logistic
     regression
   * Documentation: Added documentation (online) for local mfdr
   * Documentation: Fixed some broken links and typos
 
-# ncvreg 3.11-0 (2018-08-30)
+# ncvreg 3.11-0
   * Change: returnX now turned on by default if X < 100 Mb (used to be 10 Mb)
   * Change: summary.ncvreg now based solely on local mfdr
   * Change: Loss functions now consistently defined as deviance for all types
@@ -62,7 +68,7 @@
   * Documentation: vignette now html (used to be pdf)
   * Documentation: pkgdown website
 
-# ncvreg 3.10-0 (2018-04-17)
+# ncvreg 3.10-0
   * New: summary.ncvreg and summary.ncvsurv now report tables of inference for
     each feature based on local mFDRs
   * New: Option to specify fold assignments in cv.ncvsurv
@@ -74,11 +80,11 @@
   * Portability: Fixed C99 flag
   * Internal: Fixed & v && C issue
 
-# ncvreg 3.9-1 (2017-04-26)
+# ncvreg 3.9-1
   * Change: Poission now returns linear predictors, like other families
   * Internal: Changing PROTECT/UNPROTECT to conform to new coding standards
 
-# ncvreg 3.9-0 (2017-03-16)
+# ncvreg 3.9-0
   * Deprecated: fir() is now called mfdr()
   * Change: mfdr for Cox and logistic models no longer use the simplistic
     approximation of 3.7-0.  These calculations are much more accurate, but
@@ -87,16 +93,16 @@
   * Internal: Registration of native routines
   * Fixed: std() wasn't matching up column names if one column got dropped
 
-# ncvreg 3.8-0 (2017-01-06)
+# ncvreg 3.8-0
   * Change: max.iter now based on total number of iterations for entire path
   * Fixed: Bug when fitting Cox model for single lambda
   * Fixed: std no longer drops dimnames
 
-# ncvreg 3.7-1 (2016-12-23)
+# ncvreg 3.7-1
   * Fixed: Various fixes for fir function
   * Fixed: Bug with high dimensional (p > n) Cox models
 
-# ncvreg 3.7-0 (2016-12-13)
+# ncvreg 3.7-0
   * New: fir extended to Cox and logistic regression
   * New: summary function for ncvreg and ncvsurv objects
   * Change: Convergence criterion now based on RMSD of linear predictors
@@ -109,7 +115,7 @@
   * Fixed: loss wasn't being returned for gaussian if failure to converge
   * Fixed: perm.ncvreg would return NAs when models were saturated
 
-# ncvreg 3.6-0 (2016-06-13)
+# ncvreg 3.6-0
   * New: Exports std() function for standardizing a design matrix
   * Fixed: In predict.cv.ncvsurv
   * Documentation: Added 'quick start' vignette
@@ -118,20 +124,20 @@
   * Internal: Reorganized testing suite
   * Internal: 'survival' package now used for setupLambda in Cox models
 
-# ncvreg 3.5-2 (2016-04-09)
+# ncvreg 3.5-2
   * New: Added user interrupt checking
   * Fixed: In ncvsurv with integer penalty factors
   * Fixed: Rare numerical accuracy bug in cv fold assignments
   * Fixed: LOOCV bug introduced by bias-correction feature
 
-# ncvreg 3.5-1 (2016-02-07)
+# ncvreg 3.5-1
   * New: Compute bias correction for CV error; this is an experimental
     feature at this point and may change in the future
   * Internal: Replaced AUC function with more efficient version using
     survival package
   * Fixed: Penalty.factor for cv.ncvsurv when some columns may be degenerate
 
-# ncvreg 3.5-0 (2015-10-27)
+# ncvreg 3.5-0
   * New: Added function AUC() to calculate cross-validated AUC values
     for ncvsurv models.
   * New: Option to return fitted values from cross-validation folds
@@ -147,7 +153,7 @@
   * Internal: Better double/int type checking for penalty.factor
   * Internal: Modifications to NAMESPACE for compatibility with R 3.3.
 
-# ncvreg 3.4-0 (2015-05-04)
+# ncvreg 3.4-0
   * New: Expanded predict function for Cox models.  predict.ncvsurv now
     estimates subject-specific survival functions and medians.
   * New: Plot method for survival curves.
@@ -162,7 +168,7 @@
   * Fixed: In predict.ncvsurv, when applied to models with saturation issues.
   * Fixed: Small memory leak in ncvsurv.
 
-# ncvreg 3.3-0 (2015-03-18)
+# ncvreg 3.3-0
   * New: Support for fitting survival models added (ncvsurv), along
     with predict, plot, and cv.ncvsurv support functions.  Currently, Cox models
     are the only type of survival model implemented.
@@ -172,7 +178,7 @@
     (thank you to Cajo ter Braak for pointing this out)
   * Removed: ncvreg_fit; it may return in a future version of the package.
 
-# ncvreg 3.2-0 (2014-07-12)
+# ncvreg 3.2-0
   * New: Automatically coerces X to matrix and y to numeric if possible
   * New: Made ncvreg_fit more user-friendly: user no longer has to specify
     lambda, works with coef, predict, plot, etc.
@@ -181,14 +187,14 @@
   * Fixed: Bug in convexMin when used with penalty.factor option
   * Internal: Updated algorithm to 'hybrid' strong/active cycling
 
-# ncvreg 3.1-0 (2014-02-25)
+# ncvreg 3.1-0
   * New: Added support for Poisson regression
   * Fixed: Bug in ncvreg_fit that could arise when fitting a model without an
     intercept
   * Fixed: Bug in cv.ncvreg with univariate regression (thank you to Diego
     Franco Saldana for pointing this out)
 
-# ncvreg 3.0-0 (2014-02-06)
+# ncvreg 3.0-0
   * New: Added fir, perm.ncvreg, and plot.fir functions for the purposes of
     estimating and displaying false inclusion rates; these are likely to evolve
     over the next few months
@@ -200,12 +206,12 @@
   * Internal: As a result of the above three changes, ncvreg now runs much
     faster for large p
 
-# ncvreg 2.7-0 (2013-12-16)
+# ncvreg 2.7-0
   * New: "vars" and "nvars" options to predict function.
   * Changed: Modified look of summary(cvfit) output.
   * Internal: Modified details of .Call interface.
 
-# ncvreg 2.6-0 (2013-10-03)
+# ncvreg 2.6-0
   * New: Introduction of function ncvreg_fit for programmers who want to access
     the internal C routines of ncvreg, bypassing internal standardization and
     processing
@@ -216,7 +222,7 @@
   * Fixed: NAMESPACE for coef.cv.ncvreg and predict.cv.ncvreg
   * Internal: .Call now used instead of .C
 
-# ncvreg 2.5-0 (2013-03-16)
+# ncvreg 2.5-0
   * New: Options in plot.cv.ncvreg to plot estimates of r-squared,
     signal-to-noise ratio, scale parameter, and prediction error in addition to
     cross-validation error (deviance)
@@ -224,7 +230,7 @@
     lambda.min, the value of lambda minimizing the cross-validation error
   * Fixed: Bug in cv.ncvreg with user-defined lambda values.
 
-# ncvreg 2.4-0 (2012-10-10)
+# ncvreg 2.4-0
   * New: penalty.factor option
   * New: coef and predict methods now accept lambda as argument
   * New: logLik method (which in turn allows AIC/BIC)
@@ -240,22 +246,22 @@
   * Internal: standardization more efficient
   * Internal: cdfit_ now returns loss (RSS for gaussian, deviance for binomial)
 
-# ncvreg 2.3-2 (2011-05-16)
+# ncvreg 2.3-2
   * Documentation: Fixed formatting error in citation.
   
-# ncvreg 2.3-1 (2011-05-11)
+# ncvreg 2.3-1
   * Changed: plot.ncvreg: Made the passing of arguments for plot.ncvreg more
     flexible, so that user can pass options concerning both the plot and the
     lines
   * Changed: plot.ncvreg: Changed some of the default settings with respect to
     color (hcl instead of hsv) and line width
 
-# ncvreg 2.3 (2011-05-06)
+# ncvreg 2.3
   * Documentation: Updated documentation for cv.ncvreg.Rd, which no longer
     agreed with the function usage (this was an oversight in the release of
     version 2.2)
 
-# ncvreg 2.2 (2011-04-25)
+# ncvreg 2.2
   * New: plot.cv.ncvreg for plotting cv.ncvreg objects
   * Changed: Divorced cross-validation from fitting in cv.ncvreg.  From a user
     perspective, this increases flexibility, although obtaining the model with
