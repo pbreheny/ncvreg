@@ -30,13 +30,13 @@ standardizes the data and includes an intercept by default.}
 \item{y}{The response vector.}
 
 \item{fit}{(optional) An object of class \code{ncvreg} or
-\code{cv.ncvreg}. An object of class \code{ncvreg} simply
-provides data and penalty choices to \code{boot_ncvreg}. An
-object of class \code{cv.ncvreg} can in addition can provide
-information for selecting \code{lambda} and estimating
-\code{sigma2}. If provided, \code{y} should not be provided
-and \code{X} should only be provided if \code{fit} does not
-contain \code{X}.}
+\code{cv.ncvreg}. An object of class \code{ncvreg}
+provides data, penalty choices, and \code{lambda} sequence to
+\code{boot_ncvreg}. An object of class \code{cv.ncvreg} can in
+addition can provide information for selecting \code{lambda}
+and estimating \code{sigma2}. If provided, \code{y} should not
+be provided and \code{X} should only be provided if \code{fit}
+does not contain \code{X}.}
 
 \item{lambda}{(optional) The value of lambda to provide interval estimates
 for. If left missing will be selected using CV. If user wants
@@ -69,14 +69,15 @@ default), "MCP", or "SCAD".}
 
 \item{gamma}{The tuning parameter of the MCP/SCAD penalty
 (see \code{ncvreg} for details). Default is 3 for MCP and 3.7
-for SCAD.}
+for SCAD. Ignored if fit is provided.}
 
 \item{alpha}{Tuning parameter for the Elastc net estimator which controls
 the relative contributions from the lasso/MCP/SCAD penalty and
 the ridge, or L2 penalty. \code{alpha=1} is equivalent to
 lasso/MCP/SCAD penalty, while \code{alpha=0} would be equivalent to
 ridge regression. However, \code{alpha=0} is not supported; \code{alpha}
-may be arbitrarily small, but not exactly 0.}
+may be arbitrarily small, but not exactly 0. Ignored if fit is
+provided.}
 
 \item{returnCV}{If \code{TRUE}, the \code{cv.ncvreg} fit will be returned
 (if applicable).}

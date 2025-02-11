@@ -20,13 +20,13 @@
 #'                standardizes the data and includes an intercept by default.
 #' @param y       The response vector.
 #' @param fit     (optional) An object of class \code{ncvreg} or 
-#'                \code{cv.ncvreg}. An object of class \code{ncvreg} simply
-#'                provides data and penalty choices to \code{boot_ncvreg}. An
-#'                object of class \code{cv.ncvreg} can in addition can provide
-#'                information for selecting \code{lambda} and estimating
-#'                \code{sigma2}. If provided, \code{y} should not be provided
-#'                and \code{X} should only be provided if \code{fit} does not
-#'                contain \code{X}.
+#'                \code{cv.ncvreg}. An object of class \code{ncvreg}
+#'                provides data, penalty choices, and \code{lambda} sequence to
+#'                \code{boot_ncvreg}. An object of class \code{cv.ncvreg} can in
+#'                addition can provide information for selecting \code{lambda}
+#'                and estimating \code{sigma2}. If provided, \code{y} should not
+#'                be provided and \code{X} should only be provided if \code{fit}
+#'                does not contain \code{X}.
 #' @param lambda  (optional) The value of lambda to provide interval estimates
 #'                for. If left missing will be selected using CV. If user wants
 #'                to set the lambda sequence used to select \code{lambda} via
@@ -51,13 +51,14 @@
 #' @param level   The confidence level required.
 #' @param gamma   The tuning parameter of the MCP/SCAD penalty
 #'                (see \code{ncvreg} for details). Default is 3 for MCP and 3.7
-#'                for SCAD.
+#'                for SCAD. Ignored if fit is provided.
 #' @param alpha   Tuning parameter for the Elastc net estimator which controls
 #'                the relative contributions from the lasso/MCP/SCAD penalty and
 #'                the ridge, or L2 penalty. `alpha=1` is equivalent to
 #'                lasso/MCP/SCAD penalty, while `alpha=0` would be equivalent to
 #'                ridge regression. However, `alpha=0` is not supported; `alpha`
-#'                may be arbitrarily small, but not exactly 0.
+#'                may be arbitrarily small, but not exactly 0. Ignored if fit is
+#'                provided.
 #' @param returnCV    If \code{TRUE}, the \code{cv.ncvreg} fit will be returned
 #'                    (if applicable).
 #' @param return_boot If \code{TRUE}, the bootstrap draws will be returned.
@@ -137,6 +138,12 @@ boot_ncvreg <- function(X, y, fit, lambda, sigma2, cluster, seed,  nboot = 1000,
     if (fit$family != "gaussian") {
       stop(paste0("fit of object class ", original_object_class, " was fit with ", fit$family, " family, but only 'gaussian' family is currently supported for boot_ncvreg"))
     }
+    if (all(fit$penalty.factor != 1)) stop("Alternate penalty factors are currently not supported.")
+    
+    ## Use the values from ncvreg or cv.ncvreg object
+    penalty <- fit$penalty
+    gamma <- fit$gamma
+    alpha <- fit$alpha
     
   }
   
@@ -185,9 +192,10 @@ boot_ncvreg <- function(X, y, fit, lambda, sigma2, cluster, seed,  nboot = 1000,
       cv.args$penalty <- penalty
       cv.args$alpha   <- alpha
       cv.args$gamma   <- gamma
+      if (!missing(fit)) cv.args$lambda <- fit$lambda
       if (!missing(cluster)) cv.args$cluster <- cluster
       cv_fit <- do.call("cv.ncvreg", c(cv.args, ncvreg.args))
-      if (missing(fit)) fit <- cv_fit$fit ## Considering here if should just always use fit from cv_fit
+      if (missing(fit)) fit <- cv_fit$fit 
 
   }
     
@@ -284,8 +292,6 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args,
   p <- ncol(XX)
   n <- length(yy)
   
-  boot_draws <- numeric(p)
-  
   idx_new <- sample(1:n, replace = TRUE)
   ynew <- yy[idx_new]
   ynew <- ynew - mean(ynew)
@@ -368,8 +374,8 @@ bootf <- function(XX, yy, lambda, sigma2, ncvreg.args,
   
   boot_draws                                 <- numeric(p)
   if (sum(modes == 0) > 0) modes[modes == 0] <- draws
-  if (length(nonsingular) > 0) boot_draws[nonsingular] <- modes * full_rescale_factor
-  if (length(nonsingular) < p) boot_draws[!(1:p %in% nonsingular)] <- NA
+  boot_draws[nonsingular]                    <- modes * full_rescale_factor
+  if (p_nonsingular < p) boot_draws[!(1:p %in% nonsingular)] <- NA_real_
   
   return(boot_draws)
   

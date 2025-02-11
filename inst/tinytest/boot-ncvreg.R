@@ -66,12 +66,22 @@ run_tests(boot_res)
 ## Alternate Penalties
 boot_res <- boot_ncvreg(X, y, penalty = "MCP")
 run_tests(boot_res)
+boot_res <- boot_ncvreg(fit = cv.ncvreg(X, y, gamma = 3.1))
+run_tests(boot_res)
+expect_equal(boot_res$penalty, "MCP")
+expect_equal(boot_res$gamma, 3.1)
 
 boot_res <- boot_ncvreg(X, y, penalty = "SCAD")
 run_tests(boot_res)
 
 boot_res <- boot_ncvreg(X, y, penalty = "lasso", alpha = 0.5)
 run_tests(boot_res)
+
+boot_res <- boot_ncvreg(fit = ncvreg(X, y, penalty = "SCAD", alpha = 0.5, gamma = 4))
+run_tests(boot_res)
+expect_equal(boot_res$penalty, "SCAD")
+expect_equal(boot_res$gamma, 4)
+expect_equal(boot_res$alpha, 0.5)
 
 ## Lambda specification outside of range
 lambda_seq <- ncvreg::ncvreg(X, y, penalty = "lasso")$lambda
