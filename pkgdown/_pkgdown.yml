@@ -1,11 +1,17 @@
+url: https://pbreheny.github.io/ncvreg/
+
+template:
+  bootstrap: 5
+  light-switch: true
+
 figures:
-  dev: grDevices::png
+  dev: ragg::agg_png
   dpi: 96
-  dev.args: []
   fig.ext: png
   fig.width: 5
   fig.height: 5
   fig.retina: 2
+  bg: "#fff"
 
 navbar:
   left:
@@ -31,14 +37,6 @@ navbar:
       href: reference/index.html
     - text: News
       href: news/index.html
-  right:
-    github:
-      icon: fa-github fa-lg
-      href: https://github.com/pbreheny/ncvreg
-
-template:
-  params:
-    bootswatch: cerulean
 
 reference:
 - title: Model fitting
@@ -49,6 +47,7 @@ reference:
   - std
 - title: Cross-validation
   contents:
+  - assign_fold
   - cv.ncvreg
   - cv.ncvsurv
   - plot.cv.ncvreg
@@ -70,6 +69,7 @@ reference:
   - perm.ncvreg
   - permres
   - summary.ncvreg
+  - boot_ncvreg
 - title: Data sets
   contents:
   - Heart
