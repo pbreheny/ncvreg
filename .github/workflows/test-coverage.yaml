@@ -27,6 +27,7 @@ jobs:
             any::glmnet
             any::pROC
             any::survival
+            any::xml2
           needs: coverage
 
       - name: Test coverage
