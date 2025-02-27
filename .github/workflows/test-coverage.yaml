@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-      R_FORCE_TEST: TRUE
+      R_FORCE_TEST: true
 
     steps:
       - uses: actions/checkout@v4
