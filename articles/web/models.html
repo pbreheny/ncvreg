@@ -198,23 +198,7 @@ provide a summary of these quantities at the value which minimizes <span class="
 <span><span class="co">#   Cross-validation error (deviance): 0.59</span></span>
 <span><span class="co">#   R-squared: 0.55</span></span>
 <span><span class="co">#   Signal-to-noise ratio: 1.22</span></span>
-<span><span class="co">#   Scale estimate (sigma): 0.771</span></span>
-<span><span class="co"># MCP-penalized linear regression with n=97, p=8</span></span>
-<span><span class="co"># At lambda=0.0104:</span></span>
-<span><span class="co"># -------------------------------------------------</span></span>
-<span><span class="co">#   Nonzero coefficients         :   8</span></span>
-<span><span class="co">#   Expected nonzero coefficients:   4.06</span></span>
-<span><span class="co">#   Average mfdr (8 features)    :   0.507</span></span>
-<span><span class="co"># </span></span>
-<span><span class="co">#          Estimate       z     mfdr Selected</span></span>
-<span><span class="co"># lcavol   0.564364  8.4578  &lt; 1e-04        *</span></span>
-<span><span class="co"># svi      0.761619  4.0093 0.006833        *</span></span>
-<span><span class="co"># lweight  0.621983  3.3883 0.057746        *</span></span>
-<span><span class="co"># age     -0.021247 -2.0114 0.697464        *</span></span>
-<span><span class="co"># lcp     -0.106038 -1.8854 0.746320        *</span></span>
-<span><span class="co"># lbph     0.096715  1.7841 0.779670        *</span></span>
-<span><span class="co"># pgg45    0.004459  1.5989 0.828584        *</span></span>
-<span><span class="co"># gleason  0.049149  0.4515 0.939912        *</span></span></code></pre></div>
+<span><span class="co">#   Scale estimate (sigma): 0.771</span></span></code></pre></div>
 <p>To access the elements of the fit, <code>coef</code> and
 <code>predict</code> methods are provided. For example,
 <code>coef(fit, lambda=0.02)</code> returns the estimated coefficients

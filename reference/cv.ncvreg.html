@@ -229,22 +229,6 @@ penalized regression, with applications to biological feature selection.
 <span class="r-out co"><span class="r-pr">#&gt;</span>   R-squared: 0.58</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Signal-to-noise ratio: 1.37</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Scale estimate (sigma): 0.746</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> MCP-penalized linear regression with n=97, p=8</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> At lambda=0.0068:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -------------------------------------------------</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Nonzero coefficients         :   8</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Expected nonzero coefficients:   3.91</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Average mfdr (8 features)    :   0.489</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          Estimate      z      mfdr Selected</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> lcavol   0.564342  8.739   &lt; 1e-04        *</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> svi      0.761671  4.143 0.0038898        *</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> lweight  0.622019  3.501 0.0384138        *</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> age     -0.021248 -2.078 0.6572972        *</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> lcp     -0.106050 -1.948 0.7133458        *</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> lbph     0.096712  1.843 0.7519900        *</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> pgg45    0.004458  1.652 0.8089089        *</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> gleason  0.049226  0.467 0.9368023        *</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="va">cvfit</span><span class="op">$</span><span class="va">fit</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
@@ -273,17 +257,6 @@ penalized regression, with applications to biological feature selection.
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Cross-validation error (deviance): 7.55</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   R-squared: 0.28</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Signal-to-noise ratio: 0.39</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> MCP-penalized Cox regression with n=137, p=8</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> At lambda=0.1687:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -------------------------------------------------</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Nonzero coefficients         :   3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Expected nonzero coefficients:   0.76</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Average mfdr (3 features)    :   0.253</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          Estimate      z    mfdr Selected</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> karno    -0.03324 -6.555 &lt; 1e-04        *</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> squamous -0.28295 -2.920 0.32331        *</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> adeno     0.12083  2.750 0.43678        *</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">cvfit</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="cv.ncvreg-3.png" alt="" width="480" height="480"></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">cvfit</span>, type<span class="op">=</span><span class="st">"rsq"</span><span class="op">)</span></span></span>
