@@ -27,5 +27,11 @@ Useful links:
 \author{
 \strong{Maintainer}: Patrick Breheny \email{patrick-breheny@uiowa.edu} (\href{https://orcid.org/0000-0002-0650-1119}{ORCID})
 
+Authors:
+\itemize{
+  \item Ryan Miller (\href{https://orcid.org/0000-0003-0446-9992}{ORCID})
+  \item Logan Harris
+}
+
 }
 \keyword{internal}
