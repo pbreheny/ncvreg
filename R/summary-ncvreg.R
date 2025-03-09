@@ -118,7 +118,8 @@ summary.ncvreg <- function(object, lambda, which, number, cutoff, sort=TRUE, sig
 
 print.summary.ncvreg <- function(x, digits, ...) {
   digits <- if (missing(digits)) digits <- c(4, 2, 2, 3) else rep(digits, length.out=5)
-  if ((sys.nframe() >= 2) && (as.character(sys.call(2))[1] == "print.summary.cv.ncvreg")) {
+  caller <- sys.function(sys.parent())
+  if (!is.null(caller) && identical(caller, print.summary.cv.ncvreg)) {
     skip_intro <- TRUE
   } else {
     skip_intro <- FALSE
