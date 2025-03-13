@@ -6,12 +6,15 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Inference: Local mfdr • ncvreg</title>
-<script src="../../lightswitch.js"></script><script src="../../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<script src="../../lightswitch.js"></script><script src="../../katex-auto.js"></script><script src="../../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../../deps/headroom-0.11.0/headroom.min.js"></script><script src="../../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../../deps/search-1.0.0/fuse.min.js"></script><script src="../../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../../pkgdown.js"></script><link href="../../extra.css" rel="stylesheet">
+<script src="../../deps/headroom-0.11.0/headroom.min.js"></script><script src="../../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../../deps/search-1.0.0/fuse.min.js"></script><script src="../../deps/search-1.0.0/mark.min.js"></script><link href="../../deps/KaTex-0.16.10/katex.min.css" rel="stylesheet">
+<script src="../../deps/KaTex-0.16.10/katex.min.js"></script><!-- pkgdown --><script src="../../pkgdown.js"></script><link href="../../extra.css" rel="stylesheet">
 <script src="../../extra.js"></script><meta property="og:title" content="Inference: Local mfdr">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -30,7 +33,6 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item"><a class="nav-link" href="../../index.html"><span class="fa fa-home fa-lg"></span></a></li>
 <li class="nav-item"><a class="nav-link" href="../../articles/web/getting-started.html">Getting started</a></li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-learn-more" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Learn more</button>
@@ -43,7 +45,7 @@
     <li><a class="dropdown-item" href="../../articles/web/other-cv-criteria.html">Other CV criteria</a></li>
   </ul>
 </li>
-<li class="nav-item"><a class="nav-link" href="../../reference/index.html">Functions</a></li>
+<li class="nav-item"><a class="nav-link" href="../../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../../news/index.html">News</a></li>
       </ul>
 <ul class="navbar-nav">
@@ -87,81 +89,55 @@ Patrick Breheny</h4>
 <h2 id="local-false-discovery-rates">Local False Discovery Rates<a class="anchor" aria-label="anchor" href="#local-false-discovery-rates"></a>
 </h2>
 <p>Classical, single-feature, hypothesis testing approaches rely upon
-tail-area probabilies, or the probability that a test statistic,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>z</mi><annotation encoding="application/x-tex">z</annotation></semantics></math>,
-exceeds a certain value. In contrast, <em>local approaches</em> like <a href="https://arxiv.org/abs/1809.05497" class="external-link">local mfdr</a> base inference on
-that feature’s specific value value of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>z</mi><annotation encoding="application/x-tex">z</annotation></semantics></math>
-without considering the hypothetical possibility of more extreme
-results.</p>
+tail-area probabilies, or the probability that a test statistic, <span class="math inline">z</span>, exceeds a certain value. In contrast,
+<em>local approaches</em> like <a href="https://arxiv.org/abs/1809.05497" class="external-link">local mfdr</a> base inference on
+that feature’s specific value value of <span class="math inline">z</span> without considering the hypothetical
+possibility of more extreme results.</p>
 <p>Local false discovery rates are a Bayesian idea that can be
 implemented in large-scale testing situations by using empirical Bayes
-methods to obtain estimates of:
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mi>r</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>H</mi><mrow><mn>0</mn><mi>j</mi></mrow></msub><mo stretchy="false" form="prefix">|</mo><msub><mi>z</mi><mi>j</mi></msub><mo>=</mo><mi>z</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex"> Pr(H_{0j} | z_j = z)</annotation></semantics></math></p>
-<p>The probability of the
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>j</mi><mrow><mi>t</mi><mi>h</mi></mrow></msup><annotation encoding="application/x-tex">j^{th}</annotation></semantics></math>
-null hypothesis being true, conditional upon the exact value of the
-observed test statistic
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>z</mi><mi>j</mi></msub><annotation encoding="application/x-tex">z_j</annotation></semantics></math>.
-This probability is defined as the <em>local false discovery rate</em>
-for the
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>j</mi><mrow><mi>t</mi><mi>h</mi></mrow></msup><annotation encoding="application/x-tex">j^{th}</annotation></semantics></math>
-feature.</p>
+methods to obtain estimates of: <span class="math display"> Pr(H_{0j} |
+z_j = z)</span></p>
+<p>The probability of the <span class="math inline">j^{th}</span> null
+hypothesis being true, conditional upon the exact value of the observed
+test statistic <span class="math inline">z_j</span>. This probability is
+defined as the <em>local false discovery rate</em> for the <span class="math inline">j^{th}</span> feature.</p>
 </div>
 <div class="section level2">
 <h2 id="estimation">Estimation<a class="anchor" aria-label="anchor" href="#estimation"></a>
 </h2>
 <p>Using Bayes’ rule, we have</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mi>r</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>H</mi><mrow><mn>0</mn><mi>j</mi></mrow></msub><mo stretchy="false" form="prefix">|</mo><msub><mi>z</mi><mi>j</mi></msub><mo>=</mo><mi>z</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mfrac><mrow><msub><mi>π</mi><mn>0</mn></msub><msub><mi>f</mi><mn>0</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>z</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mrow><msub><mi>π</mi><mn>0</mn></msub><msub><mi>f</mi><mn>0</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>z</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><msub><mi>π</mi><mn>0</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><msub><mi>f</mi><mn>1</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>z</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow></mfrac><mo>,</mo></mrow><annotation encoding="application/x-tex">Pr(H_{0j} | z_j = z)  = \frac{\pi_0 f_0(z)}{\pi_0f_0(z) + (1 - \pi_0) f_1(z)}, </annotation></semantics></math></p>
-<p>where
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>π</mi><mn>0</mn></msub><annotation encoding="application/x-tex">\pi_0</annotation></semantics></math>
-is the prior probability of a true null hypothesis for the collection of
-tests,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mn>0</mn></msub><annotation encoding="application/x-tex">f_0</annotation></semantics></math>
-is the theoretical density of test statistics under the null, and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mn>1</mn></msub><annotation encoding="application/x-tex">f_1</annotation></semantics></math>
-is the density of non-null test statistics.</p>
+<p><span class="math display">Pr(H_{0j} | z_j = z)  = \frac{\pi_0
+f_0(z)}{\pi_0f_0(z) + (1 - \pi_0) f_1(z)}, </span></p>
+<p>where <span class="math inline">\pi_0</span> is the prior probability
+of a true null hypothesis for the collection of tests, <span class="math inline">f_0</span> is the theoretical density of test
+statistics under the null, and <span class="math inline">f_1</span> is
+the density of non-null test statistics.</p>
 <p>A variety of estimators are possible depending on how one goes about
 estimating this mixture of densities. One simple approach, currently
-used by <code>ncvreg</code>, is to set
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>π</mi><mn>0</mn></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\pi_0 = 1</annotation></semantics></math>
-and to avoid estimating
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mn>1</mn></msub><annotation encoding="application/x-tex">f_1</annotation></semantics></math>
-by estimating only the marginal density
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>z</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">f(z)</annotation></semantics></math>
-using a kernel density approach. Thus:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mtext mathvariant="normal">mfdr</mtext><mo accent="true">̂</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><mi>z</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mfrac><mrow><msub><mi>π</mi><mn>0</mn></msub><msub><mi>f</mi><mn>0</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>z</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mrow><mover><mi>f</mi><mo accent="true">̂</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><mi>z</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow></mfrac><mi>.</mi></mrow><annotation encoding="application/x-tex"> \widehat{\text{mfdr}}(z) = \frac{\pi_0 f_0(z)}{\hat{f}(z)}.</annotation></semantics></math>
-In situations where
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>f</mi><mn>0</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>z</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>&gt;</mo><mover><mi>f</mi><mo accent="true">̂</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><mi>z</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">f_0(z) &gt; \hat{f}(z)</annotation></semantics></math>,
-local mfdr estimates are capped at 1.</p>
+used by <code>ncvreg</code>, is to set <span class="math inline">\pi_0 =
+1</span> and to avoid estimating <span class="math inline">f_1</span> by
+estimating only the marginal density <span class="math inline">f(z)</span> using a kernel density approach.
+Thus:</p>
+<p><span class="math display"> \widehat{\text{mfdr}}(z) = \frac{\pi_0
+f_0(z)}{\hat{f}(z)}.</span> In situations where <span class="math inline">f_0(z) &gt; \hat{f}(z)</span>, local mfdr estimates
+are capped at 1.</p>
 </div>
 <div class="section level2">
 <h2 id="test-statistics">Test Statistics<a class="anchor" aria-label="anchor" href="#test-statistics"></a>
 </h2>
 <p>For each predictor, <code><a href="../../reference/mfdr.html">mfdr()</a></code> constructs a test statistic
 based upon the mathematical conditions necessary for that variable to
-enter the model characterized by a given value of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>.
-For linear regression models, these statistics have the form:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>z</mi><mi>j</mi></msub><mo>=</mo><mfrac><mrow><msubsup><mi>𝐱</mi><mi>j</mi><mi>T</mi></msubsup><mrow><mo stretchy="true" form="prefix">(</mo><mi>𝐲</mi><mo>−</mo><msub><mi>𝐗</mi><mrow><mo>−</mo><mi>j</mi></mrow></msub><msub><mi>𝛃</mi><mrow><mo>−</mo><mi>j</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mrow><mi>σ</mi><mi>/</mi><msqrt><mi>n</mi></msqrt></mrow></mfrac></mrow><annotation encoding="application/x-tex">  z_j = \frac{\mathbf{x}_j^T(\mathbf{y} - \mathbf{X}_{-j}\mathbf{\beta}_{-j})}{\sigma/\sqrt{n}} </annotation></semantics></math>
-The subscript
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>−</mo><mi>j</mi></mrow><annotation encoding="application/x-tex">-j</annotation></semantics></math>
-indicates the removal of the
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>j</mi><mrow><mi>t</mi><mi>h</mi></mrow></msup><annotation encoding="application/x-tex">j^{th}</annotation></semantics></math>
-predictor. For logistic and Cox regression models, these statistics have
-the form:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>z</mi><mi>j</mi></msub><mo>=</mo><mfrac><mrow><msub><mi>u</mi><mi>j</mi></msub><mo>+</mo><msub><mi>v</mi><mi>j</mi></msub><msub><mi>β</mi><mi>j</mi></msub></mrow><msqrt><msub><mi>v</mi><mi>j</mi></msub></msqrt></mfrac></mrow><annotation encoding="application/x-tex">  z_j = \frac{u_j+ v_j\beta_j}{\sqrt{v_j}} </annotation></semantics></math>
-Here
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>u</mi><mi>j</mi></msub><annotation encoding="application/x-tex">u_j</annotation></semantics></math>
-is the unpenalized score function (ie: the first derivative, with
-respect to
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mi>j</mi></msub><annotation encoding="application/x-tex">\beta_j</annotation></semantics></math>,
-of the log-likelihood), and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>v</mi><mi>j</mi></msub><annotation encoding="application/x-tex">v_j</annotation></semantics></math>
-is the
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>j</mi><mrow><mi>t</mi><mi>h</mi></mrow></msup><annotation encoding="application/x-tex">j^{th}</annotation></semantics></math>
-diagonal element of the unpenalized Hessian matrix (ie: the second
-derivative of the log-likelihood)</p>
+enter the model characterized by a given value of <span class="math inline">\lambda</span>. For linear regression models, these
+statistics have the form:</p>
+<p><span class="math display">  z_j = \frac{\mathbf{x}_j^T(\mathbf{y} -
+\mathbf{X}_{-j}\mathbf{\beta}_{-j})}{\sigma/\sqrt{n}} </span> The
+subscript <span class="math inline">-j</span> indicates the removal of
+the <span class="math inline">j^{th}</span> predictor. For logistic and
+Cox regression models, these statistics have the form:</p>
+<p><span class="math display">  z_j = \frac{u_j+ v_j\beta_j}{\sqrt{v_j}}
+</span> Here <span class="math inline">u_j</span> is the unpenalized
+score function (ie: the first derivative, with respect to <span class="math inline">\beta_j</span>, of the log-likelihood), and <span class="math inline">v_j</span> is the <span class="math inline">j^{th}</span> diagonal element of the unpenalized
+Hessian matrix (ie: the second derivative of the log-likelihood)</p>
 <p>Under feature independence, each of these statistics will follow a
 standard normal distribution under the null hypothesis of that predictor
 being independent of the current model’s residuals. Despite being
@@ -197,20 +173,13 @@ all features, regardless of whether or not they are active in the
 specified model. These estimates can be understood by studying the
 theoretical null and empirically estimated mixture densities for these
 data:</p>
-<p><img src="inference-local_files/figure-html/unnamed-chunk-2-1.png" width="672"></p>
+<p><img src="inference-local_files/figure-html/unnamed-chunk-3-1.png" width="672"></p>
 <p>The feature <code>lcavol</code> has an extremely small estimated mfdr
-with a statistic of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>z</mi><mo>=</mo><mn>8.77</mn></mrow><annotation encoding="application/x-tex">z = 8.77</annotation></semantics></math>,
-the origin of this estimate is apparent when examining the ratio between
-the null and mixture densities at
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>z</mi><mo>=</mo><mn>8.88</mn></mrow><annotation encoding="application/x-tex">z = 8.88</annotation></semantics></math>.
-In contrast, the feature <code>lbph</code> has a estimated mfdr of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0.94</mn><annotation encoding="application/x-tex">0.94</annotation></semantics></math>
-with a statistic of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>z</mi><mo>=</mo><mn>1.51</mn></mrow><annotation encoding="application/x-tex">z = 1.51</annotation></semantics></math>,
-this estimated is explained by the null and mixture densities being
-similar near
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>z</mi><mo>=</mo><mn>1.51</mn></mrow><annotation encoding="application/x-tex">z = 1.51</annotation></semantics></math>.</p>
+with a statistic of <span class="math inline">z = 8.77</span>, the
+origin of this estimate is apparent when examining the ratio between the
+null and mixture densities at <span class="math inline">z = 8.88</span>.
+In contrast, the feature <code>lbph</code> has a estimated mfdr of <span class="math inline">0.94</span> with a statistic of <span class="math inline">z = 1.51</span>, this estimated is explained by the
+null and mixture densities being similar near <span class="math inline">z = 1.51</span>.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

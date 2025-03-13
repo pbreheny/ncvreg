@@ -6,12 +6,15 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Standardization and adaptive rescaling • ncvreg</title>
-<script src="../../lightswitch.js"></script><script src="../../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<script src="../../lightswitch.js"></script><script src="../../katex-auto.js"></script><script src="../../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../../deps/headroom-0.11.0/headroom.min.js"></script><script src="../../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../../deps/search-1.0.0/fuse.min.js"></script><script src="../../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../../pkgdown.js"></script><link href="../../extra.css" rel="stylesheet">
+<script src="../../deps/headroom-0.11.0/headroom.min.js"></script><script src="../../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../../deps/search-1.0.0/fuse.min.js"></script><script src="../../deps/search-1.0.0/mark.min.js"></script><link href="../../deps/KaTex-0.16.10/katex.min.css" rel="stylesheet">
+<script src="../../deps/KaTex-0.16.10/katex.min.js"></script><!-- pkgdown --><script src="../../pkgdown.js"></script><link href="../../extra.css" rel="stylesheet">
 <script src="../../extra.js"></script><meta property="og:title" content="Standardization and adaptive rescaling">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -30,7 +33,6 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item"><a class="nav-link" href="../../index.html"><span class="fa fa-home fa-lg"></span></a></li>
 <li class="nav-item"><a class="nav-link" href="../../articles/web/getting-started.html">Getting started</a></li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-learn-more" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Learn more</button>
@@ -43,7 +45,7 @@
     <li><a class="dropdown-item" href="../../articles/web/other-cv-criteria.html">Other CV criteria</a></li>
   </ul>
 </li>
-<li class="nav-item"><a class="nav-link" href="../../reference/index.html">Functions</a></li>
+<li class="nav-item"><a class="nav-link" href="../../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../../news/index.html">News</a></li>
       </ul>
 <ul class="navbar-nav">
@@ -87,10 +89,10 @@ Breheny</h4>
 (adopted by <strong>ncvreg</strong>, <a href="https://glmnet.stanford.edu/" class="external-link">glmnet</a>, and many other software
 packages) to standardize the coefficients prior to model fitting.
 Specifically, this means centering and scaling each feature so that</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mfrac><mn>1</mn><mi>n</mi></mfrac><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msub><mi>x</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mn>0</mn></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mfrac><mn>1</mn><mi>n</mi></mfrac><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msubsup><mi>x</mi><mrow><mi>i</mi><mi>j</mi></mrow><mn>2</mn></msubsup></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mn>1</mn><mi>.</mi></mtd></mtr></mtable><annotation encoding="application/x-tex">\begin{align*}
+<p><span class="math display">\begin{align*}
 \frac{1}{n} \sum_{i=1}^n x_{ij} &amp;= 0 \\
 \frac{1}{n} \sum_{i=1}^n x_{ij}^2 &amp;= 1.
-\end{align*}</annotation></semantics></math></p>
+\end{align*}</span></p>
 <p>Fitting takes place on this standardized scale, but the inverse
 transformation is applied so that coefficients are returned on the
 original scale. This is appealing from a computational perspective, but
@@ -101,15 +103,17 @@ inches or meters, and so on).</p>
 <strong>ncvreg</strong> adopts the approach of constructing quadratic
 approximations to the loss function before updating estimates of the
 regression coefficients:</p>
-<p><span class="math display">$$ Q_{\lambda,\gamma}(\bb) \approx
-\frac{1}{2n}(\yy - \X\bb)'\W(\yy-\X\bb) + \sum_{j=1}^p
-p_{\lambda,\gamma}(\abs{\beta_j}). $$</span></p>
+<p><span class="math display"> Q_{\lambda,\gamma}(\boldsymbol{\beta})
+\approx \frac{1}{2n}(\tilde{y}-
+\mathbf{X}\boldsymbol{\beta})'\mathbf{W}(\tilde{y}-\mathbf{X}\boldsymbol{\beta})
++ \sum_{j=1}^p p_{\lambda,\gamma}(\left\lvert\beta_j\right\rvert).
+</span></p>
 <p>The equivalent standardization conditions for this weighted least
 squares loss are</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mfrac><mn>1</mn><mi>n</mi></mfrac><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msub><mi>w</mi><mi>i</mi></msub><msub><mi>x</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mn>0</mn></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mfrac><mn>1</mn><mi>n</mi></mfrac><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msub><mi>w</mi><mi>i</mi></msub><msubsup><mi>x</mi><mrow><mi>i</mi><mi>j</mi></mrow><mn>2</mn></msubsup></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mn>1</mn><mi>.</mi></mtd></mtr></mtable><annotation encoding="application/x-tex">\begin{align*}
+<p><span class="math display">\begin{align*}
 \frac{1}{n} \sum_{i=1}^n w_i x_{ij} &amp;= 0 \\
 \frac{1}{n} \sum_{i=1}^n w_i x_{ij}^2 &amp;= 1.
-\end{align*}</annotation></semantics></math></p>
+\end{align*}</span></p>
 <p>However, because the approximation is iterative, the weights are
 continually changing and these conditions cannot simply be imposed at
 the outset. There are (at least) two reasonable courses of action here.
@@ -120,21 +124,13 @@ the weighted standardization conditions; in <strong>ncvreg</strong>, we
 refer to this as “adaptive rescaling.”</p>
 <p>For lasso-penalized models, the distinction is not particularly
 important. However, for MCP and SCAD, adaptive rescaling changes the
-meaning of the <a href="penalties.html"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>γ</mi><annotation encoding="application/x-tex">\gamma</annotation></semantics></math>
-parameter</a>. For example, if
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>w</mi><mi>i</mi></msub><mo>=</mo><mn>0.25</mn></mrow><annotation encoding="application/x-tex">w_i=0.25</annotation></semantics></math>
-for all
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
-(as might be the case in logistic regression), then we would need to set
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>γ</mi><mo>=</mo><mn>12</mn></mrow><annotation encoding="application/x-tex">\gamma=12</annotation></semantics></math>
-in order to obtain a model that behaves like
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>γ</mi><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">\gamma=3</annotation></semantics></math>
-would for linear regression. To ensure a consistent meaning for
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>γ</mi><annotation encoding="application/x-tex">\gamma</annotation></semantics></math>
-across different models (i.e., that
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>γ</mi><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">\gamma=3</annotation></semantics></math>
-remains a reasonable default in terms of balancing bias and variance),
-we use adaptive rescaling in the <strong>ncvreg</strong> package.</p>
+meaning of the <a href="penalties.html"><span class="math inline">\gamma</span> parameter</a>. For example, if <span class="math inline">w_i=0.25</span> for all <span class="math inline">i</span> (as might be the case in logistic
+regression), then we would need to set <span class="math inline">\gamma=12</span> in order to obtain a model that
+behaves like <span class="math inline">\gamma=3</span> would for linear
+regression. To ensure a consistent meaning for <span class="math inline">\gamma</span> across different models (i.e., that
+<span class="math inline">\gamma=3</span> remains a reasonable default
+in terms of balancing bias and variance), we use adaptive rescaling in
+the <strong>ncvreg</strong> package.</p>
   </main>
 </div>
 
