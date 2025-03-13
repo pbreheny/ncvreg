@@ -7,7 +7,12 @@ author: "Patrick Breheny"
 library(ncvreg)
 set.seed(4)
 knitr::opts_knit$set(aliases=c(h = 'fig.height', w = 'fig.width'))
-knitr::opts_chunk$set(comment="#", collapse=TRUE, cache=FALSE, tidy=FALSE)
+knitr::opts_chunk$set(
+  comment = "#",
+  collapse=TRUE,
+  cache=FALSE,
+  tidy=FALSE,
+  dev.args = list(symbolfamily = 'CMU Sans Serif'))
 knitr::knit_hooks$set(small.mar = function(before, options, envir) {
   if (before) par(mar = c(4, 4, .1, .1))
 })

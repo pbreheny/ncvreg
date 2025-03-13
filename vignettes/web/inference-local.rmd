@@ -13,6 +13,9 @@ knitr::knit_hooks$set(small.mar = function(before, options, envir) {
 })
 ```
 
+```{r, child='_commands.tex', results='asis'}
+```
+
 ## Local False Discovery Rates
 
 Classical, single-feature, hypothesis testing approaches rely upon tail-area probabilies, or the probability that a test statistic, $z$, exceeds a certain value.  In contrast, *local approaches* like [local mfdr](https://arxiv.org/abs/1809.05497) base inference on that feature's specific value value of $z$ without considering the hypothetical possibility of more extreme results.

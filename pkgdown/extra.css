@@ -1,25 +1,15 @@
-/* pre { */
-/*   border: 0px; */
-/*   border-radius: 10px; */
-/* } */
-/* a { */
-/*   color: #00a7e6; */
-/*   text-decoration:none; */
-/* } */
-/* a:hover { */
-/*   color: #00e7a7; */
-/* } */
-/* img { */
-/*   margin: auto; */
-/*   display: block; */
-/* } */
-
-
-pre .img img, pre .r-plt img {
-  margin: auto;
-  display: block;
-  background-color: #fff;
-}
 .dropdown-menu {
-  --bs-dropdown-link-color: #ccc;
+  --bs-dropdown-link-color: #aaa;
+}
+
+a {
+  text-decoration:none;
+}
+
+a:hover {
+  color: #00e7a7;
+}
+
+.navbar {
+  background: color-mix(in oklab, var(--bs-link-color) 50%, var(--bs-body-bg) 50%);
 }

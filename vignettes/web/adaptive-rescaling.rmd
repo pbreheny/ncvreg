@@ -3,6 +3,9 @@ title: "Standardization and adaptive rescaling"
 author: "Patrick Breheny"
 ---
 
+```{r, child='_commands.tex', results='asis'}
+```
+
 When fitting penalized regression models, it is standard practice (adopted by **ncvreg**, [glmnet](https://glmnet.stanford.edu/), and many other software packages) to standardize the coefficients prior to model fitting. Specifically, this means centering and scaling each feature so that
 
 \begin{align*}
