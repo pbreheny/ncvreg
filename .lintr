@@ -1,0 +1,5 @@
+linters: linters_with_defaults(
+    line_length_linter(100),
+    quotes_linter(delimiter = "'"),
+    numeric_leading_zero_linter()
+  )
