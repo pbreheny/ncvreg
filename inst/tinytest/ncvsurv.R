@@ -1,11 +1,5 @@
 library(survival, quietly=TRUE)
-if (interactive()) {
-  library(tinytest)
-  source('inst/tinytest/_median-survfit.R')
-} else {
-  source('_median-survfit.R')
-}
-
+if (interactive()) library(tinytest)
 
 # ncvsurv works for simple cox regression, no censoring -------------------
 
@@ -167,7 +161,7 @@ S <- predict(fit, X[1,], which=1, type='survival')
 km <- survfit(y~1)
 plot(km, conf.int=FALSE, mark.time=FALSE, xlim=c(0,10), lwd=10, col="gray")
 lines(fit$time, S(fit$time), type="s", col="slateblue", lwd=2)
-median.survfit(km)
+median(km)
 predict(fit, X[1,], which=1, type='median')
 
 
