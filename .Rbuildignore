@@ -8,3 +8,4 @@
 ^\.Rproj\.user$
 ^codecov\.yml$
 ^\.vscode$
+^\.lintr$
