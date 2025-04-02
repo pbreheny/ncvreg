@@ -1,4 +1,5 @@
 suppressPackageStartupMessages(library(glmnet))
+if (interactive()) library(tinytest)
 
 # ncvreg works for logistic regression
 x <- matrix(rnorm(500), ncol = 10)
@@ -17,9 +18,8 @@ expect_equivalent(mcp, beta, tolerance = 0.01)
 fit <- ncvreg(x, y, family = 'binomial', penalty = 'lasso')
 nlasso <- coef(fit)
 plot(fit, log = TRUE)
-glasso <- glmnet(x, y, family = 'binomial', lambda = fit$lambda) |>
-  coef() |>
-  as.matrix()
+fit <- glmnet(x, y, family = 'binomial', lambda = fit$lambda)
+glasso <- coef(fit) |> as.matrix()
 plot(fit, 'lambda')
 expect_equivalent(nlasso,  glasso, tolerance = 0.01)
 
@@ -61,9 +61,9 @@ summary(cvfit)
 predict(cvfit, type = 'coefficients')
 predict(cvfit, type = 'vars')
 predict(cvfit, type = 'nvars')
-head(predict(cvfit, x = x, 'link'))
-head(predict(cvfit, x = x, 'response'))
-head(predict(cvfit, x = x, 'class'))
+head(predict(cvfit, X = x, 'link'))
+head(predict(cvfit, X = x, 'response'))
+head(predict(cvfit, X = x, 'class'))
 
 b <- c(-3, 3, rep(0, 8))
 y <- rnorm(n, mean = x %*% b, sd = 5) > 0.5
