@@ -14,7 +14,8 @@ expect_equivalent(scad, beta, tolerance = 0.01)
 expect_equivalent(mcp, beta, tolerance = 0.01)
 
 # ncvreg reproduces lasso: binomial
-nlasso <- coef(fit <- ncvreg(x, y, family = 'binomial', penalty = 'lasso'))
+fit <- ncvreg(x, y, family = 'binomial', penalty = 'lasso')
+nlasso <- coef(fit)
 plot(fit, log = TRUE)
 glasso <- glmnet(x, y, family = 'binomial', lambda = fit$lambda) |>
   coef() |>
@@ -52,9 +53,10 @@ x <- matrix(rnorm(n * p), ncol = p)
 b <- c(-3, 3, rep(0, 8))
 y <- rnorm(n, mean = x %*% b, sd = 1) > 0.5
 
-par(mfrow = c(2, 2))
 cvfit <- cv.ncvreg(x, y, family = 'binomial')
-plot(cvfit, type = 'all')
+withr::with_par(list(mfrow = c(2, 2)),
+  plot(cvfit, type = 'all')
+)
 summary(cvfit)
 predict(cvfit, type = 'coefficients')
 predict(cvfit, type = 'vars')

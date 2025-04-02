@@ -30,6 +30,7 @@ jobs:
             any::survival
             any::tinytest
             any::xml2
+            any::withr
           needs: coverage
 
       - name: Test coverage

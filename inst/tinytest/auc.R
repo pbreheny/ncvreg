@@ -5,7 +5,7 @@ library(survival, quietly = TRUE)
 # other is out-of-sample), but they should be close
 n <- 500
 x <- matrix(rnorm(n * 10), n, 10)
-y <- Surv(rexp(n, rate = exp(X[, 1])), rbinom(n, 1, prob = 0.8))
+y <- Surv(rexp(n, rate = exp(x[, 1])), rbinom(n, 1, prob = 0.8))
 cvfit <- cv.ncvsurv(x, y, lambda.min = 0, returnY = TRUE)
 a <- AUC(cvfit)
 a[length(a)]
