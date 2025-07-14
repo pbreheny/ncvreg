@@ -9,6 +9,8 @@
 #' @param digits   Number of digits past the decimal point to print out.  Can be
 #'   a vector specifying different display digits for each of the five
 #'   non-integer printed values.
+#' @param include_fit   In addition to summarizing the cross-validation object,
+#'   also summarize the model with the lowest CV error? (default: FALSE)
 #' @param \dots    Further arguments passed to or from other methods.
 #' 
 #' @returns An object with S3 class `summary.cv.ncvreg`. The class has its own
@@ -29,7 +31,7 @@
 #' 
 #' @author Patrick Breheny
 #' 
-#' @seealso [ncvreg()], [cv.ncvreg()], [plot.cv.ncvreg()]
+#' @seealso [ncvreg()], [cv.ncvreg()], [plot.cv.ncvreg()], [summary.ncvreg()]
 #' 
 #' @references
 #' Breheny P and Huang J. (2011) Coordinate descent algorithms for nonconvex
@@ -53,7 +55,7 @@
 #' summary(cvfit)
 #' @export
 
-summary.cv.ncvreg <- function(object, ...) {
+summary.cv.ncvreg <- function(object, include_fit=FALSE, ...) {
   S <- pmax(object$null.dev - object$cve, 0)
   if (!inherits(object, 'cv.ncvsurv') && object$fit$family=="gaussian") {
     rsq <- pmin(pmax(1 - object$cve/object$null.dev, 0), 1)
@@ -69,7 +71,7 @@ summary.cv.ncvreg <- function(object, ...) {
   }
   val <- list(penalty=object$fit$penalty, model=model, n=object$fit$n, p=nrow(object$fit$beta)-1, 
               min=object$min, lambda=object$lambda, cve=object$cve, r.squared=rsq, snr=snr, 
-              nvars=nvars)
+              nvars=nvars, include_fit=include_fit)
   if (!inherits(object, 'cv.ncvsurv') && object$fit$family=="gaussian") {
     val$sigma <- sqrt(object$cve)
     val$fit_summary <- summary(object$fit, object$lambda.min, sigma=val$sigma[object$min], ...)
@@ -82,8 +84,9 @@ summary.cv.ncvreg <- function(object, ...) {
 
 #' @rdname summary.cv.ncvreg
 #' @export
-print.summary.cv.ncvreg <- function(x, digits, ...) {
+print.summary.cv.ncvreg <- function(x, digits, include_fit=FALSE, ...) {
   digits <- if (missing(digits)) digits <- c(2, 4, 2, 2, 3) else rep(digits, length.out=5)
+  if (missing(include_fit)) include_fit <- x$include_fit
   cat(x$penalty, "-penalized ", x$model, " regression with n=", x$n, ", p=", x$p, "\n", sep="")
   cat("At minimum cross-validation error (lambda=", formatC(x$lambda[x$min], digits[2], format="f"), "):\n", sep="")
   cat("-------------------------------------------------\n")
@@ -93,5 +96,5 @@ print.summary.cv.ncvreg <- function(x, digits, ...) {
   cat("  Signal-to-noise ratio: ", formatC(max(x$snr), digits[4], format="f"), "\n", sep="")
   if (x$model == "logistic") cat("  Prediction error: ", formatC(x$pe[x$min], digits[5], format="f"), "\n", sep="")
   if (x$model == "linear") cat("  Scale estimate (sigma): ", formatC(sqrt(x$cve[x$min]), digits[5], format="f"), "\n", sep="")
-  if (x$nvars[x$min] > 0) print.summary.ncvreg(x$fit_summary, ...)
+  if (x$nvars[x$min] > 0 & include_fit) print.summary.ncvreg(x$fit_summary, ...)
 }

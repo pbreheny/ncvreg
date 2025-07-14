@@ -5,12 +5,15 @@
 \alias{print.summary.cv.ncvreg}
 \title{Summarizing cross-validation-based inference}
 \usage{
-\method{summary}{cv.ncvreg}(object, ...)
+\method{summary}{cv.ncvreg}(object, include_fit = FALSE, ...)
 
-\method{print}{summary.cv.ncvreg}(x, digits, ...)
+\method{print}{summary.cv.ncvreg}(x, digits, include_fit = FALSE, ...)
 }
 \arguments{
 \item{object}{A \code{cv.ncvreg} or \code{cv.ncvsurv} object.}
+
+\item{include_fit}{In addition to summarizing the cross-validation object,
+also summarize the model with the lowest CV error? (default: FALSE)}
 
 \item{\dots}{Further arguments passed to or from other methods.}
 
@@ -62,7 +65,7 @@ penalized regression, with applications to biological feature selection.
 \emph{Annals of Applied Statistics}, \strong{5}: 232-253. \doi{10.1214/10-AOAS388}
 }
 \seealso{
-\code{\link[=ncvreg]{ncvreg()}}, \code{\link[=cv.ncvreg]{cv.ncvreg()}}, \code{\link[=plot.cv.ncvreg]{plot.cv.ncvreg()}}
+\code{\link[=ncvreg]{ncvreg()}}, \code{\link[=cv.ncvreg]{cv.ncvreg()}}, \code{\link[=plot.cv.ncvreg]{plot.cv.ncvreg()}}, \code{\link[=summary.ncvreg]{summary.ncvreg()}}
 }
 \author{
 Patrick Breheny
