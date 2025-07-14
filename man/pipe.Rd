@@ -2,7 +2,7 @@
 % Please edit documentation in R/pipe.R
 \name{pipe}
 \alias{pipe}
-\title{Title}
+\title{Projection base test statistic and confidence intervals}
 \usage{
 pipe(
   X,
@@ -14,12 +14,104 @@ pipe(
   penalty = c("MCP", "SCAD", "lasso"),
   gamma = switch(penalty, SCAD = 3.7, 3),
   alpha = 1,
-  level = 0.95
+  level = 0.95,
+  posterior = TRUE,
+  relaxed = FALSE,
+  adjust_projection = FALSE
 )
 }
 \arguments{
-\item{level}{}
+\item{X}{The design matrix, without an intercept. \code{pipe}
+standardizes the data and includes an intercept by default.}
+
+\item{y}{The response vector.}
+
+\item{fit}{An optional fit of class \code{ncvreg} or \code{cv.ncvreg}. If supplied,
+\code{X} should only be supplied if \code{fit} does not contain it.}
+
+\item{lambda}{The penalty at which the tests and confidence intervals are to
+be constructed. If left unspecified, will be selected using
+cross validation.}
+
+\item{sigma}{Standard deviation estimate used to compute test statistic and
+confidence intervals. If left unspecified (default) it will be
+estimated using the recommendation from Reid et al. (2016)}
+
+\item{family}{Either "gaussian" (default), "binomial", or "poisson",
+depending on the response.}
+
+\item{penalty}{The penalty to be applied to the model.  Either "MCP" (the
+default), "SCAD", or "lasso".}
+
+\item{gamma}{The tuning parameter of the MCP/SCAD penalty (see details).
+Default is 3 for MCP and 3.7 for SCAD.}
+
+\item{alpha}{Tuning parameter for the Mnet estimator which controls the
+relative contributions from the MCP/SCAD penalty and the
+ridge, or L2 penalty. \code{alpha=1} is equivalent to MCP/SCAD
+penalty, while \code{alpha=0} would be equivalent to ridge
+regression. However, \code{alpha=0} is not supported; \code{alpha} may
+be arbitrarily small, but not exactly 0. NOTE: If \code{alpha<1},
+\code{posterior} must be set to \code{FALSE} if the output of interest is
+using PIPE for FDR control. This will be remedied in a future
+update.}
+
+\item{level}{the confidence level required.}
+
+\item{posterior}{whether the intervals returned should be posterior intervals
+(default) or debiased intervals (if \code{FALSE}). Posterior
+intervals are constructed from distributions where the estimate
+is the posterior mode. Debiased intervals are constructed
+around the test statistic.}
+
+\item{relaxed}{whether the relaxed lasso based statistic / intervals should
+be used. Default is \code{FALSE} in which case PIPE based intervals
+are constructed (recommended). This affects the estimate.}
+
+\item{adjust_projection}{whether a Local Quadratic Approximation should be used
+in the projection for determining variance of the PIPE based
+test statistic. Default is \code{FALSE} as more research has been
+done without this adjustment, however without this adjustment,
+statistics and intervals may be over conservative in the
+presence of correlation. This affects the SE.}
+}
+\value{
+An \code{data.frame} containing the following columns:
+\describe{
+\item{variable}{\code{colnames(X)}}
+\item{coef}{The original estimates at the specified parameters (\code{lambda}, \code{gamma}, \code{alpha})}
+\item{estimate}{The PIPE / Relaxed Lasso estimates}
+\item{SE}{The PIPE / LQA standard errors. The Relaxed Lasso SEs are the same as PIPE's.}
+\item{t}{The PIPE / Relaxed Lasso / LQA test statistics}
+\item{lower}{CI lower bounds}
+\item{upper}{CI upper bounds}
+\item{p.value}{The unadjusted p-value}
+\item{q.value}{The Benhamini and Hochberg corrected p-value}
+\item{sigma}{The standard deviation used for constructing the test statistis and CIs.}
+\item{lambda}{The lambda value the test statistics and CIs were constructed at.}
+}
 }
 \description{
-Title
+Constructs projection based test statistics that can be used to control FDR along with
+confidence intervals for a penalized regression model.
+}
+\details{
+The function constructs test statistics and confidence intervals based off an
+approximate projection onto the column space of the active features. The test
+statistic can be used to control FDR and the confidence intervals generally
+have good coverage. However, both tend to be conservative with the
+introduction of correlation.
+}
+\examples{
+# Linear regression --------------------------------
+data(Prostate)
+fit <- pipe(Prostate$X, Prostate$y)
+
+# Logistic regression ------------------------------
+data(Heart)
+pipe(Heart$X, Heart$y, family="binomial")
+
+}
+\author{
+Logan Harris, Patrick Breheny, and Biyue Dai
 }
