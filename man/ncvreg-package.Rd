@@ -30,7 +30,7 @@ Useful links:
 Authors:
 \itemize{
   \item Ryan Miller (\href{https://orcid.org/0000-0003-0446-9992}{ORCID})
-  \item Logan Harris
+  \item Logan Harris (\href{https://orcid.org/0000-0001-8562-9534}{ORCID})
 }
 
 }

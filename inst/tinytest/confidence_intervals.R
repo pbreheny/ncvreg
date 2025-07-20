@@ -21,74 +21,75 @@ check_debiased <- function(res) {
   expect_true(all(res$lower <= res$estimate & res$estimate <= res$upper))
 }
 
-## Passing data directly -------------------------------------------------------
-expect_message({res <- pipe(X, y)}, strict = TRUE)
-run_tests(res)
-check_pen(res)
-check_biased(res)
-
 ## Passing in CV object --------------------------------------------------------
 cv_fit <- cv.ncvreg(X, y, penalty = "lasso")
-res <- pipe(fit = cv_fit)
+res <- confidence_intervals(cv_fit)
 run_tests(res)
 check_pen(res, "lasso")
 check_biased(res)
 
 ## Pass in ncvreg object -------------------------------------------------------
 fit <- ncvreg(X, y, penalty = "SCAD")
-expect_message({res <- pipe(fit = fit)}, strict = TRUE)
+expect_message({res <- confidence_intervals(fit)}, strict = TRUE)
 run_tests(res)
 check_pen(res, "SCAD")
+check_biased(res)
+
+## Pass in ncvreg object and X -------------------------------------------------
+Xstd <- std(X)
+fit <- ncvreg(Xstd, y, returnX = FALSE)
+expect_message({res <- confidence_intervals(fit, X = Xstd)}, strict = TRUE)
+run_tests(res)
 check_biased(res)
 
 ## Expected errors -------------------------------------------------------------
 
-## Only pass X
-expect_error(pipe(X))
-
 ## Pass in CV object and X and y, expect error as passed X is made different
 cv_fit <- cv.ncvreg(X, y, penalty = "lasso")
-expect_error(pipe(matrix(rnorm(500), 50, 10), y, fit = cv_fit))
+expect_error(confidence_intervals(cv_fit, X = matrix(rnorm(500), 50, 10)))
 
 ## Check passing in non-standardized X (no error)
-res <- pipe(X, y, fit = cv_fit)
+res <- confidence_intervals(cv_fit, X = X)
 run_tests(res)
 
 ## And standardized X
-res <- pipe(ncvreg::std(X), y, fit = cv_fit)
+res <- confidence_intervals(cv_fit, X = ncvreg::std(X))
 run_tests(res)
-
-## Check error with different y
-cv_fit <- cv.ncvreg(X, y, penalty = "lasso")
-expect_error(pipe(y = X[,1] + rnorm(50), fit = cv_fit))
 
 ## Pass in CV object with no X (expect error)
 cv_fit <- cv.ncvreg(X, y, penalty = "lasso", returnX = FALSE)
-expect_error(res <- pipe(fit = cv_fit))
+expect_error(res <- confidence_intervals(cv_fit))
 
 ## Now supply X (don't expect error)
 cv_fit <- cv.ncvreg(X, y, penalty = "lasso", returnX = FALSE)
-res <- pipe(X = X, fit = cv_fit)
+res <- confidence_intervals(cv_fit, X = X)
 run_tests(res)
 
+## Pass some other object to fit
+expect_error(confidence_intervals(lm(y ~ X)))
+
 ## Alternate Penalties ---------------------------------------------------------
-res <- pipe(X, y, penalty = "lasso")
+cv_fit <- cv.ncvreg(X, y, penalty = "lasso")
+res <- confidence_intervals(cv_fit)
 run_tests(res)
 check_biased(res)
 check_pen(res, "lasso")
 
-res <- pipe(X, y, penalty = "SCAD")
+cv_fit <- cv.ncvreg(X, y, penalty = "SCAD")
+res <- confidence_intervals(cv_fit)
 run_tests(res)
 check_biased(res)
 check_pen(res, "SCAD")
 
-res <- pipe(X, y, penalty = "SCAD", alpha = 0.5)
+cv_fit <- cv.ncvreg(X, y, penalty = "SCAD", alpha = 0.5)
+res <- confidence_intervals(cv_fit)
 run_tests(res)
 check_biased(res)
 check_pen(res, "SCAD")
 expect_equal(res$alpha[1], 0.5)
 
-res <- pipe(fit = cv.ncvreg(X, y, gamma = 4, alpha = 0.7))
+cv_fit <- cv.ncvreg(X, y, gamma = 4, alpha =0.7)
+res <- confidence_intervals(cv_fit)
 run_tests(res)
 check_biased(res)
 check_pen(res, "MCP")
@@ -99,85 +100,82 @@ expect_equal(res$alpha[1], 0.7)
 eta <- X %*% beta
 y_bin <- rbinom(n = 50, size = 1, prob = exp(eta) / (1+exp(eta)))
 cv_fit <- cv.ncvreg(X, y_bin, family = "binomial")
-pipe(fit = cv_fit)
+confidence_intervals(cv_fit)
 
 y_pois <- rpois(50, exp(eta))
-cv_fit <- cv.ncvreg(X, y_pois, family = "poisson", penalty = "lasso")
-pipe(fit = cv_fit)
+cv_fit <- cv.ncvreg(X, y_pois, family = "poisson", penalty = "MCP", alpha = 0.7)
+confidence_intervals(cv_fit, adjust_projection = TRUE)
 
 ## LQA   -----------------------------------------------------------------------
-## Passing data directly
-expect_message({res <- pipe(X, y, adjust_projection = TRUE)}, strict = TRUE)
-run_tests(res)
-check_biased(res)
-
 ## Passing in CV object
 cv_fit <- cv.ncvreg(X, y, penalty = "lasso")
-res <- pipe(fit = cv_fit, adjust_projection = TRUE)
+res <- confidence_intervals(cv_fit, adjust_projection = TRUE)
 run_tests(res)
 check_biased(res)
 
 ## Pass in ncvreg object 
 fit <- ncvreg(X, y, penalty = "SCAD")
-expect_message({res <- pipe(fit = fit, adjust_projection = TRUE)}, strict = TRUE)
+res <- confidence_intervals(fit, adjust_projection = TRUE)
 run_tests(res)
 check_biased(res)
 
 ## Relaxed   -------------------------------------------------------------------
-## Passing data directly
-expect_message({res <- pipe(X, y, relaxed = TRUE)}, strict = TRUE)
-run_tests(res)
-
 ## Passing in CV object
 cv_fit <- cv.ncvreg(X, y, penalty = "lasso")
-res <- pipe(fit = cv_fit, relaxed = TRUE)
+res <- confidence_intervals(cv_fit, relaxed = TRUE)
 run_tests(res)
 
 ## Pass in ncvreg object 
 fit <- ncvreg(X, y, penalty = "SCAD")
-expect_message({res <- pipe(fit = fit, relaxed = TRUE)}, strict = TRUE)
+res <- confidence_intervals(fit, relaxed = TRUE)
+run_tests(res)
+
+## Pass in ncvreg object with poisson outcome
+fit <- ncvreg(X, y_pois, penalty = "SCAD", family = "poisson")
+res <- confidence_intervals(fit, relaxed = TRUE)
 run_tests(res)
 
 ## Debiased -------------------------------------------------------------------
-## Passing data directly
-expect_message({res <- pipe(X, y, posterior = FALSE, penalty = "lasso")}, strict = TRUE)
-run_tests(res)
-check_debiased(res)
-
 ## Passing in CV object
 cv_fit <- cv.ncvreg(X, y, penalty = "lasso")
-res <- pipe(fit = cv_fit, relaxed = TRUE, posterior = FALSE)
+res <- confidence_intervals(cv_fit, relaxed = TRUE, posterior = FALSE)
 run_tests(res)
 check_debiased(res)
 
 ## Pass in ncvreg object 
 fit <- ncvreg(X, y, penalty = "SCAD")
-expect_message({res <- pipe(fit = fit, relaxed = TRUE, adjust_projection = FALSE, posterior = FALSE)}, strict = TRUE)
+res <- confidence_intervals(
+  fit, relaxed = TRUE, adjust_projection = FALSE, posterior = FALSE
+)
 run_tests(res)
 check_debiased(res)
 
 ## Lambda specification outside of range
-lambda_seq <- ncvreg::ncvreg(X, y, penalty = "lasso")$lambda
+fit <- ncvreg(X, y, penalty = "lasso")
+lambda_seq <- fit$lambda
 expect_error({
-  pipe(X, y, lambda = min(lambda_seq)*.5)
+  confidence_intervals(fit, lambda = min(lambda_seq)*.5)
 })
 expect_error({
-  pipe(X, y, lambda = max(lambda_seq)*1.5)
+  confidence_intervals(fit, lambda = max(lambda_seq)*1.5)
 })
 
-## Coercion 
-expect_error(pipe(list(X), y))
-res <- pipe(as.data.frame(X), y) ## A situation we would expect to work
-run_tests(res)
-res <- pipe(matrix(as.integer(X), 50, 10), y)
-run_tests(res)
+## Run for null model
+res <- confidence_intervals(fit, lambda = max(lambda_seq))
 
 ## Misc Checks
-expect_error(pipe(fit = ncvreg(X, y, penalty.factor = c(0, rep(1, 9)))))
+expect_error(confidence_intervals(ncvreg(X, y, penalty.factor = c(0, rep(1, 9)))))
 
 ## Examples
-data(Prostate)
-X <- Prostate$X
-y <- Prostate$y
-pipe(X, y)
+# Linear regression (SCAD-Net penalty, PIPE intervals, pass ncvreg object)
+fit <- ncvreg(Prostate$X, Prostate$y, penalty = "SCAD", alpha = 0.9)
+confidence_intervals(fit)
 
+# Logistic regression (lasso penalty, LQA intervals, pass cv.ncvreg object)
+data(Heart)
+cv_fit <- cv.ncvreg(Heart$X, Heart$y, family="binomial", penalty = "lasso")
+confidence_intervals(cv_fit, adjust_projection = TRUE) |> head()
+
+## Singular issue warning
+X[,2] <- 1
+expect_error(ncvreg(X, y) |> confidence_intervals())

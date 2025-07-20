@@ -1,7 +1,7 @@
 #' Projection base test statistic and confidence intervals
 #' 
-#' Constructs projection based test statistics that can be used to control FDR along with
-#' confidence intervals for a penalized regression model.
+#' Constructs projection based test statistics that can be used to control FDR 
+#' along with confidence intervals for a penalized regression model.
 #' 
 #' The function constructs test statistics and confidence intervals based off an
 #' approximate projection onto the column space of the active features. The test
@@ -9,9 +9,6 @@
 #' have good coverage. However, both tend to be conservative with the
 #' introduction of correlation.
 #'
-#' @param X      The design matrix, without an intercept. `pipe`
-#'               standardizes the data and includes an intercept by default.
-#' @param y      The response vector.
 #' @param fit    An optional fit of class `ncvreg` or `cv.ncvreg`. If supplied,
 #'               `X` should only be supplied if `fit` does not contain it.
 #' @param lambda The penalty at which the tests and confidence intervals are to
@@ -20,21 +17,6 @@
 #' @param sigma Standard deviation estimate used to compute test statistic and 
 #'              confidence intervals. If left unspecified (default) it will be 
 #'              estimated using the recommendation from Reid et al. (2016)
-#' @param family Either "gaussian" (default), "binomial", or "poisson",
-#'               depending on the response.
-#' @param penalty The penalty to be applied to the model.  Either "MCP" (the
-#'                default), "SCAD", or "lasso".
-#' @param gamma The tuning parameter of the MCP/SCAD penalty (see details).
-#'              Default is 3 for MCP and 3.7 for SCAD.
-#' @param alpha Tuning parameter for the Mnet estimator which controls the
-#'              relative contributions from the MCP/SCAD penalty and the
-#'              ridge, or L2 penalty. `alpha=1` is equivalent to MCP/SCAD
-#'              penalty, while `alpha=0` would be equivalent to ridge
-#'              regression. However, `alpha=0` is not supported; `alpha` may
-#'              be arbitrarily small, but not exactly 0. NOTE: If `alpha<1`,
-#'              `posterior` must be set to `FALSE` if the output of interest is
-#'              using PIPE for FDR control. This will be remedied in a future
-#'              update.
 #' @param level the confidence level required.
 #' @param posterior whether the intervals returned should be posterior intervals
 #'              (default) or debiased intervals (if `FALSE`). Posterior
@@ -44,12 +26,14 @@
 #' @param relaxed whether the relaxed lasso based statistic / intervals should
 #'              be used. Default is `FALSE` in which case PIPE based intervals
 #'              are constructed (recommended). This affects the estimate.
-#' @param adjust_projection whether a Local Quadratic Approximation should be used 
-#'              in the projection for determining variance of the PIPE based
-#'              test statistic. Default is `FALSE` as more research has been
-#'              done without this adjustment, however without this adjustment,
-#'              statistics and intervals may be over conservative in the
-#'              presence of correlation. This affects the SE.
+#' @param adjust_projection whether a Local Quadratic Approximation should be
+#'              used in the projection for determining variance of the PIPE 
+#'              based test statistic. Default is `FALSE` as more research has
+#'              been done without this adjustment, however without this
+#'              adjustment, statistics and intervals may be over conservative in
+#'              the presence of correlation. This affects the SE.
+#' @param X     The original design matrix supplied to `fit`. Required if `fit`
+#'              does not contain `X`.
 #'
 #' @returns An `data.frame` containing the following columns:
 #' \describe{
@@ -61,82 +45,82 @@
 #'   \item{lower}{CI lower bounds}
 #'   \item{upper}{CI upper bounds}
 #'   \item{p.value}{The unadjusted p-value}
-#'   \item{q.value}{The Benhamini and Hochberg corrected p-value}
-#'   \item{sigma}{The standard deviation used for constructing the test statistis and CIs.}
+#'   \item{p.adjust}{The Benhamini and Hochberg corrected p-value}
+#'   \item{penalty}{The penalty used.}
 #'   \item{lambda}{The lambda value the test statistics and CIs were constructed at.}
+#'   \item{gamma}{The gamma value the test statistics and CIs were constructed at (for MCP/SCAD).}
+#'   \item{alpha}{The alpha value the test statistics and CIs were constructed at.}
+#'   \item{level}{The confidence level set for CI construction.}
+#'   \item{sigma}{The standard deviation used for constructing the test statistis and CIs.}
 #' }
 #' 
 #' @author Logan Harris, Patrick Breheny, and Biyue Dai
 #' 
 #' @examples
-#' # Linear regression --------------------------------
-#' data(Prostate)
-#' fit <- pipe(Prostate$X, Prostate$y)
+#' # Linear regression (SCAD-Net penalty, PIPE intervals, pass ncvreg object)
+#' fit <- ncvreg(Prostate$X, Prostate$y, penalty = "SCAD", alpha = 0.9)
+#' confidence_intervals(fit) |> head()
 #' 
-#' # Logistic regression ------------------------------
+#' # Logistic regression (lasso penalty, LQA intervals, pass cv.ncvreg object) 
 #' data(Heart)
-#' pipe(Heart$X, Heart$y, family="binomial")
+#' cv_fit <- cv.ncvreg(Heart$X, Heart$y, family="binomial", penalty = "lasso")
+#' confidence_intervals(cv_fit, adjust_projection = TRUE) |> head()
 #' 
-#' @export pipe
-pipe <- function(X, y, fit, lambda, sigma,
-                      family = c("gaussian", "binomial", "poisson"),
-                      penalty = c("MCP", "SCAD", "lasso"),
-                      gamma = switch(penalty, SCAD = 3.7, 3),
-                      alpha = 1, level = 0.95,
-                      posterior = TRUE, relaxed = FALSE,
-                      adjust_projection = FALSE
+#' @export confidence_intervals
+confidence_intervals <- function(fit, lambda, sigma, level = 0.95,
+                      posterior = TRUE, relaxed = FALSE, 
+                      adjust_projection = FALSE, X = NULL
 ) {
   
-  ## Checks
-  family <- match.arg(family)
-  penalty <- match.arg(penalty)
-  
-  if (missing(fit) && (missing(X) || missing(y))) {
-    stop("Must supply a fit of class ncvreg or cv.ncvreg or both X and y.")
-  }
-  
-  if (!missing(fit) && !inherits(fit, c("cv.ncvreg", "ncvreg"))) {
+  if (!inherits(fit, c("cv.ncvreg", "ncvreg"))) {
     stop("fit must be of class ncvreg or cv.ncvreg")
   }
-  if (!missing(fit)) {
     
-    original_object_class <- class(fit)[1]
+  original_object_class <- class(fit)[1]
+  
+  if (inherits(fit, "cv.ncvreg")) {
     
-    if (inherits(fit, "cv.ncvreg")) {
-      
-      cv_fit <- fit
-      fit <- cv_fit$fit
-      
-      if (missing(lambda)) lambda <- cv_fit$lambda.min
-      
-    }
+    cv_fit <- fit
+    fit <- cv_fit$fit
     
-    if (is.null(fit$X) & missing(X)) {
-      stop(paste0("fit object missing X, please rerun ", original_object_class, " with returnX = TRUE or supply X directly along with the ", original_object_class, " object."))
-    }
-    if (!missing(X) && is.null(attr(X, "scale"))) Xcheck <- std(X) else if (!missing(X)) Xcheck <- X
-    if (!is.null(fit$X) && !missing(X) && !identical(fit$X, Xcheck)) {
-      stop("X supplied along with ",  original_object_class, " object which also contains X and they are not the same. It is unclear which should be used.")
-    } 
-    
-    if (!missing(y) && !identical(fit$y, y)) {
-      stop(paste0("y supplied along with ",  original_object_class, " object which also contains y and they are not the same. It is unclear which should be used."))
-    }
-    
-    if (any(fit$penalty.factor != 1)) stop("Alternate penalty factors are currently not supported.")
-    
-    ## Use the values from ncvreg or cv.ncvreg object
-    penalty <- fit$penalty
-    gamma <- fit$gamma
-    alpha <- fit$alpha
-    family <- fit$family
+    if (missing(lambda)) lambda <- cv_fit$lambda.min
     
   }
   
-  ## Get a fit, after this, every version of supplied X and y is the same
-  if (missing(fit)) {
-    fit <- ncvreg(X, y, family = family, penalty = penalty, gamma = gamma, alpha = alpha, returnX = TRUE) 
+  if (is.null(fit$X) & is.null(X)) {
+    stop(paste0(
+      "fit object missing X, please rerun ",
+      original_object_class,
+      " with returnX = TRUE or supply X directly along with the ",
+      original_object_class,
+      " object."
+    ))
   }
+  if (!missing(X) && !is.null(fit$X)) {
+    if (is.null(attr(X, "scale"))) {
+      Xcheck <- std(X)
+    } else {
+      Xcheck <- X
+    }
+    if (!identical(fit$X, Xcheck)) {
+      stop(
+        "X supplied along with ",
+        original_object_class,
+        " object which also contains X and they are not the same.",
+        "It is unclear which should be used."
+      )
+    } 
+  }
+  
+  if (any(fit$penalty.factor != 1)) {
+    stop("Alternate penalty factors are currently not supported.")
+  }
+  
+  ## Use the values from ncvreg or cv.ncvreg object
+  penalty <- fit$penalty
+  gamma <- fit$gamma
+  alpha <- fit$alpha
+  family <- fit$family
   
   ## Get standardized X and its scale for later rescaling
   if (is.null(fit$X)) {
@@ -149,7 +133,13 @@ pipe <- function(X, y, fit, lambda, sigma,
     XX <- fit$X
   }
   rescale_factorX <- attr(XX, "scale")
-  if (any(attr(XX, "scale") == 0)) warning("Some columns in X are singular. Intervals cannot be produced for corresponding covariates.")
+  if (any(attr(XX, "scale") == 0)) {
+    stop(
+      "Some columns in X are singular.",
+      "Intervals cannot be produced for corresponding covariates.",
+      "Please remove these columns before preceeding."
+    )
+  }
   
   # Get y and center if gaussian
   yy <- fit$y
@@ -160,10 +150,14 @@ pipe <- function(X, y, fit, lambda, sigma,
   
   ## Get lambda if not yet defined
   if (missing(lambda)) {
-    message("No lambda provided, using cv.ncvreg to select the value of lambda that minimizes CVE.")
     ## Select value for lambda if not provided or not extracted from cv_fit
-    cv_fit <- cv.ncvreg(XX, yy, family = family, penalty = penalty, gamma = gamma, alpha = alpha, returnX = TRUE) 
+    cv_fit <- cv.ncvreg(
+      XX, yy, family = family, penalty = penalty,
+      gamma = gamma, alpha = alpha, returnX = TRUE
+    ) 
     lambda <- cv_fit$lambda.min 
+    if (lambda == max(cv_fit$lambda)) {lambda <- lambda * 0.999}
+    if (lambda == min(cv_fit$lambda)) {lambda <- lambda * 1.001}
   } 
   
   # initialize
@@ -182,7 +176,8 @@ pipe <- function(X, y, fit, lambda, sigma,
     N_hat <- which(!S)
     
     ## For LQA adjustment
-    adj_num <- penalty_derivative(beta, lambda, 1, penalty, gamma) ## alpha treated as 1 here because of how this fits with the augmentation step
+    ## alpha treated as 1 here because of how this fits with the augmentation
+    adj_num <- penalty_derivative(beta, lambda, 1, penalty, gamma) 
     adjw <- diag(adj_num / abs(beta))
     
     ## Compute sigma if not provided
@@ -199,7 +194,8 @@ pipe <- function(X, y, fit, lambda, sigma,
     
     ## Compute PIPE test statistic
     yhat <- as.numeric(XX %*% beta)
-    partial_residuals <- (yy - yhat) + (XX * matrix(beta, nrow = nrow(XX), ncol = ncol(XX), byrow = TRUE))
+    partial_residuals <- (yy - yhat) + 
+      (XX * matrix(beta, nrow = nrow(XX), ncol = ncol(XX), byrow = TRUE))
     beta_PIPE <- (1/n) * colSums(XX * partial_residuals)
     
     ## Compute PIPE Variance for features in the estimated support
@@ -215,7 +211,8 @@ pipe <- function(X, y, fit, lambda, sigma,
           Qsi <- diag(nrow(XX)) - tcrossprod(qr.Q(qr(Xsi)))
         } else {
           adji <- adjw[S_hat_i, S_hat_i]
-          Qsi <- diag(nrow(XX)) - Xsi %*% solve(((1/n)*crossprod(Xsi) + adji)) %*% ((1/n) * t(Xsi))
+          Qsi <- diag(nrow(XX)) - 
+            Xsi %*% solve(((1/n)*crossprod(Xsi) + adji)) %*% ((1/n) * t(Xsi))
         }
         adjusted_n <- t(XX[,i,drop = FALSE]) %*% Qsi %*% XX[,i,drop = FALSE]
       } else {
@@ -233,12 +230,14 @@ pipe <- function(X, y, fit, lambda, sigma,
     }
     
     # Same for null features
+    adjs <- adjw[S_hat,S_hat]
     if (length(S_hat) > 0 & length(N_hat) > 0) {
       Xs <- XX[,S_hat,drop=FALSE]
       if (!adjust_projection) {
         Qs <- diag(nrow(XX)) - tcrossprod(qr.Q(qr(Xs)))
       } else {
-        Qs <- diag(nrow(XX)) - Xs %*% solve(((1/n)*crossprod(Xs) + adjw[S_hat,S_hat])) %*% ((1/n) * t(Xs))
+        Qs <- diag(nrow(XX)) -
+          Xs %*% solve(((1/n)*crossprod(Xs) + adjs)) %*% ((1/n) * t(Xs))
       }
     } else {
       Qs <- diag(nrow(XX))
@@ -258,11 +257,12 @@ pipe <- function(X, y, fit, lambda, sigma,
   } else {
     
     ## For poisson and logistic penalized regression
-    ## Refit the model with standardized X -> I don't love this... but so far have
-    ## not been able to find an alternate solution
+    ## Refit the model with standardized X, I don't love this... 
+    ## but so far have not been able to find an alternate solution
     if (!all(abs(attr(XX, "scale") - 1) < 1e-8)) {
       fit <- ncvreg::ncvreg(
-        XX, yy, family = fit$family, penalty = fit$penalty, gamma = fit$gamma, alpha = fit$alpha
+        XX, yy, family = fit$family, penalty = fit$penalty,
+        gamma = fit$gamma, alpha = fit$alpha
       )
     }
     
@@ -297,7 +297,10 @@ pipe <- function(X, y, fit, lambda, sigma,
     if (alpha < 1 & posterior) {
       yy <- c(yy, rep(0, p))
       XX <- rbind(XX, sqrt(n*(1 - alpha)*lambda)*diag(p))
-      X_int <- rbind(X_int, cbind(rep(0, p), sqrt(n*(1 - alpha)*lambda)*diag(p)))
+      X_int <- rbind(
+        X_int,
+        cbind(rep(0, p), sqrt(n*(1 - alpha)*lambda)*diag(p))
+      )
       lambda <- lambda * alpha
     }
     
@@ -313,7 +316,8 @@ pipe <- function(X, y, fit, lambda, sigma,
           Qsi <- diag(nrow(Xsi)) - tcrossprod(qr.Q(qr(Xsi)))
         } else {
           adji <- adjw[c(TRUE, S_hat_i), c(TRUE, S_hat_i)]
-          Qsi <- diag(nrow(XX)) - Xsi %*% solve((1/n)*crossprod(Xsi) + adji) %*% ((1/n) * t(Xsi))
+          Qsi <- diag(nrow(XX)) -
+            Xsi %*% solve((1/n)*crossprod(Xsi) + adji) %*% ((1/n) * t(Xsi))
         }
       } else {
         Qsi <- diag(nrow(XX))
@@ -321,23 +325,32 @@ pipe <- function(X, y, fit, lambda, sigma,
       
       ## Compute the statistic
       if (relaxed) {
-        beta_PIPE[i] <- (t(XX[,i,drop=FALSE]) %*% Qsi %*% yy) / (t(XX[,i,drop=FALSE]) %*% Qsi %*% XX[,i,drop=FALSE])
+        beta_PIPE[i] <- (t(XX[,i,drop=FALSE]) %*% Qsi %*% yy) / 
+          (t(XX[,i,drop=FALSE]) %*% Qsi %*% XX[,i,drop=FALSE])
       } else {
-        beta_PIPE[i] <- (t(XX[,i,drop=FALSE]) %*% (yy - Xsi %*% beta[c(TRUE, S_hat_i)])) / (t(XX[,i,drop=FALSE]) %*% XX[,i,drop=FALSE])
+        beta_PIPE[i] <- 
+          (t(XX[,i,drop=FALSE]) %*% (yy - Xsi %*% beta[c(TRUE, S_hat_i)])) /
+          (t(XX[,i,drop=FALSE]) %*% XX[,i,drop=FALSE])
       }
       
       ## Compute SE
-      sigma_PIPE[i] <- sqrt(1 / (t(XX[,i,drop=FALSE]) %*% Qsi %*% XX[,i,drop=FALSE]))
+      sigma_PIPE[i] <- sqrt(
+        1 / (t(XX[,i,drop=FALSE]) %*% Qsi %*% XX[,i,drop=FALSE])
+      )
       
     }
     
     # Compute pipe for null features
     Xs <- X_int[,c(TRUE, S), drop = FALSE]
+    adjs <- adjw[c(TRUE, S),c(TRUE, S)]
     if (length(S_hat) > 0 & length(N_hat) > 0) {
       if (!adjust_projection) {
         Qs <- diag(nrow(Xs)) - tcrossprod(qr.Q(qr(Xs)))
       } else {
-        Qs <- diag(nrow(XX)) - Xs %*% solve(((1/n)*crossprod(Xs) + adjw[c(TRUE, S),c(TRUE, S)])) %*% ((1/n) * t(Xs))
+        Qs <- diag(
+          nrow(XX)) -
+          Xs %*% solve(((1/n)*crossprod(Xs) + adjs)) %*% ((1/n) * t(Xs)
+        )
       }
     } else {
       Qs <- diag(nrow(XX))
@@ -345,12 +358,17 @@ pipe <- function(X, y, fit, lambda, sigma,
     
     for (i in N_hat) {
       if (relaxed) {
-        beta_PIPE[i] <- (t(XX[,i,drop=FALSE]) %*% Qs %*% yy) / (t(XX[,i,drop=FALSE]) %*% Qs %*% XX[,i,drop=FALSE])
+        beta_PIPE[i] <- (t(XX[,i,drop=FALSE]) %*% Qs %*% yy) /
+          (t(XX[,i,drop=FALSE]) %*% Qs %*% XX[,i,drop=FALSE])
       } else {
-        beta_PIPE[i] <- (t(XX[,i,drop=FALSE]) %*% (yy - Xs %*% beta[c(TRUE, S)])) / (t(XX[,i,drop=FALSE]) %*% XX[,i,drop=FALSE])
+        beta_PIPE[i] <- 
+          (t(XX[,i,drop=FALSE]) %*% (yy - Xs %*% beta[c(TRUE, S)])) /
+          (t(XX[,i,drop=FALSE]) %*% XX[,i,drop=FALSE])
       }
       
-      sigma_PIPE[i] <- sqrt(1 / (t(XX[,i,drop=FALSE]) %*% Qs %*% XX[,i,drop=FALSE]))
+      sigma_PIPE[i] <- sqrt(
+        1 / (t(XX[,i,drop=FALSE]) %*% Qs %*% XX[,i,drop=FALSE])
+      )
       
     }
     
@@ -378,7 +396,8 @@ pipe <- function(X, y, fit, lambda, sigma,
     } else {
       
       ci <- ci_full_cond(z = beta_PIPE, lambda = lambda, se = sigma_PIPE,
-                         alpha = 1 - level, gamma = gamma, penalty = penalty, family = family, weights = weights)
+                         alpha = 1 - level, gamma = gamma, penalty = penalty,
+                         family = family, weights = weights)
       
     }
     
@@ -416,7 +435,8 @@ pipe <- function(X, y, fit, lambda, sigma,
   
 }
 ## Function for computing posterior intervals
-ci_full_cond <- function(z, lambda, se, alpha, gamma, penalty = "lasso", family = "gaussian", weights = NULL) {
+ci_full_cond <- function(z, lambda, se, alpha, gamma, penalty = "lasso",
+                         family = "gaussian", weights = NULL) {
   
   if (family != "gaussian") {
     lambda_orig <- lambda
@@ -431,8 +451,16 @@ ci_full_cond <- function(z, lambda, se, alpha, gamma, penalty = "lasso", family 
   obs_p_up <- obs_up - (z*lambda / se^2)
   
   ## Find the proportion of each to the overall probability
-  frac_lw_log <- ifelse(is.infinite(exp(obs_p_lw - obs_p_up)), 0, obs_p_lw - obs_p_up - log(1 + exp(obs_p_lw - obs_p_up)))
-  frac_up_log <- ifelse(is.infinite(exp(obs_p_up - obs_p_lw)), 0, obs_p_up - obs_p_lw - log(1 + exp(obs_p_up - obs_p_lw)))
+  frac_lw_log <- ifelse(
+    is.infinite(exp(obs_p_lw - obs_p_up)),
+    0,
+    obs_p_lw - obs_p_up - log(1 + exp(obs_p_lw - obs_p_up))
+  )
+  frac_up_log <- ifelse(
+    is.infinite(exp(obs_p_up - obs_p_lw)),
+    0,
+    obs_p_up - obs_p_lw - log(1 + exp(obs_p_up - obs_p_lw))
+  )
   
   ps <- alpha / 2
   log_ps <- log(ps)
@@ -440,7 +468,10 @@ ci_full_cond <- function(z, lambda, se, alpha, gamma, penalty = "lasso", family 
   lowers <- ifelse(
     frac_lw_log >= log_ps,
     qnorm(log_ps + obs_lw - frac_lw_log, z + lambda, se, log.p = TRUE),
-    qnorm(log_one_minus_ps + obs_up - frac_up_log, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
+    qnorm(
+      log_one_minus_ps + obs_up - frac_up_log, z - lambda, se,
+      lower.tail = FALSE, log.p = TRUE
+    )
   )
   
   ps <- 1 - alpha / 2
@@ -449,19 +480,31 @@ ci_full_cond <- function(z, lambda, se, alpha, gamma, penalty = "lasso", family 
   uppers <- ifelse(
     frac_lw_log >= log_ps,
     qnorm(log_ps + obs_lw - frac_lw_log, z + lambda, se, log.p = TRUE),
-    qnorm(log_one_minus_ps + obs_up - frac_up_log, z - lambda, se, lower.tail = FALSE, log.p = TRUE)
+    qnorm(
+      log_one_minus_ps + obs_up - frac_up_log, z - lambda, se,
+      lower.tail = FALSE, log.p = TRUE
+    )
   )
   
   if (penalty %in% c("MCP", "SCAD")) {
-    if (family != "gaussian") {lambda <- lambda_orig} ## Return lambda to original for MCP/SCAD approximation
-    uppers <- threshold_c(uppers, lambda, gamma, family = family, weights = weights, penalty = penalty)
-    lowers <- threshold_c(lowers, lambda, gamma, family = family, weights = weights, penalty = penalty)
+    ## Return lambda to original for MCP/SCAD approximation
+    if (family != "gaussian") {lambda <- lambda_orig} 
+    ## Do adjustment for MCP / SCAD
+    uppers <- threshold_c(
+      uppers, lambda, gamma, family = family,
+      weights = weights, penalty = penalty
+    )
+    lowers <- threshold_c(
+      lowers, lambda, gamma, family = family,
+      weights = weights, penalty = penalty
+    )
   }
   
   return(data.frame(lower = lowers, upper = uppers, lambda = lambda))
   
 }
-threshold_c <- function(bound, lambda, gamma, family = "gaussian", weights = NULL, penalty = "MCP") {
+threshold_c <- function(bound, lambda, gamma, family = "gaussian", 
+                        weights = NULL, penalty = "MCP") {
   
   # Compute z_j depending on family
   if (family == "gaussian") {
@@ -499,7 +542,8 @@ threshold_c <- function(bound, lambda, gamma, family = "gaussian", weights = NUL
     
     # Region 2
     lambda_alt <- (gamma * lambda) / (gamma - 1)
-    out[cond2] <- ((gamma - 1) / (gamma - 2)) * soft_threshold(z_j[cond2], lambda_alt)
+    out[cond2] <- ((gamma - 1) / (gamma - 2)) *
+      soft_threshold(z_j[cond2], lambda_alt)
     
     # Region 3: No change
     
@@ -509,9 +553,7 @@ threshold_c <- function(bound, lambda, gamma, family = "gaussian", weights = NUL
     }
     return(out)
     
-  } else {
-    stop("Unsupported penalty. Use 'MCP' or 'SCAD'.")
-  }
+  } 
 }
 soft_threshold <- function(z_j, lambda) {
   # Initialize an output vector of the same size as z_j
