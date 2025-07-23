@@ -6,12 +6,12 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Penalties • ncvreg</title>
-<script src="../../lightswitch.js"></script><script src="../../katex-auto.js"></script><script src="../../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!-- katex math --><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script><script src="../../katex-auto.js"></script><script src="../../lightswitch.js"></script><script src="../../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../../deps/headroom-0.11.0/headroom.min.js"></script><script src="../../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../../deps/search-1.0.0/fuse.min.js"></script><script src="../../deps/search-1.0.0/mark.min.js"></script><link href="../../deps/KaTex-0.16.10/katex.min.css" rel="stylesheet">
-<script src="../../deps/KaTex-0.16.10/katex.min.js"></script><!-- pkgdown --><script src="../../pkgdown.js"></script><link href="../../extra.css" rel="stylesheet">
+<script src="../../deps/headroom-0.11.0/headroom.min.js"></script><script src="../../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../../deps/search-1.0.0/fuse.min.js"></script><script src="../../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../../pkgdown.js"></script><link href="../../extra.css" rel="stylesheet">
 <meta property="og:title" content="Penalties">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
@@ -24,7 +24,7 @@
 
     <a class="navbar-brand me-2" href="../../index.html">ncvreg</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.15.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.15.0.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -85,11 +85,7 @@ Breheny</h4>
 
     
     
-<div style="text-align: center; font-size: 200%; font-weight: 700; margin: 20pt;">
-<i class="fa fa-wrench"></i> Under construction <i class="fa fa-wrench">
-</i>
-</div>
-<p><code>ncvreg</code> fits models that fall into the penalized
+<p><strong>ncvreg</strong> fits models that fall into the penalized
 likelihood framework. Rather than estimating <span class="math inline">\boldsymbol{\beta}</span> by maximizing the
 likelihood, in this framework we estimate <span class="math inline">\boldsymbol{\beta}</span> by minimizing the
 objective function</p>
@@ -99,28 +95,41 @@ P_\lambda(\boldsymbol{\beta}), </span></p>
 <p>where <span class="math inline">L(\boldsymbol{\beta}|\mathbf{X},\mathbf{y})</span>
 is the loss (deviance) and <span class="math inline">P_\lambda(\boldsymbol{\beta})</span> is the penalty.
 This article describes the different penalties available in
-<code>ncvreg</code>; see <a href="models.html">models</a> for more
+<strong>ncvreg</strong>; see <a href="models.html">models</a> for more
 information on the different loss functions available. Throughout,
 linear regression and the <code>Prostate</code> data set is used</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Prostate</span><span class="op">)</span></span>
-<span><span class="va">X</span> <span class="op">&lt;-</span> <span class="va">Prostate</span><span class="op">$</span><span class="va">X</span></span>
+<span><span class="va">x</span> <span class="op">&lt;-</span> <span class="va">Prostate</span><span class="op">$</span><span class="va">X</span></span>
 <span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">Prostate</span><span class="op">$</span><span class="va">y</span></span></code></pre></div>
 <div class="section level2">
 <h2 id="mcp">MCP<a class="anchor" aria-label="anchor" href="#mcp"></a>
 </h2>
-<p>This is the default penalty in <code>ncvreg</code>.</p>
-<p>EQUATION HERE.</p>
-<p>PICTURE OF PENALTY.</p>
+<p>This is the default penalty in <strong>ncvreg</strong>.</p>
+<p><span class="math display"> P(\beta; \lambda, \gamma) = \begin{cases}
+  \lambda|\beta|-\frac{\beta^2}{2\gamma}, &amp; \text{if } |\beta| \leq
+\gamma\lambda\\
+  \frac{1}{2} \gamma\lambda^2, &amp; \text{if } |\beta| &gt;
+\gamma\lambda
+  \end{cases} </span></p>
+<p>for <span class="math inline">\gamma&gt; 1</span>, or more
+compactly,</p>
+<p><span class="math display"> P(\beta;\lambda, \gamma) =
+\lambda\int_0^{|\beta|} (1-t/(\gamma\lambda))_+ dt. </span></p>
+<p>A plot of the MCP (penalty on left, derivative on right):</p>
+<p><img src="penalties_files/figure-html/unnamed-chunk-3-1.png" width="480"></p>
+<p>The MCP starts out by applying the same rate of penalization as the
+lasso, then smoothly relaxes the rate down to zero as the absolute value
+of the coefficient increases.</p>
 <p>The following figure illustrates the effect of changing <span class="math inline">\gamma</span>:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/ncvreg.html">ncvreg</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">y</span>, gamma<span class="op">=</span><span class="fl">1.5</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, main<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">gamma</span>,<span class="st">"="</span>,<span class="fl">1.5</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/ncvreg.html">ncvreg</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">y</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, main<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">gamma</span>,<span class="st">"="</span>,<span class="fl">3</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/ncvreg.html">ncvreg</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">y</span>, gamma<span class="op">=</span><span class="fl">10</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, main<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">gamma</span>,<span class="st">"="</span>,<span class="fl">10</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/ncvreg.html">ncvreg</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span>, gamma <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">gamma</span>, <span class="st">"="</span>, <span class="fl">1.5</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/ncvreg.html">ncvreg</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">gamma</span>, <span class="st">"="</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/ncvreg.html">ncvreg</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span>, gamma <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">gamma</span>, <span class="st">"="</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="penalties_files/figure-html/penalty-mcp-gamma-1.png" width="480"></p>
 <p>At smaller <span class="math inline">\gamma</span> values, the
 estimates transition rapidly from 0 to their unpenalized solutions; this
@@ -133,38 +142,60 @@ larger).</p>
 <div class="section level2">
 <h2 id="scad">SCAD<a class="anchor" aria-label="anchor" href="#scad"></a>
 </h2>
-<p>EQUATION HERE.</p>
-<p>PICTURE OF PENALTY.</p>
+<p>The SCAD penalty is similar, except it does not immediately relax the
+penalty.</p>
+<p><span class="math display"> P(\beta; \lambda, \gamma) = \begin{cases}
+  \lambda|\beta| &amp; \text{if } |\beta| \leq \lambda, \\
+  \frac{2\gamma\lambda|\beta|-\beta^2-\lambda^2}{2(\gamma-1)} &amp;
+\text{if } \lambda&lt; |\beta| &lt; \gamma\lambda, \\
+  \frac{\lambda^2(\gamma+1)}{2} &amp; \text{if } |\beta| \geq
+\gamma\lambda,
+\end{cases} </span></p>
+<p>or more compactly,</p>
+<p><span class="math display"> P(\beta; \lambda, \gamma) =
+\lambda\int_0^{|\beta|} \min\{1,(\gamma-t/\lambda)_+/(\gamma-1)\}dt.
+</span></p>
+<p><img src="penalties_files/figure-html/unnamed-chunk-4-1.png" width="480"></p>
 </div>
 <div class="section level2">
 <h2 id="lasso">Lasso<a class="anchor" aria-label="anchor" href="#lasso"></a>
 </h2>
-<p>EQUATION HERE.</p>
-<p>PICTURE OF PENALTY.</p>
+<p><span class="math display"> P(\beta; \lambda) =
+\lambda\left\lvert\beta\right\rvert </span></p>
+<p><img src="penalties_files/figure-html/unnamed-chunk-5-1.png" width="480"></p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/ncvreg.html">ncvreg</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">y</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, main<span class="op">=</span><span class="st">"MCP"</span><span class="op">)</span></span>
-<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/ncvreg.html">ncvreg</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">y</span>, penalty<span class="op">=</span><span class="st">"SCAD"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, main<span class="op">=</span><span class="st">"SCAD"</span><span class="op">)</span></span>
-<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/ncvreg.html">ncvreg</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">y</span>, penalty<span class="op">=</span><span class="st">"lasso"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, main<span class="op">=</span><span class="st">"Lasso"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/ncvreg.html">ncvreg</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, main <span class="op">=</span> <span class="st">"MCP"</span><span class="op">)</span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/ncvreg.html">ncvreg</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span>, penalty <span class="op">=</span> <span class="st">"SCAD"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, main <span class="op">=</span> <span class="st">"SCAD"</span><span class="op">)</span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/ncvreg.html">ncvreg</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span>, penalty <span class="op">=</span> <span class="st">"lasso"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, main <span class="op">=</span> <span class="st">"Lasso"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="penalties_files/figure-html/penalty-comp-1.png" width="480"></p>
 </div>
 <div class="section level2">
 <h2 id="elastic-net-and-mnet">Elastic Net and MNet<a class="anchor" aria-label="anchor" href="#elastic-net-and-mnet"></a>
 </h2>
-<p>EQUATION HERE.</p>
+<p>All of the above penalties can be combined with a ridge penalty. For
+example, we can add the lasso and ridge penalties (this is known as the
+<em>elastic net</em>):</p>
+<p><span class="math display"> P(\beta; \lambda, \alpha) =
+\alpha\lambda\left\lvert beta\right\rvert  + (1 - \alpha) \lambda\beta^2
+</span></p>
+<p>Here, alpha controls the tradeoff between the two penalties, with
+<span class="math inline">\alpha = 1</span> being identical to the lasso
+penalty and <span class="math inline">\alpha = 0</span> being identical
+to ridge. “MNet” (MCP + ridge) and “SCADNet” (SCAD + ridge) are formed
+similarly.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/ncvreg.html">ncvreg</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">y</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, main<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">alpha</span>,<span class="st">"="</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/ncvreg.html">ncvreg</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">y</span>, alpha<span class="op">=</span><span class="fl">0.5</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, main<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">alpha</span>,<span class="st">"="</span>,<span class="fl">0.5</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/ncvreg.html">ncvreg</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">y</span>, alpha<span class="op">=</span><span class="fl">0.1</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, main<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">alpha</span>,<span class="st">"="</span>,<span class="fl">0.1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/ncvreg.html">ncvreg</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">alpha</span>, <span class="st">"="</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/ncvreg.html">ncvreg</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span>, alpha <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">alpha</span>, <span class="st">"="</span>, <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/ncvreg.html">ncvreg</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span>, alpha <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">alpha</span>, <span class="st">"="</span>, <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="penalties_files/figure-html/penalty-mnet-1.png" width="480"></p>
-<p>MENTION ELASTIC NET</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
@@ -177,7 +208,7 @@ larger).</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer>

@@ -6,12 +6,12 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Inference: Marginal false discovery rates • ncvreg</title>
-<script src="../../lightswitch.js"></script><script src="../../katex-auto.js"></script><script src="../../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!-- katex math --><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script><script src="../../katex-auto.js"></script><script src="../../lightswitch.js"></script><script src="../../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../../deps/headroom-0.11.0/headroom.min.js"></script><script src="../../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../../deps/search-1.0.0/fuse.min.js"></script><script src="../../deps/search-1.0.0/mark.min.js"></script><link href="../../deps/KaTex-0.16.10/katex.min.css" rel="stylesheet">
-<script src="../../deps/KaTex-0.16.10/katex.min.js"></script><!-- pkgdown --><script src="../../pkgdown.js"></script><link href="../../extra.css" rel="stylesheet">
+<script src="../../deps/headroom-0.11.0/headroom.min.js"></script><script src="../../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../../deps/search-1.0.0/fuse.min.js"></script><script src="../../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../../pkgdown.js"></script><link href="../../extra.css" rel="stylesheet">
 <meta property="og:title" content="Inference: Marginal false discovery rates">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
@@ -24,7 +24,7 @@
 
     <a class="navbar-brand me-2" href="../../index.html">ncvreg</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.15.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.15.0.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -85,10 +85,108 @@ Breheny</h4>
 
     
     
-<div style="text-align: center; font-size: 200%; font-weight: 700; margin: 20pt;">
-<i class="fa fa-wrench"></i> Under construction <i class="fa fa-wrench">
-</i>
-</div>
+<p>Consider the following causal diagram:</p>
+<p><img src="dag.png" alt="diagram" style="display: block; margin: auto;"></p>
+<p>Variable <span class="math inline">A</span> could never be considered
+a false discovery: it has a direct causal relationship with the outcome
+<span class="math inline">Y</span>. Likewise, if variable <span class="math inline">N</span> were selected, this would obviously count
+as a false discovery – <span class="math inline">N</span> has no
+relationship, direct or indirect, to the outcome.</p>
+<p>Variable <span class="math inline">B</span>, however, occupies a gray
+area as far as false discoveries are concerned. From a marginal
+perspective, <span class="math inline">B</span> is not a false
+discovery, since it is not independent of <span class="math inline">Y</span>. However, from a fully conditional
+perspective, <span class="math inline">B</span> is a false discovery
+because <span class="math inline">B</span> and <span class="math inline">Y</span> are conditionally independent given <span class="math inline">A</span>. Finally, from a modeling perspective, we
+could also adopt the point of view that <span class="math inline">B</span> is a false discovery only if <span class="math inline">A</span> is already in the model.</p>
+<p>To be more specific, here are the definitions of a false discovery
+under these three perspectives:</p>
+<ul>
+<li>
+<strong>Marginal</strong> — A selected feature <span class="math inline">j</span> is a false discovery if it is marginally
+independent of the outcome: <span class="math inline">X_j
+\perp\!\!\!\perp Y</span>.</li>
+<li>
+<strong>Fully conditional</strong> — A selected feature <span class="math inline">j</span> is a false discovery if it is independent
+of the outcome given all other features: <span class="math inline">X_j
+\perp\!\!\!\perp Y | \{X_k\}_{k \neq j}</span>.</li>
+<li>
+<strong>Partially conditional</strong> — A selected feature <span class="math inline">j</span> is a false discovery if it is independent
+of the outcome given the other features in the model: <span class="math inline">X_j \perp\!\!\!\perp Y | \{X_k:k \in
+\mathcal{M}_{j-}\}</span>, where <span class="math inline">\mathcal{M}_{j-}</span> denotes the set of features
+with nonzero coefficients in the model, excluding feature <span class="math inline">j</span>.</li>
+</ul>
+<p>Estimating the number of false selections from fully conditional and
+partially conditional perspectives is both complicated and tends to have
+low power (because it is typically difficulty to distinguish between
+variables like <span class="math inline">B</span> and variables like
+<span class="math inline">A</span> in high dimensions).</p>
+<p>Estimating the number of false discoveries from the marginal
+perspective, however, is much easier. We illustrate the concept behind
+marginal false discovery rates (mFDR) below; see the <a href="https://doi.org/10.1093/biostatistics/kxy004" class="external-link">original article</a>
+for more details on the mathematics behind it.</p>
+<p>First, let’s fit a lasso model:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Prostate</span><span class="op">)</span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/ncvreg.html">ncvreg</a></span><span class="op">(</span><span class="va">Prostate</span><span class="op">$</span><span class="va">X</span>, <span class="va">Prostate</span><span class="op">$</span><span class="va">y</span><span class="op">)</span></span></code></pre></div>
+<p>The marginal false discovery rate at a given value of <span class="math inline">\lambda</span> is given by</p>
+<p><span class="math display"> \text{mFDR}(\lambda) =
+\frac{\mathbb{E}(\text{mFD}(\lambda))}{S(\lambda)}, </span></p>
+<p>where <span class="math inline">S(\lambda)</span> is the number of
+variables selected and <span class="math inline">\text{mFD}(\lambda)</span> is the number of
+(marginal) false discoveries – i.e., the number of pure noise variables
+like <span class="math inline">N</span> that have been selected. The
+<code><a href="../../reference/mfdr.html">mfdr()</a></code> function estimates the expected value of <span class="math inline">\text{mFD}(\lambda)</span> based on the hypothetical
+null scenario in which all predictors are noise and calculates the
+mFDR:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">marginal_fdr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/mfdr.html">mfdr</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
+<p>At the start of the lasso path, only one variable has been selected,
+and <span class="math inline">\lambda</span> is so large that it would
+be extremely unlikely for any selections to have occurred by chance
+alone; as a result, the mFDR is very low:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">marginal_fdr</span><span class="op">)</span></span>
+<span><span class="co">#                   EF S         mFDR</span></span>
+<span><span class="co"># 0.84343 0.000000e+00 0 0.000000e+00</span></span>
+<span><span class="co"># 0.78658 1.418692e-11 1 1.418692e-11</span></span>
+<span><span class="co"># 0.73357 3.642789e-11 1 3.642789e-11</span></span>
+<span><span class="co"># 0.68413 1.098086e-10 1 1.098086e-10</span></span>
+<span><span class="co"># 0.63802 3.833845e-10 1 3.833845e-10</span></span>
+<span><span class="co"># 0.59502 1.516932e-09 1 1.516932e-09</span></span></code></pre></div>
+<p>Towards the end of the lasso path, all variables has been selected,
+and <span class="math inline">\lambda</span> is so small that even if
+all the predictors were noise, we would probably select them anyway; as
+a result, the mFDR is very high:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">marginal_fdr</span><span class="op">)</span></span>
+<span><span class="co">#               EF S      mFDR</span></span>
+<span><span class="co"># 0.00120 7.892559 8 0.9865699</span></span>
+<span><span class="co"># 0.00111 7.899799 8 0.9874749</span></span>
+<span><span class="co"># 0.00104 7.906552 8 0.9883190</span></span>
+<span><span class="co"># 0.00097 7.912850 8 0.9891062</span></span>
+<span><span class="co"># 0.00090 7.918723 8 0.9898404</span></span>
+<span><span class="co"># 0.00084 7.924201 8 0.9905251</span></span></code></pre></div>
+<p>Marginal FDRs will typically be most valuable somewhere in the
+middle:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">marginal_fdr</span><span class="op">[</span><span class="fl">24</span><span class="op">:</span><span class="fl">27</span>,<span class="op">]</span></span>
+<span><span class="co">#                EF S       mFDR</span></span>
+<span><span class="co"># 0.16946 0.1931229 3 0.06437429</span></span>
+<span><span class="co"># 0.15804 0.2665980 3 0.08886599</span></span>
+<span><span class="co"># 0.14739 0.3606589 3 0.12021962</span></span>
+<span><span class="co"># 0.13746 0.4775792 3 0.15919307</span></span></code></pre></div>
+<p>For this data set, we can select three features at a low false
+discovery rate, but the FDR increases above 10% as we consider models
+with lower penalties. A plotting method is provided for mFDR objects,
+with two available plot types:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">marginal_fdr</span>, type <span class="op">=</span> <span class="st">"mFDR"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">marginal_fdr</span>, type <span class="op">=</span> <span class="st">"EF"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="inference-mfdr_files/figure-html/unnamed-chunk-7-1.png" width="100%"></p>
+<p>The mFDR is a global measure that describes the entire model; for
+feature-specific false discovery rates, see the article on <a href="inference-local">local mfdr</a>.</p>
   </main>
 </div>
 
@@ -99,7 +197,7 @@ Breheny</h4>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer>
