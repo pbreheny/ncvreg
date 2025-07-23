@@ -1,11 +1,12 @@
+^.*\.Rproj$
+^\.Rproj\.user$
 ^codecov\.yml$
 ^docs$
 ^pkgdown$
 ^vignettes/web$
 ^\.github$
+^\.lintr$
 ^\.version\.json$
-^.*\.Rproj$
-^\.Rproj\.user$
 ^codecov\.yml$
 ^\.vscode$
-^\.lintr$
+
