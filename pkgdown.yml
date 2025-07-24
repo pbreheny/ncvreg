@@ -2,15 +2,14 @@ pandoc: 3.1.11
 pkgdown: 2.1.3
 pkgdown_sha: ~
 articles:
-  web/adaptive-rescaling: web/adaptive-rescaling.html
+  articles/adaptive-rescaling: adaptive-rescaling.html
   getting-started: getting-started.html
-  web/getting-started: web/getting-started.html
-  web/inference-local: web/inference-local.html
-  web/inference-mfdr: web/inference-mfdr.html
-  web/models: web/models.html
-  web/other-cv-criteria: web/other-cv-criteria.html
-  web/penalties: web/penalties.html
-last_built: 2025-07-23T19:19Z
+  articles/inference-local: inference-local.html
+  articles/inference-mfdr: inference-mfdr.html
+  articles/models: models.html
+  articles/other-cv-criteria: other-cv-criteria.html
+  articles/penalties: penalties.html
+last_built: 2025-07-24T17:20Z
 urls:
   reference: https://pbreheny.github.io/ncvreg/reference
   article: https://pbreheny.github.io/ncvreg/articles

@@ -33,16 +33,16 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item"><a class="nav-link" href="../articles/web/getting-started.html">Getting started</a></li>
+<li class="active nav-item"><a class="nav-link" href="../articles/getting-started.html">Getting started</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-learn-more" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Learn more</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-learn-more">
-<li><a class="dropdown-item" href="../articles/web/models.html">Models</a></li>
-    <li><a class="dropdown-item" href="../articles/web/penalties.html">Penalties</a></li>
-    <li><a class="dropdown-item" href="../articles/web/adaptive-rescaling.html">Standardization</a></li>
-    <li><a class="dropdown-item" href="../articles/web/inference-mfdr.html">Inference: Marginal false discovery rates</a></li>
-    <li><a class="dropdown-item" href="../articles/web/inference-local.html">Inference: Local mfdr</a></li>
-    <li><a class="dropdown-item" href="../articles/web/other-cv-criteria.html">Other CV criteria</a></li>
+<li><a class="dropdown-item" href="../articles/models">Models</a></li>
+    <li><a class="dropdown-item" href="../articles/penalties">Penalties</a></li>
+    <li><a class="dropdown-item" href="../articles/adaptive-rescaling">Standardization</a></li>
+    <li><a class="dropdown-item" href="../articles/inference-mfdr">Inference: Marginal false discovery rates</a></li>
+    <li><a class="dropdown-item" href="../articles/inference-local">Inference: Local mfdr</a></li>
+    <li><a class="dropdown-item" href="../articles/other-cv-criteria">Other CV criteria</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
@@ -85,31 +85,14 @@ Breheny</h4>
 
     
     
-<p><code>ncvreg</code> is an R package for fitting regularization paths
-for linear regression, GLM, and Cox regression models using lasso or
-nonconvex penalties, in particular the minimax concave penalty (MCP) and
-smoothly clipped absolute deviation (SCAD) penalty, with options for
-additional L<sub>2</sub> penalties (the “elastic net” idea). Utilities
-for carrying out cross-validation as well as post-fitting visualization,
-summarization, inference, and prediction are also provided.</p>
-<p>This vignette offers a brief introduction to the basic use of
-<code>ncvreg</code>. For more details on the package, visit the
-<code>ncvreg</code> website at <a href="https://pbreheny.github.io/ncvreg/" class="uri">https://pbreheny.github.io/ncvreg/</a> and follow the links
-under “Learn more”. For more on the algorithms used by
-<code>ncvreg</code>, see the original article:</p>
-<ul>
-<li><a href="https://myweb.uiowa.edu/pbreheny/pdf/Breheny2011.pdf" class="external-link">Breheny P
-and Huang J (2011). Coordinate descent algorithms for nonconvex
-penalized regression, with applications to biological feature selection.
-<em>Annals of Applied Statistics</em>, 5: 232–253</a></li>
-</ul>
-<p>For more about the marginal false discovery rate idea used for
-post-selection inference, see</p>
-<ul>
-<li><a href="https://dx.doi.org/10.1093/biostatistics/kxy004" class="external-link">Breheny P
-(2019). Marginal false discovery rates for penalized regression models.
-<em>Biostatistics</em>, <strong>20</strong>: 299-314</a></li>
-</ul>
+<p><strong><a href="https://pbreheny.github.io/ncvreg/">ncvreg</a></strong> is an R
+package for fitting regularization paths for linear regression, GLM, and
+Cox regression models using lasso or nonconvex penalties, in particular
+the minimax concave penalty (MCP) and smoothly clipped absolute
+deviation (SCAD) penalty, with options for additional L<sub>2</sub>
+penalties (the “elastic net” idea). Utilities for carrying out
+cross-validation as well as post-fitting visualization, summarization,
+inference, and prediction are also provided.</p>
 <p><code>ncvreg</code> comes with a few example data sets; we’ll look at
 <code>Prostate</code>, which has 8 features and one continuous response,
 the PSA levels (on the log scale) from men about to undergo radical
