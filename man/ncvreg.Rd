@@ -123,12 +123,12 @@ this setting.  The objective function is defined to be
 \deqn{Q(\beta|X, y) = \frac{1}{n} L(\beta|X, y) + P_\lambda(\beta),}
 where the loss function L is the deviance (-2 times the log likelihood) for
 the specified outcome distribution (gaussian/binomial/poisson). See
-\href{https://pbreheny.github.io/ncvreg/articles/web/models.html}{here} for more
+\href{https://pbreheny.github.io/ncvreg/articles/models.html}{here} for more
 details.
 
 This algorithm is stable, very efficient, and generally converges quite
 rapidly to the solution.  For GLMs,
-\href{https://pbreheny.github.io/ncvreg/articles/web/adaptive-rescaling.html}{adaptive rescaling}
+\href{https://pbreheny.github.io/ncvreg/articles/adaptive-rescaling.html}{adaptive rescaling}
 is used.
 }
 \examples{

@@ -90,7 +90,7 @@ models over a grid of values for the regularization parameter lambda.
 \details{
 The function calls \code{ncvreg}/\code{ncvsurv} \code{nfolds} times, each
 time leaving out 1/\code{nfolds} of the data.  The cross-validation error is
-based on the deviance; \href{https://pbreheny.github.io/ncvreg/articles/web/models.html}{see here for more details}.
+based on the deviance; \href{https://pbreheny.github.io/ncvreg/articles/models.html}{see here for more details}.
 
 For \code{family="binomial"} models, the cross-validation fold assignments are
 balanced across the 0/1 outcomes, so that each fold has the same proportion
