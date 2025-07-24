@@ -9,7 +9,7 @@ models over a grid of values for the regularization parameter lambda."><link rel
 
     <a class="navbar-brand me-2" href="../index.html">ncvreg</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.15.0.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.15.0.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -177,7 +177,7 @@ each value of <code>lambda</code>.</p></dd>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The function calls <code>ncvreg</code>/<code>ncvsurv</code> <code>nfolds</code> times, each
 time leaving out 1/<code>nfolds</code> of the data.  The cross-validation error is
-based on the deviance; <a href="https://pbreheny.github.io/ncvreg/articles/web/models.html">see here for more details</a>.</p>
+based on the deviance; <a href="https://pbreheny.github.io/ncvreg/articles/models.html">see here for more details</a>.</p>
 <p>For <code>family="binomial"</code> models, the cross-validation fold assignments are
 balanced across the 0/1 outcomes, so that each fold has the same proportion
 of 0/1 outcomes (or as close to the same proportion as it is possible to
