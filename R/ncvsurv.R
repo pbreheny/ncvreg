@@ -12,7 +12,7 @@
 #' \deqn{Q(\beta|X, y) = \frac{1}{n} L(\beta|X, y) + P_\lambda(\beta),}
 #' where the loss function L is the deviance (-2 times the partial
 #' log-likelihood) from the Cox regression mode. See
-#' [here](https://pbreheny.github.io/ncvreg/articles/web/models.html) for more
+#' [here](https://pbreheny.github.io/ncvreg/articles/models.html) for more
 #' details.
 #'
 #' Presently, ties are not handled by `ncvsurv` in a particularly

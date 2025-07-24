@@ -22,21 +22,21 @@ figures:
 navbar:
   left:
     - text: Getting started
-      href: articles/web/getting-started.html
+      href: articles/getting-started.html
     - text: Learn more
       menu:
       - text: Models
-        href: articles/web/models.html
+        href: articles/models
       - text: Penalties
-        href: articles/web/penalties.html
+        href: articles/penalties
       - text: Standardization
-        href: articles/web/adaptive-rescaling.html
+        href: articles/adaptive-rescaling
       - text: 'Inference: Marginal false discovery rates'
-        href: articles/web/inference-mfdr.html
+        href: articles/inference-mfdr
       - text: 'Inference: Local mfdr'
-        href: articles/web/inference-local.html
+        href: articles/inference-local
       - text: 'Other CV criteria'
-        href: articles/web/other-cv-criteria.html
+        href: articles/other-cv-criteria
     - text: Reference
       href: reference/index.html
     - text: News

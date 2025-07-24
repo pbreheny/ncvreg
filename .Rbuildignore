@@ -3,7 +3,7 @@
 ^codecov\.yml$
 ^docs$
 ^pkgdown$
-^vignettes/web$
+^vignettes/articles$
 ^\.github$
 ^\.lintr$
 ^\.version\.json$

@@ -5,7 +5,7 @@
 #' 
 #' The function calls `ncvreg`/`ncvsurv` `nfolds` times, each
 #' time leaving out 1/`nfolds` of the data.  The cross-validation error is
-#' based on the deviance; [see here for more details](https://pbreheny.github.io/ncvreg/articles/web/models.html).
+#' based on the deviance; [see here for more details](https://pbreheny.github.io/ncvreg/articles/models.html).
 #' 
 #' For `family="binomial"` models, the cross-validation fold assignments are
 #' balanced across the 0/1 outcomes, so that each fold has the same proportion
