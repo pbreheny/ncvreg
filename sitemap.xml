@@ -1,11 +1,11 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://pbreheny.github.io/ncvreg/404.html</loc></url>
 <url><loc>https://pbreheny.github.io/ncvreg/articles/adaptive-rescaling.html</loc></url>
-<url><loc>https://pbreheny.github.io/ncvreg/articles/getting-started.html</loc></url>
 <url><loc>https://pbreheny.github.io/ncvreg/articles/index.html</loc></url>
 <url><loc>https://pbreheny.github.io/ncvreg/articles/inference-local.html</loc></url>
 <url><loc>https://pbreheny.github.io/ncvreg/articles/inference-mfdr.html</loc></url>
 <url><loc>https://pbreheny.github.io/ncvreg/articles/models.html</loc></url>
+<url><loc>https://pbreheny.github.io/ncvreg/articles/ncvreg.html</loc></url>
 <url><loc>https://pbreheny.github.io/ncvreg/articles/other-cv-criteria.html</loc></url>
 <url><loc>https://pbreheny.github.io/ncvreg/articles/penalties.html</loc></url>
 <url><loc>https://pbreheny.github.io/ncvreg/authors.html</loc></url>
