@@ -24,6 +24,10 @@ navbar:
     left: [intro, articles, reference, news]
     right: [search, github]
 
+home:
+  sidebar:
+    structure: [links, citation, authors, dev]
+
 footer:
   structure:
     left: developed_by
