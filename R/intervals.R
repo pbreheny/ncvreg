@@ -59,15 +59,15 @@
 #' @examples
 #' # Linear regression (SCAD-Net penalty, PIPE intervals, pass ncvreg object)
 #' fit <- ncvreg(Prostate$X, Prostate$y, penalty = "SCAD", alpha = 0.9)
-#' confidence_intervals(fit) |> head()
+#' intervals(fit) |> head()
 #' 
 #' # Logistic regression (lasso penalty, LQA intervals, pass cv.ncvreg object) 
 #' data(Heart)
 #' cv_fit <- cv.ncvreg(Heart$X, Heart$y, family="binomial", penalty = "lasso")
-#' confidence_intervals(cv_fit, adjust_projection = TRUE) |> head()
+#' intervals(cv_fit, adjust_projection = TRUE) |> head()
 #' 
-#' @export confidence_intervals
-confidence_intervals <- function(fit, lambda, sigma, level = 0.95,
+#' @export intervals
+intervals <- function(fit, lambda, sigma, level = 0.95,
                       posterior = TRUE, relaxed = FALSE, 
                       adjust_projection = FALSE, X = NULL
 ) {
@@ -84,6 +84,8 @@ confidence_intervals <- function(fit, lambda, sigma, level = 0.95,
     fit <- cv_fit$fit
     
     if (missing(lambda)) lambda <- cv_fit$lambda.min
+    if (lambda == max(cv_fit$lambda)) {lambda <- lambda * 0.999}
+    if (lambda == min(cv_fit$lambda)) {lambda <- lambda * 1.001}
     
   }
   
