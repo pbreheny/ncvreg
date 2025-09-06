@@ -2,7 +2,7 @@
 % Please edit documentation in R/intervals.R
 \name{intervals}
 \alias{intervals}
-\title{Projection base test statistic and confidence intervals}
+\title{Projection base test statistics and intervals}
 \usage{
 intervals(
   fit,
@@ -19,12 +19,12 @@ intervals(
 \item{fit}{An optional fit of class \code{ncvreg} or \code{cv.ncvreg}. If supplied,
 \code{X} should only be supplied if \code{fit} does not contain it.}
 
-\item{lambda}{The penalty at which the tests and confidence intervals are to
+\item{lambda}{The penalty at which the tests and intervals are to
 be constructed. If left unspecified, will be selected using
 cross validation.}
 
 \item{sigma}{Standard deviation estimate used to compute test statistic and
-confidence intervals. If left unspecified (default) it will be
+intervals. If left unspecified (default) it will be
 estimated using the recommendation from Reid et al. (2016)}
 
 \item{level}{the confidence level required.}
@@ -57,26 +57,26 @@ An \code{data.frame} containing the following columns:
 \item{estimate}{The PIPE / Relaxed Lasso estimates}
 \item{SE}{The PIPE / LQA standard errors. The Relaxed Lasso SEs are the same as PIPE's.}
 \item{t}{The PIPE / Relaxed Lasso / LQA test statistics}
-\item{lower}{CI lower bounds}
-\item{upper}{CI upper bounds}
+\item{lower}{Interval lower bounds}
+\item{upper}{Intervals upper bounds}
 \item{p.value}{The unadjusted p-value}
 \item{p.adjust}{The Benhamini and Hochberg corrected p-value}
 \item{penalty}{The penalty used.}
-\item{lambda}{The lambda value the test statistics and CIs were constructed at.}
-\item{gamma}{The gamma value the test statistics and CIs were constructed at (for MCP/SCAD).}
-\item{alpha}{The alpha value the test statistics and CIs were constructed at.}
-\item{level}{The confidence level set for CI construction.}
-\item{sigma}{The standard deviation used for constructing the test statistis and CIs.}
+\item{lambda}{The lambda value the test statistics and intervals were constructed at.}
+\item{gamma}{The gamma value the test statistics and intervals were constructed at (for MCP/SCAD).}
+\item{alpha}{The alpha value the test statistics and intervals were constructed at.}
+\item{level}{The confidence level set for interval construction.}
+\item{sigma}{The standard deviation used for constructing the test statistis and intervals.}
 }
 }
 \description{
 Constructs projection based test statistics that can be used to control FDR
-along with confidence intervals for a penalized regression model.
+along with intervals for a penalized regression model.
 }
 \details{
-The function constructs test statistics and confidence intervals based off an
+The function constructs test statistics and intervals based off an
 approximate projection onto the column space of the active features. The test
-statistic can be used to control FDR and the confidence intervals generally
+statistic can be used to control FDR and the intervals generally
 have good coverage. However, both tend to be conservative with the
 introduction of correlation.
 }

@@ -1,21 +1,21 @@
-#' Projection base test statistic and confidence intervals
+#' Projection base test statistics and intervals
 #' 
 #' Constructs projection based test statistics that can be used to control FDR 
-#' along with confidence intervals for a penalized regression model.
+#' along with intervals for a penalized regression model.
 #' 
-#' The function constructs test statistics and confidence intervals based off an
+#' The function constructs test statistics and intervals based off an
 #' approximate projection onto the column space of the active features. The test
-#' statistic can be used to control FDR and the confidence intervals generally
+#' statistic can be used to control FDR and the intervals generally
 #' have good coverage. However, both tend to be conservative with the
 #' introduction of correlation.
 #'
 #' @param fit    An optional fit of class `ncvreg` or `cv.ncvreg`. If supplied,
 #'               `X` should only be supplied if `fit` does not contain it.
-#' @param lambda The penalty at which the tests and confidence intervals are to
+#' @param lambda The penalty at which the tests and intervals are to
 #'               be constructed. If left unspecified, will be selected using
 #'               cross validation.
 #' @param sigma Standard deviation estimate used to compute test statistic and 
-#'              confidence intervals. If left unspecified (default) it will be 
+#'              intervals. If left unspecified (default) it will be 
 #'              estimated using the recommendation from Reid et al. (2016)
 #' @param level the confidence level required.
 #' @param posterior whether the intervals returned should be posterior intervals
@@ -42,16 +42,16 @@
 #'   \item{estimate}{The PIPE / Relaxed Lasso estimates}
 #'   \item{SE}{The PIPE / LQA standard errors. The Relaxed Lasso SEs are the same as PIPE's.}
 #'   \item{t}{The PIPE / Relaxed Lasso / LQA test statistics}
-#'   \item{lower}{CI lower bounds}
-#'   \item{upper}{CI upper bounds}
+#'   \item{lower}{Interval lower bounds}
+#'   \item{upper}{Intervals upper bounds}
 #'   \item{p.value}{The unadjusted p-value}
 #'   \item{p.adjust}{The Benhamini and Hochberg corrected p-value}
 #'   \item{penalty}{The penalty used.}
-#'   \item{lambda}{The lambda value the test statistics and CIs were constructed at.}
-#'   \item{gamma}{The gamma value the test statistics and CIs were constructed at (for MCP/SCAD).}
-#'   \item{alpha}{The alpha value the test statistics and CIs were constructed at.}
-#'   \item{level}{The confidence level set for CI construction.}
-#'   \item{sigma}{The standard deviation used for constructing the test statistis and CIs.}
+#'   \item{lambda}{The lambda value the test statistics and intervals were constructed at.}
+#'   \item{gamma}{The gamma value the test statistics and intervals were constructed at (for MCP/SCAD).}
+#'   \item{alpha}{The alpha value the test statistics and intervals were constructed at.}
+#'   \item{level}{The confidence level set for interval construction.}
+#'   \item{sigma}{The standard deviation used for constructing the test statistis and intervals.}
 #' }
 #' 
 #' @author Logan Harris, Patrick Breheny, and Biyue Dai
