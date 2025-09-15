@@ -179,19 +179,12 @@ intervals <- function(fit, lambda, sigma, level = 0.95,
     
     ## For LQA adjustment
     ## alpha treated as 1 here because of how this fits with the augmentation
-    adj_num <- penalty_derivative(beta, lambda, 1, penalty, gamma) 
+    adj_num <- penalty_derivative(beta, lambda, alpha, penalty, gamma) 
     adjw <- diag(adj_num / abs(beta))
     
     ## Compute sigma if not provided
     if (missing(sigma)) {
       sigma <- sqrt(crossprod(yy - XX %*% beta) / (n - sum(beta != 0)))
-    }
-    
-    ## NET data augmentation approach
-    if (alpha < 1 & posterior) {
-      yy <- c(yy, rep(0, p))
-      XX <- rbind(XX, sqrt(n*(1 - alpha)*lambda)*diag(p))
-      lambda <- lambda * alpha
     }
     
     ## Compute PIPE test statistic
@@ -292,19 +285,8 @@ intervals <- function(fit, lambda, sigma, level = 0.95,
     weights <- colSums(XX^2) / n
     
     ## For LQA approach
-    adj_num <- penalty_derivative(beta[-1], lambda, 1, penalty, gamma)
+    adj_num <- penalty_derivative(beta[-1], lambda, alpha, penalty, gamma)
     adjw <- diag(c(0, adj_num / (abs(beta[-1]) + 1e-9)))
-    
-    ## For NET Augmentation
-    if (alpha < 1 & posterior) {
-      yy <- c(yy, rep(0, p))
-      XX <- rbind(XX, sqrt(n*(1 - alpha)*lambda)*diag(p))
-      X_int <- rbind(
-        X_int,
-        cbind(rep(0, p), sqrt(n*(1 - alpha)*lambda)*diag(p))
-      )
-      lambda <- lambda * alpha
-    }
     
     # Compute pipe for features in the estimated support
     for (i in S_hat) {
@@ -374,6 +356,8 @@ intervals <- function(fit, lambda, sigma, level = 0.95,
       
     }
     
+    lambda <- lambda / weights
+    
   }
   
   ## Compute test statistic, pvalue and qvalue
@@ -390,17 +374,13 @@ intervals <- function(fit, lambda, sigma, level = 0.95,
   ## Compute intervals
   if (posterior) {
     
-    if (family == "gaussian") {
-      
-      ci <- ci_full_cond(z = beta_PIPE, lambda = lambda, se = sigma_PIPE,
-                         alpha = 1 - level, gamma = gamma, penalty = penalty)
-      
+    if (penalty == "lasso") {
+        ci <- laplace_ci(z = beta_PIPE, lambda = lambda, se = sigma_PIPE,
+                       alpha = 1 - level, gamma = gamma, enet_alpha = alpha)
     } else {
-      
-      ci <- ci_full_cond(z = beta_PIPE, lambda = lambda, se = sigma_PIPE,
+        ci <- nonconvex_ci(z = beta_PIPE, lambda = lambda, se = sigma_PIPE,
                          alpha = 1 - level, gamma = gamma, penalty = penalty,
-                         family = family, weights = weights)
-      
+                         enet_alpha = alpha)
     }
     
     lower <- ci$lower
@@ -437,12 +417,14 @@ intervals <- function(fit, lambda, sigma, level = 0.95,
   
 }
 ## Function for computing posterior intervals
-ci_full_cond <- function(z, lambda, se, alpha, gamma, penalty = "lasso",
-                         family = "gaussian", weights = NULL) {
+laplace_ci <- function(z, lambda, se, alpha, gamma, enet_alpha = 1) {
   
-  if (family != "gaussian") {
-    lambda_orig <- lambda
-    lambda <- lambda / weights
+  if (enet_alpha < 1) {
+    
+    z      <- z / (1 + (1-enet_alpha)*lambda)
+    se     <- se / sqrt((1 + (1-enet_alpha)*lambda))
+    lambda <- lambda * enet_alpha
+    
   }
   
   ## Tails being transferred on to (log probability in each tail)
@@ -488,92 +470,8 @@ ci_full_cond <- function(z, lambda, se, alpha, gamma, penalty = "lasso",
     )
   )
   
-  if (penalty %in% c("MCP", "SCAD")) {
-    ## Return lambda to original for MCP/SCAD approximation
-    if (family != "gaussian") {lambda <- lambda_orig} 
-    ## Do adjustment for MCP / SCAD
-    uppers <- threshold_c(
-      uppers, lambda, gamma, family = family,
-      weights = weights, penalty = penalty
-    )
-    lowers <- threshold_c(
-      lowers, lambda, gamma, family = family,
-      weights = weights, penalty = penalty
-    )
-  }
-  
   return(data.frame(lower = lowers, upper = uppers, lambda = lambda))
   
-}
-threshold_c <- function(bound, lambda, gamma, family = "gaussian", 
-                        weights = NULL, penalty = "MCP") {
-  
-  # Compute z_j depending on family
-  if (family == "gaussian") {
-    z_j <- bound
-  } else {
-    z_j <- bound * weights ## Return bounds to original scal
-  }
-  
-  # Add penalty adjustment, i.e. invert soft threshold
-  z_j <- z_j + sign(z_j) * lambda
-  
-  ## Re-apply appropriate penalty
-  if (penalty == "MCP") {
-    # MCP thresholding
-    # Condition for MCP
-    cond <- abs(z_j) <= (gamma * lambda)
-    
-    # Apply MCP thresholding where condition holds
-    z_j[cond] <- (gamma / (gamma - 1)) * soft_threshold(z_j[cond], lambda)
-    
-    # If non-gaussian, scale back by weights
-    if (family != "gaussian") {
-      z_j <- z_j / weights
-    }
-    return(z_j)
-    
-  } else if (penalty == "SCAD") {
-    # SCAD thresholding
-    cond1 <- abs(z_j) <= 2 * lambda
-    cond2 <- (abs(z_j) > 2 * lambda) & (abs(z_j) <= gamma * lambda)
-    
-    out <- z_j
-    # Region 1
-    out[cond1] <- soft_threshold(z_j[cond1], lambda)
-    
-    # Region 2
-    lambda_alt <- (gamma * lambda) / (gamma - 1)
-    out[cond2] <- ((gamma - 1) / (gamma - 2)) *
-      soft_threshold(z_j[cond2], lambda_alt)
-    
-    # Region 3: No change
-    
-    # If non-gaussian, scale back by weights
-    if (family != "gaussian") {
-      out <- out / weights
-    }
-    return(out)
-    
-  } 
-}
-soft_threshold <- function(z_j, lambda) {
-  # Initialize an output vector of the same size as z_j
-  out <- numeric(length(z_j))
-  
-  # Condition where z_j > lambda
-  idx_pos <- z_j > lambda
-  out[idx_pos] <- z_j[idx_pos] - lambda
-  
-  # Condition where |z_j| ≤ lambda
-  idx_mid <- abs(z_j) <= lambda
-  out[idx_mid] <- 0
-  
-  # Condition where z_j < -lambda
-  idx_neg <- z_j < -lambda
-  out[idx_neg] <- z_j[idx_neg] + lambda
-  
-  return(out)
 }
 ## For LQA adjustment
 penalty_derivative <- function(beta, lambda, alpha = 0.5,
@@ -605,4 +503,302 @@ penalty_derivative <- function(beta, lambda, alpha = 0.5,
   
   # combine ridge + sparse
   d_ridge + alpha * d_sparse_raw
+}
+logsumexp_vec <- function(x) {
+  m <- max(x)
+  m + log(sum(exp(x - m)))
+}
+log_norm_masses <- function(mu, s2, lambda, gamma) {
+  
+  # Derived quantities
+  v_in   <- (gamma / (gamma - 1)) * s2
+  sd_in  <- sqrt(v_in)
+  v_out  <- s2
+  sd_out <- sqrt(v_out)
+  m_neg  <- (gamma / (gamma - 1)) * (mu + lambda)
+  m_pos  <- (gamma / (gamma - 1)) * (mu - lambda)
+  thr    <- gamma * lambda
+  
+  # Negative outside: N(mu, s2) over (-Inf, -thr)
+  log_mass_neg_out <- pnorm(-thr, mean = mu, sd = sd_out, log.p = TRUE)
+  
+  # Negative inside: N(m_neg, v_in) over [-thr, 0)
+  log_mass_neg_in <- log(
+    pnorm(0, mean = m_neg, sd = sd_in) -
+      pnorm(-thr, mean = m_neg, sd = sd_in)
+  )
+  
+  # Positive inside: N(m_pos, v_in) over [0, thr]
+  log_mass_pos_in <- log(
+    pnorm(thr, mean = m_pos, sd = sd_in) -
+      pnorm(0, mean = m_pos, sd = sd_in)
+  )
+  
+  # Positive outside: N(mu, s2) over (thr, Inf)
+  log_mass_pos_out <- pnorm(thr, mean = mu, sd = sd_out,
+                            lower.tail = FALSE, log.p = TRUE)
+  
+  # Return in number line order
+  c(
+    neg_outside = log_mass_neg_out,
+    neg_inside  = log_mass_neg_in,
+    pos_inside  = log_mass_pos_in,
+    pos_outside = log_mass_pos_out
+  )
+}
+log_norm_masses_scad <- function(mu, s2, lambda, gamma) {
+
+  # Cutpoints
+  thr1 <- lambda
+  thr2 <- gamma * lambda
+
+  # Inner
+  v_i  <- s2; sd_i <- sqrt(v_i)
+  m_i_neg <- mu + lambda
+  m_i_pos <- mu - lambda
+  
+  # Middle
+  A   <- (gamma - 2) / (gamma - 1)
+  v_m <- s2 / A; sd_m <- sqrt(v_m)
+  cshift <- gamma / (gamma - 1)
+  m_m_neg <- (mu + cshift * lambda) / A
+  m_m_pos <- (mu - cshift * lambda) / A
+  
+  # Outside
+  sd_o <- sqrt(s2)
+  
+  # Intervals
+  log_neg_out <- pnorm(-thr2, mean = mu, sd = sd_o, log.p = TRUE)
+  log_pos_out <- pnorm( thr2, mean = mu, sd = sd_o, lower.tail = FALSE, log.p = TRUE)
+  
+  log_neg_mid <- log(
+    pnorm(-thr1, mean = m_m_neg, sd = sd_m) -
+      pnorm(-thr2, mean = m_m_neg, sd = sd_m)
+  )
+  log_pos_mid <- log(
+    pnorm( thr2, mean = m_m_pos, sd = sd_m) -
+      pnorm( thr1, mean = m_m_pos, sd = sd_m)
+  )
+  
+  log_neg_in <- log(
+    pnorm(0,      mean = m_i_neg, sd = sd_i) -
+      pnorm(-thr1,  mean = m_i_neg, sd = sd_i)
+  )
+  log_pos_in <- log(
+    pnorm( thr1,  mean = m_i_pos, sd = sd_i) -
+      pnorm(0,      mean = m_i_pos, sd = sd_i)
+  )
+  
+  c(
+    neg_outside = log_neg_out,
+    neg_middle  = log_neg_mid,
+    neg_inside  = log_neg_in,
+    pos_inside  = log_pos_in,
+    pos_middle  = log_pos_mid,
+    pos_outside = log_pos_out
+  )
+}
+log_constants <- function(mu, s2, lambda, gamma) {
+  
+  a <- (gamma - 1) / gamma  
+  
+  # Normalization constants from dnorm that we need to cancel
+  logZ_out <- -0.5 * log(2 * pi * s2)
+  logZ_in  <- -0.5 * log(2 * pi * (s2 / a))
+  
+  # Inside constants
+  logC_neg <- (mu + lambda)^2 / (2 * a * s2) - mu^2 / (2 * s2) - logZ_in
+  logC_pos <- (mu - lambda)^2 / (2 * a * s2) - mu^2 / (2 * s2) - logZ_in
+  
+  # Outside constant
+  logC_out <- - (gamma * lambda^2) / (2 * s2) - logZ_out
+  
+  c(
+    neg_outside = logC_out,
+    neg_inside  = logC_neg,
+    pos_inside  = logC_pos,
+    pos_outside = logC_out
+  )
+}
+log_constants_scad <- function(mu, s2, lambda, gamma) {
+  
+  # Cutpoints
+  thr1 <- lambda
+  thr2 <- gamma * lambda
+  
+  # Underlying normal variances per zone
+  v_o <- s2                               
+  v_i <- s2                               
+  A   <- (gamma - 2) / (gamma - 1)        
+  v_m <- s2 / A             
+  
+  # Remove dnorm normalization constants inside C
+  logZ_o <- -0.5 * log(2 * pi * v_o)
+  logZ_i <- -0.5 * log(2 * pi * v_i)
+  logZ_m <- -0.5 * log(2 * pi * v_m)
+  
+  # Inner
+  logC_ni <- ((mu + lambda)^2 - mu^2) / (2 * s2) - logZ_i   # neg_inside
+  logC_pi <- ((mu - lambda)^2 - mu^2) / (2 * s2) - logZ_i   # pos_inside
+  
+  # Middle
+  cshift   <- gamma / (gamma - 1)
+  m_m_neg  <- (mu + cshift * lambda) / A
+  m_m_pos  <- (mu - cshift * lambda) / A
+  logC_nm  <- ( m_m_neg^2 / (2 * v_m) ) - (mu^2 / (2 * s2)) + (lambda^2 / (2 * (gamma - 1) * s2)) - logZ_m
+  logC_pm  <- ( m_m_pos^2 / (2 * v_m) ) - (mu^2 / (2 * s2)) + (lambda^2 / (2 * (gamma - 1) * s2)) - logZ_m
+  
+  # Outside
+  logC_out <- - ((gamma + 1) * lambda^2) / (2 * s2) - logZ_o
+  
+  c(
+    neg_outside = logC_out,
+    neg_middle  = logC_nm,
+    neg_inside  = logC_ni,
+    pos_inside  = logC_pi,
+    pos_middle  = logC_pm,
+    pos_outside = logC_out
+  )
+}
+posterior_component_proportions <- function(mu, s2, lambda, gamma) {
+
+  ln_vals <- log_norm_masses(mu, s2, lambda, gamma) +
+    log_constants(mu, s2, lambda, gamma)
+  
+  # normalize in log-space to get proportions
+  props <- exp(ln_vals - logsumexp_vec(ln_vals))
+  
+  # name + return
+  names(props) <- c("neg_outside", "neg_inside", "pos_inside", "pos_outside")
+  props
+}
+posterior_component_proportions_scad <- function(mu, s2, lambda, gamma) {
+  
+  ln_vals <- log_norm_masses_scad(mu, s2, lambda, gamma) +
+    log_constants_scad(mu, s2, lambda, gamma)
+  
+  props  <- exp(ln_vals - logsumexp_vec(ln_vals))
+  
+  names(props) <- c("neg_outside","neg_middle","neg_inside","pos_inside","pos_middle","pos_outside")
+  props
+  
+}
+posterior_quantile <- function(mu, s2, lambda,
+                               penalty = c("MCP","SCAD"),
+                               gamma = switch(penalty, SCAD = 3.7, 3),
+                               p) {
+  
+  penalty <- match.arg(penalty)
+  
+  ## Vectorize
+  mu     <- as.numeric(mu)
+  s2     <- as.numeric(s2)
+  lambda <- as.numeric(lambda)
+  p      <- as.numeric(p)
+  
+  lens <- c(length(mu), length(s2), length(lambda), length(p))
+  n <- max(lens)
+  
+  if (length(mu)     == 1) mu     <- rep(mu,     n)
+  if (length(s2)     == 1) s2     <- rep(s2,     n)
+  if (length(lambda) == 1) lambda <- rep(lambda, n)
+  if (length(p)      == 1) p      <- rep(p,      n)
+  
+  worker <- function(mu_i, s2_i, lam_i, p_i) {
+    
+    if (penalty == "MCP") {
+      
+      w       <- posterior_component_proportions(mu_i, s2_i, lam_i, gamma)
+      cumw    <- cumsum(w)
+      weights <- exp(log_norm_masses(mu_i, s2_i, lam_i, gamma) - log(w))
+      
+      thr    <- gamma * lam_i
+      v_in   <- (gamma/(gamma - 1)) * s2_i
+      sd_in  <- sqrt(v_in)
+      sd_out <- sqrt(s2_i)
+      m_neg  <- (gamma/(gamma - 1)) * (mu_i + lam_i)
+      m_pos  <- (gamma/(gamma - 1)) * (mu_i - lam_i)
+      
+      k <- which(p_i <= cumw)[1]
+      prev <- if (k == 1) 0 else cumw[k-1]
+      
+      if (k == 1) {
+        q <- qnorm(p_i * weights[1], mean = mu_i, sd = sd_out)
+      } else if (k == 2) {
+        p_loc <- weights[2]*(p_i - prev) + pnorm(-thr, m_neg, sd_in)
+        q <- qnorm(p_loc, mean = m_neg, sd = sd_in)
+      } else if (k == 3) {
+        p_loc <- weights[3]*(p_i - prev) + pnorm(0, m_pos, sd_in)
+        q <- qnorm(p_loc, mean = m_pos, sd = sd_in)
+      } else {
+        p_loc <- weights[4]*(p_i - prev) + pnorm(thr, mu_i, sd_out)
+        q <- qnorm(p_loc, mean = mu_i, sd = sd_out)
+      }
+      return(q)
+    }
+    
+    ## SCAD
+    w <- posterior_component_proportions_scad(mu_i, s2_i, lam_i, gamma)
+    cumw    <- cumsum(w)
+    weights <- exp(log_norm_masses_scad(mu_i, s2_i, lam_i, gamma) - log(w))
+    
+    thr1 <- lam_i
+    thr2 <- gamma * lam_i
+    
+    # inner
+    v_i   <- s2_i
+    sd_i  <- sqrt(v_i)
+    m_i_neg <- mu_i + lam_i
+    m_i_pos <- mu_i - lam_i
+    
+    # middle
+    A      <- (gamma - 2) / (gamma - 1)
+    v_m    <- s2_i / A
+    sd_m   <- sqrt(v_m)
+    cshift <- gamma / (gamma - 1)
+    m_m_neg <- (mu_i + cshift * lam_i) / A
+    m_m_pos <- (mu_i - cshift * lam_i) / A
+    
+    # outside
+    sd_o <- sqrt(s2_i)
+    
+    k <- which(p_i <= cumw)[1]
+    prev <- if (k == 1) 0 else cumw[k-1]
+    
+    if (k == 1) {
+      q <- qnorm(p_i * weights[1], mean = mu_i, sd = sd_o)
+    } else if (k == 2) {
+      p_loc <- weights[2]*(p_i - prev) + pnorm(-thr2, mean = m_m_neg, sd = sd_m)
+      q <- qnorm(p_loc, mean = m_m_neg, sd = sd_m)
+    } else if (k == 3) {
+      p_loc <- weights[3]*(p_i - prev) + pnorm(-thr1, mean = m_i_neg, sd = sd_i)
+      q <- qnorm(p_loc, mean = m_i_neg, sd = sd_i)
+    } else if (k == 4) {
+      p_loc <- weights[4]*(p_i - prev) + pnorm(0,       mean = m_i_pos, sd = sd_i)
+      q <- qnorm(p_loc, mean = m_i_pos, sd = sd_i)
+    } else if (k == 5) {
+      p_loc <- weights[5]*(p_i - prev) + pnorm(thr1,    mean = m_m_pos, sd = sd_m)
+      q <- qnorm(p_loc, mean = m_m_pos, sd = sd_m)
+    } else {
+      p_loc <- weights[6]*(p_i - prev) + pnorm(thr2,    mean = mu_i,    sd = sd_o)
+      q <- qnorm(p_loc, mean = mu_i, sd = sd_o)
+    }
+    q
+  }
+  
+  vapply(seq_len(n), function(i) worker(mu[i], s2[i], lambda[i], p[i]), numeric(1))
+}
+nonconvex_ci <- function(z, se, lambda, gamma, penalty, alpha, enet_alpha = 1) {
+  
+  if (enet_alpha < 1) {
+    z      <- z / (1 + (1-enet_alpha)*lambda)
+    se     <- se / sqrt((1 + (1-enet_alpha)*lambda))
+    lambda <- lambda * enet_alpha
+  }
+  
+  lowers <- posterior_quantile(z, se^2, lambda, penalty, gamma, alpha / 2)
+  uppers <- posterior_quantile(z, se^2, lambda, penalty, gamma, 1 - alpha / 2)
+  
+  return(data.frame(lower = lowers, upper = uppers, lambda = lambda))
+  
 }
