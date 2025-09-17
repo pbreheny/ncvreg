@@ -249,6 +249,8 @@ intervals <- function(fit, lambda, sigma, level = 0.95,
       
     }
     
+    weights <- NULL
+    
   } else {
     
     ## For poisson and logistic penalized regression
@@ -285,7 +287,7 @@ intervals <- function(fit, lambda, sigma, level = 0.95,
     weights <- colSums(XX^2) / n
     
     ## For LQA approach
-    adj_num <- penalty_derivative(beta[-1], lambda, alpha, penalty, gamma)
+    adj_num <- penalty_derivative(beta[-1], lambda, alpha, penalty, gamma, weights)
     adjw <- diag(c(0, adj_num / (abs(beta[-1]) + 1e-9)))
     
     # Compute pipe for features in the estimated support
@@ -356,8 +358,6 @@ intervals <- function(fit, lambda, sigma, level = 0.95,
       
     }
     
-    lambda <- lambda / weights
-    
   }
   
   ## Compute test statistic, pvalue and qvalue
@@ -376,11 +376,12 @@ intervals <- function(fit, lambda, sigma, level = 0.95,
     
     if (penalty == "lasso") {
         ci <- laplace_ci(z = beta_PIPE, lambda = lambda, se = sigma_PIPE,
-                       alpha = 1 - level, gamma = gamma, enet_alpha = alpha)
+                       alpha = 1 - level, gamma = gamma, enet_alpha = alpha,
+                       weights = weights)
     } else {
         ci <- nonconvex_ci(z = beta_PIPE, lambda = lambda, se = sigma_PIPE,
                          alpha = 1 - level, gamma = gamma, penalty = penalty,
-                         enet_alpha = alpha)
+                         enet_alpha = alpha, weights = weights)
     }
     
     lower <- ci$lower
@@ -417,7 +418,7 @@ intervals <- function(fit, lambda, sigma, level = 0.95,
   
 }
 ## Function for computing posterior intervals
-laplace_ci <- function(z, lambda, se, alpha, gamma, enet_alpha = 1) {
+laplace_ci <- function(z, lambda, se, alpha, gamma, enet_alpha = 1, weights = NULL) {
   
   if (enet_alpha < 1) {
     
@@ -425,6 +426,10 @@ laplace_ci <- function(z, lambda, se, alpha, gamma, enet_alpha = 1) {
     se     <- se / sqrt((1 + (1-enet_alpha)*lambda))
     lambda <- lambda * enet_alpha
     
+  }
+  
+  if (!is.null(weights)) {
+    lambda <- lambda / weights
   }
   
   ## Tails being transferred on to (log probability in each tail)
@@ -476,7 +481,7 @@ laplace_ci <- function(z, lambda, se, alpha, gamma, enet_alpha = 1) {
 ## For LQA adjustment
 penalty_derivative <- function(beta, lambda, alpha = 0.5,
                                penalty = c("lasso", "MCP", "SCAD"),
-                               gamma = 3) {
+                               gamma = 3, weights = NULL) {
   ## work on the positive axis
   b <- abs(beta)
   penalty <- match.arg(penalty)
@@ -486,6 +491,7 @@ penalty_derivative <- function(beta, lambda, alpha = 0.5,
   
   ## sparse‐penalty part
   # precompute the MCP and SCAD formulas
+  if (!is.null(weights)) lambda  <- lambda / weights
   mu_mcp  <- pmax(lambda - b/gamma, 0)
   mu_scad <- pmin(lambda, pmax((gamma*lambda - b)/(gamma - 1), 0))
   
@@ -788,12 +794,17 @@ posterior_quantile <- function(mu, s2, lambda,
   
   vapply(seq_len(n), function(i) worker(mu[i], s2[i], lambda[i], p[i]), numeric(1))
 }
-nonconvex_ci <- function(z, se, lambda, gamma, penalty, alpha, enet_alpha = 1) {
+nonconvex_ci <- function(z, se, lambda, gamma, penalty, alpha, enet_alpha = 1,
+                         weights = NULL) {
   
   if (enet_alpha < 1) {
     z      <- z / (1 + (1-enet_alpha)*lambda)
     se     <- se / sqrt((1 + (1-enet_alpha)*lambda))
     lambda <- lambda * enet_alpha
+  }
+  
+  if (!is.null(weights)) {
+    lambda <- lambda / weights
   }
   
   lowers <- posterior_quantile(z, se^2, lambda, penalty, gamma, alpha / 2)
