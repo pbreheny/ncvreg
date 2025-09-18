@@ -8,6 +8,10 @@
 #' statistic can be used to control FDR and the intervals generally
 #' have good coverage. However, both tend to be conservative with the
 #' introduction of correlation.
+#' 
+#' The intervals produced can either be biased (like the point estimates) or 
+#' debiased by setting the parameter \code{posterior} accordingly. The resulting
+#' behavior is quite different. See references for more details.
 #'
 #' @param fit    An optional fit of class `ncvreg` or `cv.ncvreg`. If supplied,
 #'               `X` should only be supplied if `fit` does not contain it.
@@ -20,9 +24,9 @@
 #' @param level the confidence level required.
 #' @param posterior whether the intervals returned should be posterior intervals
 #'              (default) or debiased intervals (if `FALSE`). Posterior
-#'              intervals are constructed from distributions where the estimate
-#'              is the posterior mode. Debiased intervals are constructed
-#'              around the test statistic.
+#'              intervals are constructed from distributions where the
+#'              coefficient estimates are the is the posterior mode. Debiased
+#'              intervals are constructed around the estimates.
 #' @param relaxed whether the relaxed lasso based statistic / intervals should
 #'              be used. Default is `FALSE` in which case PIPE based intervals
 #'              are constructed (recommended). This affects the estimate.
@@ -39,8 +43,8 @@
 #' \describe{
 #'   \item{variable}{`colnames(X)`}
 #'   \item{coef}{The original estimates at the specified parameters (`lambda`, `gamma`, `alpha`)}
-#'   \item{estimate}{The PIPE / Relaxed Lasso estimates}
-#'   \item{SE}{The PIPE / LQA standard errors. The Relaxed Lasso SEs are the same as PIPE's.}
+#'   \item{estimate}{The debiased estimates.}
+#'   \item{SE}{The standard errors.}
 #'   \item{t}{The PIPE / Relaxed Lasso / LQA test statistics}
 #'   \item{lower}{Interval lower bounds}
 #'   \item{upper}{Intervals upper bounds}
@@ -55,6 +59,15 @@
 #' }
 #' 
 #' @author Logan Harris, Patrick Breheny, and Biyue Dai
+#'
+#' @references
+#' Harris L and Breheny P. (2025) A new perspective on high dimensional confidence intervals.
+#' *arXiv preprint*, arXiv:2508.03504.
+#' \url{https://arxiv.org/abs/2508.03504}
+#' 
+#' Dai B. (2019) Projection-based inference and model selection for penalized regression.
+#' PhD dissertation, University of Iowa, Iowa City, IA.
+#' \doi{10.17077/etd.005250}
 #' 
 #' @examples
 #' # Linear regression (SCAD-Net penalty, PIPE intervals, pass ncvreg object)
@@ -400,7 +413,7 @@ intervals <- function(fit, lambda, sigma, level = 0.95,
     variable = names(beta),
     coef = beta / rescale_factorX,
     estimate = beta_PIPE / rescale_factorX,
-    SE = sigma_PIPE,
+    SE = sigma_PIPE / rescale_factorX,
     t = t,
     lower = lower / rescale_factorX,
     upper = upper / rescale_factorX,
