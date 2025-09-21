@@ -31,9 +31,9 @@ estimated using the recommendation from Reid et al. (2016)}
 
 \item{posterior}{whether the intervals returned should be posterior intervals
 (default) or debiased intervals (if \code{FALSE}). Posterior
-intervals are constructed from distributions where the estimate
-is the posterior mode. Debiased intervals are constructed
-around the test statistic.}
+intervals are constructed from distributions where the
+coefficient estimates are the is the posterior mode. Debiased
+intervals are constructed around the estimates.}
 
 \item{relaxed}{whether the relaxed lasso based statistic / intervals should
 be used. Default is \code{FALSE} in which case PIPE based intervals
@@ -54,8 +54,8 @@ An \code{data.frame} containing the following columns:
 \describe{
 \item{variable}{\code{colnames(X)}}
 \item{coef}{The original estimates at the specified parameters (\code{lambda}, \code{gamma}, \code{alpha})}
-\item{estimate}{The PIPE / Relaxed Lasso estimates}
-\item{SE}{The PIPE / LQA standard errors. The Relaxed Lasso SEs are the same as PIPE's.}
+\item{estimate}{The debiased estimates.}
+\item{SE}{The standard errors.}
 \item{t}{The PIPE / Relaxed Lasso / LQA test statistics}
 \item{lower}{Interval lower bounds}
 \item{upper}{Intervals upper bounds}
@@ -79,6 +79,10 @@ approximate projection onto the column space of the active features. The test
 statistic can be used to control FDR and the intervals generally
 have good coverage. However, both tend to be conservative with the
 introduction of correlation.
+
+The intervals produced can either be biased (like the point estimates) or
+debiased by setting the parameter \code{posterior} accordingly. The resulting
+behavior is quite different. See references for more details.
 }
 \examples{
 # Linear regression (SCAD-Net penalty, PIPE intervals, pass ncvreg object)
@@ -90,6 +94,19 @@ data(Heart)
 cv_fit <- cv.ncvreg(Heart$X, Heart$y, family="binomial", penalty = "lasso")
 intervals(cv_fit, adjust_projection = TRUE) |> head()
 
+}
+\references{
+Harris L and Breheny P. (2025) A new perspective on high dimensional confidence intervals.
+\emph{arXiv preprint}, arXiv:2508.03504.
+\url{https://arxiv.org/abs/2508.03504}
+
+Harris L and Breheny P. (2025) Alternative Likelihood Approximations for High-Dimensional Intervals for Lasso.
+\emph{arXiv preprint}, arXiv:2509.14971.
+\url{https://arxiv.org/abs/2509.14971}
+
+Dai B. (2019) Projection-based inference and model selection for penalized regression.
+PhD dissertation, University of Iowa, Iowa City, IA.
+\doi{10.17077/etd.005250}
 }
 \author{
 Logan Harris, Patrick Breheny, and Biyue Dai
