@@ -20,27 +20,31 @@ figures:
   bg: "#fff"
 
 navbar:
-  left:
-    - text: Getting started
-      href: articles/web/getting-started.html
-    - text: Learn more
-      menu:
-      - text: Models
-        href: articles/web/models.html
-      - text: Penalties
-        href: articles/web/penalties.html
-      - text: Standardization
-        href: articles/web/adaptive-rescaling.html
-      - text: 'Inference: Marginal false discovery rates'
-        href: articles/web/inference-mfdr.html
-      - text: 'Inference: Local mfdr'
-        href: articles/web/inference-local.html
-      - text: 'Other CV criteria'
-        href: articles/web/other-cv-criteria.html
-    - text: Reference
-      href: reference/index.html
-    - text: News
-      href: news/index.html
+  structure:
+    left: [intro, articles, reference, news]
+    right: [search, github]
+
+home:
+  sidebar:
+    structure: [links, citation, authors, dev]
+
+footer:
+  structure:
+    left: developed_by
+    right: last_updated
+  components:
+    last_updated: !expr paste("Last updated:", format(Sys.time(), "%B %d, %Y"))
+
+articles:
+  - title: "Learn more"
+    navbar: ~
+    contents:
+    - articles/models
+    - articles/penalties
+    - articles/adaptive-rescaling
+    - articles/inference-mfdr
+    - articles/inference-local
+    - articles/other-cv-criteria
 
 reference:
 - title: Model fitting

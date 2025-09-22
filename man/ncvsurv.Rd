@@ -128,7 +128,7 @@ defined to be
 \deqn{Q(\beta|X, y) = \frac{1}{n} L(\beta|X, y) + P_\lambda(\beta),}
 where the loss function L is the deviance (-2 times the partial
 log-likelihood) from the Cox regression mode. See
-\href{https://pbreheny.github.io/ncvreg/articles/web/models.html}{here} for more
+\href{https://pbreheny.github.io/ncvreg/articles/models.html}{here} for more
 details.
 
 Presently, ties are not handled by \code{ncvsurv} in a particularly

@@ -1,0 +1,161 @@
+---
+title: "Penalties"
+author: "Patrick Breheny"
+---
+
+```{r setup, include=FALSE}
+library(ncvreg)
+knitr::opts_knit$set(aliases = c(h = 'fig.height', w = 'fig.width'))
+knitr::opts_chunk$set(comment = "#", collapse = TRUE, cache = FALSE, tidy = FALSE)
+knitr::knit_hooks$set(small.mar = function(before, options, envir) {
+  if (before) par(mar = c(4, 4, .1, .1))
+})
+```
+
+```{r, child='_commands.tex', results='asis'}
+```
+
+**ncvreg** fits models that fall into the penalized likelihood framework.  Rather than estimating $\bb$ by maximizing the likelihood, in this framework we estimate $\bb$ by minimizing the objective function
+
+$$ Q(\bb|\X, \y) = L(\bb|\X,\y)+ P_\lam(\bb), $$
+
+where $L(\bb|\X,\y)$ is the loss (deviance) and $P_\lam(\bb)$ is the penalty.  This article describes the different penalties available in **ncvreg**; see [models](models.html) for more information on the different loss functions available.  Throughout, linear regression and the `Prostate` data set is used
+
+```{r}
+data(Prostate)
+x <- Prostate$X
+y <- Prostate$y
+```
+
+# MCP
+
+This is the default penalty in **ncvreg**.
+
+$$ P(\beta; \lam, \gam) = \begin{cases}
+  \lam |\beta|-\frac{\beta^2}{2\gam}, & \text{if } |\beta| \leq \gam\lam \\
+  \frac{1}{2} \gam\lam^2, & \text{if } |\beta| > \gam\lam
+  \end{cases} $$
+
+for $\gam > 1$, or more compactly,
+
+$$ P(\beta;\lam, \gam) = \lam \int_0^{|\beta|} (1-t/(\gam \lam))_+ dt. $$
+
+A plot of the MCP (penalty on left, derivative on right):
+
+```{r, echo = FALSE}
+par(mfrow = c(1, 2))
+mcp <- function(theta, l = 1, a = 3) {
+  nt <- length(theta)
+  val <- numeric(nt)
+  for (i in 1:nt) {
+    x <- abs(theta[i])
+    val[i] <- (x < a * l) * (l * x - x^2/(2 * a)) + (x >= a * l) * (1/2) * a * l^2
+  }
+  val
+}
+b <- seq(-4, 4, len = 101)
+plot(b, mcp(b), type = "l", bty = "n", lwd = 3, col = "slateblue", las = 1,
+     xlab = expression(beta), ylab = expression(P(beta * "|" * lambda, gamma)))
+dmcp <- function(theta, l = 1, a = 3) {
+  theta <- abs(theta)
+  (theta <= a * l) * (l - theta/a)
+}
+b <- seq(0, 4, len = 101)
+plot(b, dmcp(b), type = "l", bty = "n", lwd = 3, col = "slateblue", las = 1,
+     xlab = expression(beta), ylab = expression("P'"(beta * "|" * lambda, gamma)))
+```
+
+The MCP starts out by applying the same rate of penalization as the lasso, then smoothly relaxes the rate down to zero as the absolute value of the coefficient increases.
+
+The following figure illustrates the effect of changing $\gamma$:
+
+```{r penalty-mcp-gamma, h=3.5, w=8}
+par(mfrow = c(1,3))
+fit <- ncvreg(x, y, gamma = 1.5)
+plot(fit, main = expression(paste(gamma, "=", 1.5)))
+fit <- ncvreg(x, y)
+plot(fit, main = expression(paste(gamma, "=", 3)))
+fit <- ncvreg(x, y, gamma = 10)
+plot(fit, main = expression(paste(gamma, "=", 10)))
+```
+
+At smaller $\gamma$ values, the estimates transition rapidly from 0 to their unpenalized solutions; this transition happens more slowly and gradually at larger $\gamma$ values.  Note that one consquence of these rapid transitions at low $\gamma$ values is that the solutions are less stable (the gray region depicting the region of the solution path that is not locally convex is larger).
+
+# SCAD
+
+The SCAD penalty is similar, except it does not immediately relax the penalty.
+
+$$ P(\beta; \lam, \gam) = \begin{cases}
+  \lam |\beta| & \text{if } |\beta| \leq \lam, \\
+  \frac{2\gam\lam |\beta|-\beta^2-\lam^2}{2(\gam-1)} & \text{if } \lam < |\beta| < \gam\lam, \\
+  \frac{\lam^2(\gam+1)}{2} & \text{if } |\beta| \geq \gam\lam,
+\end{cases} $$
+
+or more compactly,
+
+$$ P(\beta; \lam, \gam) = \lam \int_0^{|\beta|} \min\{1,(\gam-t/\lam)_+/(\gam-1)\}dt. $$
+
+```{r, echo = FALSE}
+par(mfrow = c(1, 2))
+scad <- function(theta, l = 1, a = 4) {
+  theta <- abs(theta)
+  (theta <= l) * theta * l + (theta > l & theta <= a * l) * 
+    (a * l * theta - (theta^2 + l^2)/2)/(a - 1) +
+    (theta > a * l) * (l^2 * (a^2 - 1))/(2 * (a - 1))
+}
+b <- seq(-4, 4, len = 101)
+plot(b, scad(b), type = "l", bty = "n", lwd = 3, col = "slateblue", las = 1,
+     xlab = expression(beta), ylab = expression(P(beta * "|" * lambda, gamma)))
+dscad <- function(theta, l = 1, a = 4) {
+  theta <- abs(theta)
+  (theta <= l) * l + ((theta > l) & (theta < a * l)) * ((a * l - theta)/(a - 1))
+}
+b <- seq(0, 4, len = 101)
+plot(b, dscad(b), type = "l", bty = "n", lwd = 3, col = "slateblue", las = 1,
+     xlab = expression(beta), ylab = expression("P'"(beta * "|" * lambda, gamma)))
+```
+
+# Lasso
+
+$$ P(\beta; \lam) = \lam \abs{\beta} $$
+
+```{r, echo = FALSE}
+par(mfrow = c(1, 2))
+lasso <- function(theta, l = 1) { l * abs(theta)}
+b <- seq(-4, 4, len = 101)
+plot(b, lasso(b), type = "l", bty = "n", lwd = 3, col = "slateblue", las = 1,
+     xlab = expression(beta), ylab = expression(P(beta * "|" * lambda)))
+dlasso <- function(theta, l = 1) { rep(l, length(theta)) }
+b <- seq(0, 4, len = 101)
+plot(b, dlasso(b), type = "l", bty = "n", lwd = 3, col = "slateblue", las = 1,
+     xlab = expression(beta), ylab = expression("P'"(beta * "|" * lambda)),
+     ylim = 0:1)
+```
+
+```{r penalty-comp, h=3.5, w=8}
+par(mfrow = c(1,3))
+fit <- ncvreg(x, y)
+plot(fit, main = "MCP")
+fit <- ncvreg(x, y, penalty = "SCAD")
+plot(fit, main = "SCAD")
+fit <- ncvreg(x, y, penalty = "lasso")
+plot(fit, main = "Lasso")
+```
+
+# Elastic Net and MNet
+
+All of the above penalties can be combined with a ridge penalty. For example, we can add the lasso and ridge penalties (this is known as the *elastic net*):
+
+$$ P(\beta; \lam, \alpha) = \alpha\lam\abs{beta}  + (1 - \alpha) \lam \beta^2 $$
+
+Here, alpha controls the tradeoff between the two penalties, with $\alpha = 1$ being identical to the lasso penalty and $\alpha = 0$ being identical to ridge. "MNet" (MCP + ridge) and "SCADNet" (SCAD + ridge) are formed similarly.
+
+```{r penalty-mnet, h=3.5, w=8}
+par(mfrow = c(1, 3))
+fit <- ncvreg(x, y)
+plot(fit, main = expression(paste(alpha, "=", 1)))
+fit <- ncvreg(x, y, alpha = 0.5)
+plot(fit, main = expression(paste(alpha, "=", 0.5)))
+fit <- ncvreg(x, y, alpha = 0.1)
+plot(fit, main = expression(paste(alpha, "=", 0.1)))
+```
