@@ -77,7 +77,7 @@ reference:
   - perm.ncvreg
   - permres
   - summary.ncvreg
-  - boot_ncvreg
+  - intervals
 - title: Data sets
   contents:
   - Heart
