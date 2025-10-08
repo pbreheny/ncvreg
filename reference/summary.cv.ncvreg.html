@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ncvreg</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.15.0.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.16.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -143,38 +143,38 @@ penalized regression, with applications to biological feature selection.
 <span class="r-in"><span><span class="va">cvfit</span> <span class="op">&lt;-</span> <span class="fu"><a href="cv.ncvreg.html">cv.ncvreg</a></span><span class="op">(</span><span class="va">Prostate</span><span class="op">$</span><span class="va">X</span>, <span class="va">Prostate</span><span class="op">$</span><span class="va">y</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">cvfit</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> MCP-penalized linear regression with n=97, p=8</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> At minimum cross-validation error (lambda=0.0084):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> At minimum cross-validation error (lambda=0.0209):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -------------------------------------------------</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Nonzero coefficients: 8</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Cross-validation error (deviance): 0.56</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   R-squared: 0.58</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Signal-to-noise ratio: 1.37</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Scale estimate (sigma): 0.746</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Nonzero coefficients: 7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Cross-validation error (deviance): 0.57</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   R-squared: 0.57</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Signal-to-noise ratio: 1.33</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Scale estimate (sigma): 0.752</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Logistic regression ------------------------------------------------</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Heart</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">cvfit</span> <span class="op">&lt;-</span> <span class="fu"><a href="cv.ncvreg.html">cv.ncvreg</a></span><span class="op">(</span><span class="va">Heart</span><span class="op">$</span><span class="va">X</span>, <span class="va">Heart</span><span class="op">$</span><span class="va">y</span>, family<span class="op">=</span><span class="st">"binomial"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">cvfit</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> MCP-penalized logistic regression with n=462, p=9</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> At minimum cross-validation error (lambda=0.0190):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> At minimum cross-validation error (lambda=0.0117):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -------------------------------------------------</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Nonzero coefficients: 7</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Cross-validation error (deviance): 1.06</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   R-squared: 0.20</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Signal-to-noise ratio: 0.25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Prediction error: 0.275</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Signal-to-noise ratio: 0.26</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Prediction error: 0.277</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Cox regression -----------------------------------------------------</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Lung</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">cvfit</span> <span class="op">&lt;-</span> <span class="fu"><a href="cv.ncvreg.html">cv.ncvsurv</a></span><span class="op">(</span><span class="va">Lung</span><span class="op">$</span><span class="va">X</span>, <span class="va">Lung</span><span class="op">$</span><span class="va">y</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">cvfit</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> MCP-penalized Cox regression with n=137, p=8</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> At minimum cross-validation error (lambda=0.1035):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> At minimum cross-validation error (lambda=0.2080):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -------------------------------------------------</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Nonzero coefficients: 4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Cross-validation error (deviance): 7.51</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   R-squared: 0.31</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Signal-to-noise ratio: 0.45</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Nonzero coefficients: 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Cross-validation error (deviance): 7.59</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   R-squared: 0.25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Signal-to-noise ratio: 0.34</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -186,7 +186,7 @@ penalized regression, with applications to biological feature selection.
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Last updated: July 25, 2025</p>
+  <p>Last updated: October 08, 2025</p>
 </div>
 
     </footer></div>
