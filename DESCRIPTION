@@ -1,7 +1,6 @@
 Package: ncvreg
 Title: Regularization Paths for SCAD and MCP Penalized Regression Models
 Version: 3.16.0
-Date: 2025-04-02
 Authors@R: c(
   person("Patrick", "Breheny", role=c("aut","cre"),
     email="patrick-breheny@uiowa.edu", comment=c(ORCID="0000-0002-0650-1119")),
@@ -15,6 +14,9 @@ Description: Fits regularization paths for linear regression, GLM, and Cox
   visualization, summarization, inference, and prediction are also provided.
   For more information, see Breheny and Huang (2011) <doi:10.1214/10-AOAS388>
   or visit the ncvreg homepage <https://pbreheny.github.io/ncvreg/>.
+License: GPL-3
+URL: https://pbreheny.github.io/ncvreg/, https://github.com/pbreheny/ncvreg
+BugReports: https://github.com/pbreheny/ncvreg/issues
 Depends: R (>= 4.1)
 Suggests:
   ashr,
@@ -23,11 +25,8 @@ Suggests:
   rmarkdown,
   survival,
   tinytest
+LazyData: true
 VignetteBuilder: knitr
-BugReports: https://github.com/pbreheny/ncvreg/issues
-License: GPL-3
-URL: https://pbreheny.github.io/ncvreg/, https://github.com/pbreheny/ncvreg
-LazyData: TRUE
-RoxygenNote: 7.3.3
-Roxygen: list(markdown = TRUE)
 Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
