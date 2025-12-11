@@ -71,7 +71,7 @@
 Breheny</h4>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/pbreheny/ncvreg/blob/master/vignettes/articles/penalties.rmd" class="external-link"><code>vignettes/articles/penalties.rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/pbreheny/ncvreg/blob/main/vignettes/articles/penalties.rmd" class="external-link"><code>vignettes/articles/penalties.rmd</code></a></small>
       <div class="d-none name"><code>penalties.rmd</code></div>
     </div>
 
@@ -109,7 +109,7 @@ compactly,</p>
 <p><span class="math display"> P(\beta;\lambda, \gamma) =
 \lambda\int_0^{|\beta|} (1-t/(\gamma\lambda))_+ dt. </span></p>
 <p>A plot of the MCP (penalty on left, derivative on right):</p>
-<p><img src="penalties_files/figure-html/unnamed-chunk-3-1.png" width="480"></p>
+<p><img src="penalties_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" width="480"></p>
 <p>The MCP starts out by applying the same rate of penalization as the
 lasso, then smoothly relaxes the rate down to zero as the absolute value
 of the coefficient increases.</p>
@@ -122,7 +122,7 @@ of the coefficient increases.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">gamma</span>, <span class="st">"="</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ncvreg.html">ncvreg</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span>, gamma <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">gamma</span>, <span class="st">"="</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="penalties_files/figure-html/penalty-mcp-gamma-1.png" width="480"></p>
+<p><img src="penalties_files/figure-html/penalty-mcp-gamma-1.png" class="r-plt" width="480"></p>
 <p>At smaller <span class="math inline">\gamma</span> values, the
 estimates transition rapidly from 0 to their unpenalized solutions; this
 transition happens more slowly and gradually at larger <span class="math inline">\gamma</span> values. Note that one consquence of
@@ -147,14 +147,14 @@ penalty.</p>
 <p><span class="math display"> P(\beta; \lambda, \gamma) =
 \lambda\int_0^{|\beta|} \min\{1,(\gamma-t/\lambda)_+/(\gamma-1)\}dt.
 </span></p>
-<p><img src="penalties_files/figure-html/unnamed-chunk-4-1.png" width="480"></p>
+<p><img src="penalties_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" width="480"></p>
 </div>
 <div class="section level2">
 <h2 id="lasso">Lasso<a class="anchor" aria-label="anchor" href="#lasso"></a>
 </h2>
 <p><span class="math display"> P(\beta; \lambda) =
 \lambda\left\lvert\beta\right\rvert </span></p>
-<p><img src="penalties_files/figure-html/unnamed-chunk-5-1.png" width="480"></p>
+<p><img src="penalties_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" width="480"></p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ncvreg.html">ncvreg</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span><span class="op">)</span></span>
@@ -163,7 +163,7 @@ penalty.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, main <span class="op">=</span> <span class="st">"SCAD"</span><span class="op">)</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ncvreg.html">ncvreg</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span>, penalty <span class="op">=</span> <span class="st">"lasso"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, main <span class="op">=</span> <span class="st">"Lasso"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="penalties_files/figure-html/penalty-comp-1.png" width="480"></p>
+<p><img src="penalties_files/figure-html/penalty-comp-1.png" class="r-plt" width="480"></p>
 </div>
 <div class="section level2">
 <h2 id="elastic-net-and-mnet">Elastic Net and MNet<a class="anchor" aria-label="anchor" href="#elastic-net-and-mnet"></a>
@@ -187,7 +187,7 @@ similarly.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">alpha</span>, <span class="st">"="</span>, <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ncvreg.html">ncvreg</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span>, alpha <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">alpha</span>, <span class="st">"="</span>, <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="penalties_files/figure-html/penalty-mnet-1.png" width="480"></p>
+<p><img src="penalties_files/figure-html/penalty-mnet-1.png" class="r-plt" width="480"></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
@@ -200,7 +200,7 @@ similarly.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Last updated: November 07, 2025</p>
+  <p>Last updated: December 11, 2025</p>
 </div>
 
     </footer>

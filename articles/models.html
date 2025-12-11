@@ -71,7 +71,7 @@
 Breheny</h4>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/pbreheny/ncvreg/blob/master/vignettes/articles/models.rmd" class="external-link"><code>vignettes/articles/models.rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/pbreheny/ncvreg/blob/main/vignettes/articles/models.rmd" class="external-link"><code>vignettes/articles/models.rmd</code></a></small>
       <div class="d-none name"><code>models.rmd</code></div>
     </div>
 
@@ -120,7 +120,7 @@ minimax concave penalty (MCP):</p>
 with</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
-<p><img src="models_files/figure-html/fit-linear-1.png" width="480"></p>
+<p><img src="models_files/figure-html/fit-linear-1.png" class="r-plt" width="480"></p>
 <p>Although the least squares loss function is convex, the MCP penalty
 is not. The resulting objective function, therefore, may or may not be
 convex. <code>ncvreg</code> uses a local convexity diagnostic, as
@@ -163,7 +163,7 @@ assessing the predictive accuracy of the model at various values of
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cvfit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cv.ncvreg.html">cv.ncvreg</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">y</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">cvfit</span><span class="op">)</span></span></code></pre></div>
-<p><img src="models_files/figure-html/unnamed-chunk-5-1.png" width="480"></p>
+<p><img src="models_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" width="480"></p>
 <p>By default, the cross-validation error (CV) is plotted; for all
 models in <code>ncvreg</code>, the cross-validation error is defined
 as</p>
@@ -187,7 +187,7 @@ ration (SNR), or <span class="math inline">R^2</span>:</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">cvfit</span>, type<span class="op">=</span><span class="st">'scale'</span><span class="op">)</span>  <span class="co"># sigma hat</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">cvfit</span>, type<span class="op">=</span><span class="st">'snr'</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">cvfit</span>, type<span class="op">=</span><span class="st">'rsq'</span><span class="op">)</span></span></code></pre></div>
-<p><img src="models_files/figure-html/unnamed-chunk-6-1.png" width="480"></p>
+<p><img src="models_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" width="480"></p>
 <p>Calling <code>summary</code> on a <code>cv.ncvreg</code> object will
 provide a summary of these quantities at the value which minimizes <span class="math inline">\textrm{CV}</span>:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
@@ -257,7 +257,7 @@ an option:</p>
 <code class="sourceCode R"><span><span class="va">cvfit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cv.ncvreg.html">cv.ncvreg</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">y</span>, family<span class="op">=</span><span class="st">'binomial'</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">cvfit</span>, type<span class="op">=</span><span class="st">'all'</span><span class="op">)</span></span></code></pre></div>
-<p><img src="models_files/figure-html/unnamed-chunk-11-1.png" width="480"></p>
+<p><img src="models_files/figure-html/unnamed-chunk-11-1.png" class="r-plt" width="480"></p>
 <p>Note that, as defined above, cross-validation error is the
 cross-validated deviance. At its optmium, the penalized logistic
 regression model can predict about 73% of coronary heart disease cases
@@ -331,7 +331,7 @@ regression. Loading this data set into R,</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">cvfit</span>, type<span class="op">=</span><span class="st">'cve'</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">cvfit</span>, type<span class="op">=</span><span class="st">'rsq'</span><span class="op">)</span></span></code></pre></div>
-<p><img src="models_files/figure-html/models-cox-cv-1.png" width="480"></p>
+<p><img src="models_files/figure-html/models-cox-cv-1.png" class="r-plt" width="480"></p>
 <p>In addition to the quantities like coefficients and number of nonzero
 coefficients that <code>predict</code> returns for other types of
 models, <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code> for an <code>ncvsurv</code> object can
@@ -343,7 +343,7 @@ function is also available:</p>
 <span><span class="fu">S</span><span class="op">(</span><span class="fl">365</span><span class="op">)</span>   <span class="co"># Estiamted survival at 1 year</span></span>
 <span><span class="co"># [1] 0.8594485</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">S</span>, xlim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">200</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="models_files/figure-html/models-cox-surv-single-1.png" width="480"></p>
+<p><img src="models_files/figure-html/models-cox-surv-single-1.png" class="r-plt" width="480"></p>
 <p>When multiple subjects are involved in the prediction:</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">S</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">X</span>, type<span class="op">=</span><span class="st">'survival'</span>, lambda<span class="op">=</span><span class="fl">0.02</span><span class="op">)</span></span>
@@ -352,7 +352,7 @@ function is also available:</p>
 <span><span class="va">S</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">(</span><span class="fl">365</span><span class="op">)</span>  <span class="co"># Estimated survival at 1 year for subject 2</span></span>
 <span><span class="co"># [1] 0.8887079</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">S</span>, xlim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">200</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="models_files/figure-html/models-cox-surv-multiple-1.png" width="480"></p>
+<p><img src="models_files/figure-html/models-cox-surv-multiple-1.png" class="r-plt" width="480"></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
@@ -365,7 +365,7 @@ function is also available:</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Last updated: November 07, 2025</p>
+  <p>Last updated: December 11, 2025</p>
 </div>
 
     </footer>

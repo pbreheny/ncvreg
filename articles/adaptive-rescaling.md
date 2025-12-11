@@ -1,0 +1,51 @@
+# Standardization and adaptive rescaling
+
+When fitting penalized regression models, it is standard practice
+(adopted by **ncvreg**, [glmnet](https://glmnet.stanford.edu/), and many
+other software packages) to standardize the coefficients prior to model
+fitting. Specifically, this means centering and scaling each feature so
+that
+
+\begin{align\*} \frac{1}{n} \sum\_{i=1}^n x\_{ij} &= 0 \\ \frac{1}{n}
+\sum\_{i=1}^n x\_{ij}^2 &= 1. \end{align\*}
+
+Fitting takes place on this standardized scale, but the inverse
+transformation is applied so that coefficients are returned on the
+original scale. This is appealing from a computational perspective, but
+also ensures equivariance with respect to the scale of the features
+(i.e., one obtains the same predicted values if features are measured in
+inches or meters, and so on).
+
+For logistic, Poisson, and Cox regression models, **ncvreg** adopts the
+approach of constructing quadratic approximations to the loss function
+before updating estimates of the regression coefficients:
+
+Q\_{\lambda,\gamma}(\boldsymbol{\beta}) \approx \frac{1}{2n}(\tilde{y}-
+\mathbf{X}\boldsymbol{\beta})'\mathbf{W}(\tilde{y}-\mathbf{X}\boldsymbol{\beta}) +
+\sum\_{j=1}^p p\_{\lambda,\gamma}(\left\lvert\beta_j\right\rvert).
+
+The equivalent standardization conditions for this weighted least
+squares loss are
+
+\begin{align\*} \frac{1}{n} \sum\_{i=1}^n w_i x\_{ij} &= 0 \\
+\frac{1}{n} \sum\_{i=1}^n w_i x\_{ij}^2 &= 1. \end{align\*}
+
+However, because the approximation is iterative, the weights are
+continually changing and these conditions cannot simply be imposed at
+the outset. There are (at least) two reasonable courses of action here.
+One is to simply impose the original standardization conditions and work
+around the fact that features are no longer standardized during the
+coordinate descent fitting steps. The other is to continuously enforce
+the weighted standardization conditions; in **ncvreg**, we refer to this
+as “adaptive rescaling.”
+
+For lasso-penalized models, the distinction is not particularly
+important. However, for MCP and SCAD, adaptive rescaling changes the
+meaning of the [\gamma
+parameter](https://pbreheny.github.io/ncvreg/articles/penalties.md). For
+example, if w_i=0.25 for all i (as might be the case in logistic
+regression), then we would need to set \gamma=12 in order to obtain a
+model that behaves like \gamma=3 would for linear regression. To ensure
+a consistent meaning for \gamma across different models (i.e., that
+\gamma=3 remains a reasonable default in terms of balancing bias and
+variance), we use adaptive rescaling in the **ncvreg** package.
