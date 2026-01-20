@@ -24,7 +24,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ncvreg</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.16.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.16.0.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -101,7 +101,7 @@ SCAD and lasso penalties are also available. This produces a path of
 coefficients, which we can plot with</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
-<p><img src="ncvreg_files/figure-html/plot-1.png" class="r-plt" width="480"></p>
+<p><img src="ncvreg_files/figure-html/plot-1.png" class="r-plt" alt="" width="480"></p>
 <p>Notice that variables enter the model one at a time, and that at any
 given value of <span class="math inline">\lambda</span>, several
 coefficients are zero. To see what the coefficients are, we could use
@@ -150,7 +150,7 @@ assessing the predictive accuracy of the model at various values of
 <span><span class="co">#   Signal-to-noise ratio: 1.42</span></span>
 <span><span class="co">#   Scale estimate (sigma): 0.739</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">cvfit</span><span class="op">)</span></span></code></pre></div>
-<p><img src="ncvreg_files/figure-html/cvplot-1.png" class="r-plt" width="480"></p>
+<p><img src="ncvreg_files/figure-html/cvplot-1.png" class="r-plt" alt="" width="480"></p>
 <p>The value of <span class="math inline">\lambda</span> that minimizes
 the cross-validation error is given by <code>cvfit$lambda.min</code>,
 which in this case is 0.017. Applying <code>coef</code> to the output of
@@ -171,6 +171,7 @@ a number of options:</p>
 <span><span class="co"># 0.01695 </span></span>
 <span><span class="co">#       7</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">cvfit</span>, type<span class="op">=</span><span class="st">"vars"</span><span class="op">)</span>   <span class="co"># Identity of the nonzero coefficients</span></span>
+<span><span class="co"># $`0.01695`</span></span>
 <span><span class="co">#  lcavol lweight     age    lbph     svi     lcp   pgg45 </span></span>
 <span><span class="co">#       1       2       3       4       5       6       8</span></span></code></pre></div>
 <p>Note that the original fit (to the full data set) is returned as
@@ -188,7 +189,7 @@ coefficient path plot as <code>plot(fit)</code> above.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Last updated: December 11, 2025</p>
+  <p>Last updated: January 20, 2026</p>
 </div>
 
     </footer>

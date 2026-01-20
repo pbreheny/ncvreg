@@ -116,20 +116,20 @@ Patrick Breheny
 ``` r
 data(Heart)
 
-fit <- ncvreg(Heart$X, Heart$y, family="binomial")
-coef(fit, lambda=0.05)
+fit <- ncvreg(Heart$X, Heart$y, family = "binomial")
+coef(fit, lambda = 0.05)
 #>  (Intercept)          sbp      tobacco          ldl    adiposity      famhist 
 #> -4.079298688  0.000000000  0.037271649  0.075045442  0.000000000  0.611522063 
 #>        typea      obesity      alcohol          age 
 #>  0.009798506  0.000000000  0.000000000  0.047479496 
-head(predict(fit, Heart$X, type="link", lambda=0.05))
+head(predict(fit, Heart$X, type = "link", lambda = 0.05))
 #> [1]  0.358554123 -0.217849509 -0.510057641  0.546336589  0.216182502
 #> [6] -0.007063715
-head(predict(fit, Heart$X, type="response", lambda=0.05))
+head(predict(fit, Heart$X, type = "response", lambda = 0.05))
 #> [1] 0.5886904 0.4457520 0.3751800 0.6332852 0.5538361 0.4982341
-head(predict(fit, Heart$X, type="class", lambda=0.05))
+head(predict(fit, Heart$X, type = "class", lambda = 0.05))
 #> [1] 1 0 0 1 1 0
-predict(fit, type="vars", lambda=c(0.05, 0.01))
+predict(fit, type = "vars", lambda = c(0.05, 0.01))
 #> $`0.0500`
 #> tobacco     ldl famhist   typea     age 
 #>       2       3       5       6       9 
@@ -138,7 +138,7 @@ predict(fit, type="vars", lambda=c(0.05, 0.01))
 #>     sbp tobacco     ldl famhist   typea obesity     age 
 #>       1       2       3       5       6       7       9 
 #> 
-predict(fit, type="nvars", lambda=c(0.05, 0.01))
+predict(fit, type = "nvars", lambda = c(0.05, 0.01))
 #> 0.0500 0.0100 
 #>      5      7 
 ```

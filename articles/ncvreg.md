@@ -116,6 +116,7 @@ predict(cvfit, type="nvars")  # Number of nonzero coefficients
 # 0.01695 
 #       7
 predict(cvfit, type="vars")   # Identity of the nonzero coefficients
+# $`0.01695`
 #  lcavol lweight     age    lbph     svi     lcp   pgg45 
 #       1       2       3       4       5       6       8
 ```
