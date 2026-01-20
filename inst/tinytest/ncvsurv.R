@@ -1,4 +1,4 @@
-library(glmnet)
+library(glmnet, quietly = TRUE)
 library(survival, quietly = TRUE)
 if (interactive()) library(tinytest)
 
@@ -166,8 +166,8 @@ predict(fit, X[1, ], which = 1, type = "median")
 
 n <- 50
 p <- 5
-X <- matrix(rnorm(n * p), ncol = p)
-b <- c(2, -2, rep(0, p - 2))
+X <- matrix(rnorm(n * p), ncol = p) |> std()
+b <- c(1, -1, rep(0, p - 2))
 y <- Surv(rexp(n, exp(X %*% b)), rbinom(n, 1, 0.5))
 df <- data.frame(y, X)
 
@@ -176,7 +176,7 @@ sfit <- coxph(y ~ ., data = df)
 par(mfrow = c(3, 3), mar = c(1, 1, 1, 1))
 for (i in 1:9) {
   S <- predict(fit, X[i, ], which = 100, type = "survival")
-  km.cox <- survfit(sfit, newdata = df[i, ], type = "kalbfleisch-prentice")
+  km.cox <- survfit(sfit, newdata = df[i, ], stype = 1, ctype = 1)
   plot(km.cox, conf.int = FALSE, mark.time = FALSE, xlim = c(0, 10), lwd = 10, col = "gray")
   lines(fit$time, S(fit$time), type = "s", col = "slateblue", lwd = 2)
 }
