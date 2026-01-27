@@ -191,7 +191,7 @@ In addition to the quantities like coefficients and number of nonzero coefficien
 
 ```{r models-cox-surv-single, h=4, w=4}
 S <- predict(fit, X[1,], type='survival', lambda=0.02)
-S(365)   # Estiamted survival at 1 year
+S[[1]](365)   # Estimated survival at 1 year
 plot(S, xlim=c(0,200))
 ```
 
