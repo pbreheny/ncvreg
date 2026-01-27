@@ -69,7 +69,7 @@ head(predict(fit, X, type="link", lambda=0.05))
 head(predict(fit, X, type="response", lambda=0.05))
 
 # Survival function
-S <- predict(fit, X[1,], type="survival", lambda=0.05)
+S <- predict(fit, X[1,], type="survival", lambda=0.05)[[1]]
 S(100)
 S <- predict(fit, X, type="survival", lambda=0.05)
 plot(S, xlim=c(0,200))

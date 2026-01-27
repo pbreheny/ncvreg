@@ -20,12 +20,12 @@
 residuals.ncvreg <- function(object, lambda, which=1:length(object$lambda), drop=TRUE, ...) {
 
   # Calculate matrix of residuals
-  if (inherits(object, 'ncvsurv')) {
+  if (inherits(object, "ncvsurv")) {
     for (j in 1:length(object$lambda)) {
-      h <- suppressWarnings(predict(object, which=j, type='hazard')(object$time))
+      h <- suppressWarnings(predict(object, which = j, type = "hazard")[[1]](object$time))
       M <- object$fail - h * exp(object$linear.predictors)
-      R <- sign(M) * sqrt(-2*(M + object$fail*log(object$fail-M)))
-      R[h==0,] <- 0
+      R <- sign(M) * sqrt(-2*(M + object$fail * log(object$fail - M)))
+      R[h == 0,] <- 0
       R <- R[match(1:object$n, object$order),]  # Return in original order
     }
   } else if (object$family == 'gaussian') {

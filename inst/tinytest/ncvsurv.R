@@ -130,7 +130,7 @@ p <- predict(fit, X, "median")
 fit <- ncvsurv(as.data.frame(X), y)
 
 # Loss
-eta <- predict(fit, X, "link", lambda = 0.1)
+eta <- predict(fit, X, "link", lambda = 0.01)
 ncvreg:::loss.ncvsurv(y, eta)
 
 # Summary
@@ -154,7 +154,7 @@ b <- c(2, -2, rep(0, p - 2))
 y <- Surv(rexp(n, exp(X %*% b)), rbinom(n, 1, 0.75))
 
 fit <- ncvsurv(X, y)
-S <- predict(fit, X[1, ], which = 1, type = "survival")
+S <- predict(fit, X[1, ], which = 1, type = "survival")[[1]]
 km <- survfit(y ~ 1)
 plot(km, conf.int = FALSE, mark.time = FALSE, xlim = c(0, 10), lwd = 10, col = "gray")
 lines(fit$time, S(fit$time), type = "s", col = "slateblue", lwd = 2)
@@ -175,7 +175,7 @@ fit <- ncvsurv(X, y, lambda.min = 0)
 sfit <- coxph(y ~ ., data = df)
 par(mfrow = c(3, 3), mar = c(1, 1, 1, 1))
 for (i in 1:9) {
-  S <- predict(fit, X[i, ], which = 100, type = "survival")
+  S <- predict(fit, X[i, ], which = 100, type = "survival")[[1]]
   km.cox <- survfit(sfit, newdata = df[i, ], stype = 1, ctype = 1)
   plot(km.cox, conf.int = FALSE, mark.time = FALSE, xlim = c(0, 10), lwd = 10, col = "gray")
   lines(fit$time, S(fit$time), type = "s", col = "slateblue", lwd = 2)

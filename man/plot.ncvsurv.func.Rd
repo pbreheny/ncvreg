@@ -27,12 +27,12 @@ y <- Lung$y
 fit <- ncvsurv(X, y)
 
 # A single survival curve
-S <- predict(fit, X[1,], type='survival', lambda=.15)
-plot(S, xlim=c(0,200))
+S <- predict(fit, X[1,], type = "survival", lambda = 0.15)
+plot(S, xlim = c(0, 200))
 
 # Lots of survival curves
-S <- predict(fit, X, type='survival', lambda=.08)
-plot(S, xlim=c(0,200), alpha=0.3)
+S <- predict(fit, X, type = "survival", lambda = 0.08)
+plot(S, xlim = c(0, 200), alpha = 0.3)
 }
 \seealso{
 \code{\link[=ncvsurv]{ncvsurv()}}, \code{\link[=predict.ncvsurv]{predict.ncvsurv()}}
