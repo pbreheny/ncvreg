@@ -120,7 +120,7 @@ head(predict(fit, X, type="response", lambda=0.05))
 #> 0.06216253 0.04621881 0.07086755 0.06375954 0.04602382 0.24088609 
 
 # Survival function
-S <- predict(fit, X[1,], type="survival", lambda=0.05)
+S <- predict(fit, X[1,], type="survival", lambda=0.05)[[1]]
 S(100)
 #> [1] 0.9421869
 S <- predict(fit, X, type="survival", lambda=0.05)

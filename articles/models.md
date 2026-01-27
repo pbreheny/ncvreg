@@ -307,7 +307,7 @@ method to plot the resulting function is also available:
 
 ``` r
 S <- predict(fit, X[1,], type='survival', lambda=0.02)
-S(365)   # Estiamted survival at 1 year
+S[[1]](365)   # Estimated survival at 1 year
 # [1] 0.8594485
 plot(S, xlim=c(0,200))
 ```
