@@ -141,33 +141,38 @@ ncvsurv <- function(X, y, penalty=c("MCP", "SCAD", "lasso"), gamma=switch(penalt
   # Coersion
   penalty <- match.arg(penalty)
   if (!inherits(X, "matrix")) {
-    tmp <- try(X <- stats::model.matrix(~0+., data=X), silent=TRUE)
-    if (inherits(tmp, "try-error")) stop("X must be a matrix or able to be coerced to a matrix", call.=FALSE)
+    tmp <- try(X <- stats::model.matrix(~ 0 + ., data = X), silent = TRUE)
+    if (inherits(tmp, "try-error")) stop("X must be a matrix or able to be coerced to a matrix", call. = FALSE)
   }
-  if (storage.mode(X)=="integer") storage.mode(X) <- "double"
+  if (storage.mode(X) == "integer") storage.mode(X) <- "double"
   if (!inherits(y, "matrix")) {
-    tmp <- try(y <- as.matrix(y), silent=TRUE)
-    if (inherits(tmp, "try-error")) stop("y must be a matrix or able to be coerced to a matrix", call.=FALSE)
-    if (ncol(y) != 2) stop("y must have two columns for survival data: time-on-study and a censoring indicator", call.=FALSE)
+    tmp <- try(y <- as.matrix(y), silent = TRUE)
+    if (inherits(tmp, "try-error")) stop("y must be a matrix or able to be coerced to a matrix", call. = FALSE)
+    if (ncol(y) != 2) stop("y must have two columns for survival data: time-on-study and a censoring indicator", call. = FALSE)
   }
   if (typeof(y) == "integer") storage.mode(y) <- "double"
   if (typeof(penalty.factor) != "double") storage.mode(penalty.factor) <- "double"
 
   ## Error checking
-  if (gamma <= 1 & penalty=="MCP") stop("gamma must be greater than 1 for the MC penalty", call.=FALSE)
-  if (gamma <= 2 & penalty=="SCAD") stop("gamma must be greater than 2 for the SCAD penalty", call.=FALSE)
-  if (nlambda < 2) stop("nlambda must be at least 2", call.=FALSE)
-  if (alpha <= 0) stop("alpha must be greater than 0; choose a small positive number instead", call.=FALSE)
-  if (length(penalty.factor)!=ncol(X)) stop("penalty.factor does not match up with X", call.=FALSE)
-  if (any(is.na(y)) | any(is.na(X))) stop("Missing data (NA's) detected.  Take actions (e.g., removing cases, removing features, imputation) to eliminate missing data before passing X and y to ncvreg", call.=FALSE)
+  if (gamma <= 1 & penalty == "MCP") stop("gamma must be greater than 1 for the MC penalty", call. = FALSE)
+  if (gamma <= 2 & penalty == "SCAD") stop("gamma must be greater than 2 for the SCAD penalty", call. = FALSE)
+  if (nlambda < 2) stop("nlambda must be at least 2", call. = FALSE)
+  if (alpha <= 0) stop("alpha must be greater than 0; choose a small positive number instead", call. = FALSE)
+  if (length(penalty.factor) != ncol(X)) stop("penalty.factor does not match up with X", call. = FALSE)
+  if (any(is.na(y)) | any(is.na(X))) stop("Missing data (NA's) detected.  Take actions (e.g., removing cases, removing features, imputation) to eliminate missing data before passing X and y to ncvreg", call. = FALSE)
+  if (nrow(X) != nrow(y)) {
+    stop("X and y do not have the same number of instances", call. = FALSE)
+  }
 
   ## Set up XX, yy, lambda
   tOrder <- order(y[, 1])
   yy <- as.double(y[tOrder, 1])
   Delta <- y[tOrder, 2]
   n <- length(yy)
-  XX <- std(X[tOrder, , drop=FALSE])
-  if (sys.nframe() > 1 && sys.call(-1)[[1]]=="local_mfdr") return(list(X=XX, time=yy, fail=Delta))
+  XX <- std(X[tOrder, , drop = FALSE])
+  if (sys.nframe() > 1 && sys.call(-1)[[1]] == "local_mfdr") {
+    return(list(X = XX, time = yy, fail = Delta))
+  }
   ns <- attr(XX, "nonsingular")
   penalty.factor <- penalty.factor[ns]
   p <- ncol(XX)
@@ -178,16 +183,19 @@ ncvsurv <- function(X, y, penalty=c("MCP", "SCAD", "lasso"), gamma=switch(penalt
     nlambda <- length(lambda)
     if (!is.double(lambda)) lambda <- as.double(lambda)
     if (nlambda == 1) {
-      warning(gsub('ncvreg', 'ncvsurv', lambda.warning), call.=FALSE)
+      warning(gsub("ncvreg", "ncvsurv", lambda.warning), call. = FALSE)
     } else if (any(diff(lambda) > 0)) {
-      lambda <- sort(lambda, decreasing=TRUE)
+      lambda <- sort(lambda, decreasing = TRUE)
     }
     user.lambda <- TRUE
   }
 
   ## Fit
-  res <- .Call("cdfit_cox_dh", XX, Delta, penalty, lambda, eps, as.integer(max.iter), as.double(gamma), penalty.factor,
-               alpha, as.integer(dfmax), as.integer(user.lambda | any(penalty.factor==0)), as.integer(warn))
+  res <- .Call(
+    "cdfit_cox_dh", XX, Delta, penalty, lambda, eps, as.integer(max.iter),
+    as.double(gamma), penalty.factor, alpha, as.integer(dfmax),
+    as.integer(user.lambda | any(penalty.factor == 0)), as.integer(warn)
+  )
   b <- matrix(res[[1]], p, nlambda)
   loss <- -1*res[[2]]
   iter <- res[[3]]
@@ -195,24 +203,30 @@ ncvsurv <- function(X, y, penalty=c("MCP", "SCAD", "lasso"), gamma=switch(penalt
 
   ## Eliminate saturated lambda values, if any
   ind <- !is.na(iter)
-  b <- b[, ind, drop=FALSE]
+  b <- b[, ind, drop = FALSE]
   iter <- iter[ind]
   lambda <- lambda[ind]
   loss <- loss[ind]
-  Eta <- Eta[, ind, drop=FALSE]
-  if (warn & sum(iter)==max.iter) warning("Algorithm failed to converge for some values of lambda")
+  Eta <- Eta[, ind, drop = FALSE]
+  if (warn & sum(iter) == max.iter) {
+    warning("Algorithm failed to converge for some values of lambda")
+  }
 
   ## Local convexity?
-  convex.min <- if (convex) convexMin(b, XX, penalty, gamma, lambda*(1-alpha), "cox", penalty.factor, Delta=Delta) else NULL
+  convex.min <- if (convex) {
+    convexMin(b, XX, penalty, gamma, lambda * (1 - alpha), "cox", penalty.factor, Delta = Delta)
+  } else {
+    NULL
+  }
 
   ## Unstandardize
-  beta <- matrix(0, nrow=ncol(X), ncol=length(lambda))
-  bb <- b/attr(XX, "scale")[ns]
-  beta[ns,] <- bb
+  beta <- matrix(0, nrow = ncol(X), ncol = length(lambda))
+  bb <- b / attr(XX, "scale")[ns]
+  beta[ns, ] <- bb
   offset <- -crossprod(attr(XX, "center")[ns], bb)
 
   ## Names
-  varnames <- if (is.null(colnames(X))) paste("V", 1:ncol(X), sep="") else colnames(X)
+  varnames <- if (is.null(colnames(X))) paste("V", 1:ncol(X), sep = "") else colnames(X)
   dimnames(beta) <- list(varnames, lam_names(lambda))
   obsnames <- if (is.null(rownames(X))) 1:nrow(X) else rownames(X)
   dimnames(Eta) <- list(obsnames, lam_names(lambda))

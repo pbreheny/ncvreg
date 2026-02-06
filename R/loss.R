@@ -21,19 +21,22 @@ loss.ncvreg <- function(y, yhat, family) {
   }
   val
 }
-loss.ncvsurv <- function(y, eta, total=TRUE) {
-  ind <- order(y[,1])
-  d <- as.double(y[ind,2])
+
+loss.ncvsurv <- function(y, eta, total = TRUE) {
+  ind <- order(y[, 1])
+  d <- as.double(y[ind, 2])
   if (is.matrix(eta)) {
-    eta <- eta[ind, , drop=FALSE]
+    eta <- eta[ind, , drop = FALSE]
     r <- apply(eta, 2, function(x) rev(cumsum(rev(exp(x)))))
+    loss <- -2 * (eta[d == 1, ] - log(r[d == 1, ]))
   } else {
     eta <- eta[ind]
     r <- rev(cumsum(rev(exp(eta))))
+    loss <- matrix(-2 * (eta[d == 1] - log(r[d == 1])), ncol = 1)
   }
   if (total) {
-    return(-2*(crossprod(d, eta) - crossprod(d, log(r))))
+    colSums(loss)
   } else {
-    return(-2*(eta[d==1,] - log(r)[d==1,]))
+    loss
   }
 }

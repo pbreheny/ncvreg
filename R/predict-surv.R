@@ -68,14 +68,16 @@
 #' M[1:10, 1:10]
 #' 
 #' # Nonzero coefficients
-#' predict(fit, type="vars", lambda=c(0.1, 0.01))
-#' predict(fit, type="nvars", lambda=c(0.1, 0.01))
+#' predict(fit, type="vars", lambda = c(0.1, 0.01))
+#' predict(fit, type="nvars", lambda = c(0.1, 0.01))
 #' @export
 
-predict.ncvsurv <- function(object, X, type=c("link", "response", "survival", "hazard",
-                                              "median", "coefficients", "vars",
-                                              "nvars"),
-                            lambda, which=1:length(object$lambda), ...) {
+predict.ncvsurv <- function(
+    object,
+    X,
+    type=c("link", "response", "survival", "hazard", "median", "coefficients", "vars", "nvars"),
+    lambda,
+    which = 1:length(object$lambda), ...) {
   type <- match.arg(type)
   if (type %in% c("coefficients", "vars", "nvars")) {
     return(predict.ncvreg(

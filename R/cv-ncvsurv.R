@@ -6,19 +6,23 @@ cv.ncvsurv <- function(X, y, ..., cluster, nfolds=10, fold, se=c('quick', 'boots
 
   # Coersion
   if (!inherits(X, "matrix")) {
-    tmp <- try(X <- stats::model.matrix(~0+., data=X), silent=TRUE)
-    if (inherits(tmp, "try-error")) stop("X must be a matrix or able to be coerced to a matrix", call.=FALSE)
+    tmp <- try(X <- stats::model.matrix(~ 0 + ., data = X), silent = TRUE)
+    if (inherits(tmp, "try-error")) {
+      stop("X must be a matrix or able to be coerced to a matrix", call. = FALSE)
+    }
   }
-  if (storage.mode(X)=="integer") storage.mode(X) <- "double"
+  if (storage.mode(X) == "integer") storage.mode(X) <- "double"
   if (!inherits(y, "matrix")) {
-    tmp <- try(y <- as.matrix(y), silent=TRUE)
-    if (inherits(tmp, "try-error")) stop("y must be a matrix or able to be coerced to a matrix", call.=FALSE)
-    if (ncol(y) != 2) stop("y must have two columns for survival data: time-on-study and a censoring indicator", call.=FALSE)
+    tmp <- try(y <- as.matrix(y), silent = TRUE)
+    if (inherits(tmp, "try-error")) stop("y must be a matrix or able to be coerced to a matrix", call. = FALSE)
+    if (ncol(y) != 2) {
+      stop("y must have two columns for survival data: time-on-study and a censoring indicator", call. = FALSE)
+    }
   }
   if (typeof(y) == "integer") storage.mode(y) <- "double"
 
   # Complete data fit
-  fit <- ncvsurv(X=X, y=y, ...)
+  fit <- ncvsurv(X = X, y = y, ...)
 
   # Set up folds  
   if (missing(fold)) {
@@ -29,27 +33,41 @@ cv.ncvsurv <- function(X, y, ..., cluster, nfolds=10, fold, se=c('quick', 'boots
   }
 
   n <- nrow(X)
-  Y <- matrix(NA, nrow=n, ncol=length(fit$lambda))
+  Y <- matrix(NA, nrow = n, ncol = length(fit$lambda))
   cv.args <- list(...)
   cv.args$lambda <- fit$lambda
   cv.args$warn <- FALSE
   cv.args$convex <- FALSE
   cv.args$penalty.factor <- fit$penalty.factor
   if (!missing(cluster)) {
-    if (!inherits(cluster, "cluster")) stop("cluster is not of class 'cluster'; see ?makeCluster", call.=FALSE)
-    parallel::clusterExport(cluster, c("fold","fit","X", "y", "cv.args"), envir=environment())
+    if (!inherits(cluster, "cluster")) {
+      stop("cluster is not of class 'cluster'; see ?makeCluster", call. = FALSE)
+    } 
+    parallel::clusterExport(
+      cluster,
+      c("fold","fit","X", "y", "cv.args"),
+      envir = environment()
+    )
     parallel::clusterCall(cluster, function() library(ncvreg))
-    fold.results <- parallel::parLapply(cl=cluster, X=1:nfolds, fun=cvf.surv, XX=X, y=y, fold=fold, cv.args=cv.args)
+    fold.results <- parallel::parLapply(
+      cl = cluster,
+      X = 1:nfolds,
+      fun = cvf.surv,
+      XX = X,
+      y = y,
+      fold = fold,
+      cv.args = cv.args
+    )
   }
 
   for (i in 1:nfolds) {
     if (!missing(cluster)) {
       res <- fold.results[[i]]
     } else {
-      if (trace) cat("Starting CV fold #", i, sep="","\n")
+      if (trace) cat("Starting CV fold #", i, sep = "", "\n")
       res <- cvf.surv(i, X, y, fold, cv.args)
     }
-    Y[fold==i, 1:res$nl] <- res$yhat
+    Y[fold == i, 1:res$nl] <- res$yhat
   }
 
   # Eliminate saturated lambda values, if any
@@ -59,28 +77,39 @@ cv.ncvsurv <- function(X, y, ..., cluster, nfolds=10, fold, se=c('quick', 'boots
 
   # Return
   if (se == "quick") {
-    L <- loss.ncvsurv(y, Y, total=FALSE)
-    cve <- apply(L, 2, sum)/sum(fit$fail)
-    cvse <- apply(L, 2, stats::sd)*sqrt(nrow(L))/sum(fit$fail)
+    L <- loss.ncvsurv(y, Y, total = FALSE)
+    cve <- apply(L, 2, sum) / sum(fit$fail)
+    cvse <- apply(L, 2, stats::sd) * sqrt(nrow(L)) / sum(fit$fail)
   } else {
     cve <- as.double(loss.ncvsurv(y, Y))/sum(fit$fail)
     cvse <- se.ncvsurv(y, Y)/sum(fit$fail)
   }
   min <- which.min(cve)
 
-  val <- list(cve=cve, cvse=cvse, fold=fold, lambda=lambda, fit=fit, min=min, lambda.min=lambda[min], null.dev=cve[1])
+  val <- list(
+    cve = cve,
+    cvse = cvse,
+    fold = fold,
+    lambda = lambda,
+    fit = fit,
+    min = min,
+    lambda.min = lambda[min],
+    null.dev = cve[1]
+  )
   if (returnY) val$Y <- Y
-  structure(val, class=c("cv.ncvsurv", "cv.ncvreg"))
+  structure(val, class = c("cv.ncvsurv", "cv.ncvreg"))
 }
+
 cvf.surv <- function(i, XX, y, fold, cv.args) {
-  cv.args$X <- XX[fold!=i, , drop=FALSE]
-  cv.args$y <- y[fold!=i,]
+  cv.args$X <- XX[fold != i, , drop = FALSE]
+  cv.args$y <- y[fold != i,]
+  if (i == 10) saveRDS(cv.args, "~/ncvreg-problem.rds")
   fit.i <- do.call("ncvsurv", cv.args)
 
-  X2 <- XX[fold==i, , drop=FALSE]
-  y2 <- y[fold==i,]
+  X2 <- XX[fold == i, , drop = FALSE]
+  y2 <- y[fold == i,]
   nl <- length(fit.i$lambda)
   yhat <- predict(fit.i, X2)
 
-  list(nl=length(fit.i$lambda), yhat=yhat)
+  list(nl = length(fit.i$lambda), yhat = yhat)
 }
