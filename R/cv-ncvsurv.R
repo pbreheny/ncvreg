@@ -103,7 +103,6 @@ cv.ncvsurv <- function(X, y, ..., cluster, nfolds=10, fold, se=c('quick', 'boots
 cvf.surv <- function(i, XX, y, fold, cv.args) {
   cv.args$X <- XX[fold != i, , drop = FALSE]
   cv.args$y <- y[fold != i,]
-  if (i == 10) saveRDS(cv.args, "~/ncvreg-problem.rds")
   fit.i <- do.call("ncvsurv", cv.args)
 
   X2 <- XX[fold == i, , drop = FALSE]
