@@ -200,13 +200,13 @@ plot(cvfit)
 
 summary(cvfit)
 #> MCP-penalized linear regression with n=97, p=8
-#> At minimum cross-validation error (lambda=0.0843):
+#> At minimum cross-validation error (lambda=0.0008):
 #> -------------------------------------------------
-#>   Nonzero coefficients: 4
-#>   Cross-validation error (deviance): 0.53
-#>   R-squared: 0.60
-#>   Signal-to-noise ratio: 1.49
-#>   Scale estimate (sigma): 0.728
+#>   Nonzero coefficients: 8
+#>   Cross-validation error (deviance): 0.54
+#>   R-squared: 0.59
+#>   Signal-to-noise ratio: 1.44
+#>   Scale estimate (sigma): 0.735
 
 fit <- cvfit$fit
 plot(fit)

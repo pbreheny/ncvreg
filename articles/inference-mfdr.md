@@ -45,6 +45,7 @@ on the mathematics behind it.
 First, let’s fit a lasso model:
 
 ``` r
+
 data(Prostate)
 fit <- ncvreg(Prostate$X, Prostate$y)
 ```
@@ -64,6 +65,7 @@ the hypothetical null scenario in which all predictors are noise and
 calculates the mFDR:
 
 ``` r
+
 marginal_fdr <- mfdr(fit)
 ```
 
@@ -73,6 +75,7 @@ selections to have occurred by chance alone; as a result, the mFDR is
 very low:
 
 ``` r
+
 head(marginal_fdr)
 #                   EF S         mFDR
 # 0.84343 0.000000e+00 0 0.000000e+00
@@ -88,6 +91,7 @@ Towards the end of the lasso path, all variables has been selected, and
 probably select them anyway; as a result, the mFDR is very high:
 
 ``` r
+
 tail(marginal_fdr)
 #               EF S      mFDR
 # 0.00120 7.892559 8 0.9865699
@@ -101,6 +105,7 @@ tail(marginal_fdr)
 Marginal FDRs will typically be most valuable somewhere in the middle:
 
 ``` r
+
 marginal_fdr[24:27,]
 #                EF S       mFDR
 # 0.16946 0.1931229 3 0.06437429
@@ -115,6 +120,7 @@ penalties. A plotting method is provided for mFDR objects, with two
 available plot types:
 
 ``` r
+
 par(mfrow = c(1,2))
 plot(marginal_fdr, type = "mFDR")
 plot(marginal_fdr, type = "EF")

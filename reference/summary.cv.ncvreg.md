@@ -116,26 +116,26 @@ data(Prostate)
 cvfit <- cv.ncvreg(Prostate$X, Prostate$y)
 summary(cvfit)
 #> MCP-penalized linear regression with n=97, p=8
-#> At minimum cross-validation error (lambda=0.0209):
+#> At minimum cross-validation error (lambda=0.0073):
 #> -------------------------------------------------
-#>   Nonzero coefficients: 7
-#>   Cross-validation error (deviance): 0.57
-#>   R-squared: 0.57
-#>   Signal-to-noise ratio: 1.33
-#>   Scale estimate (sigma): 0.752
+#>   Nonzero coefficients: 8
+#>   Cross-validation error (deviance): 0.56
+#>   R-squared: 0.58
+#>   Signal-to-noise ratio: 1.37
+#>   Scale estimate (sigma): 0.746
 
 # Logistic regression ------------------------------------------------
 data(Heart)
 cvfit <- cv.ncvreg(Heart$X, Heart$y, family="binomial")
 summary(cvfit)
 #> MCP-penalized logistic regression with n=462, p=9
-#> At minimum cross-validation error (lambda=0.0117):
+#> At minimum cross-validation error (lambda=0.0270):
 #> -------------------------------------------------
-#>   Nonzero coefficients: 7
+#>   Nonzero coefficients: 5
 #>   Cross-validation error (deviance): 1.06
 #>   R-squared: 0.20
-#>   Signal-to-noise ratio: 0.26
-#>   Prediction error: 0.277
+#>   Signal-to-noise ratio: 0.25
+#>   Prediction error: 0.273
 
 # Cox regression -----------------------------------------------------
 data(Lung)

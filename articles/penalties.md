@@ -17,6 +17,7 @@ information on the different loss functions available. Throughout,
 linear regression and the `Prostate` data set is used
 
 ``` r
+
 data(Prostate)
 x <- Prostate$X
 y <- Prostate$y
@@ -47,6 +48,7 @@ of the coefficient increases.
 The following figure illustrates the effect of changing \gamma:
 
 ``` r
+
 par(mfrow = c(1,3))
 fit <- ncvreg(x, y, gamma = 1.5)
 plot(fit, main = expression(paste(gamma, "=", 1.5)))
@@ -90,6 +92,7 @@ P(\beta; \lambda) = \lambda\left\lvert\beta\right\rvert
 ![](penalties_files/figure-html/unnamed-chunk-5-1.png)
 
 ``` r
+
 par(mfrow = c(1,3))
 fit <- ncvreg(x, y)
 plot(fit, main = "MCP")
@@ -116,6 +119,7 @@ to ridge. “MNet” (MCP + ridge) and “SCADNet” (SCAD + ridge) are formed
 similarly.
 
 ``` r
+
 par(mfrow = c(1, 3))
 fit <- ncvreg(x, y)
 plot(fit, main = expression(paste(alpha, "=", 1)))

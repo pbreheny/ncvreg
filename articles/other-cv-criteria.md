@@ -5,6 +5,7 @@ By default,
 returns the cross-validated deviance:
 
 ``` r
+
 data(Heart)
 X <- Heart$X
 y <- Heart$y
@@ -19,6 +20,7 @@ returns an estimated R^2, signal-to-noise ratio (SNR), and for logistic
 regression, a misclassification error (PE, for prediction error):
 
 ``` r
+
 head(summary(cvfit)$r.squared)
 # [1] 0.003282658 0.023810623 0.045612276 0.063567043 0.078374606 0.090592299
 head(summary(cvfit)$snr)
@@ -42,6 +44,7 @@ cross-validated AUC using the `auc()` function from the
 [pROC](https://cran.r-project.org/package=pROC) package:
 
 ``` r
+
 cvfit <- cv.ncvreg(X, y, family='binomial', returnY=TRUE)
 auc <- apply(cvfit$Y, 2, pROC::auc, response=y, quiet=TRUE)
 head(auc)

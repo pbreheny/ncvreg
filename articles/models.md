@@ -37,6 +37,7 @@ an approximate normal distribution; see
 for more information on the data set. Loading this data set into R,
 
 ``` r
+
 data(Prostate)
 X <- Prostate$X
 y <- Prostate$y
@@ -46,12 +47,14 @@ By default, `ncvreg` fits a linear regression model with a minimax
 concave penalty (MCP):
 
 ``` r
+
 fit <- ncvreg(X, y)
 ```
 
 This produces a path of coefficient estimates, which we can plot with
 
 ``` r
+
 plot(fit)
 ```
 
@@ -70,6 +73,7 @@ optima of the objective function, not global ones.
 Post-selection inference is available using the `summary` method:
 
 ``` r
+
 summary(fit, lambda=0.05)
 # MCP-penalized linear regression with n=97, p=8
 # At lambda=0.0500:
@@ -103,6 +107,7 @@ assessing the predictive accuracy of the model at various values of
 \lambda:
 
 ``` r
+
 cvfit <- cv.ncvreg(X, y)
 plot(cvfit)
 ```
@@ -127,6 +132,7 @@ Alternatively, one can plot \hat{\sigma}(\lambda), the signal-to-noise
 ration (SNR), or R^2:
 
 ``` r
+
 par(mfrow=c(2,2))
 plot(cvfit, type='cve')
 plot(cvfit, type='scale')  # sigma hat
@@ -140,6 +146,7 @@ Calling `summary` on a `cv.ncvreg` object will provide a summary of
 these quantities at the value which minimizes \textrm{CV}:
 
 ``` r
+
 summary(cvfit)
 # MCP-penalized linear regression with n=97, p=8
 # At minimum cross-validation error (lambda=0.0104):
@@ -169,6 +176,7 @@ data provides an example of data that can be used with logistic
 regression. Loading this data set into R,
 
 ``` r
+
 data(Heart)
 X <- Heart$X
 y <- Heart$y
@@ -178,6 +186,7 @@ One can change the loss function by specifying `family`; to fit a
 penalized logistic regression model,
 
 ``` r
+
 fit <- ncvreg(X, y, family='binomial')
 ```
 
@@ -185,6 +194,7 @@ As before, you can call `plot`, `coef`, `predict`, `summary`, etc. on
 `fit`:
 
 ``` r
+
 summary(fit, lambda=0.02)
 # MCP-penalized logistic regression with n=462, p=9
 # At lambda=0.0200:
@@ -208,6 +218,7 @@ Cross-validation is similar, although (a) there is a new option,
 error) and (b) `type='scale'` is no longer an option:
 
 ``` r
+
 cvfit <- cv.ncvreg(X, y, family='binomial')
 par(mfrow=c(2,2))
 plot(cvfit, type='all')
@@ -232,6 +243,7 @@ optimization. This loss is the deviance for a Poisson distribution Y_i
 with `ncvreg`:
 
 ``` r
+
 fit <- ncvreg(X, y, family='poisson')
 ```
 
@@ -254,6 +266,7 @@ details) provides an example of time-to-event data that can be used with
 Cox regression. Loading this data set into R,
 
 ``` r
+
 data(Lung)
 X <- Lung$X
 y <- Lung$y
@@ -262,6 +275,7 @@ y <- Lung$y
 To fit a penalized Cox regression model,
 
 ``` r
+
 fit <- ncvsurv(X, y)
 ```
 
@@ -269,6 +283,7 @@ As before, you can call `plot`, `coef`, `predict`, `summary`, etc. on
 `fit`:
 
 ``` r
+
 summary(fit, lambda=0.02)
 # MCP-penalized Cox regression with n=137, p=8
 # At lambda=0.0200:
@@ -290,6 +305,7 @@ summary(fit, lambda=0.02)
 Cross-validation is similar:
 
 ``` r
+
 cvfit <- cv.ncvsurv(X, y)
 par(mfrow=c(1,2))
 plot(cvfit, type='cve')
@@ -306,6 +322,7 @@ Kalbfleish-Prentice method) and therefore, the survival function. A
 method to plot the resulting function is also available:
 
 ``` r
+
 S <- predict(fit, X[1,], type='survival', lambda=0.02)
 S[[1]](365)   # Estimated survival at 1 year
 # [1] 0.8594485
@@ -317,6 +334,7 @@ plot(S, xlim=c(0,200))
 When multiple subjects are involved in the prediction:
 
 ``` r
+
 S <- predict(fit, X, type='survival', lambda=0.02)
 S[[1]](365)  # Estimated survival at 1 year for subject 1
 # [1] 0.8594485

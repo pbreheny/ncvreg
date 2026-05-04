@@ -14,6 +14,7 @@ which has 8 features and one continuous response, the PSA levels (on the
 log scale) from men about to undergo radical prostatectomy:
 
 ``` r
+
 data(Prostate)
 X <- Prostate$X
 y <- Prostate$y
@@ -22,6 +23,7 @@ y <- Prostate$y
 To fit a penalized regression model to this data:
 
 ``` r
+
 fit <- ncvreg(X, y)
 ```
 
@@ -30,6 +32,7 @@ and lasso penalties are also available. This produces a path of
 coefficients, which we can plot with
 
 ``` r
+
 plot(fit)
 ```
 
@@ -40,6 +43,7 @@ given value of \lambda, several coefficients are zero. To see what the
 coefficients are, we could use the `coef` function:
 
 ``` r
+
 coef(fit, lambda=0.05)
 # (Intercept)      lcavol     lweight         age        lbph         svi 
 #  0.35121089  0.53178994  0.60389694 -0.01530917  0.08874563  0.67256096 
@@ -50,6 +54,7 @@ coef(fit, lambda=0.05)
 The `summary` method can be used for post-selection inference:
 
 ``` r
+
 summary(fit, lambda=0.05)
 # MCP-penalized linear regression with n=97, p=8
 # At lambda=0.0500:
@@ -77,6 +82,7 @@ assessing the predictive accuracy of the model at various values of
 \lambda:
 
 ``` r
+
 cvfit <- cv.ncvreg(X, y)
 summary(cvfit)
 # MCP-penalized linear regression with n=97, p=8
@@ -98,6 +104,7 @@ the output of `cv.ncvreg` returns the coefficients at that value of
 \lambda:
 
 ``` r
+
 coef(cvfit)
 #  (Intercept)       lcavol      lweight          age         lbph          svi 
 #  0.494154801  0.569546027  0.614419811 -0.020913467  0.097352536  0.752397339 
@@ -109,6 +116,7 @@ Predicted values can be obtained via `predict`, which has a number of
 options:
 
 ``` r
+
 predict(cvfit, X=head(X))     # Prediction of response for new observations
 #         1         2         3         4         5         6 
 # 0.8304040 0.7650906 0.4262072 0.6230117 1.7449492 0.8449595

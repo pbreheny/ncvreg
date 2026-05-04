@@ -17,7 +17,7 @@ Source:
 Breheny P, Huang J (2011). “Coordinate descent algorithms for nonconvex
 penalized regression, with applications to biological feature
 selection.” *Annals of Applied Statistics*, **5**(1), 232–253.
-[doi:10.1214/10-AOAS388](https://doi.org/10.1214/10-AOAS388),
+[doi:10.1214/10-AOAS388](https://doi.org/10.1214/10-AOAS388).
 <https://doi.org/10.1214/10-AOAS388>.
 
     @Article{,

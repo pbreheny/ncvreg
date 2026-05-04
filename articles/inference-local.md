@@ -72,6 +72,7 @@ Local mfdr estimates can be obtained via the
 [`summary()`](https://rdrr.io/r/base/summary.html) function:
 
 ``` r
+
 fit <- ncvreg(Prostate$X, Prostate$y)
 summary(fit, lambda = 0.07,  number = Inf)
 # MCP-penalized linear regression with n=97, p=8

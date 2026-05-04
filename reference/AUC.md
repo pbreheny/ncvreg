@@ -56,7 +56,7 @@ y <- Lung$y
 
 cvfit <- cv.ncvsurv(X, y, returnY=TRUE)
 head(AUC(cvfit))
-#> [1] 0.5135734 0.6059746 0.6579964 0.6710586 0.6741254 0.6745797
+#> [1] 0.5528169 0.6138687 0.6512949 0.6715129 0.6845752 0.6894593
 lam <- cvfit$lambda
 plot(lam, AUC(cvfit), xlim=rev(range(lam)), lwd=3, type='l',
      las=1, xlab=expression(lambda), ylab='AUC')
