@@ -1,9 +1,9 @@
-#include <math.h>
-#include <string.h>
-#include "Rinternals.h"
 #include "R_ext/Rdynload.h"
+#include "Rinternals.h"
 #include <R.h>
 #include <R_ext/Applic.h>
+#include <math.h>
+#include <string.h>
 double crossprod(double *X, double *y, int n, int j);
 
 SEXP maxprod(SEXP X_, SEXP y_, SEXP v_, SEXP m_) {
@@ -20,12 +20,13 @@ SEXP maxprod(SEXP X_, SEXP y_, SEXP v_, SEXP m_) {
   double *m = REAL(m_);
   int *v = INTEGER(v_);
 
-  for (int j=0; j<p; j++) {
-    zz = crossprod(X, y, n, v[j]-1) / m[v[j]-1];
-    if (fabs(zz) > REAL(z)[0]) REAL(z)[0] = fabs(zz);
+  for (int j = 0; j < p; j++) {
+    zz = crossprod(X, y, n, v[j] - 1) / m[v[j] - 1];
+    if (fabs(zz) > REAL(z)[0])
+      REAL(z)[0] = fabs(zz);
   }
 
   // Return list
   UNPROTECT(1);
-  return(z);
+  return (z);
 }

@@ -1,15 +1,19 @@
 #include <R.h>
-#include <Rinternals.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-#include <R_ext/Rdynload.h>
 #include <R_ext/Applic.h>
+#include <R_ext/Rdynload.h>
+#include <Rinternals.h>
+#include <math.h>
+#include <stdlib.h>
+#include <string.h>
 
-extern SEXP cdfit_gaussian(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP cdfit_glm(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP cdfit_cox_dh(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP rawfit_gaussian(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP cdfit_gaussian(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP,
+                           SEXP, SEXP);
+extern SEXP cdfit_glm(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP,
+                      SEXP, SEXP, SEXP, SEXP);
+extern SEXP cdfit_cox_dh(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP,
+                         SEXP, SEXP, SEXP);
+extern SEXP rawfit_gaussian(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP,
+                            SEXP, SEXP, SEXP, SEXP);
 extern SEXP maxprod(SEXP, SEXP, SEXP, SEXP);
 extern SEXP mfdr_binomial(SEXP);
 extern SEXP mfdr_cox(SEXP);
@@ -20,7 +24,7 @@ extern SEXP standardize(SEXP);
 SEXP getListElement(SEXP list, const char *str) {
   SEXP elmt = R_NilValue, names = getAttrib(list, R_NamesSymbol);
   for (int i = 0; i < length(list); i++)
-    if(strcmp(CHAR(STRING_ELT(names, i)), str) == 0) {
+    if (strcmp(CHAR(STRING_ELT(names, i)), str) == 0) {
       elmt = VECTOR_ELT(list, i);
       break;
     }
@@ -29,99 +33,120 @@ SEXP getListElement(SEXP list, const char *str) {
 
 // Cross product of y with jth column of X
 double crossprod(double *X, double *y, int n, int j) {
-  int nn = n*j;
-  double val=0;
-  for (int i=0;i<n;i++) val += X[nn+i]*y[i];
-  return(val);
+  int nn = n * j;
+  double val = 0;
+  for (int i = 0; i < n; i++)
+    val += X[nn + i] * y[i];
+  return (val);
 }
 
 // Weighted cross product of y with jth column of x
 double wcrossprod(double *X, double *y, double *w, int n, int j) {
-  int nn = n*j;
-  double val=0;
-  for (int i=0;i<n;i++) val += X[nn+i]*y[i]*w[i];
-  return(val);
+  int nn = n * j;
+  double val = 0;
+  for (int i = 0; i < n; i++)
+    val += X[nn + i] * y[i] * w[i];
+  return (val);
 }
 
 // Weighted sum of squares of jth column of X
 double wsqsum(double *X, double *w, int n, int j) {
-  int nn = n*j;
-  double val=0;
-  for (int i=0;i<n;i++) val += w[i] * pow(X[nn+i], 2);
-  return(val);
+  int nn = n * j;
+  double val = 0;
+  for (int i = 0; i < n; i++)
+    val += w[i] * pow(X[nn + i], 2);
+  return (val);
 }
 
 // Sum of squares of jth column of X
 double sqsum(double *X, int n, int j) {
-  int nn = n*j;
-  double val=0;
-  for (int i=0;i<n;i++) val += pow(X[nn+i], 2);
-  return(val);
+  int nn = n * j;
+  double val = 0;
+  for (int i = 0; i < n; i++)
+    val += pow(X[nn + i], 2);
+  return (val);
 }
 
 // Gaussian loss
 double g_loss(double *r, int n) {
   double l = 0;
-  for (int i=0;i<n;i++) l = l + pow(r[i],2);
-  return(l);
+  for (int i = 0; i < n; i++)
+    l = l + pow(r[i], 2);
+  return (l);
 }
 
 // Pr(y=1) for binomial
 double p_binomial(double eta) {
   if (eta > 10) {
-    return(1);
+    return (1);
   } else if (eta < -10) {
-    return(0);
+    return (0);
   } else {
-    return(exp(eta)/(1+exp(eta)));
+    return (exp(eta) / (1 + exp(eta)));
   }
 }
 
 double sum(double *x, int n) {
-  double val=0;
-  for (int i=0;i<n;i++) val += x[i];
-  return(val);
+  double val = 0;
+  for (int i = 0; i < n; i++)
+    val += x[i];
+  return (val);
 }
 
 double MCP(double z, double l1, double l2, double gamma, double v) {
-  double s=0;
-  if (z > 0) s = 1;
-  else if (z < 0) s = -1;
-  if (fabs(z) <= l1) return(0);
-  else if (fabs(z) <= gamma*l1*(1+l2)) return(s*(fabs(z)-l1)/(v*(1+l2-1/gamma)));
-  else return(z/(v*(1+l2)));
+  double s = 0;
+  if (z > 0)
+    s = 1;
+  else if (z < 0)
+    s = -1;
+  if (fabs(z) <= l1)
+    return (0);
+  else if (fabs(z) <= gamma * l1 * (1 + l2))
+    return (s * (fabs(z) - l1) / (v * (1 + l2 - 1 / gamma)));
+  else
+    return (z / (v * (1 + l2)));
 }
 
 double SCAD(double z, double l1, double l2, double gamma, double v) {
-  double s=0;
-  if (z > 0) s = 1;
-  else if (z < 0) s = -1;
-  if (fabs(z) <= l1) return(0);
-  else if (fabs(z) <= (l1*(1+l2)+l1)) return(s*(fabs(z)-l1)/(v*(1+l2)));
-  else if (fabs(z) <= gamma*l1*(1+l2)) return(s*(fabs(z)-gamma*l1/(gamma-1))/(v*(1-1/(gamma-1)+l2)));
-  else return(z/(v*(1+l2)));
+  double s = 0;
+  if (z > 0)
+    s = 1;
+  else if (z < 0)
+    s = -1;
+  if (fabs(z) <= l1)
+    return (0);
+  else if (fabs(z) <= (l1 * (1 + l2) + l1))
+    return (s * (fabs(z) - l1) / (v * (1 + l2)));
+  else if (fabs(z) <= gamma * l1 * (1 + l2))
+    return (s * (fabs(z) - gamma * l1 / (gamma - 1)) /
+            (v * (1 - 1 / (gamma - 1) + l2)));
+  else
+    return (z / (v * (1 + l2)));
 }
 
 double lasso(double z, double l1, double l2, double v) {
-  double s=0;
-  if (z > 0) s = 1;
-  else if (z < 0) s = -1;
-  if (fabs(z) <= l1) return(0);
-  else return(s*(fabs(z)-l1)/(v*(1+l2)));
+  double s = 0;
+  if (z > 0)
+    s = 1;
+  else if (z < 0)
+    s = -1;
+  if (fabs(z) <= l1)
+    return (0);
+  else
+    return (s * (fabs(z) - l1) / (v * (1 + l2)));
 }
 
 static const R_CallMethodDef CallEntries[] = {
-  {"cdfit_gaussian", (DL_FUNC) &cdfit_gaussian, 11},
-  {"cdfit_glm", (DL_FUNC) &cdfit_glm, 13},
-  {"cdfit_cox_dh",   (DL_FUNC) &cdfit_cox_dh,   12},
-  {"rawfit_gaussian", (DL_FUNC) &rawfit_gaussian, 12},
-  {"maxprod",        (DL_FUNC) &maxprod,         4},
-  {"mfdr_binomial",  (DL_FUNC) &mfdr_binomial,   1},
-  {"mfdr_cox",       (DL_FUNC) &mfdr_cox,        1},
-  {"mfdr_gaussian",  (DL_FUNC) &mfdr_gaussian,   1},
-  {"standardize",    (DL_FUNC) &standardize,     1},
-  {NULL, NULL, 0}
-};
+    {"cdfit_gaussian", (DL_FUNC)&cdfit_gaussian, 11},
+    {"cdfit_glm", (DL_FUNC)&cdfit_glm, 13},
+    {"cdfit_cox_dh", (DL_FUNC)&cdfit_cox_dh, 12},
+    {"rawfit_gaussian", (DL_FUNC)&rawfit_gaussian, 12},
+    {"maxprod", (DL_FUNC)&maxprod, 4},
+    {"mfdr_binomial", (DL_FUNC)&mfdr_binomial, 1},
+    {"mfdr_cox", (DL_FUNC)&mfdr_cox, 1},
+    {"mfdr_gaussian", (DL_FUNC)&mfdr_gaussian, 1},
+    {"standardize", (DL_FUNC)&standardize, 1},
+    {NULL, NULL, 0}};
 
 void R_init_ncvreg(DllInfo *dll) {
   R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
