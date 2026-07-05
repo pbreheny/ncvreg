@@ -12,20 +12,20 @@
 \arguments{
 \item{object}{A \code{cv.ncvreg} or \code{cv.ncvsurv} object.}
 
-\item{include_fit}{In addition to summarizing the cross-validation object,
-also summarize the model with the lowest CV error? (default: FALSE)}
+\item{include_fit}{In addition to summarizing the cross-validation object, also summarize the
+model with the lowest CV error? (default: FALSE)}
 
 \item{\dots}{Further arguments passed to or from other methods.}
 
 \item{x}{A \code{summary.cv.ncvreg} object.}
 
-\item{digits}{Number of digits past the decimal point to print out.  Can be
-a vector specifying different display digits for each of the five
-non-integer printed values.}
+\item{digits}{Number of digits past the decimal point to print out. Can be a vector specifying
+different display digits for each of the five non-integer printed values.}
 }
 \value{
-An object with S3 class \code{summary.cv.ncvreg}. The class has its own
-print method and contains the following list elements:
+An object with S3 class \code{summary.cv.ncvreg}. The class has its own print method and
+contains the following list elements:
+
 \describe{
 \item{penalty}{The penalty used by \code{ncvreg}.}
 \item{model}{Either \code{"linear"} or \code{"logistic"}, depending on the \code{family} option in \code{ncvreg}.}
@@ -34,7 +34,10 @@ print method and contains the following list elements:
 \item{min}{The index of \code{lambda} with the smallest cross-validation error.}
 \item{lambda}{The sequence of \code{lambda} values used by \code{cv.ncvreg}.}
 \item{cve}{Cross-validation error (deviance).}
-\item{r.squared}{Proportion of variance explained by the model, as estimated by cross-validation. For models outside of linear regression, the Cox-Snell approach to defining R-squared is used.}
+\item{r.squared}{
+Proportion of variance explained by the model, as estimated by cross-validation. For models
+outside of linear regression, the Cox-Snell approach to defining R-squared is used.
+}
 \item{snr}{Signal to noise ratio, as estimated by cross-validation.}
 \item{sigma}{For linear regression models, the scale parameter estimate.}
 \item{pe}{For logistic regression models, the prediction error (misclassification error).}
@@ -58,6 +61,7 @@ summary(cvfit)
 data(Lung)
 cvfit <- cv.ncvsurv(Lung$X, Lung$y)
 summary(cvfit)
+
 }
 \references{
 Breheny P and Huang J. (2011) Coordinate descent algorithms for nonconvex
@@ -66,7 +70,4 @@ penalized regression, with applications to biological feature selection.
 }
 \seealso{
 \code{\link[=ncvreg]{ncvreg()}}, \code{\link[=cv.ncvreg]{cv.ncvreg()}}, \code{\link[=plot.cv.ncvreg]{plot.cv.ncvreg()}}, \code{\link[=summary.ncvreg]{summary.ncvreg()}}
-}
-\author{
-Patrick Breheny
 }

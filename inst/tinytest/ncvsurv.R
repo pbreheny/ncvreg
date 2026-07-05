@@ -1,6 +1,8 @@
 library(glmnet, quietly = TRUE)
 library(survival, quietly = TRUE)
-if (interactive()) library(tinytest)
+if (interactive()) {
+  library(tinytest)
+}
 
 # --- ncvsurv works for simple cox regression, no censoring ---------
 n <- 10

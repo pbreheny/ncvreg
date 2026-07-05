@@ -9,13 +9,22 @@
 \arguments{
 \item{object}{Object of class \code{ncvreg} or \code{ncvsurv}.}
 
-\item{lambda}{Values of the regularization parameter at which residuals are requested (numeric vector). For values of lambda not in the sequence of fitted models, linear interpolation is used.}
+\item{lambda}{Values of the regularization parameter at which residuals are requested (numeric
+vector). For values of lambda not in the sequence of fitted models, linear interpolation is
+used.}
 
-\item{which}{Index of the penalty parameter at which residuals are requested (default = all indices). If \code{lambda} is specified, this take precedence over \code{which}.}
+\item{which}{Index of the penalty parameter at which residuals are requested (default = all
+indices). If \code{lambda} is specified, this take precedence over \code{which}.}
 
-\item{drop}{By default, if a single value of lambda is supplied, a vector of residuals is returned (logical; default=\code{TRUE}). Set \code{drop=FALSE} if you wish to have the function always return a matrix (see \code{\link[=drop]{drop()}}).}
+\item{drop}{By default, if a single value of lambda is supplied, a vector of residuals is
+returned (logical; default=\code{TRUE}). Set \code{drop=FALSE} if you wish to have the function always
+return a matrix (see \code{\link[base:drop]{base::drop()}}).}
 
 \item{...}{Not used.}
+}
+\value{
+A numeric matrix of residuals (potentially simplified to a vector depending on the value of the
+\code{lambda} and \code{drop} arguments).
 }
 \description{
 Currently, only deviance residuals are supported.
@@ -27,4 +36,5 @@ y <- Prostate$y
 fit <- ncvreg(X, y)
 residuals(fit)[1:5, 1:5]
 head(residuals(fit, lambda=0.1))
+
 }

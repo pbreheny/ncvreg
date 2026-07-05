@@ -9,17 +9,20 @@
 \arguments{
 \item{x}{Fitted \code{"ncvreg"} model.}
 
-\item{alpha}{Controls alpha-blending, helpful when the number of features
-is large. Default is alpha=1.}
+\item{alpha}{Controls alpha-blending, helpful when the number of features is large. Default is
+alpha=1.}
 
 \item{log.l}{Should horizontal axis be on the log scale? Default is FALSE.}
 
 \item{shade}{Should nonconvex region be shaded? Default is TRUE.}
 
-\item{col}{Vector of colors for coefficient lines. By default, evenly spaced
-colors are selected automatically.}
+\item{col}{Vector of colors for coefficient lines. By default, evenly spaced colors are selected
+automatically.}
 
 \item{\dots}{Other graphical parameters to \code{\link[=plot]{plot()}}}
+}
+\value{
+Invisibly returns \code{NULL}. Called for its side effect of producing a plot.
 }
 \description{
 Produces a plot of the coefficient paths for a fitted \code{ncvreg} object.
@@ -28,10 +31,11 @@ Produces a plot of the coefficient paths for a fitted \code{ncvreg} object.
 data(Prostate)
 fit <- ncvreg(Prostate$X, Prostate$y)
 plot(fit)
-plot(fit, col="black")
-plot(fit, log=TRUE)
-fit <- ncvreg(Prostate$X, Prostate$y, penalty.factor=rep(c(1, 1, 1, Inf), 2))
-plot(fit, col=c('red', 'black', 'green'))  # Recycled among nonzero paths
+plot(fit, col = "black")
+plot(fit, log = TRUE)
+fit <- ncvreg(Prostate$X, Prostate$y, penalty.factor = rep(c(1, 1, 1, Inf), 2))
+plot(fit, col = c("red", "black", "green")) # Recycled among nonzero paths
+
 }
 \references{
 Breheny P and Huang J. (2011) Coordinate descent algorithms for nonconvex
@@ -40,7 +44,4 @@ penalized regression, with applications to biological feature selection.
 }
 \seealso{
 \code{\link[=ncvreg]{ncvreg()}}
-}
-\author{
-Patrick Breheny
 }

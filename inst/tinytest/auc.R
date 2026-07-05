@@ -1,4 +1,6 @@
-if (interactive()) library(tinytest)
+if (interactive()) {
+  library(tinytest)
+}
 library(survival, quietly = TRUE)
 
 # The quantities here are not exactly the same thing (one is in-sample, the

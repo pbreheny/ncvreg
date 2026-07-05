@@ -1,4 +1,6 @@
-if (interactive()) library(tinytest)
+if (interactive()) {
+  library(tinytest)
+}
 suppressPackageStartupMessages(library(glmnet))
 
 # --- Linear regression ----------------------------------------------
@@ -7,7 +9,9 @@ suppressPackageStartupMessages(library(glmnet))
 X <- matrix(rnorm(500), 50, 10)
 y <- X[, 1] + rnorm(50)
 cvfit <- cv.ncvreg(X, y)
-if (interactive()) print(summary(cvfit))
+if (interactive()) {
+  print(summary(cvfit))
+}
 
 # Predict
 b <- coef(cvfit)
@@ -38,7 +42,9 @@ cvfit <- cv.ncvreg(X, y, fold = 1:25)
 X <- matrix(rnorm(500), 50, 10)
 y <- rbinom(50, 1, binomial()$linkinv(X[, 1]))
 cvfit <- cv.ncvreg(X, y, family = "binomial")
-if (interactive()) print(summary(cvfit))
+if (interactive()) {
+  print(summary(cvfit))
+}
 
 # Predict
 b <- coef(cvfit)
@@ -127,7 +133,4 @@ expect_equivalent(pe, cvfit$pe, tol = .001)
 X <- matrix(rnorm(500), 50, 10)
 y <- 100 + X[, 1] + rnorm(50)
 cvfit <- cv.ncvreg(X, y, returnY = TRUE)
-expect_equivalent(
-  cvfit$cve,
-  apply((cvfit$Y - y)^2, 2, mean)
-)
+expect_equivalent(cvfit$cve, apply((cvfit$Y - y)^2, 2, mean))

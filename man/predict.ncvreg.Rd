@@ -6,7 +6,7 @@
 \alias{predict.cv.ncvsurv}
 \alias{predict.ncvreg}
 \alias{coef.ncvreg}
-\title{Model predictions based on a fitted ncvreg object.}
+\title{Model predictions based on a fitted ncvreg object}
 \usage{
 \method{predict}{cv.ncvreg}(
   object,
@@ -40,39 +40,60 @@
 \arguments{
 \item{object}{Fitted \code{ncvreg} model object.}
 
-\item{X}{Matrix of values at which predictions are to be made. Not used for
-\code{type="coefficients"} or for some of the \code{type} settings in \code{predict}.}
+\item{X}{Matrix of values at which predictions are to be made. Not used for \code{type="coefficients"}
+or for some of the \code{type} settings in \code{predict}.}
 
 \item{type}{Type of prediction:
 \itemize{
 \item \code{link} returns the linear predictors
-\item \code{response} gives the fitted values
+\item \code{response} gives the fitted values (i.e., with the inverse link transformation applied)
 \item \code{class} returns the binomial outcome with the highest probability
 \item \code{coefficients} returns the coefficients
-\item \code{vars} returns a list containing the indices and names of the nonzero variables at each value of \code{lambda}
+\item \code{vars} returns a list containing the indices and names of the nonzero variables
+at each value of \code{lambda}
 \item \code{nvars} returns the number of nonzero coefficients at each value of \code{lambda}.
 }}
 
-\item{which}{Indices of the penalty parameter \code{lambda} at which predictions
-are required.  By default, all indices are returned. If \code{lambda} is
-specified, this will override \code{which}.}
+\item{which}{Indices of the penalty parameter \code{lambda} at which predictions are required. By
+default, all indices are returned. If \code{lambda} is specified, this will override \code{which}.}
 
 \item{\dots}{Not used.}
 
-\item{lambda}{Values of the regularization parameter \code{lambda} at which
-predictions are requested. For values of \code{lambda} not in the sequence
-of fitted models, linear interpolation is used.}
+\item{lambda}{Values of the regularization parameter \code{lambda} at which predictions are requested.
+For values of \code{lambda} not in the sequence of fitted models, linear interpolation is used.}
 
-\item{drop}{If coefficients for a single value of \code{lambda} are to be
-returned, reduce dimensions to a vector?  Setting \code{drop=FALSE} returns
-a 1-column matrix.}
+\item{drop}{If coefficients for a single value of \code{lambda} are to be returned, reduce dimensions
+to a vector? Setting \code{drop=FALSE} returns a 1-column matrix.}
 }
 \value{
-The object returned depends on type.
+The return value depends on \code{type}. Unless otherwise noted, predictions are returned as a matrix
+with one row per observation in \code{X} (or per observation in the original dataset if \code{X} is not
+provided) and one column per value of \code{lambda}. If \code{lambda} has length 1, the result is
+simplified to a vector with one element per observation.
+
+\describe{
+\item{\code{type = "link"}}{A numeric matrix of linear predictors.}
+\item{\code{type = "response"}}{A numeric matrix of fitted values.}
+\item{\code{type = "class"}}{
+A numeric matrix of 0/1 values indicating the class with the highest probability.
+}
+\item{\code{type = "coefficients"}}{
+A numeric matrix of estimated coefficients. One row per column of \code{X} and one column per
+value of \code{lambda}.
+}
+\item{\code{type = "vars"}}{
+A list with an element for each \code{lambda}. Each element is a named vector of integers
+corresponding to the indices with nonzero coefficients.
+}
+\item{\code{type = "nvars"}}{
+A numeric vector with an element for each value of \code{lambda} indicating the number of nonzero
+coefficients.
+}
+}
 }
 \description{
-Similar to other predict methods, this function returns predictions from a
-fitted \code{ncvreg} object.
+Similar to other predict methods, this function returns predictions from a fitted \code{ncvreg}
+object.
 }
 \examples{
 data(Heart)
@@ -84,6 +105,7 @@ head(predict(fit, Heart$X, type = "response", lambda = 0.05))
 head(predict(fit, Heart$X, type = "class", lambda = 0.05))
 predict(fit, type = "vars", lambda = c(0.05, 0.01))
 predict(fit, type = "nvars", lambda = c(0.05, 0.01))
+
 }
 \references{
 Breheny P and Huang J. (2011) Coordinate descent algorithms for nonconvex
@@ -92,7 +114,4 @@ penalized regression, with applications to biological feature selection.
 }
 \seealso{
 \code{\link[=ncvreg]{ncvreg()}}
-}
-\author{
-Patrick Breheny
 }

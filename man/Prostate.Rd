@@ -7,10 +7,13 @@
 \title{Factors associated with prostate specific antigen}
 \format{
 A list of two objects: \code{y} and \code{X}
+
 \describe{
 \item{y}{Log PSA}
-\item{X}{A matrix with 97 instances (rows) and 8 predictor variables
-(columns). The remainder of this list describes the columns of \code{X}}
+\item{X}{
+A matrix with 97 instances (rows) and 8 predictor variables (columns). The remainder of this
+list describes the columns of \code{X}
+}
 \item{lcavol}{Log cancer volume}
 \item{lweight}{Log prostate weight}
 \item{age}{The man's age (years)}
@@ -28,10 +31,9 @@ A list of two objects: \code{y} and \code{X}
 Prostate
 }
 \description{
-Data from a study by by Stamey et al. (1989) to examine the association
-between prostate specific antigen (PSA) and several clinical measures that
-are potentially associated with PSA in men who were about to receive a
-radical prostatectomy.
+Data from a study by by Stamey et al. (1989) to examine the association between prostate specific
+antigen (PSA) and several clinical measures that are potentially associated with PSA in men who
+were about to receive a radical prostatectomy.
 }
 \references{
 \itemize{

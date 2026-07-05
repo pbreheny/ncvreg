@@ -2,8 +2,7 @@
 % Please edit documentation in R/predict-surv.R
 \name{predict.ncvsurv}
 \alias{predict.ncvsurv}
-\alias{coef.ncvsurv}
-\title{Model predictions based on a fitted \code{ncvsurv} object.}
+\title{Model predictions based on a fitted \code{ncvsurv} object}
 \usage{
 \method{predict}{ncvsurv}(
   object,
@@ -18,9 +17,8 @@
 \arguments{
 \item{object}{Fitted \code{"ncvsurv"} model object.}
 
-\item{X}{Matrix of values at which predictions are to be made.  Not used for
-\code{type="coefficients"} or for some of the \code{type} settings in
-\code{predict}.}
+\item{X}{Matrix of values at which predictions are to be made. Not used for \code{type="coefficients"}
+or for some of the \code{type} settings in \code{predict}.}
 
 \item{type}{Type of prediction:
 \itemize{
@@ -30,33 +28,55 @@
 \item \code{median} estimates median survival times
 The other options are all identical to their \code{\link[=ncvreg]{ncvreg()}} counterparts:
 \item \code{coefficients} returns the coefficients
-\item \code{vars} returns a list containing the indices and names of the nonzero variables at each value of \code{lambda}
+\item \code{vars} returns a list containing the indices and names of the nonzero variables at each
+value of \code{lambda}
 \item \code{nvars} returns the number of nonzero coefficients at each value of \code{lambda}.
 }}
 
-\item{lambda}{Values of the regularization parameter \code{lambda} at which
-predictions are requested.  For values of \code{lambda} not in the sequence
-of fitted models, linear interpolation is used.}
+\item{lambda}{Values of the regularization parameter \code{lambda} at which predictions are requested.
+For values of \code{lambda} not in the sequence of fitted models, linear interpolation is used.}
 
-\item{which}{Indices of the penalty parameter \code{lambda} at which predictions
-are required. By default, all indices are returned. If \code{lambda} is
-specified, this will override \code{which}.}
+\item{which}{Indices of the penalty parameter \code{lambda} at which predictions are required. By
+default, all indices are returned. If \code{lambda} is specified, this will override \code{which}.}
 
 \item{\dots}{Not used.}
 }
 \value{
-The object returned depends on type.
+The return value depends on \code{type}. Unless otherwise noted, predictions are returned as a matrix
+with one row per observation in \code{X} (or per observation in the original dataset if \code{X} is not
+provided) and one column per value of \code{lambda}. If \code{lambda} has length 1, the result is
+simplified to a vector with one element per observation.
+
+\describe{
+\item{\code{type = "link"}}{A numeric matrix of linear predictors.}
+\item{\code{type = "response"}}{A numeric matrix of estimated risks.}
+\item{\code{type = "survival"}}{
+A list of estimated survival functions (if \code{type = "survival"}, \code{lambda} must be a scalar).
+}
+\item{\code{type = "median"}}{A numeric matrix of estimated median survival times.}
+\item{\code{type = "coefficients"}}{
+A numeric matrix of estimated coefficients. One row per column of \code{X} and one column per
+value of \code{lambda}.
+}
+\item{\code{type = "vars"}}{
+A list with an element for each \code{lambda}. Each element is a named vector of integers
+corresponding to the indices with nonzero coefficients.
+}
+\item{\code{type = "nvars"}}{
+A numeric vector with an element for each value of \code{lambda} indicating the number of nonzero
+coefficients.
+}
+}
 }
 \description{
-Similar to other predict methods, this function returns predictions from a
-fitted \code{ncvsurv} object.
+Similar to other predict methods, this function returns predictions from a fitted \code{ncvsurv}
+object.
 }
 \details{
-Estimation of baseline survival function conditional on the estimated values
-of \code{beta} is carried out according to the method described in Chapter
-4.3 of Kalbfleish and Prentice.  In particular, it agrees exactly the
-results returned by \code{survfit.coxph(..., type='kalbfleisch-prentice')}
-in the \code{survival} package.
+Estimation of baseline survival function conditional on the estimated values of \code{beta} is carried
+out according to the method described in Chapter 4.3 of Kalbfleish and Prentice. In particular,
+it agrees exactly the results returned by \code{survfit.coxph(..., type='kalbfleisch-prentice')} in
+the \code{survival} package.
 }
 \examples{
 data(Lung)
@@ -80,8 +100,9 @@ M <- predict(fit, X, type="median")
 M[1:10, 1:10]
 
 # Nonzero coefficients
-predict(fit, type="vars", lambda=c(0.1, 0.01))
-predict(fit, type="nvars", lambda=c(0.1, 0.01))
+predict(fit, type="vars", lambda = c(0.1, 0.01))
+predict(fit, type="nvars", lambda = c(0.1, 0.01))
+
 }
 \references{
 \itemize{
@@ -94,7 +115,4 @@ Time Data}, 2nd edition. Wiley.
 }
 \seealso{
 \code{\link[=ncvsurv]{ncvsurv()}}
-}
-\author{
-Patrick Breheny \href{mailto:patrick-breheny@uiowa.edu}{patrick-breheny@uiowa.edu}
 }

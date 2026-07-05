@@ -3,18 +3,17 @@
 #' Produces a plot of the coefficient paths for a fitted `ncvreg` object.
 #'
 #' @param x Fitted `"ncvreg"` model.
-#' @param alpha Controls alpha-blending, helpful when the number of features
-#'   is large. Default is alpha=1.
+#' @param alpha Controls alpha-blending, helpful when the number of features is large. Default is
+#'   alpha=1.
 #' @param log.l Should horizontal axis be on the log scale? Default is FALSE.
 #' @param shade Should nonconvex region be shaded? Default is TRUE.
-#' @param col Vector of colors for coefficient lines. By default, evenly spaced
-#'   colors are selected automatically.
+#' @param col Vector of colors for coefficient lines. By default, evenly spaced colors are selected
+#'   automatically.
 #' @param \dots Other graphical parameters to [plot()]
 #'
-#' @author Patrick Breheny
+#' @returns Invisibly returns `NULL`. Called for its side effect of producing a plot.
 #'
 #' @seealso [ncvreg()]
-#'
 #' @references
 #' Breheny P and Huang J. (2011) Coordinate descent algorithms for nonconvex
 #' penalized regression, with applications to biological feature selection.
@@ -28,12 +27,17 @@
 #' plot(fit, log = TRUE)
 #' fit <- ncvreg(Prostate$X, Prostate$y, penalty.factor = rep(c(1, 1, 1, Inf), 2))
 #' plot(fit, col = c("red", "black", "green")) # Recycled among nonzero paths
+#'
 #' @export
-
 plot.ncvreg <- function(x, alpha = 1, log.l = FALSE, shade = TRUE, col, ...) {
-  if (length(x$lambda) == 1)
+  if (length(x$lambda) == 1) {
     stop("Object was fit with only a single lambda value; there is no path to plot", call. = FALSE)
-  YY <- if (length(x$penalty.factor) == nrow(x$beta)) coef(x) else coef(x)[-1, , drop = FALSE]
+  }
+  YY <- if (length(x$penalty.factor) == nrow(x$beta)) {
+    coef(x)
+  } else {
+    coef(x)[-1, , drop = FALSE]
+  }
   penalized <- which(x$penalty.factor != 0)
   nonzero <- which(apply(abs(YY), 1, sum) != 0)
   ind <- intersect(penalized, nonzero)
@@ -58,10 +62,13 @@ plot.ncvreg <- function(x, alpha = 1, log.l = FALSE, shade = TRUE, col, ...) {
     las = 1
   )
   new.args <- list(...)
-  if (length(new.args)) plot.args[names(new.args)] <- new.args
+  if (length(new.args)) {
+    plot.args[names(new.args)] <- new.args
+  }
   do.call("plot", plot.args)
-  if (!is.element("ylab", names(new.args)))
+  if (!is.element("ylab", names(new.args))) {
     mtext(expression(hat(beta)), side = 2, cex = par("cex"), line = 3, las = 1)
+  }
 
   if (shade & !is.null(x$convex.min)) {
     l1 <- l[x$convex.min]
@@ -85,7 +92,9 @@ plot.ncvreg <- function(x, alpha = 1, log.l = FALSE, shade = TRUE, col, ...) {
     }
   }
   line.args <- list(col = col, lwd = 1 + 2 * exp(-p / 20), lty = 1)
-  if (length(new.args)) line.args[names(new.args)] <- new.args
+  if (length(new.args)) {
+    line.args[names(new.args)] <- new.args
+  }
   line.args$x <- l
   line.args$y <- t(Y)
   do.call("matlines", line.args)

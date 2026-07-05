@@ -7,29 +7,42 @@
 std(X, Xnew)
 }
 \arguments{
-\item{X}{A matrix (or object that can be coerced to a matrix, such as a data frame or numeric vector).}
+\item{X}{A matrix (or object that can be coerced to a matrix, such as a data frame or numeric
+vector).}
 
-\item{Xnew}{Optional. If supplied, \code{X} must be the output of \code{std()} and \code{Xnew} is to be standardized in the same way. See examples for why this might be useful.}
+\item{Xnew}{Optional. If supplied, \code{X} must be the output of \code{std()} and \code{Xnew} is to be
+standardized in the same way. See examples for why this might be useful.}
 }
 \value{
 The standardized design matrix, with the following attribues:
+
+\describe{
 \item{center, scale}{mean and standard deviation used to scale the columns}
-\item{nonsingular}{A vector indicating which columns of the original design matrix were able to be standardized (constant columns cannot be standardized to have a standard deviation of 1)}
+\item{nonsingular}{
+A vector indicating which columns of the original design matrix were able to be standardized
+(constant columns cannot be standardized to have a standard deviation of 1)
+}
+}
 }
 \description{
-Accepts a design matrix and returns a standardized version of that matrix
-(i.e., each column will have mean 0 and mean sum of squares equal to 1).
+Accepts a design matrix and returns a standardized version of that matrix (i.e., each column will
+have mean 0 and mean sum of squares equal to 1).
 }
 \details{
 This function centers and scales each column of \code{X} so that
+
 \deqn{\sum_{i=1}^n x_{ij}=0}
+
 and
+
 \deqn{n^{-1} \sum_{i=1}^n x_{ij}^2 = 1}
-for all j. This is usually not necessary to call directly, as \strong{ncvreg} internally
-standardizes the design matrix, but inspection of the standardized design matrix
-can sometimes be useful. This differs from the base R function \code{\link[=scale]{scale()}} in two ways:
+
+for all j. This is usually not necessary to call directly, as \strong{ncvreg} internally standardizes
+the design matrix, but inspection of the standardized design matrix can sometimes be useful. This
+differs from the base R function \code{\link[=scale]{scale()}} in two ways:
 \enumerate{
-\item \code{scale()} uses the sample standard deviation \code{sqrt(sum(x^2)/(n-1))}, while \code{std()} uses the root-mean-square standard deviation \verb{sqrt(mean(sum(x^2))} without the \eqn{n/(n-1)} correction
+\item \code{scale()} uses the sample standard deviation \code{sqrt(sum(x^2)/(n-1))}, while \code{std()} uses the
+root-mean-square standard deviation \verb{sqrt(mean(sum(x^2))} without the \eqn{n/(n-1)} correction
 \item \code{std} is faster.
 }
 }
@@ -50,4 +63,5 @@ fit <- ncvreg(S, y)
 predict(fit, std(S, X2), lambda=0.1)
 # Same as
 predict(ncvreg(X1, y), X2, lambda=0.1)
+
 }

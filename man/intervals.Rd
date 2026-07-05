@@ -16,41 +16,36 @@ intervals(
 )
 }
 \arguments{
-\item{fit}{An optional fit of class \code{ncvreg} or \code{cv.ncvreg}. If supplied,
-\code{X} should only be supplied if \code{fit} does not contain it.}
+\item{fit}{An optional fit of class \code{ncvreg} or \code{cv.ncvreg}. If supplied, \code{X} should only be
+supplied if \code{fit} does not contain it.}
 
-\item{lambda}{The penalty at which the tests and intervals are to
-be constructed. If left unspecified, will be selected using
-cross validation.}
+\item{lambda}{The penalty at which the tests and intervals are to be constructed. If left
+unspecified, will be selected using cross validation.}
 
-\item{sigma}{Standard deviation estimate used to compute test statistic and
-intervals. If left unspecified (default) it will be
-estimated using the recommendation from Reid et al. (2016)}
+\item{sigma}{Standard deviation estimate used to compute test statistic and intervals. If left
+unspecified (default) it will be estimated using the recommendation from Reid et al. (2016)}
 
 \item{level}{the confidence level required.}
 
-\item{posterior}{whether the intervals returned should be posterior intervals
-(default) or debiased intervals (if \code{FALSE}). Posterior
-intervals are constructed from distributions where the
-coefficient estimates are the is the posterior mode. Debiased
-intervals are constructed around the estimates.}
+\item{posterior}{whether the intervals returned should be posterior intervals (default) or
+debiased intervals (if \code{FALSE}). Posterior intervals are constructed from distributions where
+the coefficient estimates are the is the posterior mode. Debiased intervals are constructed
+around the estimates.}
 
-\item{relaxed}{whether the relaxed lasso based statistic / intervals should
-be used. Default is \code{FALSE} in which case PIPE based intervals
-are constructed (recommended). This affects the estimate.}
+\item{relaxed}{whether the relaxed lasso based statistic / intervals should be used. Default is
+\code{FALSE} in which case PIPE based intervals are constructed (recommended). This affects the
+estimate.}
 
-\item{adjust_projection}{whether a Local Quadratic Approximation should be
-used in the projection for determining variance of the PIPE
-based test statistic. Default is \code{FALSE} as more research has
-been done without this adjustment, however without this
-adjustment, statistics and intervals may be over conservative in
-the presence of correlation. This affects the SE.}
+\item{adjust_projection}{whether a Local Quadratic Approximation should be used in the projection
+for determining variance of the PIPE based test statistic. Default is \code{FALSE} as more research
+has been done without this adjustment, however without this adjustment, statistics and
+intervals may be over conservative in the presence of correlation. This affects the SE.}
 
-\item{X}{The original design matrix supplied to \code{fit}. Required if \code{fit}
-does not contain \code{X}.}
+\item{X}{The original design matrix supplied to \code{fit}. Required if \code{fit} does not contain \code{X}.}
 }
 \value{
 An \code{data.frame} containing the following columns:
+
 \describe{
 \item{variable}{\code{colnames(X)}}
 \item{coef}{The original estimates at the specified parameters (\code{lambda}, \code{gamma}, \code{alpha})}
@@ -63,21 +58,22 @@ An \code{data.frame} containing the following columns:
 \item{p.adjust}{The Benhamini and Hochberg corrected p-value}
 \item{penalty}{The penalty used.}
 \item{lambda}{The lambda value the test statistics and intervals were constructed at.}
-\item{gamma}{The gamma value the test statistics and intervals were constructed at (for MCP/SCAD).}
+\item{gamma}{
+The gamma value the test statistics and intervals were constructed at (for MCP/SCAD).
+}
 \item{alpha}{The alpha value the test statistics and intervals were constructed at.}
 \item{level}{The confidence level set for interval construction.}
 \item{sigma}{The standard deviation used for constructing the test statistis and intervals.}
 }
 }
 \description{
-Constructs projection based test statistics that can be used to control FDR
-along with intervals for a penalized regression model.
+Constructs projection based test statistics that can be used to control FDR along with intervals
+for a penalized regression model.
 }
 \details{
-The function constructs test statistics and intervals based off an
-approximate projection onto the column space of the active features. The test
-statistic can be used to control FDR and the intervals generally
-have good coverage. However, both tend to be conservative with the
+The function constructs test statistics and intervals based off an approximate projection onto
+the column space of the active features. The test statistic can be used to control FDR and the
+intervals generally have good coverage. However, both tend to be conservative with the
 introduction of correlation.
 
 The intervals produced can either be biased (like the point estimates) or
@@ -89,25 +85,22 @@ behavior is quite different. See references for more details.
 fit <- ncvreg(Prostate$X, Prostate$y, penalty = "SCAD", alpha = 0.9)
 intervals(fit) |> head()
 
-# Logistic regression (lasso penalty, LQA intervals, pass cv.ncvreg object) 
+# Logistic regression (lasso penalty, LQA intervals, pass cv.ncvreg object)
 data(Heart)
 cv_fit <- cv.ncvreg(Heart$X, Heart$y, family="binomial", penalty = "lasso")
 intervals(cv_fit, adjust_projection = TRUE) |> head()
 
 }
 \references{
-Harris L and Breheny P. (2025) A new perspective on high dimensional confidence intervals.
+\itemize{
+\item Harris L and Breheny P. (2025) A new perspective on high dimensional confidence intervals.
 \emph{arXiv preprint}, arXiv:2508.03504.
 \url{https://arxiv.org/abs/2508.03504}
-
-Harris L and Breheny P. (2025) Alternative Likelihood Approximations for High-Dimensional Intervals for Lasso.
-\emph{arXiv preprint}, arXiv:2509.14971.
+\item Harris L and Breheny P. (2025) Alternative Likelihood Approximations for High-Dimensional
+Intervals for Lasso. \emph{arXiv preprint}, arXiv:2509.14971.
 \url{https://arxiv.org/abs/2509.14971}
-
-Dai B. (2019) Projection-based inference and model selection for penalized regression.
+\item Dai B. (2019) Projection-based inference and model selection for penalized regression.
 PhD dissertation, University of Iowa, Iowa City, IA.
 \doi{10.17077/etd.005250}
 }
-\author{
-Logan Harris, Patrick Breheny, and Biyue Dai
 }

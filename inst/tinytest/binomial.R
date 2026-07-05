@@ -1,15 +1,15 @@
 suppressPackageStartupMessages(library(glmnet))
-if (interactive()) library(tinytest)
+if (interactive()) {
+  library(tinytest)
+}
 
 # ncvreg works for logistic regression
 x <- matrix(rnorm(500), ncol = 10)
 b <- rnorm(10)
 y <- rnorm(x %*% b) > 0
 beta <- glm(y ~ x, family = "binomial")$coef
-scad <- ncvreg(x, y, lambda = 1:0, family = "binomial", penalty = "SCAD") |>
-  coef(which = 2)
-mcp <- ncvreg(x, y, lambda = 1:0, family = "binomial", penalty = "MCP") |>
-  coef(which = 2)
+scad <- ncvreg(x, y, lambda = 1:0, family = "binomial", penalty = "SCAD") |> coef(which = 2)
+mcp <- ncvreg(x, y, lambda = 1:0, family = "binomial", penalty = "MCP") |> coef(which = 2)
 expect_equivalent(scad, beta, tolerance = 0.01)
 expect_equivalent(mcp, beta, tolerance = 0.01)
 

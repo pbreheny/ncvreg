@@ -1,4 +1,4 @@
-setupLambda <- function(X, y, family, alpha, lambda.min, nlambda, penalty.factor) {
+setup_lambda <- function(X, y, family, alpha, lambda.min, nlambda, penalty.factor) {
   n <- nrow(X)
   p <- ncol(X)
 
@@ -22,6 +22,8 @@ setupLambda <- function(X, y, family, alpha, lambda.min, nlambda, penalty.factor
     lambda <- exp(seq(log(lambda.max), log(lambda.min * lambda.max), len = nlambda))
   }
 
-  if (length(ind) != p) lambda[1] <- lambda[1] * 1.000001
+  if (length(ind) != p) {
+    lambda[1] <- lambda[1] * 1.000001
+  }
   lambda
 }

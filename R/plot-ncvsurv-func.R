@@ -1,37 +1,37 @@
 #' Plot survival curve for ncvsurv model
-#' 
-#' Plot survival curve for a model that has been fit using [ncvsurv()] followed
-#' by a prediction of the survival function using [predict.ncvsurv()].
-#' 
-#' @param x       A `ncvsurv.func` object, which is returned by [predict.ncvsurv()]
-#'   if `type='survival'` is specified. See examples.
-#' @param alpha   Controls alpha-blending (i.e., transparency). Useful if many
-#'   overlapping lines are present.
-#' @param \dots   Other graphical parameters to pass to `plot`
-#' 
-#' @author Patrick Breheny
-#' 
+#'
+#' Plot survival curve for a model that has been fit using [ncvsurv()] followed by a prediction of
+#' the survival function using [predict.ncvsurv()].
+#'
+#' @param x A `ncvsurv.func` object, which is returned by [predict.ncvsurv()] if `type='survival'`
+#'   is specified. See examples.
+#' @param alpha Controls alpha-blending (i.e., transparency). Useful if many overlapping lines are
+#'   present.
+#' @param \dots Other graphical parameters to pass to `plot`
+#'
+#' @returns Invisibly returns `NULL`. Called for its side effect of producing a plot.
+#'
 #' @seealso [ncvsurv()], [predict.ncvsurv()]
-#' 
+#'
 #' @examples
 #' data(Lung)
 #' X <- Lung$X
 #' y <- Lung$y
-#' 
+#'
 #' fit <- ncvsurv(X, y)
-#' 
+#'
 #' # A single survival curve
-#' S <- predict(fit, X[1,], type = "survival", lambda = 0.15)
+#' S <- predict(fit, X[1, ], type = "survival", lambda = 0.15)
 #' plot(S, xlim = c(0, 200))
-#' 
+#'
 #' # Lots of survival curves
 #' S <- predict(fit, X, type = "survival", lambda = 0.08)
 #' plot(S, xlim = c(0, 200), alpha = 0.3)
+#'
 #' @export
-
-plot.ncvsurv.func <- function(x, alpha=1, ...) {
-  time <- attr(x, 'time')
-  y = vapply(x, function(f) f(time), numeric(length(time)))
+plot.ncvsurv.func <- function(x, alpha = 1, ...) {
+  time <- attr(x, "time")
+  y <- vapply(x, function(f) f(time), numeric(length(time)))
   n <- ncol(y)
 
   plot.args <- list(
@@ -45,19 +45,19 @@ plot.ncvsurv.func <- function(x, alpha=1, ...) {
     las = 1
   )
   new.args <- list(...)
-  if (length(new.args)) plot.args[names(new.args)] <- new.args
+  if (length(new.args)) {
+    plot.args[names(new.args)] <- new.args
+  }
   do.call("plot", plot.args)
 
-  cols <- grDevices::hcl(
-    h = seq(15, 375, len = max(4, n + 1)),
-    l = 60,
-    c = 150,
-    alpha = alpha
-  )
-  cols <- if (n == 2) cols[c(1,3)] else cols[1:n]
+  cols <- grDevices::hcl(h = seq(15, 375, len = max(4, n + 1)), l = 60, c = 150, alpha = alpha)
+  cols <- if (n == 2) cols[c(1, 3)] else cols[1:n]
   line.args <- list(col = cols, lwd = 1 + 2 * exp(-n / 20), lty = 1, type = "s")
-  if (length(new.args)) line.args[names(new.args)] <- new.args
+  if (length(new.args)) {
+    line.args[names(new.args)] <- new.args
+  }
   line.args$x <- time
   line.args$y <- y
   do.call("matlines", line.args)
+  invisible(NULL)
 }

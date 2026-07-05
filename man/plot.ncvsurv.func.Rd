@@ -7,17 +7,20 @@
 \method{plot}{ncvsurv.func}(x, alpha = 1, ...)
 }
 \arguments{
-\item{x}{A \code{ncvsurv.func} object, which is returned by \code{\link[=predict.ncvsurv]{predict.ncvsurv()}}
-if \code{type='survival'} is specified. See examples.}
+\item{x}{A \code{ncvsurv.func} object, which is returned by \code{\link[=predict.ncvsurv]{predict.ncvsurv()}} if \code{type='survival'}
+is specified. See examples.}
 
-\item{alpha}{Controls alpha-blending (i.e., transparency). Useful if many
-overlapping lines are present.}
+\item{alpha}{Controls alpha-blending (i.e., transparency). Useful if many overlapping lines are
+present.}
 
 \item{\dots}{Other graphical parameters to pass to \code{plot}}
 }
+\value{
+Invisibly returns \code{NULL}. Called for its side effect of producing a plot.
+}
 \description{
-Plot survival curve for a model that has been fit using \code{\link[=ncvsurv]{ncvsurv()}} followed
-by a prediction of the survival function using \code{\link[=predict.ncvsurv]{predict.ncvsurv()}}.
+Plot survival curve for a model that has been fit using \code{\link[=ncvsurv]{ncvsurv()}} followed by a prediction of
+the survival function using \code{\link[=predict.ncvsurv]{predict.ncvsurv()}}.
 }
 \examples{
 data(Lung)
@@ -33,10 +36,8 @@ plot(S, xlim = c(0, 200))
 # Lots of survival curves
 S <- predict(fit, X, type = "survival", lambda = 0.08)
 plot(S, xlim = c(0, 200), alpha = 0.3)
+
 }
 \seealso{
 \code{\link[=ncvsurv]{ncvsurv()}}, \code{\link[=predict.ncvsurv]{predict.ncvsurv()}}
-}
-\author{
-Patrick Breheny
 }

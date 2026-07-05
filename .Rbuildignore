@@ -1,14 +1,12 @@
-^.*\.Rproj$
-^\.Rproj\.user$
 ^codecov\.yml$
 ^docs$
 ^pkgdown$
 ^vignettes/articles$
+^codecov\.yml$
+
+^\.air.toml$
 ^\.github$
 ^\.lintr$
 ^\.version\.json$
-^codecov\.yml$
-^\.vscode$
-
 ^\.positai$
 ^\.claude$

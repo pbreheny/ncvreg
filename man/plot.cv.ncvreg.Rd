@@ -17,37 +17,41 @@
 \arguments{
 \item{x}{A \code{cv.ncvreg} or \code{cv.ncvsurv} object.}
 
-\item{log.l}{Should horizontal axis be on the log scale?  Default is TRUE.}
+\item{log.l}{Should horizontal axis be on the log scale? Default is TRUE.}
 
 \item{type}{What to plot on the vertical axis:
 \itemize{
 \item \code{cve} plots the cross-validation error (deviance)
 \item \code{rsq} plots an estimate of the fraction of the deviance explained by the model (R-squared)
 \item \code{snr} plots an estimate of the signal-to-noise ratio
-\item \code{scale} plots, for \code{family="gaussian"}, an estimate of the scale parameter (standard deviation)
+\item \code{scale} plots, for \code{family="gaussian"}, an estimate of the scale parameter
+(standard deviation)
 \item \code{pred} plots, for \code{family="binomial"}, the estimated prediction error
 \item \code{all} produces all of the above
 }}
 
-\item{selected}{If \code{TRUE} (the default), places an axis on top of the plot
-denoting the number of variables in the model (i.e., that have a nonzero
-regression coefficient) at that value of \code{lambda}.}
+\item{selected}{If \code{TRUE} (the default), places an axis on top of the plot denoting the number of
+variables in the model (i.e., that have a nonzero regression coefficient) at that value of
+\code{lambda}.}
 
-\item{vertical.line}{If \code{TRUE} (the default), draws a vertical line at the
-value where cross-validaton error is minimized.}
+\item{vertical.line}{If \code{TRUE} (the default), draws a vertical line at the value where
+cross-validaton error is minimized.}
 
 \item{col}{Controls the color of the dots (CV estimates).}
 
 \item{\dots}{Other graphical parameters to \code{\link[=plot]{plot()}}}
 }
+\value{
+Invisibly returns \code{NULL}. Called for its side effect of producing a plot.
+}
 \description{
-Plots the cross-validation curve from a \code{cv.ncvreg} or \code{cv.ncvsurv} object,
-along with standard error bars.
+Plots the cross-validation curve from a \code{cv.ncvreg} or \code{cv.ncvsurv} object, along with standard
+error bars.
 }
 \details{
-Error bars representing approximate 68\% confidence intervals are plotted
-along with the estimates across values of \code{lambda}. For \code{rsq} and \code{snr}
-applied to models other than linear regression, the Cox-Snell R-squared is used.
+Error bars representing approximate 68\% confidence intervals are plotted along with the estimates
+across values of \code{lambda}. For \code{rsq} and \code{snr} applied to models other than linear regression,
+the Cox-Snell R-squared is used.
 }
 \examples{
 # Linear regression --------------------------------------------------
@@ -73,6 +77,7 @@ op <- par(mfrow=c(1,2))
 plot(cvfit)
 plot(cvfit, type="rsq")
 par(op)
+
 }
 \references{
 Breheny P and Huang J. (2011) Coordinate descent algorithms for nonconvex
@@ -81,7 +86,4 @@ penalized regression, with applications to biological feature selection.
 }
 \seealso{
 \code{\link[=ncvreg]{ncvreg()}}, \code{\link[=cv.ncvreg]{cv.ncvreg()}}
-}
-\author{
-Patrick Breheny
 }

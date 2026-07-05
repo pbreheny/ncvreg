@@ -17,10 +17,9 @@ assign_fold(y, folds, seed)
 A vector of integers indicating fold assignments
 }
 \description{
-If y has only two unique values, fold assignments are chosen so that the
-balance between outcomes is the same in each fold. This is useful for
-logistic regression and time-to-event data (to balance the fraction of
-observations that are censored).
+If y has only two unique values, fold assignments are chosen so that the balance between outcomes
+is the same in each fold. This is useful for logistic regression and time-to-event data (to
+balance the fraction of observations that are censored).
 }
 \examples{
 assign_fold(rnorm(11), 2)
@@ -29,6 +28,7 @@ assign_fold(1:41, 7) |> table()
 data(Heart)
 assign_fold(Heart$y, 7) |> head()
 assign_fold(Heart$y, 7) |> table(Heart$y)
+
 }
 \seealso{
 \verb{[cv.ncvreg()]}

@@ -6,10 +6,13 @@
 \title{Risk factors associated with heart disease}
 \format{
 A list of two objects: \code{y} and \code{X}
+
 \describe{
 \item{y}{Coronary heart disease at baseline; 1=Yes 0=No}
-\item{X}{A matrix with 462 observations (rows) and 9 predictor variables
-(columns). The remainder of this list describes the columns of \code{X}}
+\item{X}{
+A matrix with 462 observations (rows) and 9 predictor variables (columns). The remainder of
+this list describes the columns of \code{X}
+}
 \item{sbp}{Systolic blood pressure}
 \item{tobacco}{Cumulative tobacco consumption, in kg}
 \item{ldl}{Low-density lipoprotein cholesterol}
@@ -28,8 +31,8 @@ A list of two objects: \code{y} and \code{X}
 Heart
 }
 \description{
-Data from a subset of the Coronary Risk-Factor Study baseline survey,
-carried out in rural South Africa.
+Data from a subset of the Coronary Risk-Factor Study baseline survey, carried out in rural South
+Africa.
 }
 \references{
 \itemize{

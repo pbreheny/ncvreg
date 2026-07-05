@@ -1,27 +1,25 @@
 #' Estimate local mFDR for all features
 #'
 #' `local_mfdr()` is called by [summary.ncvreg()], which typically offers a more convenient
-#' interface to users. If, however, you are working with local mfdrs programmatically rather
-#' than interactively, you probably want to use `local_mfdr()`, which skips the sorting,
-#' filtering, and print formatting of [summary.ncvreg()].
+#' interface to users. If, however, you are working with local mfdrs programmatically rather than
+#' interactively, you probably want to use `local_mfdr()`, which skips the sorting, filtering, and
+#' print formatting of [summary.ncvreg()].
 #'
 #' @param fit A fitted `ncvreg` or `ncvsurv` object.
 #' @param lambda The value of lambda at which inference should be carried out.
-#' @param X,y The design matrix and response used to fit the model; in most
-#'   cases, it is not necessary to provide `X` and `y` as they are returned by
-#'   `ncvreg`, but see the `returnX` argument in [ncvreg()].
-#' @param method What method should be used to calculate the local fdr?  Options
-#'   are `ashr` (which tends to be more accurate) and `kernel` (which requires
-#'   no additional packages).  The default is to use `ashr` if the package is
-#'   installed.
-#' @param sigma For linear regression models, users can supply an estimate of
-#'   the residual standard deviation.  The default is to use RSS / DF, where
-#'   degrees of freedom are approximated using the number of nonzero
-#'   coefficients.
-#' @param ...      Additional arguments to [ashr::ash()] if using `method='ashr'`.
+#' @param X,y The design matrix and response used to fit the model; in most cases, it is not
+#'   necessary to provide `X` and `y` as they are returned by `ncvreg`, but see the `returnX`
+#'   argument in [ncvreg()].
+#' @param method What method should be used to calculate the local fdr? Options are `ashr` (which
+#'   tends to be more accurate) and `kernel` (which requires no additional packages). The default is
+#'   to use `ashr` if the package is installed.
+#' @param sigma For linear regression models, users can supply an estimate of the residual standard
+#'   deviation. The default is to use RSS / DF, where degrees of freedom are approximated using the
+#'   number of nonzero coefficients.
+#' @param ... Additional arguments to [ashr::ash()] if using `method='ashr'`.
 #'
-#' @returns If all features are penalized, then the object returns a data frame
-#'   with one row per feature and four columns:
+#' @returns If all features are penalized, then the object returns a data frame with one row per
+#'   feature and four columns:
 #'
 #' * `Estimate`: The coefficient estimate from the penalized regression fit
 #' * `z`: A test statistic that approximately follows a standard normal
@@ -30,12 +28,11 @@
 #' * `mfdr`: The estimated marginal local false discovery rate
 #' * `Selected`: Features with nonzero coefficient estimates are given an asterisk
 #'
-#' If some features are penalized and others are not, then a list is returned
-#' with two elements: `pen.vars`, which consists of the data frame described
-#' above, and `unpen.vars`, a data frame with four columns: `Estimate`, `SE`,
-#' `Statistic`, and `p.value`.  The standard errors and p-values are based on a
-#' classical `lm`/`glm`/`coxph` model using the effect of the penalized features
-#' as an offset.
+#' If some features are penalized and others are not, then a list is returned with two elements:
+#' `pen.vars`, which consists of the data frame described above, and `unpen.vars`, a data frame with
+#' four columns: `Estimate`, `SE`, `Statistic`, and `p.value`. The standard errors and p-values are
+#' based on a classical `lm` /`glm`/`coxph` model using the effect of the penalized features as an
+#' offset.
 #'
 #' @seealso [summary.ncvreg()]
 #'
@@ -61,11 +58,13 @@
 #' y <- Lung$y
 #' fit <- ncvsurv(X, y)
 #' local_mfdr(fit, 0.1)
+#'
 #' @export
-
 local_mfdr <- function(fit, lambda, X = NULL, y = NULL, method = c("ashr", "kernel"), sigma, ...) {
   # Determine method, if missing
-  if (!inherits(fit, "ncvreg")) stop('"fit" must be an ncvreg or ncvsurv object', call. = FALSE)
+  if (!inherits(fit, "ncvreg")) {
+    stop('"fit" must be an ncvreg or ncvsurv object', call. = FALSE)
+  }
   if (missing(method)) {
     if (requireNamespace("ashr", quietly = TRUE)) {
       method <- "ashr"
@@ -117,11 +116,12 @@ local_mfdr <- function(fit, lambda, X = NULL, y = NULL, method = c("ashr", "kern
       if (missing(sigma)) {
         rss <- stats::approxfun(fit$lambda, fit$loss)
         sigma <- sqrt(rss(lambda) / (n - S + 1))
-        if (S > n)
+        if (S > n) {
           stop(
             "Default estimate of sigma, sqrt(RSS/DF), is invalid because DF is negative. Supply an estimate or use cross-validation.",
             call. = FALSE
           )
+        }
       }
       z <- z / (sigma / sqrt(n))
     } else if (fit$family == "binomial") {
@@ -196,7 +196,11 @@ local_mfdr <- function(fit, lambda, X = NULL, y = NULL, method = c("ashr", "kern
   }
 
   # Setup results and return, if no unpenalized variables
-  Estimate <- if (inherits(fit, "ncvsurv")) beta[ns][pen.idx] else beta[-1][ns][pen.idx]
+  Estimate <- if (inherits(fit, "ncvsurv")) {
+    beta[ns][pen.idx]
+  } else {
+    beta[-1][ns][pen.idx]
+  }
   results <- data.frame(Estimate = Estimate, z = z[pen.idx], mfdr = est.gam)
   rownames(results) <- names(Estimate)
   results$Selected <- ifelse(results$Estimate != 0, "*", " ")

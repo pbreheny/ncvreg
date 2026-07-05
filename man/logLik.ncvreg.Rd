@@ -16,9 +16,19 @@
 
 \item{...}{For S3 compatibility}
 }
+\value{
+An object with S3 class \code{logLik}. This is a vector of numbers (the
+log-likelihood at each value of the regularization parameter) with the
+following attributes:
+
+\describe{
+\item{df}{Degrees of freedom}
+\item{nobs}{Number of observations}
+}
+}
 \description{
 Extract the log-likelihood of an \code{ncvreg} or \code{ncvsurv} object.
 }
 \seealso{
-\code{\link[=logLik]{logLik()}}
+\code{\link[stats:logLik]{stats::logLik()}}
 }
