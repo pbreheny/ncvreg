@@ -29,14 +29,15 @@ plot(x, alpha = 1, ...)
 
   Other graphical parameters to pass to `plot`
 
+## Value
+
+Invisibly returns `NULL`. Called for its side effect of producing a
+plot.
+
 ## See also
 
 [`ncvsurv()`](https://pbreheny.github.io/ncvreg/reference/ncvsurv.md),
 [`predict.ncvsurv()`](https://pbreheny.github.io/ncvreg/reference/predict.ncvsurv.md)
-
-## Author
-
-Patrick Breheny
 
 ## Examples
 
@@ -55,4 +56,5 @@ plot(S, xlim = c(0, 200))
 # Lots of survival curves
 S <- predict(fit, X, type = "survival", lambda = 0.08)
 plot(S, xlim = c(0, 200), alpha = 0.3)
+
 ```

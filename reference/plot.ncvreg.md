@@ -38,6 +38,11 @@ plot(x, alpha = 1, log.l = FALSE, shade = TRUE, col, ...)
   Other graphical parameters to
   [`plot()`](https://rdrr.io/r/graphics/plot.default.html)
 
+## Value
+
+Invisibly returns `NULL`. Called for its side effect of producing a
+plot.
+
 ## References
 
 Breheny P and Huang J. (2011) Coordinate descent algorithms for
@@ -49,10 +54,6 @@ selection. *Annals of Applied Statistics*, **5**: 232-253.
 
 [`ncvreg()`](https://pbreheny.github.io/ncvreg/reference/ncvreg.md)
 
-## Author
-
-Patrick Breheny
-
 ## Examples
 
 ``` r
@@ -60,10 +61,11 @@ data(Prostate)
 fit <- ncvreg(Prostate$X, Prostate$y)
 plot(fit)
 
-plot(fit, col="black")
+plot(fit, col = "black")
 
-plot(fit, log=TRUE)
+plot(fit, log = TRUE)
 
-fit <- ncvreg(Prostate$X, Prostate$y, penalty.factor=rep(c(1, 1, 1, Inf), 2))
-plot(fit, col=c('red', 'black', 'green'))  # Recycled among nonzero paths
+fit <- ncvreg(Prostate$X, Prostate$y, penalty.factor = rep(c(1, 1, 1, Inf), 2))
+plot(fit, col = c("red", "black", "green")) # Recycled among nonzero paths
+
 ```

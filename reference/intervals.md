@@ -150,21 +150,17 @@ resulting behavior is quite different. See references for more details.
 
 ## References
 
-Harris L and Breheny P. (2025) A new perspective on high dimensional
-confidence intervals. *arXiv preprint*, arXiv:2508.03504.
-<https://arxiv.org/abs/2508.03504>
+- Harris L and Breheny P. (2025) A new perspective on high dimensional
+  confidence intervals. *arXiv preprint*, arXiv:2508.03504.
+  <https://arxiv.org/abs/2508.03504>
 
-Harris L and Breheny P. (2025) Alternative Likelihood Approximations for
-High-Dimensional Intervals for Lasso. *arXiv preprint*,
-arXiv:2509.14971. <https://arxiv.org/abs/2509.14971>
+- Harris L and Breheny P. (2025) Alternative Likelihood Approximations
+  for High-Dimensional Intervals for Lasso. *arXiv preprint*,
+  arXiv:2509.14971. <https://arxiv.org/abs/2509.14971>
 
-Dai B. (2019) Projection-based inference and model selection for
-penalized regression. PhD dissertation, University of Iowa, Iowa City,
-IA. [doi:10.17077/etd.005250](https://doi.org/10.17077/etd.005250)
-
-## Author
-
-Logan Harris, Patrick Breheny, and Biyue Dai
+- Dai B. (2019) Projection-based inference and model selection for
+  penalized regression. PhD dissertation, University of Iowa, Iowa City,
+  IA. [doi:10.17077/etd.005250](https://doi.org/10.17077/etd.005250)
 
 ## Examples
 
@@ -194,7 +190,7 @@ intervals(fit) |> head()
 #> svi      0.95 0.6920822
 #> lcp      0.95 0.6920822
 
-# Logistic regression (lasso penalty, LQA intervals, pass cv.ncvreg object) 
+# Logistic regression (lasso penalty, LQA intervals, pass cv.ncvreg object)
 data(Heart)
 cv_fit <- cv.ncvreg(Heart$X, Heart$y, family="binomial", penalty = "lasso")
 intervals(cv_fit, adjust_projection = TRUE) |> head()

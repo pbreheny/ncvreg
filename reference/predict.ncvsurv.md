@@ -1,4 +1,4 @@
-# Model predictions based on a fitted `ncvsurv` object.
+# Model predictions based on a fitted `ncvsurv` object
 
 Similar to other predict methods, this function returns predictions from
 a fitted `ncvsurv` object.
@@ -70,7 +70,44 @@ predict(
 
 ## Value
 
-The object returned depends on type.
+The return value depends on `type`. Unless otherwise noted, predictions
+are returned as a matrix with one row per observation in `X` (or per
+observation in the original dataset if `X` is not provided) and one
+column per value of `lambda`. If `lambda` has length 1, the result is
+simplified to a vector with one element per observation.
+
+- `type = "link"`:
+
+  A numeric matrix of linear predictors.
+
+- `type = "response"`:
+
+  A numeric matrix of estimated risks.
+
+- `type = "survival"`:
+
+  A list of estimated survival functions (if `type = "survival"`,
+  `lambda` must be a scalar).
+
+- `type = "median"`:
+
+  A numeric matrix of estimated median survival times.
+
+- `type = "coefficients"`:
+
+  A numeric matrix of estimated coefficients. One row per column of `X`
+  and one column per value of `lambda`.
+
+- `type = "vars"`:
+
+  A list with an element for each `lambda`. Each element is a named
+  vector of integers corresponding to the indices with nonzero
+  coefficients.
+
+- `type = "nvars"`:
+
+  A numeric vector with an element for each value of `lambda` indicating
+  the number of nonzero coefficients.
 
 ## Details
 
@@ -94,10 +131,6 @@ package.
 ## See also
 
 [`ncvsurv()`](https://pbreheny.github.io/ncvreg/reference/ncvsurv.md)
-
-## Author
-
-Patrick Breheny <patrick-breheny@uiowa.edu>
 
 ## Examples
 
@@ -145,7 +178,7 @@ M[1:10, 1:10]
 #> [10,]   80  110  133  162  231  283  357  392  467   587
 
 # Nonzero coefficients
-predict(fit, type="vars", lambda=c(0.1, 0.01))
+predict(fit, type="vars", lambda = c(0.1, 0.01))
 #> $`0.1000`
 #>      trt    karno squamous    adeno    large 
 #>        1        2        6        8        9 
@@ -154,7 +187,7 @@ predict(fit, type="vars", lambda=c(0.1, 0.01))
 #>      trt    karno      age    prior squamous    adeno    large 
 #>        1        2        4        5        6        8        9 
 #> 
-predict(fit, type="nvars", lambda=c(0.1, 0.01))
+predict(fit, type="nvars", lambda = c(0.1, 0.01))
 #> 0.1000 0.0100 
 #>      5      7 
 ```

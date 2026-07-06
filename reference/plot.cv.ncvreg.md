@@ -67,6 +67,11 @@ plot(
   Other graphical parameters to
   [`plot()`](https://rdrr.io/r/graphics/plot.default.html)
 
+## Value
+
+Invisibly returns `NULL`. Called for its side effect of producing a
+plot.
+
 ## Details
 
 Error bars representing approximate 68% confidence intervals are plotted
@@ -85,10 +90,6 @@ selection. *Annals of Applied Statistics*, **5**: 232-253.
 
 [`ncvreg()`](https://pbreheny.github.io/ncvreg/reference/ncvreg.md),
 [`cv.ncvreg()`](https://pbreheny.github.io/ncvreg/reference/cv.ncvreg.md)
-
-## Author
-
-Patrick Breheny
 
 ## Examples
 

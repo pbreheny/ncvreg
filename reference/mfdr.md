@@ -20,7 +20,7 @@ mfdr(fit, X)
   The model matrix corresponding to `fit`. This is not necessary for
   linear regression, but in logistic and Cox regression, the mFDR
   depends on X. It is not necessary to supply `X` if it is already
-  contained in `fit`; i.e., if `ncvreg`/`ncvsurv` was run with
+  contained in `fit`; i.e., if `ncvreg` /`ncvsurv` was run with
   `returnX=TRUE`.
 
 ## Value
@@ -55,10 +55,6 @@ more accurate in highly correlated cases, see
 [`ncvsurv()`](https://pbreheny.github.io/ncvreg/reference/ncvsurv.md),
 [`plot.mfdr()`](https://pbreheny.github.io/ncvreg/reference/plot.mfdr.md),
 [`perm.ncvreg()`](https://pbreheny.github.io/ncvreg/reference/perm.ncvreg.md)
-
-## Author
-
-Patrick Breheny and Ryan Miller
 
 ## Examples
 

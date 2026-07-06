@@ -1,4 +1,4 @@
-# Model predictions based on a fitted ncvreg object.
+# Model predictions based on a fitted ncvreg object
 
 Similar to other predict methods, this function returns predictions from
 a fitted `ncvreg` object.
@@ -58,7 +58,8 @@ coef(object, lambda, which = 1:length(object$lambda), drop = TRUE, ...)
 
   - `link` returns the linear predictors
 
-  - `response` gives the fitted values
+  - `response` gives the fitted values (i.e., with the inverse link
+    transformation applied)
 
   - `class` returns the binomial outcome with the highest probability
 
@@ -94,7 +95,40 @@ coef(object, lambda, which = 1:length(object$lambda), drop = TRUE, ...)
 
 ## Value
 
-The object returned depends on type.
+The return value depends on `type`. Unless otherwise noted, predictions
+are returned as a matrix with one row per observation in `X` (or per
+observation in the original dataset if `X` is not provided) and one
+column per value of `lambda`. If `lambda` has length 1, the result is
+simplified to a vector with one element per observation.
+
+- `type = "link"`:
+
+  A numeric matrix of linear predictors.
+
+- `type = "response"`:
+
+  A numeric matrix of fitted values.
+
+- `type = "class"`:
+
+  A numeric matrix of 0/1 values indicating the class with the highest
+  probability.
+
+- `type = "coefficients"`:
+
+  A numeric matrix of estimated coefficients. One row per column of `X`
+  and one column per value of `lambda`.
+
+- `type = "vars"`:
+
+  A list with an element for each `lambda`. Each element is a named
+  vector of integers corresponding to the indices with nonzero
+  coefficients.
+
+- `type = "nvars"`:
+
+  A numeric vector with an element for each value of `lambda` indicating
+  the number of nonzero coefficients.
 
 ## References
 
@@ -106,10 +140,6 @@ selection. *Annals of Applied Statistics*, **5**: 232-253.
 ## See also
 
 [`ncvreg()`](https://pbreheny.github.io/ncvreg/reference/ncvreg.md)
-
-## Author
-
-Patrick Breheny
 
 ## Examples
 

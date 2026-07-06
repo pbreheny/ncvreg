@@ -6,6 +6,8 @@ object.
 ## Usage
 
 ``` r
+AUC(obj, ...)
+
 # S3 method for class 'cv.ncvsurv'
 AUC(obj, ...)
 ```
@@ -43,10 +45,6 @@ Survival Analysis. CRC Press.
 [`cv.ncvsurv()`](https://pbreheny.github.io/ncvreg/reference/cv.ncvreg.md),
 [`survival::concordancefit()`](https://rdrr.io/pkg/survival/man/concordancefit.html)
 
-## Author
-
-Patrick Breheny, Brandon Butcher, and Lawrence Hunsicker
-
 ## Examples
 
 ``` r
@@ -60,4 +58,5 @@ head(AUC(cvfit))
 lam <- cvfit$lambda
 plot(lam, AUC(cvfit), xlim=rev(range(lam)), lwd=3, type='l',
      las=1, xlab=expression(lambda), ylab='AUC')
+
 ```

@@ -70,7 +70,7 @@ cv.ncvsurv(
 
 - returnY:
 
-  Should `cv.ncvreg()`/`cv.ncvsurv()` return the linear predictors from
+  Should `cv.ncvreg()` /`cv.ncvsurv()` return the linear predictors from
   the cross-validation folds? Default is `FALSE`; if `TRUE`, this will
   return a matrix in which the element for row i, column j is the fitted
   value for observation i from the fold in which observation i was
@@ -154,7 +154,7 @@ An object with S3 class `cv.ncvreg` or `cv.ncvsurv` containing:
 
 ## Details
 
-The function calls `ncvreg`/`ncvsurv` `nfolds` times, each time leaving
+The function calls `ncvreg` /`ncvsurv` `nfolds` times, each time leaving
 out 1/`nfolds` of the data. The cross-validation error is based on the
 deviance; [see here for more
 details](https://pbreheny.github.io/ncvreg/articles/models.html).
@@ -185,10 +185,6 @@ selection. *Annals of Applied Statistics*, **5**: 232-253.
 [`ncvreg()`](https://pbreheny.github.io/ncvreg/reference/ncvreg.md),
 [`plot.cv.ncvreg()`](https://pbreheny.github.io/ncvreg/reference/plot.cv.ncvreg.md),
 [`summary.cv.ncvreg()`](https://pbreheny.github.io/ncvreg/reference/summary.cv.ncvreg.md)
-
-## Author
-
-Patrick Breheny; Grant Brown helped with the parallelization support
 
 ## Examples
 
@@ -238,4 +234,5 @@ summary(cvfit)
 plot(cvfit)
 
 plot(cvfit, type="rsq")
+
 ```

@@ -70,8 +70,8 @@ A list of two objects: `y` and `X`
 
 ## References
 
-- Kalbfleisch D and Prentice RL (1980), *The Statistical Analysis of
-  Failure Time Data*. Wiley, New York.
+Kalbfleisch D and Prentice RL (1980), *The Statistical Analysis of
+Failure Time Data*. Wiley, New York.
 
 ## See also
 

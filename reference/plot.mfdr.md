@@ -50,6 +50,11 @@ plot(
   Other graphical parameters to pass to
   [`plot()`](https://rdrr.io/r/graphics/plot.default.html)
 
+## Value
+
+Invisibly returns `NULL`. Called for its side effect of producing a
+plot.
+
 ## References
 
 Breheny P (2019). Marginal false discovery rates for penalized
@@ -59,10 +64,6 @@ regression models. Biostatistics, 20: 299-314.
 
 [`mfdr()`](https://pbreheny.github.io/ncvreg/reference/mfdr.md),
 [`perm.ncvreg()`](https://pbreheny.github.io/ncvreg/reference/perm.ncvreg.md)
-
-## Author
-
-Patrick Breheny
 
 ## Examples
 

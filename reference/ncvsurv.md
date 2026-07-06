@@ -194,9 +194,12 @@ The sequence of models indexed by the regularization parameter `lambda`
 is fit using a coordinate descent algorithm. In order to accomplish
 this, the second derivative (Hessian) of the Cox partial log-likelihood
 is diagonalized (see references for details). The objective function is
-defined to be \$\$Q(\beta\|X, y) = \frac{1}{n} L(\beta\|X, y) +
-P\_\lambda(\beta),\$\$ where the loss function L is the deviance (-2
-times the partial log-likelihood) from the Cox regression mode. See
+defined to be
+
+\$\$Q(\beta\|X, y) = \frac{1}{n} L(\beta\|X, y) + P\_\lambda(\beta),\$\$
+
+where the loss function L is the deviance (-2 times the partial
+log-likelihood) from the Cox regression mode. See
 [here](https://pbreheny.github.io/ncvreg/articles/models.html) for more
 details.
 
@@ -256,4 +259,5 @@ par(op)
 
 S <- predict(fit, X, type='survival', lambda=lam)
 plot(S, xlim=c(0,200))
+
 ```

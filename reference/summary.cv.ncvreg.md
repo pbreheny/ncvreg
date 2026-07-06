@@ -104,10 +104,6 @@ selection. *Annals of Applied Statistics*, **5**: 232-253.
 [`plot.cv.ncvreg()`](https://pbreheny.github.io/ncvreg/reference/plot.cv.ncvreg.md),
 [`summary.ncvreg()`](https://pbreheny.github.io/ncvreg/reference/summary.ncvreg.md)
 
-## Author
-
-Patrick Breheny
-
 ## Examples
 
 ``` r

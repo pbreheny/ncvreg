@@ -40,12 +40,18 @@ The standardized design matrix, with the following attribues:
 ## Details
 
 This function centers and scales each column of `X` so that
-\$\$\sum\_{i=1}^n x\_{ij}=0\$\$ and \$\$n^{-1} \sum\_{i=1}^n x\_{ij}^2 =
-1\$\$ for all j. This is usually not necessary to call directly, as
-**ncvreg** internally standardizes the design matrix, but inspection of
-the standardized design matrix can sometimes be useful. This differs
-from the base R function [`scale()`](https://rdrr.io/r/base/scale.html)
-in two ways:
+
+\$\$\sum\_{i=1}^n x\_{ij}=0\$\$
+
+and
+
+\$\$n^{-1} \sum\_{i=1}^n x\_{ij}^2 = 1\$\$
+
+for all j. This is usually not necessary to call directly, as **ncvreg**
+internally standardizes the design matrix, but inspection of the
+standardized design matrix can sometimes be useful. This differs from
+the base R function [`scale()`](https://rdrr.io/r/base/scale.html) in
+two ways:
 
 1.  [`scale()`](https://rdrr.io/r/base/scale.html) uses the sample
     standard deviation `sqrt(sum(x^2)/(n-1))`, while `std()` uses the

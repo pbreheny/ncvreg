@@ -113,11 +113,11 @@ method and contains the following list elements:
 - unpen.table:
 
   If there are any unpenalized coefficients, a separate inferential
-  summary is given for them. Currently, this is based on
-  `lm`/`glm`/`coxph` using the penalized coefficients to provide an
-  offset. This is useful and more or less accurate, but not ideal; we
-  hope to improve the inferential methods for unpenalized variables in
-  the future.
+  summary is given for them. Currently, this is based on `lm`
+  /`glm`/`coxph` using the penalized coefficients to provide an offset.
+  This is useful and more or less accurate, but not ideal; we hope to
+  improve the inferential methods for unpenalized variables in the
+  future.
 
 ## See also
 
@@ -125,10 +125,6 @@ method and contains the following list elements:
 [`cv.ncvreg()`](https://pbreheny.github.io/ncvreg/reference/cv.ncvreg.md),
 [`plot.cv.ncvreg()`](https://pbreheny.github.io/ncvreg/reference/plot.cv.ncvreg.md),
 [`local_mfdr()`](https://pbreheny.github.io/ncvreg/reference/local_mfdr.md)
-
-## Author
-
-Patrick Breheny <patrick-breheny@uiowa.edu>
 
 ## Examples
 

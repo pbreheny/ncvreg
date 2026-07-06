@@ -32,11 +32,16 @@ residuals(object, lambda, which = 1:length(object$lambda), drop = TRUE, ...)
   By default, if a single value of lambda is supplied, a vector of
   residuals is returned (logical; default=`TRUE`). Set `drop=FALSE` if
   you wish to have the function always return a matrix (see
-  [`drop()`](https://rdrr.io/r/base/drop.html)).
+  [`base::drop()`](https://rdrr.io/r/base/drop.html)).
 
 - ...:
 
   Not used.
+
+## Value
+
+A numeric matrix of residuals (potentially simplified to a vector
+depending on the value of the `lambda` and `drop` arguments).
 
 ## Examples
 

@@ -28,6 +28,20 @@ logLik(object, ...)
 
   For S3 compatibility
 
+## Value
+
+An object with S3 class `logLik`. This is a vector of numbers (the
+log-likelihood at each value of the regularization parameter) with the
+following attributes:
+
+- df:
+
+  Degrees of freedom
+
+- nobs:
+
+  Number of observations
+
 ## See also
 
-[`logLik()`](https://rdrr.io/r/stats/logLik.html)
+[`stats::logLik()`](https://rdrr.io/r/stats/logLik.html)

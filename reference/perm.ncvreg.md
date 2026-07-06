@@ -58,7 +58,7 @@ perm.ncvreg(
 
 ## Value
 
-An object with S3 class `"perm.ncvreg"` containing:
+An object with S3 class `"perm.ncvreg"` with components:
 
 - EF:
 
@@ -101,10 +101,6 @@ expected quantity to the number of selected variables using the actual
 [`plot.mfdr()`](https://pbreheny.github.io/ncvreg/reference/plot.mfdr.md),
 [`mfdr()`](https://pbreheny.github.io/ncvreg/reference/mfdr.md)
 
-## Author
-
-Patrick Breheny <patrick-breheny@uiowa.edu>
-
 ## Examples
 
 ``` r
@@ -133,4 +129,5 @@ plot(pmfit)
 plot(pmfit, type="EF")
 plot(pmfit$fit)
 par(op)
+
 ```

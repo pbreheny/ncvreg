@@ -87,10 +87,6 @@ expected quantity to the number of selected variables using the actual
 \`[`mfdr()`](https://pbreheny.github.io/ncvreg/reference/mfdr.md),
 [`perm.ncvreg()`](https://pbreheny.github.io/ncvreg/reference/perm.ncvreg.md)
 
-## Author
-
-Patrick Breheny <patrick-breheny@uiowa.edu>
-
 ## Examples
 
 ``` r

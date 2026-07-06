@@ -79,7 +79,7 @@ If some features are penalized and others are not, then a list is
 returned with two elements: `pen.vars`, which consists of the data frame
 described above, and `unpen.vars`, a data frame with four columns:
 `Estimate`, `SE`, `Statistic`, and `p.value`. The standard errors and
-p-values are based on a classical `lm`/`glm`/`coxph` model using the
+p-values are based on a classical `lm` /`glm`/`coxph` model using the
 effect of the penalized features as an offset.
 
 ## See also
@@ -103,7 +103,7 @@ local_mfdr(fit, 0.1)
 #> gleason 0.0000000  0.7670990 9.554227e-01         
 #> pgg45   0.0000000  0.9391426 9.487372e-01         
 
-fit <- ncvreg(Prostate$X, Prostate$y, penalty.factor=rep(0:1, each=4))
+fit <- ncvreg(Prostate$X, Prostate$y, penalty.factor = rep(0:1, each = 4))
 local_mfdr(fit, 0.1)
 #> $pen.vars
 #>          Estimate          z       mfdr Selected
@@ -124,7 +124,7 @@ local_mfdr(fit, 0.1)
 data(Heart)
 X <- Heart$X
 y <- Heart$y
-fit <- ncvreg(X, y, family='binomial')
+fit <- ncvreg(X, y, family = "binomial")
 local_mfdr(fit, 0.1)
 #>             Estimate         z         mfdr Selected
 #> sbp       0.00000000 2.1766234 4.935585e-01         

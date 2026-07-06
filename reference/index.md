@@ -23,8 +23,8 @@
 - [`summary(`*`<cv.ncvreg>`*`)`](https://pbreheny.github.io/ncvreg/reference/summary.cv.ncvreg.md)
   [`print(`*`<summary.cv.ncvreg>`*`)`](https://pbreheny.github.io/ncvreg/reference/summary.cv.ncvreg.md)
   : Summarizing cross-validation-based inference
-- [`AUC(`*`<cv.ncvsurv>`*`)`](https://pbreheny.github.io/ncvreg/reference/AUC.md)
-  : AUC for cv.ncvsurv objects
+- [`AUC()`](https://pbreheny.github.io/ncvreg/reference/AUC.md) : AUC
+  for cv.ncvsurv objects
 
 ## Plotting and extracting model features
 
@@ -37,12 +37,12 @@
   [`predict(`*`<cv.ncvsurv>`*`)`](https://pbreheny.github.io/ncvreg/reference/predict.ncvreg.md)
   [`predict(`*`<ncvreg>`*`)`](https://pbreheny.github.io/ncvreg/reference/predict.ncvreg.md)
   [`coef(`*`<ncvreg>`*`)`](https://pbreheny.github.io/ncvreg/reference/predict.ncvreg.md)
-  : Model predictions based on a fitted ncvreg object.
+  : Model predictions based on a fitted ncvreg object
 
 - [`predict(`*`<ncvsurv>`*`)`](https://pbreheny.github.io/ncvreg/reference/predict.ncvsurv.md)
   :
 
-  Model predictions based on a fitted `ncvsurv` object.
+  Model predictions based on a fitted `ncvsurv` object
 
 - [`plot(`*`<ncvreg>`*`)`](https://pbreheny.github.io/ncvreg/reference/plot.ncvreg.md)
   : Plot coefficients from a ncvreg object

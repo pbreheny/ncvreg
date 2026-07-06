@@ -1,20 +1,7 @@
 # Direct interface for nonconvex penalized regression (non-pathwise)
 
 This function is intended for users who know exactly what they're doing
-and want complete control over the fitting process: no standardization
-is applied, no intercept is included, no path is fit. All of these
-things are best practices for data analysis, so if you are choosing not
-to do them, you are on your own – there is no guarantee that your
-results will be meaningful. Some things in particular that you should
-pay attention to:
-
-- If your model has an intercept, it is up to you to (un)penalize it
-  properly, typically by settings its corresponding element of
-  `penalty.factor` to zero.
-
-- You should provide initial values for the coefficients; in nonconvex
-  optimization, initial values are very important in determining which
-  local solution an algorithm converges to.
+and want complete control over the fitting process:
 
 ## Usage
 
@@ -119,27 +106,62 @@ ncvfit(
 
 A list containing:
 
-- `beta`: The estimated regression coefficients
+- beta:
 
-- `iter`: The number of iterations required to solve for \`beta
+  The estimated regression coefficients
 
-- `loss`: The loss (residual sum of squares) at convergence
+- iter:
 
-- `resid`: The residuals at convergence
+  The number of iterations required to solve for beta
 
-- `lambda`: See above
+- loss:
 
-- `penalty`: See above
+  The loss (residual sum of squares) at convergence
 
-- `gamma`: See above
+- resid:
 
-- `alpha`: See above
+  The residuals at convergence
 
-- `penalty.factor`: See above
+- lambda:
 
-- `n`: Sample size
+  See above
+
+- penalty:
+
+  See above
+
+- gamma:
+
+  See above
+
+- penalty.factor:
+
+  See above
+
+- n:
+
+  Sample size
 
 ## Details
+
+- no standardization is applied
+
+- no intercept is included
+
+- no path is fit
+
+All of these things are best practices for data analysis, so if you are
+choosing not to do them, you are on your own – there is no guarantee
+that your results will be meaningful. Some things in particular that you
+should pay attention to:
+
+- If your model has an intercept, it is up to you to (un)penalize it
+  properly, typically by settings its corresponding element of
+  `penalty.factor` to zero.
+
+- You should provide initial values for the coefficients; in nonconvex
+  optimization, initial values are very important in determining which
+  local solution an algorithm converges to.
 
 At the moment, this function only works for least-squares loss
 functions. Additional functionality for other loss functions (logistic,
