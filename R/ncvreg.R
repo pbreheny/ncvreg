@@ -4,17 +4,15 @@
 #' regularization parameter lambda. Fits linear and logistic regression models, with option for an
 #' additional L2 penalty.
 #'
-#' The sequence of models indexed by the regularization parameter `lambda` is
-#' fit using a coordinate descent algorithm.  For logistic regression models,
-#' some care is taken to avoid model saturation; the algorithm may exit early in
-#' this setting.  The objective function is defined to be
+#' The sequence of models indexed by the regularization parameter `lambda` is fit using a coordinate
+#' descent algorithm. For logistic regression models, some care is taken to avoid model saturation;
+#' the algorithm may exit early in this setting. The objective function is defined to be
 #'
 #' \deqn{Q(\beta|X, y) = \frac{1}{n} L(\beta|X, y) + P_\lambda(\beta),}
 #'
-#' where the loss function L is the deviance (-2 times the log likelihood) for
-#' the specified outcome distribution (gaussian/binomial/poisson). See
-#' [here](https://pbreheny.github.io/ncvreg/articles/models.html) for more
-#' details.
+#' where the loss function L is the deviance (-2 times the log likelihood) for the specified outcome
+#' distribution (gaussian/binomial/poisson). See
+#' [here](https://pbreheny.github.io/ncvreg/articles/models.html) for more details.
 #'
 #' This algorithm is stable, very efficient, and generally converges quite rapidly to the solution.
 #' For GLMs,

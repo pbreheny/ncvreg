@@ -22,12 +22,13 @@
 #'   \item{age}{Age of subject}
 #' }
 #'
+#' @source <https://web.stanford.edu/~hastie/ElemStatLearn/>
+#'
 #' @references
 #' - Hastie T, Tibshirani R, and Friedman J. (2001). *The Elements of
 #'   Statistical Learning*.  Springer.
 #' - Rousseauw J, et al. (1983). Coronary risk factor screening in three
 #'   rural communities. *South African Medical Journal*, **64**: 430-436.
-#' @source <https://web.stanford.edu/~hastie/ElemStatLearn/>
 "Heart"
 
 #' VA lung cancer data set
@@ -57,11 +58,11 @@
 #'   \item{large}{Indicator for whether the cancer type is large cell carcinoma (0=no, 1=yes)}
 #' }
 #'
+#' @source <https://cran.r-project.org/package=survival>
+#'
 #' @references
 #' Kalbfleisch D and Prentice RL (1980), *The Statistical Analysis of Failure Time Data*. Wiley, New
 #' York.
-#' @source <https://cran.r-project.org/package=survival>
-#'
 #' @seealso [ncvsurv()]
 "Lung"
 
@@ -89,13 +90,13 @@
 #'   \item{pgg45}{Percent of Gleason scores 4 or 5}
 #' }
 #'
+#' @source <https://web.stanford.edu/~hastie/ElemStatLearn/>
+#'
 #' @references
 #' - Hastie T, Tibshirani R, and Friedman J. (2001). *The Elements of
 #'   Statistical Learning*.  Springer.
 #' - Stamey T, et al. (1989). Prostate specific antigen in the diagnosis
 #'   and treatment of adenocarcinoma of the prostate. II. Radical prostatectomy
 #'   treated patients. *Journal of Urology*, **16**: 1076-1083.
-#' @source <https://web.stanford.edu/~hastie/ElemStatLearn/>
-#'
 #' @aliases prostate
 "Prostate"

@@ -18,8 +18,8 @@
 #'
 #' @seealso [mfdr()], [perm.ncvreg()]
 #' @references
-#' Breheny P (2019). Marginal false discovery rates for penalized regression models.
-#' Biostatistics, 20: 299-314.
+#' Breheny P (2019). Marginal false discovery rates for penalized regression models. Biostatistics,
+#' 20: 299-314.
 #'
 #' @examples
 #' data(Prostate)

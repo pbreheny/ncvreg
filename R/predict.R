@@ -111,6 +111,7 @@ predict.ncvreg <- function(
 }
 
 #' @rdname predict.ncvreg
+#'
 #' @export
 coef.ncvreg <- function(object, lambda, which = 1:length(object$lambda), drop = TRUE, ...) {
   if (!missing(lambda)) {

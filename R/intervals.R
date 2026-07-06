@@ -8,9 +8,9 @@
 #' intervals generally have good coverage. However, both tend to be conservative with the
 #' introduction of correlation.
 #'
-#' The intervals produced can either be biased (like the point estimates) or
-#' debiased by setting the parameter `posterior` accordingly. The resulting
-#' behavior is quite different. See references for more details.
+#' The intervals produced can either be biased (like the point estimates) or debiased by setting the
+#' parameter `posterior` accordingly. The resulting behavior is quite different. See references for
+#' more details.
 #'
 #' @param fit An optional fit of class `ncvreg` or `cv.ncvreg`. If supplied, `X` should only be
 #'   supplied if `fit` does not contain it.

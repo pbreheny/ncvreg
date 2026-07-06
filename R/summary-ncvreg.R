@@ -140,6 +140,7 @@ summary.ncvreg <- function(object, lambda, which, number, cutoff, sort = TRUE, s
 }
 
 #' @rdname summary.ncvreg
+#'
 #' @export
 print.summary.ncvreg <- function(x, digits, ...) {
   digits <- if (missing(digits)) {

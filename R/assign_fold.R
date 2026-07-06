@@ -20,7 +20,7 @@
 #' assign_fold(Heart$y, 7) |> head()
 #' assign_fold(Heart$y, 7) |> table(Heart$y)
 #'
-#' @export assign_fold
+#' @export
 assign_fold <- function(y, folds, seed) {
   if (!missing(seed)) {
     original_seed <- .GlobalEnv$.Random.seed

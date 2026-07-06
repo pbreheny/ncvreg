@@ -7,9 +7,8 @@
 #' @param ... For S3 compatibility
 #'
 #' @returns
-#' An object with S3 class `logLik`. This is a vector of numbers (the
-#' log-likelihood at each value of the regularization parameter) with the
-#' following attributes:
+#' An object with S3 class `logLik`. This is a vector of numbers (the log-likelihood at each value
+#' of the regularization parameter) with the following attributes:
 #'
 #' \describe{
 #'   \item{df}{Degrees of freedom}
@@ -19,6 +18,7 @@
 #' @seealso [stats::logLik()]
 #'
 #' @rdname logLik.ncvreg
+#'
 #' @export
 logLik.ncvreg <- function(object, REML = FALSE, ...) {
   n <- as.double(object$n)
@@ -43,6 +43,7 @@ logLik.ncvreg <- function(object, REML = FALSE, ...) {
 }
 
 #' @rdname logLik.ncvreg
+#'
 #' @export
 logLik.ncvsurv <- function(object, ...) {
   n <- as.double(object$n)

@@ -12,6 +12,8 @@
 #'   order for `AUC()` to work.
 #' @param ... For S3 method compatibility; not used
 #'
+#' @returns A numeric vector with an element for each value of `lambda` in the `cv.ncvsurv` object.
+#'
 #' @references van Houwelingen H, Putter H (2011). Dynamic Prediction in Clinical Survival Analysis.
 #'   CRC Press.
 #' @seealso [cv.ncvsurv()], [survival::concordancefit()]
@@ -33,6 +35,7 @@
 AUC <- function(obj, ...) UseMethod("AUC")
 
 #' @rdname AUC
+#'
 #' @export
 AUC.cv.ncvsurv <- function(obj, ...) {
   if (!("Y" %in% names(obj))) {
