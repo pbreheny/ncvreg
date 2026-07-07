@@ -35,6 +35,6 @@ X <- Prostate$X
 y <- Prostate$y
 fit <- ncvreg(X, y)
 residuals(fit)[1:5, 1:5]
-head(residuals(fit, lambda=0.1))
+head(residuals(fit, lambda = 0.1))
 
 }

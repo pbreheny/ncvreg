@@ -42,27 +42,27 @@ data(Prostate)
 fit <- ncvreg(Prostate$X, Prostate$y)
 
 obj <- mfdr(fit)
-obj[1:10,]
+obj[1:10, ]
 
 # Some plotting options
 plot(obj)
-plot(obj, type="EF")
-plot(obj, log=TRUE)
+plot(obj, type = "EF")
+plot(obj, log = TRUE)
 
 
 # Comparison with perm.ncvreg
-op <- par(mfrow=c(2,2))
+op <- par(mfrow = c(2, 2))
 plot(obj)
-plot(obj, type="EF")
+plot(obj, type = "EF")
 pmfit <- perm.ncvreg(Prostate$X, Prostate$y)
 plot(pmfit)
-plot(pmfit, type="EF")
+plot(pmfit, type = "EF")
 par(op)
 
 }
 \references{
-Breheny P (2019). Marginal false discovery rates for penalized regression models.
-Biostatistics, 20: 299-314.
+Breheny P (2019). Marginal false discovery rates for penalized regression models. Biostatistics,
+20: 299-314.
 }
 \seealso{
 \code{\link[=mfdr]{mfdr()}}, \code{\link[=perm.ncvreg]{perm.ncvreg()}}

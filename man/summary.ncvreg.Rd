@@ -76,31 +76,31 @@ rates.
 # Linear regression --------------------------------------------------
 data(Prostate)
 fit <- ncvreg(Prostate$X, Prostate$y)
-summary(fit, lambda=0.08)
+summary(fit, lambda = 0.08)
 
 # Logistic regression ------------------------------------------------
 data(Heart)
-fit <- ncvreg(Heart$X, Heart$y, family="binomial")
-summary(fit, lambda=0.05)
+fit <- ncvreg(Heart$X, Heart$y, family = "binomial")
+summary(fit, lambda = 0.05)
 
 # Cox regression -----------------------------------------------------
 data(Lung)
 fit <- ncvsurv(Lung$X, Lung$y)
-summary(fit, lambda=0.1)
+summary(fit, lambda = 0.1)
 
 # Options ------------------------------------------------------------
-fit <- ncvreg(Heart$X, Heart$y, family="binomial")
-summary(fit, lambda=0.08, number=3)
-summary(fit, lambda=0.08, number=Inf)
-summary(fit, lambda=0.08, cutoff=0.5)
-summary(fit, lambda=0.08, number=3, cutoff=0.5)
-summary(fit, lambda=0.08, number=5, cutoff=0.1)
-summary(fit, lambda=0.08, number=Inf, sort=FALSE)
-summary(fit, lambda=0.08, number=3, cutoff=0.5, sort=FALSE)
+fit <- ncvreg(Heart$X, Heart$y, family = "binomial")
+summary(fit, lambda = 0.08, number = 3)
+summary(fit, lambda = 0.08, number = Inf)
+summary(fit, lambda = 0.08, cutoff = 0.5)
+summary(fit, lambda = 0.08, number = 3, cutoff = 0.5)
+summary(fit, lambda = 0.08, number = 5, cutoff = 0.1)
+summary(fit, lambda = 0.08, number = Inf, sort = FALSE)
+summary(fit, lambda = 0.08, number = 3, cutoff = 0.5, sort = FALSE)
 
 # If X and y are not returned with the fit, they must be supplied
-fit <- ncvreg(Heart$X, Heart$y, family="binomial", returnX=FALSE)
-summary(fit, X=Heart$X, y=Heart$y, lambda=0.08)
+fit <- ncvreg(Heart$X, Heart$y, family = "binomial", returnX = FALSE)
+summary(fit, X = Heart$X, y = Heart$y, lambda = 0.08)
 
 }
 \seealso{

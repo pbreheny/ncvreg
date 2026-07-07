@@ -106,7 +106,7 @@ functionality for other loss functions (logistic, Cox) is in development.
 data(Prostate)
 X <- cbind(1, Prostate$X)
 y <- Prostate$y
-fit <- ncvfit(X, y, lambda=0.1, penalty.factor=c(0, rep(1, ncol(X)-1)))
+fit <- ncvfit(X, y, lambda = 0.1, penalty.factor = c(0, rep(1, ncol(X) - 1)))
 fit$beta
 # Compare with:
 coef(ncvreg(X, y), 0.1)

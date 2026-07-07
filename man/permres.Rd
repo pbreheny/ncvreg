@@ -57,8 +57,8 @@ the marginal false discovery rate (mFDR).
 }
 \examples{
 data(Prostate)
-fit <- ncvreg(Prostate$X, Prostate$y, N=50)
-permres(fit, lambda=0.15)
+fit <- ncvreg(Prostate$X, Prostate$y, N = 50)
+permres(fit, lambda = 0.15)
 
 }
 \seealso{

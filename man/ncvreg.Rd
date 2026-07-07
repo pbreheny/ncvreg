@@ -118,17 +118,15 @@ regularization parameter lambda. Fits linear and logistic regression models, wit
 additional L2 penalty.
 }
 \details{
-The sequence of models indexed by the regularization parameter \code{lambda} is
-fit using a coordinate descent algorithm.  For logistic regression models,
-some care is taken to avoid model saturation; the algorithm may exit early in
-this setting.  The objective function is defined to be
+The sequence of models indexed by the regularization parameter \code{lambda} is fit using a coordinate
+descent algorithm. For logistic regression models, some care is taken to avoid model saturation;
+the algorithm may exit early in this setting. The objective function is defined to be
 
 \deqn{Q(\beta|X, y) = \frac{1}{n} L(\beta|X, y) + P_\lambda(\beta),}
 
-where the loss function L is the deviance (-2 times the log likelihood) for
-the specified outcome distribution (gaussian/binomial/poisson). See
-\href{https://pbreheny.github.io/ncvreg/articles/models.html}{here} for more
-details.
+where the loss function L is the deviance (-2 times the log likelihood) for the specified outcome
+distribution (gaussian/binomial/poisson). See
+\href{https://pbreheny.github.io/ncvreg/articles/models.html}{here} for more details.
 
 This algorithm is stable, very efficient, and generally converges quite rapidly to the solution.
 For GLMs,
@@ -140,35 +138,35 @@ data(Prostate)
 X <- Prostate$X
 y <- Prostate$y
 
-op <- par(mfrow=c(2,2))
+op <- par(mfrow = c(2, 2))
 fit <- ncvreg(X, y)
-plot(fit, main=expression(paste(gamma,"=",3)))
-fit <- ncvreg(X, y, gamma=10)
-plot(fit, main=expression(paste(gamma,"=",10)))
-fit <- ncvreg(X, y, gamma=1.5)
-plot(fit, main=expression(paste(gamma,"=",1.5)))
-fit <- ncvreg(X, y, penalty="SCAD")
-plot(fit, main=expression(paste("SCAD, ",gamma,"=",3)))
+plot(fit, main = expression(paste(gamma, "=", 3)))
+fit <- ncvreg(X, y, gamma = 10)
+plot(fit, main = expression(paste(gamma, "=", 10)))
+fit <- ncvreg(X, y, gamma = 1.5)
+plot(fit, main = expression(paste(gamma, "=", 1.5)))
+fit <- ncvreg(X, y, penalty = "SCAD")
+plot(fit, main = expression(paste("SCAD, ", gamma, "=", 3)))
 par(op)
 
-op <- par(mfrow=c(2,2))
+op <- par(mfrow = c(2, 2))
 fit <- ncvreg(X, y)
-plot(fit, main=expression(paste(alpha,"=",1)))
-fit <- ncvreg(X, y, alpha=0.9)
-plot(fit, main=expression(paste(alpha,"=",0.9)))
-fit <- ncvreg(X, y, alpha=0.5)
-plot(fit, main=expression(paste(alpha,"=",0.5)))
-fit <- ncvreg(X, y, alpha=0.1)
-plot(fit, main=expression(paste(alpha,"=",0.1)))
+plot(fit, main = expression(paste(alpha, "=", 1)))
+fit <- ncvreg(X, y, alpha = 0.9)
+plot(fit, main = expression(paste(alpha, "=", 0.9)))
+fit <- ncvreg(X, y, alpha = 0.5)
+plot(fit, main = expression(paste(alpha, "=", 0.5)))
+fit <- ncvreg(X, y, alpha = 0.1)
+plot(fit, main = expression(paste(alpha, "=", 0.1)))
 par(op)
 
-op <- par(mfrow=c(2,2))
+op <- par(mfrow = c(2, 2))
 fit <- ncvreg(X, y)
-plot(mfdr(fit))             # Independence approximation
-plot(mfdr(fit), type="EF")  # Independence approximation
+plot(mfdr(fit)) # Independence approximation
+plot(mfdr(fit), type = "EF") # Independence approximation
 perm.fit <- perm.ncvreg(X, y)
 plot(perm.fit)
-plot(perm.fit, type="EF")
+plot(perm.fit, type = "EF")
 par(op)
 
 # Logistic regression ------------------------------------------------
@@ -176,26 +174,26 @@ data(Heart)
 X <- Heart$X
 y <- Heart$y
 
-op <- par(mfrow=c(2,2))
-fit <- ncvreg(X, y, family="binomial")
-plot(fit, main=expression(paste(gamma,"=",3)))
-fit <- ncvreg(X, y, family="binomial", gamma=10)
-plot(fit, main=expression(paste(gamma,"=",10)))
-fit <- ncvreg(X, y, family="binomial", gamma=1.5)
-plot(fit, main=expression(paste(gamma,"=",1.5)))
-fit <- ncvreg(X, y, family="binomial", penalty="SCAD")
-plot(fit, main=expression(paste("SCAD, ",gamma,"=",3)))
+op <- par(mfrow = c(2, 2))
+fit <- ncvreg(X, y, family = "binomial")
+plot(fit, main = expression(paste(gamma, "=", 3)))
+fit <- ncvreg(X, y, family = "binomial", gamma = 10)
+plot(fit, main = expression(paste(gamma, "=", 10)))
+fit <- ncvreg(X, y, family = "binomial", gamma = 1.5)
+plot(fit, main = expression(paste(gamma, "=", 1.5)))
+fit <- ncvreg(X, y, family = "binomial", penalty = "SCAD")
+plot(fit, main = expression(paste("SCAD, ", gamma, "=", 3)))
 par(op)
 
-op <- par(mfrow=c(2,2))
-fit <- ncvreg(X, y, family="binomial")
-plot(fit, main=expression(paste(alpha,"=",1)))
-fit <- ncvreg(X, y, family="binomial", alpha=0.9)
-plot(fit, main=expression(paste(alpha,"=",0.9)))
-fit <- ncvreg(X, y, family="binomial", alpha=0.5)
-plot(fit, main=expression(paste(alpha,"=",0.5)))
-fit <- ncvreg(X, y, family="binomial", alpha=0.1)
-plot(fit, main=expression(paste(alpha,"=",0.1)))
+op <- par(mfrow = c(2, 2))
+fit <- ncvreg(X, y, family = "binomial")
+plot(fit, main = expression(paste(alpha, "=", 1)))
+fit <- ncvreg(X, y, family = "binomial", alpha = 0.9)
+plot(fit, main = expression(paste(alpha, "=", 0.9)))
+fit <- ncvreg(X, y, family = "binomial", alpha = 0.5)
+plot(fit, main = expression(paste(alpha, "=", 0.5)))
+fit <- ncvreg(X, y, family = "binomial", alpha = 0.1)
+plot(fit, main = expression(paste(alpha, "=", 0.1)))
 par(op)
 
 }

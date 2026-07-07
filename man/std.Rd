@@ -53,15 +53,15 @@ apply(S, 2, sum)
 apply(S, 2, function(x) mean(x^2))
 
 # Standardizing new observations
-X1 <- Prostate$X[1:90,]
-X2 <- Prostate$X[91:97,]
+X1 <- Prostate$X[1:90, ]
+X2 <- Prostate$X[91:97, ]
 S <- std(X1)
 head(std(S, X2))
 # Useful if you fit to a standardized X, but then get new obs:
 y <- Prostate$y[1:90]
 fit <- ncvreg(S, y)
-predict(fit, std(S, X2), lambda=0.1)
+predict(fit, std(S, X2), lambda = 0.1)
 # Same as
-predict(ncvreg(X1, y), X2, lambda=0.1)
+predict(ncvreg(X1, y), X2, lambda = 0.1)
 
 }

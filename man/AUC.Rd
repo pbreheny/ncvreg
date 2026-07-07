@@ -15,6 +15,9 @@ order for \code{AUC()} to work.}
 
 \item{...}{For S3 method compatibility; not used}
 }
+\value{
+A numeric vector with an element for each value of \code{lambda} in the \code{cv.ncvsurv} object.
+}
 \description{
 Calculates the cross-validated AUC (concordance) from a \code{cv.ncvsurv} object.
 }
@@ -30,11 +33,13 @@ data(Lung)
 X <- Lung$X
 y <- Lung$y
 
-cvfit <- cv.ncvsurv(X, y, returnY=TRUE)
+cvfit <- cv.ncvsurv(X, y, returnY = TRUE)
 head(AUC(cvfit))
 lam <- cvfit$lambda
-plot(lam, AUC(cvfit), xlim=rev(range(lam)), lwd=3, type='l',
-     las=1, xlab=expression(lambda), ylab='AUC')
+plot(lam, AUC(cvfit),
+  xlim = rev(range(lam)), lwd = 3, type = "l",
+  las = 1, xlab = expression(lambda), ylab = "AUC"
+)
 
 }
 \references{

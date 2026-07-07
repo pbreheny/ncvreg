@@ -10,7 +10,7 @@
 #'
 #' @returns A vector of integers indicating fold assignments
 #'
-#' @seealso `[cv.ncvreg()]`
+#' @seealso [cv.ncvreg()]
 #'
 #' @examples
 #' assign_fold(rnorm(11), 2)

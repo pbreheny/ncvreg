@@ -76,9 +76,9 @@ the column space of the active features. The test statistic can be used to contr
 intervals generally have good coverage. However, both tend to be conservative with the
 introduction of correlation.
 
-The intervals produced can either be biased (like the point estimates) or
-debiased by setting the parameter \code{posterior} accordingly. The resulting
-behavior is quite different. See references for more details.
+The intervals produced can either be biased (like the point estimates) or debiased by setting the
+parameter \code{posterior} accordingly. The resulting behavior is quite different. See references for
+more details.
 }
 \examples{
 # Linear regression (SCAD-Net penalty, PIPE intervals, pass ncvreg object)
@@ -87,7 +87,7 @@ intervals(fit) |> head()
 
 # Logistic regression (lasso penalty, LQA intervals, pass cv.ncvreg object)
 data(Heart)
-cv_fit <- cv.ncvreg(Heart$X, Heart$y, family="binomial", penalty = "lasso")
+cv_fit <- cv.ncvreg(Heart$X, Heart$y, family = "binomial", penalty = "lasso")
 intervals(cv_fit, adjust_projection = TRUE) |> head()
 
 }

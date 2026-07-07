@@ -31,5 +31,5 @@ assign_fold(Heart$y, 7) |> table(Heart$y)
 
 }
 \seealso{
-\verb{[cv.ncvreg()]}
+\code{\link[=cv.ncvreg]{cv.ncvreg()}}
 }

@@ -17,9 +17,8 @@
 \item{...}{For S3 compatibility}
 }
 \value{
-An object with S3 class \code{logLik}. This is a vector of numbers (the
-log-likelihood at each value of the regularization parameter) with the
-following attributes:
+An object with S3 class \code{logLik}. This is a vector of numbers (the log-likelihood at each value
+of the regularization parameter) with the following attributes:
 
 \describe{
 \item{df}{Degrees of freedom}

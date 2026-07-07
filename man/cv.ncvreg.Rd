@@ -120,7 +120,7 @@ summary(cvfit)
 
 fit <- cvfit$fit
 plot(fit)
-beta <- fit$beta[,cvfit$min]
+beta <- fit$beta[, cvfit$min]
 
 ## requires loading the parallel package
 \dontrun{
@@ -128,7 +128,8 @@ library(parallel)
 X <- Prostate$X
 y <- Prostate$y
 cl <- makeCluster(4)
-cvfit <- cv.ncvreg(X, y, cluster=cl, nfolds=length(y))}
+cvfit <- cv.ncvreg(X, y, cluster = cl, nfolds = length(y))
+}
 
 # Survival
 data(Lung)
@@ -138,7 +139,7 @@ y <- Lung$y
 cvfit <- cv.ncvsurv(X, y)
 summary(cvfit)
 plot(cvfit)
-plot(cvfit, type="rsq")
+plot(cvfit, type = "rsq")
 
 }
 \references{

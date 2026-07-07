@@ -54,7 +54,7 @@ summary(cvfit)
 
 # Logistic regression ------------------------------------------------
 data(Heart)
-cvfit <- cv.ncvreg(Heart$X, Heart$y, family="binomial")
+cvfit <- cv.ncvreg(Heart$X, Heart$y, family = "binomial")
 summary(cvfit)
 
 # Cox regression -----------------------------------------------------
