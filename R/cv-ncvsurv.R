@@ -1,5 +1,4 @@
 #' @rdname cv.ncvreg
-#'
 #' @export
 cv.ncvsurv <- function(
   X,

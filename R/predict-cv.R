@@ -1,5 +1,4 @@
 #' @rdname predict.ncvreg
-#'
 #' @export
 predict.cv.ncvreg <- function(
   object,
@@ -14,14 +13,12 @@ predict.cv.ncvreg <- function(
 
 
 #' @rdname predict.ncvreg
-#'
 #' @export
 coef.cv.ncvreg <- function(object, which = object$min, ...) {
   coef.ncvreg(object$fit, which = which, ...)
 }
 
 #' @rdname predict.ncvreg
-#'
 #' @export
 predict.cv.ncvsurv <- function(
   object,

@@ -35,7 +35,6 @@
 AUC <- function(obj, ...) UseMethod("AUC")
 
 #' @rdname AUC
-#'
 #' @export
 AUC.cv.ncvsurv <- function(obj, ...) {
   if (!("Y" %in% names(obj))) {

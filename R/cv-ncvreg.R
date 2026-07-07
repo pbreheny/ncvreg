@@ -108,7 +108,6 @@
 #' plot(cvfit, type = "rsq")
 #'
 #' @rdname cv.ncvreg
-#'
 #' @export
 cv.ncvreg <- function(X, y, ..., cluster, nfolds = 10, fold, returnY = FALSE, trace = FALSE) {
   # Coercion

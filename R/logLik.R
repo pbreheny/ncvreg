@@ -18,7 +18,6 @@
 #' @seealso [stats::logLik()]
 #'
 #' @rdname logLik.ncvreg
-#'
 #' @export
 logLik.ncvreg <- function(object, REML = FALSE, ...) {
   n <- as.double(object$n)
@@ -43,7 +42,6 @@ logLik.ncvreg <- function(object, REML = FALSE, ...) {
 }
 
 #' @rdname logLik.ncvreg
-#'
 #' @export
 logLik.ncvsurv <- function(object, ...) {
   n <- as.double(object$n)

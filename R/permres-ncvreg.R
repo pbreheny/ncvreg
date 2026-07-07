@@ -49,7 +49,6 @@
 permres <- function(fit, ...) UseMethod("permres")
 
 #' @rdname permres
-#'
 #' @export
 permres.ncvreg <- function(fit, lambda, N = 10, seed, trace = FALSE, ...) {
   if (!missing(seed)) {

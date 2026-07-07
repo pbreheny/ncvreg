@@ -98,7 +98,6 @@ summary.cv.ncvreg <- function(object, include_fit = FALSE, ...) {
 }
 
 #' @rdname summary.cv.ncvreg
-#'
 #' @export
 print.summary.cv.ncvreg <- function(x, digits, include_fit = FALSE, ...) {
   digits <- if (missing(digits)) {
