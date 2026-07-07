@@ -24,6 +24,11 @@ AUC(obj, ...)
 
   For S3 method compatibility; not used
 
+## Value
+
+A numeric vector with an element for each value of `lambda` in the
+`cv.ncvsurv` object.
+
 ## Details
 
 The area under the curve (AUC), or equivalently, the concordance
@@ -52,11 +57,13 @@ data(Lung)
 X <- Lung$X
 y <- Lung$y
 
-cvfit <- cv.ncvsurv(X, y, returnY=TRUE)
+cvfit <- cv.ncvsurv(X, y, returnY = TRUE)
 head(AUC(cvfit))
 #> [1] 0.5528169 0.6138687 0.6512949 0.6715129 0.6845752 0.6894593
 lam <- cvfit$lambda
-plot(lam, AUC(cvfit), xlim=rev(range(lam)), lwd=3, type='l',
-     las=1, xlab=expression(lambda), ylab='AUC')
+plot(lam, AUC(cvfit),
+  xlim = rev(range(lam)), lwd = 3, type = "l",
+  las = 1, xlab = expression(lambda), ylab = "AUC"
+)
 
 ```

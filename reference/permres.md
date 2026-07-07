@@ -91,8 +91,8 @@ expected quantity to the number of selected variables using the actual
 
 ``` r
 data(Prostate)
-fit <- ncvreg(Prostate$X, Prostate$y, N=50)
-permres(fit, lambda=0.15)
+fit <- ncvreg(Prostate$X, Prostate$y, N = 50)
+permres(fit, lambda = 0.15)
 #> $EF
 #> [1] 0.2
 #> 

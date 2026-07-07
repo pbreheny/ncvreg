@@ -9,7 +9,7 @@ allowing estimation of the marginal false discovery rate."><link rel="stylesheet
 
     <a class="navbar-brand me-2" href="../index.html">ncvreg</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.16.0.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.16.0.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -144,25 +144,25 @@ the marginal false discovery rate (mFDR).</p>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Prostate</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pmfit</span> <span class="op">&lt;-</span> <span class="fu">perm.ncvreg</span><span class="op">(</span><span class="va">Prostate</span><span class="op">$</span><span class="va">X</span>, <span class="va">Prostate</span><span class="op">$</span><span class="va">y</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">op</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfcol<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">op</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfcol <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pmfit</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pmfit</span>, type<span class="op">=</span><span class="st">"EF"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pmfit</span>, type <span class="op">=</span> <span class="st">"EF"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pmfit</span><span class="op">$</span><span class="va">fit</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">lam</span> <span class="op">&lt;-</span> <span class="va">pmfit</span><span class="op">$</span><span class="va">fit</span><span class="op">$</span><span class="va">lambda</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">pmfit.r</span> <span class="op">&lt;-</span> <span class="fu">perm.ncvreg</span><span class="op">(</span><span class="va">Prostate</span><span class="op">$</span><span class="va">X</span>, <span class="va">Prostate</span><span class="op">$</span><span class="va">y</span>, permute<span class="op">=</span><span class="st">'residuals'</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pmfit.r</span>, col<span class="op">=</span><span class="st">"red"</span><span class="op">)</span>              <span class="co"># Permuting residuals is</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">lam</span>, <span class="va">pmfit</span><span class="op">$</span><span class="va">mFDR</span>, col<span class="op">=</span><span class="st">"gray60"</span><span class="op">)</span>  <span class="co"># less conservative</span></span></span>
+<span class="r-in"><span><span class="va">pmfit.r</span> <span class="op">&lt;-</span> <span class="fu">perm.ncvreg</span><span class="op">(</span><span class="va">Prostate</span><span class="op">$</span><span class="va">X</span>, <span class="va">Prostate</span><span class="op">$</span><span class="va">y</span>, permute <span class="op">=</span> <span class="st">"residuals"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pmfit.r</span>, col <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span> <span class="co"># Permuting residuals is</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">lam</span>, <span class="va">pmfit</span><span class="op">$</span><span class="va">mFDR</span>, col <span class="op">=</span> <span class="st">"gray60"</span><span class="op">)</span> <span class="co"># less conservative</span></span></span>
 <span class="r-plt img"><img src="perm.ncvreg-1.png" alt="" width="480" height="480"></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span><span class="va">op</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Logistic regression ------------------------------------------------</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Heart</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">pmfit</span> <span class="op">&lt;-</span> <span class="fu">perm.ncvreg</span><span class="op">(</span><span class="va">Heart</span><span class="op">$</span><span class="va">X</span>, <span class="va">Heart</span><span class="op">$</span><span class="va">y</span>, family<span class="op">=</span><span class="st">"binomial"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pmfit</span> <span class="op">&lt;-</span> <span class="fu">perm.ncvreg</span><span class="op">(</span><span class="va">Heart</span><span class="op">$</span><span class="va">X</span>, <span class="va">Heart</span><span class="op">$</span><span class="va">y</span>, family <span class="op">=</span> <span class="st">"binomial"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">op</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfcol<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">op</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfcol <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pmfit</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pmfit</span>, type<span class="op">=</span><span class="st">"EF"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pmfit</span>, type <span class="op">=</span> <span class="st">"EF"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pmfit</span><span class="op">$</span><span class="va">fit</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span><span class="va">op</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="perm.ncvreg-2.png" alt="" width="480" height="480"></span>
@@ -178,7 +178,7 @@ the marginal false discovery rate (mFDR).</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Last updated: July 06, 2026</p>
+  <p>Last updated: July 07, 2026</p>
 </div>
 
     </footer></div>

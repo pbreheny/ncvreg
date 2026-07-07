@@ -132,7 +132,7 @@ method and contains the following list elements:
 # Linear regression --------------------------------------------------
 data(Prostate)
 fit <- ncvreg(Prostate$X, Prostate$y)
-summary(fit, lambda=0.08)
+summary(fit, lambda = 0.08)
 #> MCP-penalized linear regression with n=97, p=8
 #> At lambda=0.0800:
 #> -------------------------------------------------
@@ -149,8 +149,8 @@ summary(fit, lambda=0.08)
 
 # Logistic regression ------------------------------------------------
 data(Heart)
-fit <- ncvreg(Heart$X, Heart$y, family="binomial")
-summary(fit, lambda=0.05)
+fit <- ncvreg(Heart$X, Heart$y, family = "binomial")
+summary(fit, lambda = 0.05)
 #> MCP-penalized logistic regression with n=462, p=9
 #> At lambda=0.0500:
 #> -------------------------------------------------
@@ -168,7 +168,7 @@ summary(fit, lambda=0.05)
 # Cox regression -----------------------------------------------------
 data(Lung)
 fit <- ncvsurv(Lung$X, Lung$y)
-summary(fit, lambda=0.1)
+summary(fit, lambda = 0.1)
 #> MCP-penalized Cox regression with n=137, p=8
 #> At lambda=0.1000:
 #> -------------------------------------------------
@@ -184,8 +184,8 @@ summary(fit, lambda=0.1)
 #> trt       0.03738  1.332 0.94627        *
 
 # Options ------------------------------------------------------------
-fit <- ncvreg(Heart$X, Heart$y, family="binomial")
-summary(fit, lambda=0.08, number=3)
+fit <- ncvreg(Heart$X, Heart$y, family = "binomial")
+summary(fit, lambda = 0.08, number = 3)
 #> MCP-penalized logistic regression with n=462, p=9
 #> At lambda=0.0800:
 #> -------------------------------------------------
@@ -196,7 +196,7 @@ summary(fit, lambda=0.08, number=3)
 #> age     0.041921 7.771    < 1e-04        *
 #> famhist 0.277822 4.627 0.00029409        *
 #> ldl     0.009273 3.847 0.00751773        *
-summary(fit, lambda=0.08, number=Inf)
+summary(fit, lambda = 0.08, number = Inf)
 #> MCP-penalized logistic regression with n=462, p=9
 #> At lambda=0.0800:
 #> -------------------------------------------------
@@ -213,7 +213,7 @@ summary(fit, lambda=0.08, number=Inf)
 #> sbp       0.000000 1.7780 0.71453183         
 #> alcohol   0.000000 0.7807 0.89965322         
 #> obesity   0.000000 0.4339 0.91712823         
-summary(fit, lambda=0.08, cutoff=0.5)
+summary(fit, lambda = 0.08, cutoff = 0.5)
 #> MCP-penalized logistic regression with n=462, p=9
 #> At lambda=0.0800:
 #> -------------------------------------------------
@@ -226,7 +226,7 @@ summary(fit, lambda=0.08, cutoff=0.5)
 #> ldl     0.009273 3.847 0.00751773        *
 #> tobacco 0.005783 3.788 0.00938405        *
 #> typea   0.000000 2.938 0.13986436         
-summary(fit, lambda=0.08, number=3, cutoff=0.5)
+summary(fit, lambda = 0.08, number = 3, cutoff = 0.5)
 #> MCP-penalized logistic regression with n=462, p=9
 #> At lambda=0.0800:
 #> -------------------------------------------------
@@ -237,7 +237,7 @@ summary(fit, lambda=0.08, number=3, cutoff=0.5)
 #> age     0.041921 7.771    < 1e-04        *
 #> famhist 0.277822 4.627 0.00029409        *
 #> ldl     0.009273 3.847 0.00751773        *
-summary(fit, lambda=0.08, number=5, cutoff=0.1)
+summary(fit, lambda = 0.08, number = 5, cutoff = 0.1)
 #> MCP-penalized logistic regression with n=462, p=9
 #> At lambda=0.0800:
 #> -------------------------------------------------
@@ -249,7 +249,7 @@ summary(fit, lambda=0.08, number=5, cutoff=0.1)
 #> famhist 0.277822 4.627 0.00029409        *
 #> ldl     0.009273 3.847 0.00751773        *
 #> tobacco 0.005783 3.788 0.00938405        *
-summary(fit, lambda=0.08, number=Inf, sort=FALSE)
+summary(fit, lambda = 0.08, number = Inf, sort = FALSE)
 #> MCP-penalized logistic regression with n=462, p=9
 #> At lambda=0.0800:
 #> -------------------------------------------------
@@ -266,7 +266,7 @@ summary(fit, lambda=0.08, number=Inf, sort=FALSE)
 #> obesity   0.000000 0.4339 0.91712823         
 #> alcohol   0.000000 0.7807 0.89965322         
 #> age       0.041921 7.7712    < 1e-04        *
-summary(fit, lambda=0.08, number=3, cutoff=0.5, sort=FALSE)
+summary(fit, lambda = 0.08, number = 3, cutoff = 0.5, sort = FALSE)
 #> MCP-penalized logistic regression with n=462, p=9
 #> At lambda=0.0800:
 #> -------------------------------------------------
@@ -279,8 +279,8 @@ summary(fit, lambda=0.08, number=3, cutoff=0.5, sort=FALSE)
 #> age     0.041921 7.771    < 1e-04        *
 
 # If X and y are not returned with the fit, they must be supplied
-fit <- ncvreg(Heart$X, Heart$y, family="binomial", returnX=FALSE)
-summary(fit, X=Heart$X, y=Heart$y, lambda=0.08)
+fit <- ncvreg(Heart$X, Heart$y, family = "binomial", returnX = FALSE)
+summary(fit, X = Heart$X, y = Heart$y, lambda = 0.08)
 #> MCP-penalized logistic regression with n=462, p=9
 #> At lambda=0.0800:
 #> -------------------------------------------------

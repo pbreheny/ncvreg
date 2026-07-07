@@ -139,31 +139,31 @@ data(Lung)
 X <- Lung$X
 y <- Lung$y
 
-fit <- ncvsurv(X,y)
-coef(fit, lambda=0.05)
+fit <- ncvsurv(X, y)
+coef(fit, lambda = 0.05)
 #>          trt        karno     diagtime          age        prior     squamous 
 #>  0.271657331 -0.031750420  0.000000000 -0.004227748  0.000000000 -0.852920353 
 #>        small        adeno        large 
 #>  0.000000000  0.261188132 -0.466335148 
-head(predict(fit, X, type="link", lambda=0.05))
+head(predict(fit, X, type = "link", lambda = 0.05))
 #>         1         2         3         4         5         6 
 #> -2.778003 -3.074368 -2.646943 -2.752636 -3.078596 -1.423431 
-head(predict(fit, X, type="response", lambda=0.05))
+head(predict(fit, X, type = "response", lambda = 0.05))
 #>          1          2          3          4          5          6 
 #> 0.06216253 0.04621881 0.07086755 0.06375954 0.04602382 0.24088609 
 
 # Survival function
-S <- predict(fit, X[1,], type="survival", lambda=0.05)[[1]]
+S <- predict(fit, X[1, ], type = "survival", lambda = 0.05)[[1]]
 S(100)
 #> [1] 0.9421869
-S <- predict(fit, X, type="survival", lambda=0.05)
-plot(S, xlim=c(0,200))
+S <- predict(fit, X, type = "survival", lambda = 0.05)
+plot(S, xlim = c(0, 200))
 
 
 # Medians
-predict(fit, X[1,], type="median", lambda=0.05)
+predict(fit, X[1, ], type = "median", lambda = 0.05)
 #> [1] 999
-M <- predict(fit, X, type="median")
+M <- predict(fit, X, type = "median")
 M[1:10, 1:10]
 #>       [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10]
 #>  [1,]   80  103  122  151  177  231  278  340  384   411
@@ -178,7 +178,7 @@ M[1:10, 1:10]
 #> [10,]   80  110  133  162  231  283  357  392  467   587
 
 # Nonzero coefficients
-predict(fit, type="vars", lambda = c(0.1, 0.01))
+predict(fit, type = "vars", lambda = c(0.1, 0.01))
 #> $`0.1000`
 #>      trt    karno squamous    adeno    large 
 #>        1        2        6        8        9 
@@ -187,7 +187,7 @@ predict(fit, type="vars", lambda = c(0.1, 0.01))
 #>      trt    karno      age    prior squamous    adeno    large 
 #>        1        2        4        5        6        8        9 
 #> 
-predict(fit, type="nvars", lambda = c(0.1, 0.01))
+predict(fit, type = "nvars", lambda = c(0.1, 0.01))
 #> 0.1000 0.0100 
 #>      5      7 
 ```

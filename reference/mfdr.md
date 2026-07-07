@@ -64,7 +64,7 @@ data(Prostate)
 fit <- ncvreg(Prostate$X, Prostate$y)
 
 obj <- mfdr(fit)
-obj[1:10,]
+obj[1:10, ]
 #>                   EF S         mFDR
 #> 0.84343 0.000000e+00 0 0.000000e+00
 #> 0.78658 1.418692e-11 1 1.418692e-11
@@ -78,18 +78,18 @@ obj[1:10,]
 #> 0.45011 6.907848e-07 1 6.907848e-07
 
 # Comparison with perm.ncvreg
-op <- par(mfrow=c(2,2))
+op <- par(mfrow = c(2, 2))
 plot(obj)
-plot(obj, type="EF")
+plot(obj, type = "EF")
 pmfit <- perm.ncvreg(Prostate$X, Prostate$y)
 plot(pmfit)
-plot(pmfit, type="EF")
+plot(pmfit, type = "EF")
 
 par(op)
 
 # Logistic regression ------------------------------
 data(Heart)
-fit <- ncvreg(Heart$X, Heart$y, family="binomial")
+fit <- ncvreg(Heart$X, Heart$y, family = "binomial")
 obj <- mfdr(fit)
 head(obj)
 #>                   EF S         mFDR
@@ -99,9 +99,9 @@ head(obj)
 #> 0.14394 6.329530e-10 1 6.329530e-10
 #> 0.13424 9.776334e-09 1 9.776334e-09
 #> 0.12519 1.054851e-07 1 1.054851e-07
-op <- par(mfrow=c(1,2))
+op <- par(mfrow = c(1, 2))
 plot(obj)
-plot(obj, type="EF")
+plot(obj, type = "EF")
 
 par(op)
 
@@ -117,9 +117,9 @@ head(obj)
 #> 0.36344 1.392150e-04 1 1.392150e-04
 #> 0.33894 4.272559e-04 1 4.272559e-04
 #> 0.31610 1.173937e-03 1 1.173937e-03
-op <- par(mfrow=c(1,2))
+op <- par(mfrow = c(1, 2))
 plot(obj)
-plot(obj, type="EF")
+plot(obj, type = "EF")
 
 par(op)
 ```

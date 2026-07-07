@@ -207,7 +207,7 @@ summary(cvfit)
 fit <- cvfit$fit
 plot(fit)
 
-beta <- fit$beta[,cvfit$min]
+beta <- fit$beta[, cvfit$min]
 
 ## requires loading the parallel package
 if (FALSE) { # \dontrun{
@@ -215,7 +215,8 @@ library(parallel)
 X <- Prostate$X
 y <- Prostate$y
 cl <- makeCluster(4)
-cvfit <- cv.ncvreg(X, y, cluster=cl, nfolds=length(y))} # }
+cvfit <- cv.ncvreg(X, y, cluster = cl, nfolds = length(y))
+} # }
 
 # Survival
 data(Lung)
@@ -233,6 +234,6 @@ summary(cvfit)
 #>   Signal-to-noise ratio: 0.31
 plot(cvfit)
 
-plot(cvfit, type="rsq")
+plot(cvfit, type = "rsq")
 
 ```

@@ -122,7 +122,7 @@ summary(cvfit)
 
 # Logistic regression ------------------------------------------------
 data(Heart)
-cvfit <- cv.ncvreg(Heart$X, Heart$y, family="binomial")
+cvfit <- cv.ncvreg(Heart$X, Heart$y, family = "binomial")
 summary(cvfit)
 #> MCP-penalized logistic regression with n=462, p=9
 #> At minimum cross-validation error (lambda=0.0270):

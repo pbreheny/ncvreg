@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ncvreg</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.16.0.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.16.0.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -100,7 +100,7 @@ accurate in highly correlated cases, see <code><a href="perm.ncvreg.html">perm.n
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="ncvreg.html">ncvreg</a></span><span class="op">(</span><span class="va">Prostate</span><span class="op">$</span><span class="va">X</span>, <span class="va">Prostate</span><span class="op">$</span><span class="va">y</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">obj</span> <span class="op">&lt;-</span> <span class="fu">mfdr</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">obj</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>,<span class="op">]</span></span></span>
+<span class="r-in"><span><span class="va">obj</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="op">]</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                   EF S         mFDR</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 0.84343 0.000000e+00 0 0.000000e+00</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 0.78658 1.418692e-11 1 1.418692e-11</span>
@@ -114,18 +114,18 @@ accurate in highly correlated cases, see <code><a href="perm.ncvreg.html">perm.n
 <span class="r-out co"><span class="r-pr">#&gt;</span> 0.45011 6.907848e-07 1 6.907848e-07</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Comparison with perm.ncvreg</span></span></span>
-<span class="r-in"><span><span class="va">op</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">op</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">obj</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">obj</span>, type<span class="op">=</span><span class="st">"EF"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">obj</span>, type <span class="op">=</span> <span class="st">"EF"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pmfit</span> <span class="op">&lt;-</span> <span class="fu"><a href="perm.ncvreg.html">perm.ncvreg</a></span><span class="op">(</span><span class="va">Prostate</span><span class="op">$</span><span class="va">X</span>, <span class="va">Prostate</span><span class="op">$</span><span class="va">y</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pmfit</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pmfit</span>, type<span class="op">=</span><span class="st">"EF"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pmfit</span>, type <span class="op">=</span> <span class="st">"EF"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="mfdr-1.png" alt="" width="480" height="480"></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span><span class="va">op</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Logistic regression ------------------------------</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Heart</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="ncvreg.html">ncvreg</a></span><span class="op">(</span><span class="va">Heart</span><span class="op">$</span><span class="va">X</span>, <span class="va">Heart</span><span class="op">$</span><span class="va">y</span>, family<span class="op">=</span><span class="st">"binomial"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="ncvreg.html">ncvreg</a></span><span class="op">(</span><span class="va">Heart</span><span class="op">$</span><span class="va">X</span>, <span class="va">Heart</span><span class="op">$</span><span class="va">y</span>, family <span class="op">=</span> <span class="st">"binomial"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">obj</span> <span class="op">&lt;-</span> <span class="fu">mfdr</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">obj</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                   EF S         mFDR</span>
@@ -135,9 +135,9 @@ accurate in highly correlated cases, see <code><a href="perm.ncvreg.html">perm.n
 <span class="r-out co"><span class="r-pr">#&gt;</span> 0.14394 6.329530e-10 1 6.329530e-10</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 0.13424 9.776334e-09 1 9.776334e-09</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 0.12519 1.054851e-07 1 1.054851e-07</span>
-<span class="r-in"><span><span class="va">op</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">op</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">obj</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">obj</span>, type<span class="op">=</span><span class="st">"EF"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">obj</span>, type <span class="op">=</span> <span class="st">"EF"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="mfdr-2.png" alt="" width="480" height="480"></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span><span class="va">op</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
@@ -153,9 +153,9 @@ accurate in highly correlated cases, see <code><a href="perm.ncvreg.html">perm.n
 <span class="r-out co"><span class="r-pr">#&gt;</span> 0.36344 1.392150e-04 1 1.392150e-04</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 0.33894 4.272559e-04 1 4.272559e-04</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 0.31610 1.173937e-03 1 1.173937e-03</span>
-<span class="r-in"><span><span class="va">op</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">op</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">obj</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">obj</span>, type<span class="op">=</span><span class="st">"EF"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">obj</span>, type <span class="op">=</span> <span class="st">"EF"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="mfdr-3.png" alt="" width="480" height="480"></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span><span class="va">op</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
@@ -170,7 +170,7 @@ accurate in highly correlated cases, see <code><a href="perm.ncvreg.html">perm.n
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Last updated: July 06, 2026</p>
+  <p>Last updated: July 07, 2026</p>
 </div>
 
     </footer></div>

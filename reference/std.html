@@ -9,7 +9,7 @@ have mean 0 and mean sum of squares equal to 1)."><link rel="stylesheet" href="h
 
     <a class="navbar-brand me-2" href="../index.html">ncvreg</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.16.0.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.16.0.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -108,8 +108,8 @@ root-mean-square standard deviation <code>sqrt(mean(sum(x^2))</code> without the
 <span class="r-out co"><span class="r-pr">#&gt;</span>       1       1       1       1       1       1       1       1 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Standardizing new observations</span></span></span>
-<span class="r-in"><span><span class="va">X1</span> <span class="op">&lt;-</span> <span class="va">Prostate</span><span class="op">$</span><span class="va">X</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">90</span>,<span class="op">]</span></span></span>
-<span class="r-in"><span><span class="va">X2</span> <span class="op">&lt;-</span> <span class="va">Prostate</span><span class="op">$</span><span class="va">X</span><span class="op">[</span><span class="fl">91</span><span class="op">:</span><span class="fl">97</span>,<span class="op">]</span></span></span>
+<span class="r-in"><span><span class="va">X1</span> <span class="op">&lt;-</span> <span class="va">Prostate</span><span class="op">$</span><span class="va">X</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">90</span>, <span class="op">]</span></span></span>
+<span class="r-in"><span><span class="va">X2</span> <span class="op">&lt;-</span> <span class="va">Prostate</span><span class="op">$</span><span class="va">X</span><span class="op">[</span><span class="fl">91</span><span class="op">:</span><span class="fl">97</span>, <span class="op">]</span></span></span>
 <span class="r-in"><span><span class="va">S</span> <span class="op">&lt;-</span> <span class="fu">std</span><span class="op">(</span><span class="va">X1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu">std</span><span class="op">(</span><span class="va">S</span>, <span class="va">X2</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      lcavol    lweight        age       lbph        svi        lcp    gleason</span>
@@ -129,11 +129,11 @@ root-mean-square standard deviation <code>sqrt(mean(sum(x^2))</code> without the
 <span class="r-in"><span><span class="co"># Useful if you fit to a standardized X, but then get new obs:</span></span></span>
 <span class="r-in"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">Prostate</span><span class="op">$</span><span class="va">y</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">90</span><span class="op">]</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="ncvreg.html">ncvreg</a></span><span class="op">(</span><span class="va">S</span>, <span class="va">y</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, <span class="fu">std</span><span class="op">(</span><span class="va">S</span>, <span class="va">X2</span><span class="op">)</span>, lambda<span class="op">=</span><span class="fl">0.1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, <span class="fu">std</span><span class="op">(</span><span class="va">S</span>, <span class="va">X2</span><span class="op">)</span>, lambda <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       91       92       93       94       95       96       97 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3.514077 2.938705 3.408371 3.813543 2.900628 3.445538 3.617198 </span>
 <span class="r-in"><span><span class="co"># Same as</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="fu"><a href="ncvreg.html">ncvreg</a></span><span class="op">(</span><span class="va">X1</span>, <span class="va">y</span><span class="op">)</span>, <span class="va">X2</span>, lambda<span class="op">=</span><span class="fl">0.1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="fu"><a href="ncvreg.html">ncvreg</a></span><span class="op">(</span><span class="va">X1</span>, <span class="va">y</span><span class="op">)</span>, <span class="va">X2</span>, lambda <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       91       92       93       94       95       96       97 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3.514077 2.938705 3.408371 3.813543 2.900628 3.445538 3.617198 </span>
 <span class="r-in"><span></span></span>
@@ -148,7 +148,7 @@ root-mean-square standard deviation <code>sqrt(mean(sum(x^2))</code> without the
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Last updated: July 06, 2026</p>
+  <p>Last updated: July 07, 2026</p>
 </div>
 
     </footer></div>

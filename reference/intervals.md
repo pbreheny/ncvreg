@@ -192,7 +192,7 @@ intervals(fit) |> head()
 
 # Logistic regression (lasso penalty, LQA intervals, pass cv.ncvreg object)
 data(Heart)
-cv_fit <- cv.ncvreg(Heart$X, Heart$y, family="binomial", penalty = "lasso")
+cv_fit <- cv.ncvreg(Heart$X, Heart$y, family = "binomial", penalty = "lasso")
 intervals(cv_fit, adjust_projection = TRUE) |> head()
 #>            variable        coef    estimate         SE         t        lower
 #> sbp             sbp 0.004591841 0.006691921 0.00542863 1.2327090 -0.004042523

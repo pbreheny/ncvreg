@@ -33,6 +33,9 @@ Useful links:
 
 Authors:
 
+- Patrick Breheny <patrick-breheny@uiowa.edu>
+  ([ORCID](https://orcid.org/0000-0002-0650-1119))
+
 - Ryan Miller ([ORCID](https://orcid.org/0000-0003-0446-9992))
 
 - Logan Harris ([ORCID](https://orcid.org/0000-0001-8562-9534))
@@ -40,6 +43,8 @@ Authors:
 ## Examples
 
 ``` r
-vignette("getting-started", package="ncvreg")
+# \donttest{
+vignette("getting-started", package = "ncvreg")
 #> Warning: vignette ‘getting-started’ not found
+# }
 ```

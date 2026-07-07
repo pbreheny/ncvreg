@@ -173,7 +173,7 @@ Cox) is in development.
 data(Prostate)
 X <- cbind(1, Prostate$X)
 y <- Prostate$y
-fit <- ncvfit(X, y, lambda=0.1, penalty.factor=c(0, rep(1, ncol(X)-1)))
+fit <- ncvfit(X, y, lambda = 0.1, penalty.factor = c(0, rep(1, ncol(X) - 1)))
 fit$beta
 #>                    lcavol      lweight          age         lbph          svi 
 #>  2.268444208  0.677388754  0.000000000 -0.013317940  0.143711214  0.000000000 

@@ -9,7 +9,7 @@ rates."><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/
 
     <a class="navbar-brand me-2" href="../index.html">ncvreg</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.16.0.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.16.0.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -160,7 +160,7 @@ inferential methods for unpenalized variables in the future.</p></dd>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Linear regression --------------------------------------------------</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Prostate</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="ncvreg.html">ncvreg</a></span><span class="op">(</span><span class="va">Prostate</span><span class="op">$</span><span class="va">X</span>, <span class="va">Prostate</span><span class="op">$</span><span class="va">y</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span>, lambda<span class="op">=</span><span class="fl">0.08</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span>, lambda <span class="op">=</span> <span class="fl">0.08</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> MCP-penalized linear regression with n=97, p=8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> At lambda=0.0800:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -------------------------------------------------</span>
@@ -177,8 +177,8 @@ inferential methods for unpenalized variables in the future.</p></dd>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Logistic regression ------------------------------------------------</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Heart</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="ncvreg.html">ncvreg</a></span><span class="op">(</span><span class="va">Heart</span><span class="op">$</span><span class="va">X</span>, <span class="va">Heart</span><span class="op">$</span><span class="va">y</span>, family<span class="op">=</span><span class="st">"binomial"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span>, lambda<span class="op">=</span><span class="fl">0.05</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="ncvreg.html">ncvreg</a></span><span class="op">(</span><span class="va">Heart</span><span class="op">$</span><span class="va">X</span>, <span class="va">Heart</span><span class="op">$</span><span class="va">y</span>, family <span class="op">=</span> <span class="st">"binomial"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span>, lambda <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> MCP-penalized logistic regression with n=462, p=9</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> At lambda=0.0500:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -------------------------------------------------</span>
@@ -196,7 +196,7 @@ inferential methods for unpenalized variables in the future.</p></dd>
 <span class="r-in"><span><span class="co"># Cox regression -----------------------------------------------------</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Lung</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="ncvsurv.html">ncvsurv</a></span><span class="op">(</span><span class="va">Lung</span><span class="op">$</span><span class="va">X</span>, <span class="va">Lung</span><span class="op">$</span><span class="va">y</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span>, lambda<span class="op">=</span><span class="fl">0.1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span>, lambda <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> MCP-penalized Cox regression with n=137, p=8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> At lambda=0.1000:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -------------------------------------------------</span>
@@ -212,8 +212,8 @@ inferential methods for unpenalized variables in the future.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> trt       0.03738  1.332 0.94627        *</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Options ------------------------------------------------------------</span></span></span>
-<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="ncvreg.html">ncvreg</a></span><span class="op">(</span><span class="va">Heart</span><span class="op">$</span><span class="va">X</span>, <span class="va">Heart</span><span class="op">$</span><span class="va">y</span>, family<span class="op">=</span><span class="st">"binomial"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span>, lambda<span class="op">=</span><span class="fl">0.08</span>, number<span class="op">=</span><span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="ncvreg.html">ncvreg</a></span><span class="op">(</span><span class="va">Heart</span><span class="op">$</span><span class="va">X</span>, <span class="va">Heart</span><span class="op">$</span><span class="va">y</span>, family <span class="op">=</span> <span class="st">"binomial"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span>, lambda <span class="op">=</span> <span class="fl">0.08</span>, number <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> MCP-penalized logistic regression with n=462, p=9</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> At lambda=0.0800:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -------------------------------------------------</span>
@@ -224,7 +224,7 @@ inferential methods for unpenalized variables in the future.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> age     0.041921 7.771    &lt; 1e-04        *</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> famhist 0.277822 4.627 0.00029409        *</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ldl     0.009273 3.847 0.00751773        *</span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span>, lambda<span class="op">=</span><span class="fl">0.08</span>, number<span class="op">=</span><span class="cn">Inf</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span>, lambda <span class="op">=</span> <span class="fl">0.08</span>, number <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> MCP-penalized logistic regression with n=462, p=9</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> At lambda=0.0800:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -------------------------------------------------</span>
@@ -241,7 +241,7 @@ inferential methods for unpenalized variables in the future.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> sbp       0.000000 1.7780 0.71453183         </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> alcohol   0.000000 0.7807 0.89965322         </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> obesity   0.000000 0.4339 0.91712823         </span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span>, lambda<span class="op">=</span><span class="fl">0.08</span>, cutoff<span class="op">=</span><span class="fl">0.5</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span>, lambda <span class="op">=</span> <span class="fl">0.08</span>, cutoff <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> MCP-penalized logistic regression with n=462, p=9</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> At lambda=0.0800:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -------------------------------------------------</span>
@@ -254,7 +254,7 @@ inferential methods for unpenalized variables in the future.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ldl     0.009273 3.847 0.00751773        *</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> tobacco 0.005783 3.788 0.00938405        *</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> typea   0.000000 2.938 0.13986436         </span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span>, lambda<span class="op">=</span><span class="fl">0.08</span>, number<span class="op">=</span><span class="fl">3</span>, cutoff<span class="op">=</span><span class="fl">0.5</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span>, lambda <span class="op">=</span> <span class="fl">0.08</span>, number <span class="op">=</span> <span class="fl">3</span>, cutoff <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> MCP-penalized logistic regression with n=462, p=9</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> At lambda=0.0800:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -------------------------------------------------</span>
@@ -265,7 +265,7 @@ inferential methods for unpenalized variables in the future.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> age     0.041921 7.771    &lt; 1e-04        *</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> famhist 0.277822 4.627 0.00029409        *</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ldl     0.009273 3.847 0.00751773        *</span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span>, lambda<span class="op">=</span><span class="fl">0.08</span>, number<span class="op">=</span><span class="fl">5</span>, cutoff<span class="op">=</span><span class="fl">0.1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span>, lambda <span class="op">=</span> <span class="fl">0.08</span>, number <span class="op">=</span> <span class="fl">5</span>, cutoff <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> MCP-penalized logistic regression with n=462, p=9</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> At lambda=0.0800:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -------------------------------------------------</span>
@@ -277,7 +277,7 @@ inferential methods for unpenalized variables in the future.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> famhist 0.277822 4.627 0.00029409        *</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ldl     0.009273 3.847 0.00751773        *</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> tobacco 0.005783 3.788 0.00938405        *</span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span>, lambda<span class="op">=</span><span class="fl">0.08</span>, number<span class="op">=</span><span class="cn">Inf</span>, sort<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span>, lambda <span class="op">=</span> <span class="fl">0.08</span>, number <span class="op">=</span> <span class="cn">Inf</span>, sort <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> MCP-penalized logistic regression with n=462, p=9</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> At lambda=0.0800:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -------------------------------------------------</span>
@@ -294,7 +294,7 @@ inferential methods for unpenalized variables in the future.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> obesity   0.000000 0.4339 0.91712823         </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> alcohol   0.000000 0.7807 0.89965322         </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> age       0.041921 7.7712    &lt; 1e-04        *</span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span>, lambda<span class="op">=</span><span class="fl">0.08</span>, number<span class="op">=</span><span class="fl">3</span>, cutoff<span class="op">=</span><span class="fl">0.5</span>, sort<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span>, lambda <span class="op">=</span> <span class="fl">0.08</span>, number <span class="op">=</span> <span class="fl">3</span>, cutoff <span class="op">=</span> <span class="fl">0.5</span>, sort <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> MCP-penalized logistic regression with n=462, p=9</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> At lambda=0.0800:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -------------------------------------------------</span>
@@ -307,8 +307,8 @@ inferential methods for unpenalized variables in the future.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> age     0.041921 7.771    &lt; 1e-04        *</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># If X and y are not returned with the fit, they must be supplied</span></span></span>
-<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="ncvreg.html">ncvreg</a></span><span class="op">(</span><span class="va">Heart</span><span class="op">$</span><span class="va">X</span>, <span class="va">Heart</span><span class="op">$</span><span class="va">y</span>, family<span class="op">=</span><span class="st">"binomial"</span>, returnX<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span>, X<span class="op">=</span><span class="va">Heart</span><span class="op">$</span><span class="va">X</span>, y<span class="op">=</span><span class="va">Heart</span><span class="op">$</span><span class="va">y</span>, lambda<span class="op">=</span><span class="fl">0.08</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="ncvreg.html">ncvreg</a></span><span class="op">(</span><span class="va">Heart</span><span class="op">$</span><span class="va">X</span>, <span class="va">Heart</span><span class="op">$</span><span class="va">y</span>, family <span class="op">=</span> <span class="st">"binomial"</span>, returnX <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span>, X <span class="op">=</span> <span class="va">Heart</span><span class="op">$</span><span class="va">X</span>, y <span class="op">=</span> <span class="va">Heart</span><span class="op">$</span><span class="va">y</span>, lambda <span class="op">=</span> <span class="fl">0.08</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> MCP-penalized logistic regression with n=462, p=9</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> At lambda=0.0800:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -------------------------------------------------</span>
@@ -333,7 +333,7 @@ inferential methods for unpenalized variables in the future.</p></dd>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Last updated: July 06, 2026</p>
+  <p>Last updated: July 07, 2026</p>
 </div>
 
     </footer></div>

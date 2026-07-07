@@ -31,7 +31,7 @@ A vector of integers indicating fold assignments
 
 ## See also
 
-`[cv.ncvreg()]`
+[`cv.ncvreg()`](https://pbreheny.github.io/ncvreg/reference/cv.ncvreg.md)
 
 ## Examples
 
