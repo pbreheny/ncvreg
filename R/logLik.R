@@ -2,6 +2,8 @@
 #'
 #' Extract the log-likelihood of an `ncvreg` or `ncvsurv` object.
 #'
+#' Exists mainly for use with [stats::AIC()] and [stats::BIC()].
+#' 
 #' @param object An `ncvreg` or `ncvsurv` object, as obtained from [ncvreg()] or [ncvsurv()]
 #' @param REML As in [logLik.lm()]
 #' @param ... For S3 compatibility
@@ -14,6 +16,10 @@
 #'   \item{df}{Degrees of freedom}
 #'   \item{nobs}{Number of observations}
 #' }
+#'
+#' The 'print' method for 'logLik' objects is not intended to handle vectors; consequently, the
+#' value of the function does not necessarily display correctly. However, it works with 'AIC' and
+#' 'BIC' without any glitches and returns the expected vectorized output.
 #'
 #' @seealso [stats::logLik()]
 #'
