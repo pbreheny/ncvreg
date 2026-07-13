@@ -64,11 +64,11 @@ Although the least squares loss function is convex, the MCP penalty is
 not. The resulting objective function, therefore, may or may not be
 convex. `ncvreg` uses a local convexity diagnostic, as described in
 [Breheny and Huang
-(2011)](https://myweb.uiowa.edu/pbreheny/pdf/Breheny2011.pdf), to
-identify the regions of the coefficient path where the objective
-function is not convex; this is the gray shaded region in the plot.
-Users should be aware that solutions in this region may only be local
-optima of the objective function, not global ones.
+(2011)](https://pbreheny.org/web/assets/Breheny2011.pdf), to identify
+the regions of the coefficient path where the objective function is not
+convex; this is the gray shaded region in the plot. Users should be
+aware that solutions in this region may only be local optima of the
+objective function, not global ones.
 
 Post-selection inference is available using the `summary` method:
 

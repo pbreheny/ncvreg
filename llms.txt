@@ -16,7 +16,7 @@ inference, and prediction are also provided.
   article: [Breheny P and Huang J (2011) Coordinate descent algorithms
   for nonconvex penalized regression, with applications to biological
   feature selection. *Annals of Applied Statistics*, 5:
-  232–253](https://myweb.uiowa.edu/pbreheny/pdf/Breheny2011.pdf)
+  232–253](https://pbreheny.org/web/assets/Breheny2011.pdf)
 - For more about the marginal false discovery rate idea used for
   post-selection inference, see [Breheny P (2019) Marginal false
   discovery rates for penalized regression models. *Biostatistics*,
@@ -26,9 +26,9 @@ inference, and prediction are also provided.
   Medicine*, 42:
   1412–1429](https://onlinelibrary.wiley.com/doi/abs/10.1002/sim.9678).
 - I also teach a [course on high-dimensional data
-  analysis](https://myweb.uiowa.edu/pbreheny/7240/s25/notes.html); the
-  lecture notes are publicly available and may be helpful, in particular
-  the lectures on MCP/SCAD and marginal FDR.
+  analysis](https://pbreheny.org/7240/s25/notes.html); the lecture notes
+  are publicly available and may be helpful, in particular the lectures
+  on MCP/SCAD and marginal FDR.
 
 ## Installation
 
