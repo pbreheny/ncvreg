@@ -639,18 +639,18 @@ posterior_quantile <- function(
       P <- posterior_component_proportions(U, C)
 
       cumP <- cumsum(P)
-      weights <- exp(U - log(P))
 
       k <- which(p_i <= cumP)[1]
       prev <- if (k == 1) 0 else cumP[k - 1]
 
-      total_prop_k <- weights[k] * (p_i - prev)
+      log_total_prop_k <- U[k] - log(P[k]) + log(p_i - prev)
 
       if (k == 1) {
-        q <- qnorm(total_prop_k, mu_i + lam_i, sqrt(s2_i))
+        q <- qnorm(log_total_prop_k, mean = mu_i + lam_i, sd = sqrt(s2_i), log.p = TRUE)
       } else {
-        p_loc <- total_prop_k + pnorm(0, mu_i - lam_i, sqrt(s2_i))
-        q <- qnorm(p_loc, mu_i - lam_i, sqrt(s2_i))
+        log_p0 <- pnorm(0, mean = mu_i - lam_i, sd = sqrt(s2_i), log.p = TRUE)
+        log_p_loc <- matrixStats::logSumExp(c(log_total_prop_k, log_p0))
+        q <- qnorm(log_p_loc, mean = mu_i - lam_i, sd = sqrt(s2_i), log.p = TRUE)
       }
     } else if (penalty == "MCP") {
       U <- log_norm_masses_mcp(mu_i, s2_i, lam_i, gamma)

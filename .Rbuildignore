@@ -10,3 +10,5 @@
 ^\.version\.json$
 ^\.positai$
 ^\.claude$
+^.*\.Rproj$
+^\.Rproj\.user$

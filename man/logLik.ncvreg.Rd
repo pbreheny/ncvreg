@@ -24,9 +24,16 @@ of the regularization parameter) with the following attributes:
 \item{df}{Degrees of freedom}
 \item{nobs}{Number of observations}
 }
+
+The 'print' method for 'logLik' objects is not intended to handle vectors; consequently, the
+value of the function does not necessarily display correctly. However, it works with 'AIC' and
+'BIC' without any glitches and returns the expected vectorized output.
 }
 \description{
 Extract the log-likelihood of an \code{ncvreg} or \code{ncvsurv} object.
+}
+\details{
+Exists mainly for use with \code{\link[stats:AIC]{stats::AIC()}} and \code{\link[stats:AIC]{stats::BIC()}}.
 }
 \seealso{
 \code{\link[stats:logLik]{stats::logLik()}}

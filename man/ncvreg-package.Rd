@@ -31,7 +31,6 @@ Useful links:
 
 Authors:
 \itemize{
-  \item Patrick Breheny \email{patrick-breheny@uiowa.edu} (\href{https://orcid.org/0000-0002-0650-1119}{ORCID})
   \item Ryan Miller (\href{https://orcid.org/0000-0003-0446-9992}{ORCID})
   \item Logan Harris (\href{https://orcid.org/0000-0001-8562-9534}{ORCID})
 }
